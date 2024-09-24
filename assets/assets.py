@@ -1,15 +1,34 @@
 import pygame, os
 
-light_square = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'lightSquare.png')).convert_alpha()
-dark_square = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'darkSquare.png')).convert_alpha()
+def prepare_surface(surface):
+    return pygame.transform.scale(surface.convert_alpha(), (128, 128))
+
+light_square = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'lightSquare.png'))
+)
+dark_square = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'darkSquare.png'))
+)
 
 # white pieces
-w_bishop = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_bishop.png')).convert_alpha()
-w_king = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_king.png')).convert_alpha()
-w_knight = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_knight.png')).convert_alpha()
-w_pawn = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_pawn.png')).convert_alpha()
-w_queen = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_queen.png')).convert_alpha()
-w_rook = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_rook.png')).convert_alpha()
+w_bishop = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_bishop.png'))
+)
+w_king = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_king.png'))
+)
+w_knight = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_knight.png'))
+)
+w_pawn = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_pawn.png'))
+)
+w_queen = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_queen.png'))
+)
+w_rook = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_rook.png'))
+)
 
 # TODO: add black pieces
 

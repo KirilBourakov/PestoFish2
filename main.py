@@ -3,14 +3,15 @@ import pygame
 pygame.init()
 pygame.display.set_caption('Chess')
 
-window = pygame.display.set_mode((1000, 1000))
-import assets.assets as assets
+window = pygame.display.set_mode((1024, 1024))
+from board.board import Chess_Board
 
 is_running = True
+board = Chess_Board()
 
 while is_running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             is_running = False
-    window.blit(assets.w_bishop, (10,10))
+    board.update()
     pygame.display.update()
