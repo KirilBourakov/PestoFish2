@@ -1,5 +1,6 @@
 import pygame
 import assets.assets as assets
+import pieces.white_pieces as wp
 
 class Chess_Board():
     def __init__(self):
@@ -13,32 +14,34 @@ class Chess_Board():
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None]
+            [wp.pawn] * 8,
+            [wp.rook, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook]
         ]
 
     
     def update(self):
         c = 0
         light_row = False
-        for i, row in enumerate(self.board):
+        for y, row in enumerate(self.board):
             light_row = not light_row
-            print(light_row, i)
-            for j, column in enumerate(row):
+            for x, column in enumerate(row):
                 window = pygame.display.get_surface() 
 
                 # leading with light
                 if light_row:
                     if (c % 2 == 0):
-                        window.blit(assets.light_square, (j*128,i*128))  
+                        window.blit(assets.light_square, (x*128,y*128))  
                     else:
-                        window.blit(assets.dark_square, (j*128,i*128))
+                        window.blit(assets.dark_square, (x*128,y*128))
                 else:
                     if (c % 2 == 0):
-                        window.blit(assets.dark_square, (j*128,i*128))  
+                        window.blit(assets.dark_square, (x*128,y*128))  
                     else:
-                        window.blit(assets.light_square, (j*128,i*128))
+                        window.blit(assets.light_square, (x*128,y*128))
                 c += 1
+
+                if column is not None:
+                    column.show(x,y)
                 
                     
 
