@@ -1,4 +1,5 @@
-pawn_moves = [(0, 1)]
+white_pawn_moves = [(0, 1)]
+black_pawn_moves = [(0, -1)]
 
 king_moves = [
     (-1, 1), (0, 1), (1,1),
@@ -28,4 +29,4 @@ bishop_moves.remove((0,0))
 
 queen_moves = rook_moves.copy()
 queen_moves.extend(bishop_moves)
-print(queen_moves)
+print(bishop_moves)
