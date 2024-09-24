@@ -31,7 +31,26 @@ w_rook = prepare_surface(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_rook.png'))
 )
 
-# black piece
+# black pieces
+b_bishop = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_bishop.png'))
+)
+b_king = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_king.png'))
+)
+b_knight = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_knight.png'))
+)
+b_pawn = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_pawn.png'))
+)
+b_queen = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_queen.png'))
+)
+b_rook = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_rook.png'))
+)
+
 
 
 
