@@ -31,7 +31,7 @@ w_rook = prepare_surface(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_rook.png'))
 )
 
-# TODO: add black pieces
+# black piece
 
 
 
