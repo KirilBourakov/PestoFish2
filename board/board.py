@@ -1,6 +1,7 @@
 import pygame
 import assets.assets as assets
 import pieces.white_pieces as wp
+import globals
 
 class Chess_Board():
     def __init__(self):
@@ -18,7 +19,6 @@ class Chess_Board():
             [wp.rook, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook]
         ]
 
-    
     def update(self):
         c = 0
         light_row = False
@@ -30,14 +30,14 @@ class Chess_Board():
                 # leading with light
                 if light_row:
                     if (c % 2 == 0):
-                        window.blit(assets.light_square, (x*128,y*128))  
+                        window.blit(assets.light_square, (x*globals.grid_size,y*globals.grid_size))  
                     else:
-                        window.blit(assets.dark_square, (x*128,y*128))
+                        window.blit(assets.dark_square, (x*globals.grid_size,y*globals.grid_size))
                 else:
                     if (c % 2 == 0):
-                        window.blit(assets.dark_square, (x*128,y*128))  
+                        window.blit(assets.dark_square, (x*globals.grid_size,y*globals.grid_size))  
                     else:
-                        window.blit(assets.light_square, (x*128,y*128))
+                        window.blit(assets.light_square, (x*globals.grid_size,y*globals.grid_size))
                 c += 1
 
                 if column is not None:

@@ -1,4 +1,5 @@
 import pygame
+import globals
 
 class Abstract_Piece():
     def __init__(self, asset, moveset):
@@ -8,4 +9,4 @@ class Abstract_Piece():
 
     def show(self, x, y):
         window = pygame.display.get_surface()
-        window.blit(self.asset, (x*128, y*128))
+        window.blit(self.asset, (x*globals.grid_size, y*globals.grid_size))

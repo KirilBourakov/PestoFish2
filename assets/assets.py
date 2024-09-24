@@ -1,7 +1,8 @@
 import pygame, os
+import globals
 
 def prepare_surface(surface):
-    return pygame.transform.scale(surface.convert_alpha(), (128, 128))
+    return pygame.transform.scale(surface.convert_alpha(), (globals.grid_size, globals.grid_size))
 
 light_square = prepare_surface(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'lightSquare.png'))
