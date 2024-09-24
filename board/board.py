@@ -1,6 +1,7 @@
 import pygame
 import assets.assets as assets
 import pieces.white_pieces as wp
+import pieces.black_pieces as bp
 import globals
 
 class Chess_Board():
@@ -9,8 +10,8 @@ class Chess_Board():
 
     def set_board(self):
         self.board = [
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
+            [bp.rook, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rook],
+            [bp.pawn] * 8,
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
@@ -42,6 +43,9 @@ class Chess_Board():
 
                 if column is not None:
                     column.show(x,y)
+
+
+    
                 
                     
 
