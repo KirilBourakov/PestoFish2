@@ -8,10 +8,12 @@ class Abstract_Piece():
         self.have_moved = False
 
     def getPossibleMoves(self, pos):
-        # takes in a tuple pos, representing the position of peices
-        # the function should return all the theoretically possible moves on the board using moveset on pos to get them
-        # the return should be a list, and should not include moves that take you off the board (indexing starts at 0, and ends at 7)
-        pass
+        moves_list = []
+        for move in self.moveset:
+            new_pos = pos + move
+            if new_pos[0] >= 0 or new_pos[1] >= 0 or new_pos[0] <= 7 or new_pos[1] <= 7:   
+                moves_list.append(new_pos)
+        return moves_list
 
     def show(self, x, y):
         window = pygame.display.get_surface()
