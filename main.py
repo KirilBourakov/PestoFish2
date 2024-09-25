@@ -20,6 +20,6 @@ while is_running:
     mousepos = pygame.mouse.get_pos()
     gridx, gridy = int(mousepos[0]/globals.grid_size), int(mousepos[1]/globals.grid_size)
     if (pygame.mouse.get_pressed()[0] == True):
-        board.click()
+        board.click(gridx, gridy)
     board.update()
     pygame.display.update()

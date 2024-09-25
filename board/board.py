@@ -25,7 +25,7 @@ class Chess_Board():
         self.past_board_states = {}
         self.waiting_for_promotion = False
 
-    def click(self):
+    def click(self, gridx, gridy):
         pass
 
     def update(self):
