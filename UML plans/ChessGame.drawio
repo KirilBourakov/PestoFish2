@@ -1,71 +1,71 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
   <diagram name="Page-1" id="t9a5m_bKD9C-yNpvmvKL">
-    <mxGraphModel dx="2231" dy="1908" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2762" dy="2225" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="ldxb-2AIBdacw099OIL1-1" value="ChessBoard" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="20" y="130" width="430" height="660" as="geometry" />
+          <mxGeometry x="20" y="130" width="550" height="1020" as="geometry" />
         </mxCell>
         <mxCell id="ldxb-2AIBdacw099OIL1-3" value="Variables" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-1" vertex="1">
-          <mxGeometry x="30" y="40" width="370" height="210" as="geometry" />
+          <mxGeometry x="30" y="40" width="480" height="210" as="geometry" />
         </mxCell>
         <mxCell id="ldxb-2AIBdacw099OIL1-4" value="&lt;span style=&quot;text-align: center;&quot;&gt;board: 8x8 List&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-3" vertex="1">
-          <mxGeometry y="30" width="370" height="30" as="geometry" />
+          <mxGeometry y="30" width="480" height="30" as="geometry" />
         </mxCell>
         <mxCell id="ldxb-2AIBdacw099OIL1-5" value="isWhiteTurn: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-3" vertex="1">
-          <mxGeometry y="60" width="370" height="30" as="geometry" />
+          <mxGeometry y="60" width="480" height="30" as="geometry" />
         </mxCell>
         <mxCell id="-uUJqwtiMHV1rLsQDE5Y-2" value="moveCounter: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-3" vertex="1">
-          <mxGeometry y="90" width="370" height="30" as="geometry" />
+          <mxGeometry y="90" width="480" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-3" value="selectedSquare: tuple" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-3">
-          <mxGeometry y="120" width="370" height="30" as="geometry" />
+          <mxGeometry y="120" width="480" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-7" value="pastBoardStates: dictionary" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-3">
-          <mxGeometry y="150" width="370" height="30" as="geometry" />
+          <mxGeometry y="150" width="480" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-54" value="waitingForPremotion: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-3">
-          <mxGeometry y="180" width="370" height="30" as="geometry" />
+          <mxGeometry y="180" width="480" height="30" as="geometry" />
         </mxCell>
         <mxCell id="ldxb-2AIBdacw099OIL1-7" value="Methods" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-1" vertex="1">
-          <mxGeometry x="30" y="270" width="370" height="360" as="geometry" />
+          <mxGeometry x="30" y="270" width="480" height="750" as="geometry" />
         </mxCell>
-        <mxCell id="ldxb-2AIBdacw099OIL1-8" value="&lt;span style=&quot;text-align: center;&quot;&gt;getLegalMovesFromGrid(&lt;/span&gt;tuple&lt;span style=&quot;text-align: center;&quot;&gt;)&amp;nbsp; -&amp;gt; list of legal moves&lt;br&gt;&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
-          <mxGeometry y="30" width="370" height="30" as="geometry" />
+        <mxCell id="ldxb-2AIBdacw099OIL1-8" value="&lt;span style=&quot;text-align: center; text-wrap: nowrap;&quot;&gt;getLegalMovesFromGrid(tuple)&amp;nbsp; -&amp;gt; list of legal moves&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;call getPossibleMoves()&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;purge the illegal moves&lt;br&gt;&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
+          <mxGeometry y="30" width="480" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-7" value="move(gridsqure, gridsqure)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
-          <mxGeometry y="60" width="370" height="30" as="geometry" />
+        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-7" value="move(gridsqure)&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;move the peice on selectedSquare to the given gridsqure&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;set selectedSquare&amp;nbsp;and the square it represents to None" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
+          <mxGeometry y="110" width="480" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-6" value="show()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
-          <mxGeometry y="90" width="370" height="30" as="geometry" />
+        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-6" value="update()&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Loop over grid, and bilt it to screen" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
+          <mxGeometry y="170" width="480" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-21" value="getSquareContents(tuple) -&amp;gt; Contents of the Square" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
-          <mxGeometry y="120" width="370" height="30" as="geometry" />
+        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-21" value="getSquareContents(tuple) -&amp;gt; Contents of the Square&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;return contents of square&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
+          <mxGeometry y="200" width="480" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-22" value="getSquareSight(tuple) -&amp;gt; list of pieces that see square" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
-          <mxGeometry y="150" width="370" height="30" as="geometry" />
+        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-22" value="getSquareSight(tuple) -&amp;gt; list of pieces that see square&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;BFS, returning pieces that can attack the square" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-7" vertex="1">
+          <mxGeometry y="230" width="480" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-4" value="click(mousex, mousey)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
-          <mxGeometry y="180" width="370" height="30" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-4" value="&lt;b&gt;click(mousex, mousey)&lt;br&gt;&lt;/b&gt;&lt;span style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;When the player clicks, set a selected Square if there is none, otherwise try to move the peice on the selected square. Clear selected Squre.&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
+          <mxGeometry y="260" width="480" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-50" value="checkRepetion() -&amp;gt; bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
-          <mxGeometry y="210" width="370" height="30" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-50" value="checkRepetion() -&amp;gt; bool&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;take the current game board&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;if it&#39;s in pastBoardstate and the value is &amp;gt; 3 return true&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;else return false&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
+          <mxGeometry y="340" width="480" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-51" value="checkCheckmate() -&amp;gt; bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
-          <mxGeometry y="240" width="370" height="30" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-51" value="checkCheckmate() -&amp;gt; bool&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;if the king is in check&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;check if he has any legal moves&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;check if any peice can move to block check&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;return false if so&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;return true&amp;nbsp;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
+          <mxGeometry y="410" width="480" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-52" value="checkStalemate() -&amp;gt; bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
-          <mxGeometry y="270" width="370" height="30" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-52" value="checkStalemate() -&amp;gt; bool&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;taking in a list of peices, loop over and see if they have any legal moves&amp;nbsp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
+          <mxGeometry y="510" width="480" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-53" value="checkCheck() -&amp;gt; bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
-          <mxGeometry y="300" width="370" height="30" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-53" value="checkCheck() -&amp;gt; bool&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Find where the king is&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;run getSquareSight() on that square&lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;return true if a enemy peice sees it, otherwise false" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
+          <mxGeometry y="560" width="480" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-55" value="addBoardState()" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
-          <mxGeometry y="330" width="370" height="30" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-55" value="addBoardState()&lt;div&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;If the current board exists in&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;pastBoardStates, increase by 1&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Otherwise, add it to&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;pastBoardStates with value 1&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="ldxb-2AIBdacw099OIL1-7">
+          <mxGeometry y="650" width="480" height="100" as="geometry" />
         </mxCell>
         <mxCell id="ldxb-2AIBdacw099OIL1-14" value="Piece" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="660" y="-150" width="310" height="380" as="geometry" />
+          <mxGeometry x="680" y="130" width="300" height="380" as="geometry" />
         </mxCell>
         <mxCell id="ldxb-2AIBdacw099OIL1-16" value="Variables" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-14" vertex="1">
           <mxGeometry x="40" y="50" width="240" height="150" as="geometry">
@@ -87,22 +87,11 @@
         <mxCell id="ldxb-2AIBdacw099OIL1-20" value="Methods" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-14" vertex="1">
           <mxGeometry x="40" y="250" width="240" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="ldxb-2AIBdacw099OIL1-21" value="getPossibleMoves() -&amp;gt; int tuple" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-20" vertex="1">
+        <mxCell id="ldxb-2AIBdacw099OIL1-21" value="getPossibleMoves(&lt;span style=&quot;text-align: center; text-wrap: nowrap;&quot;&gt;tuple&lt;/span&gt;) -&amp;gt; int tuple" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="ldxb-2AIBdacw099OIL1-20" vertex="1">
           <mxGeometry y="30" width="240" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-4" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="ldxb-2AIBdacw099OIL1-1" target="ldxb-2AIBdacw099OIL1-14" edge="1">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="450" y="300" as="sourcePoint" />
-            <mxPoint x="510" y="200" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-5" value="Holds" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="-uUJqwtiMHV1rLsQDE5Y-4" vertex="1" connectable="0">
-          <mxGeometry x="-0.24" y="4" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="-uUJqwtiMHV1rLsQDE5Y-12" value="Enpassent Object" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="660" y="270" width="300" height="130" as="geometry" />
+          <mxGeometry x="680" y="530" width="300" height="130" as="geometry" />
         </mxCell>
         <mxCell id="-uUJqwtiMHV1rLsQDE5Y-13" value="Variables" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="-uUJqwtiMHV1rLsQDE5Y-12" vertex="1">
           <mxGeometry x="30" y="40" width="240" height="60" as="geometry">
@@ -112,31 +101,20 @@
         <mxCell id="-uUJqwtiMHV1rLsQDE5Y-14" value="movePlaced: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="-uUJqwtiMHV1rLsQDE5Y-13" vertex="1">
           <mxGeometry y="30" width="240" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-18" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="ldxb-2AIBdacw099OIL1-1" target="-uUJqwtiMHV1rLsQDE5Y-12" edge="1">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="460" y="350" as="sourcePoint" />
-            <mxPoint x="670" y="50" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="-uUJqwtiMHV1rLsQDE5Y-19" value="Holds" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="-uUJqwtiMHV1rLsQDE5Y-18" vertex="1" connectable="0">
-          <mxGeometry x="-0.24" y="4" relative="1" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;" edge="1" parent="1" source="Rdf7iIx9nlK6P8x9TiHN-1" target="-uUJqwtiMHV1rLsQDE5Y-6">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-1" value="Displays to the screen" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-230" y="470" width="120" height="60" as="geometry" />
+          <mxGeometry x="-250" y="555" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Rdf7iIx9nlK6P8x9TiHN-5" target="Rdf7iIx9nlK6P8x9TiHN-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-5" value="When the player clicks, set a selected Square if there is none, otherwise try to move the peice on the selected square. Clear selected Squre." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-220" y="550" width="150" height="95" as="geometry" />
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-5" value="On click" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-250" y="672.5" width="120" height="55" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-8" value="Promotion" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="650" y="420" width="300" height="280" as="geometry" />
+          <mxGeometry x="680" y="680" width="300" height="280" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-13" value="Method" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="Rdf7iIx9nlK6P8x9TiHN-8">
           <mxGeometry x="60" y="140" width="140" height="90" as="geometry" />
