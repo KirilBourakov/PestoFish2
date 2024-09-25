@@ -29,4 +29,3 @@ bishop_moves.remove((0,0))
 
 queen_moves = rook_moves.copy()
 queen_moves.extend(bishop_moves)
-print(bishop_moves)
