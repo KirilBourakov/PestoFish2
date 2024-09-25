@@ -26,7 +26,12 @@ class Chess_Board():
         self.waiting_for_promotion = False
 
     def click(self, gridx, gridy):
-        if self.selected_square is not None and self.board[gridy][gridx] is not None:
+        print(self.selected_square)
+        if self.selected_square == (gridx, gridy):
+            print("true")
+            return
+
+        if self.selected_square is None and self.board[gridy][gridx] is not None:
             self.selected_square = (gridx, gridy)
             return
         
@@ -42,10 +47,11 @@ class Chess_Board():
     def update(self):
         c = 0
         light_row = False
+        window = pygame.display.get_surface() 
         for y, row in enumerate(self.board):
             light_row = not light_row
             for x, column in enumerate(row):
-                window = pygame.display.get_surface() 
+                
 
                 # leading with light
                 if light_row:
@@ -62,7 +68,12 @@ class Chess_Board():
 
                 if column is not None:
                     column.show(x,y)
-
+        if self.selected_square is not None:
+            pygame.draw.rect(
+                window, (255, 0, 0), 
+                pygame.Rect(self.selected_square[0]*globals.grid_size, self.selected_square[1]*globals.grid_size, globals.grid_size, globals.grid_size),
+                width=1
+            )
 
     
                 
