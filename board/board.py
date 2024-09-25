@@ -19,7 +19,6 @@ class Chess_Board():
             [wp.pawn] * 8,
             [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
         ]
-        self.is_white_turn = True
         self.move_counter = 0
         self.selected_square = None
         self.past_board_states = {}
@@ -29,9 +28,11 @@ class Chess_Board():
         # TODO: make it so that a peice can only be selected on it's own turn.
         if self.selected_square == (gridx, gridy):
             return
-
         if self.selected_square is None and self.board[gridy][gridx] is not None:
-            self.selected_square = (gridx, gridy)
+            if self.move_counter % 2 == 0 and self.board[gridy][gridx].color == "white": 
+                self.selected_square = (gridx, gridy)
+            elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == "black":
+                self.selected_square = (gridx, gridy) 
             return
         
         if self.selected_square != None:
@@ -63,6 +64,7 @@ class Chess_Board():
 
         self.board[newy][newx] = piece
         self.board[self.selected_square[1]][self.selected_square[0]] = None
+        self.move_counter += 1
         return
         # TODO: move up when getPossibleMoves is implemented
         if (newx, newy) not in piece.getPossibleMoves():
