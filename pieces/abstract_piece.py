@@ -2,10 +2,11 @@ import pygame
 import globals
 
 class Abstract_Piece():
-    def __init__(self, asset, moveset):
+    def __init__(self, asset, moveset, hops=False):
         self.asset = asset
         self.moveset = moveset
         self.have_moved = False
+        self.hops = hops
 
     def getPossibleMoves(self, pos):
         moves_list = []
