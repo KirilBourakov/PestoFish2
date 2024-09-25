@@ -1,8 +1,8 @@
 from pieces.abstract_piece import Abstract_Piece
 import assets.assets as assets
 
-rookl = Abstract_Piece(assets.w_rookl, [])
-rookr = Abstract_Piece(assets.w_rookr, [])
+rookL = Abstract_Piece(assets.w_rookL, [])
+rookR = Abstract_Piece(assets.w_rookR, [])
 bishop = Abstract_Piece(assets.w_bishop, [])
 knight = Abstract_Piece(assets.w_knight, [])
 king = Abstract_Piece(assets.w_king, [])

@@ -10,14 +10,14 @@ class Chess_Board():
 
     def set_board(self):
         self.board = [
-            [bp.rookl, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookr],
+            [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
             [bp.pawn] * 8,
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [wp.pawn] * 8,
-            [wp.rookl, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookr]
+            [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
         ]
         self.is_white_turn = True
         self.move_counter = 0
