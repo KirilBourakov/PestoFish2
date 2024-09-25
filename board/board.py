@@ -25,6 +25,9 @@ class Chess_Board():
         self.past_board_states = {}
         self.waiting_for_promotion = False
 
+    def click(self):
+        pass
+
     def update(self):
         c = 0
         light_row = False
