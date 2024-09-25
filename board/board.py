@@ -19,6 +19,11 @@ class Chess_Board():
             [wp.pawn] * 8,
             [wp.rook, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook]
         ]
+        self.is_white_turn = True
+        self.move_counter = 0
+        self.selected_square = None
+        self.past_board_states = {}
+        self.waiting_for_promotion = False
 
     def update(self):
         c = 0
