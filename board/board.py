@@ -26,9 +26,8 @@ class Chess_Board():
         self.waiting_for_promotion = False
 
     def click(self, gridx, gridy):
-        print(self.selected_square)
+        # TODO: make it so that a peice can only be selected on it's own turn.
         if self.selected_square == (gridx, gridy):
-            print("true")
             return
 
         if self.selected_square is None and self.board[gridy][gridx] is not None:
@@ -40,9 +39,34 @@ class Chess_Board():
             self.selected_square = None
             return
         
-    def move(self, gridx, gridy):
-        self.board[gridy][gridx] = self.board[self.selected_square[1]][self.selected_square[0]]
+    def move(self, newx, newy):
+        piece = self.board[self.selected_square[1]][self.selected_square[0]]
+        
+        # This checks that there is nothing blocking you from moving to that square
+        oldx, oldy = self.selected_square
+        while (abs(oldx-newx) > 1 or abs(oldy-newy) > 1) and piece.hops == False:
+            # walk across, taking the same path as the peice.  
+            if oldx < newx:
+                oldx += 1
+            if oldx > newx:
+                oldx -= 1
+            if oldy < newy:
+                oldy += 1
+            if oldy > newy:
+                oldy -= 1
+            # if you meet another peice, the move is illegal
+            if self.board[oldy][oldx] is not None:
+                print(self.board[oldy][oldx])
+                return
+
+        # TODO: add a check to see your taking your own peice
+
+        self.board[newy][newx] = piece
         self.board[self.selected_square[1]][self.selected_square[0]] = None
+        return
+        # TODO: move up when getPossibleMoves is implemented
+        if (newx, newy) not in piece.getPossibleMoves():
+            return 
 
     def update(self):
         c = 0
