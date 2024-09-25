@@ -6,4 +6,4 @@ size = (app.winfo_screenwidth(), app.winfo_screenheight())
 appsize = size[1] / 2
 grid_size = appsize / 8
 
-resize_num = grid_size * .3
+resize_num = grid_size * .2
