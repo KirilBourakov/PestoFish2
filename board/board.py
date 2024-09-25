@@ -26,7 +26,20 @@ class Chess_Board():
         self.waiting_for_promotion = False
 
     def click(self, gridx, gridy):
-        pass
+        print(self.board[gridy][gridx])
+        print(self.selected_square)
+        if self.selected_square == None and self.board[gridy][gridx] is not None:
+            self.selected_square = (gridx, gridy)
+            return
+        
+        if self.selected_square != None:
+            self.move(gridx, gridy)
+            self.selected_square = None
+            return
+        
+    def move(self, gridx, gridy):
+        self.board[gridy][gridx] = self.board[self.selected_square[1]][self.selected_square[0]]
+        self.board[self.selected_square[1]][self.selected_square[0]] = None
 
     def update(self):
         c = 0
