@@ -30,7 +30,10 @@ w_pawn = prepare_piece(
 w_queen = prepare_piece(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_queen.png'))
 )
-w_rook = prepare_piece(
+w_rookl = prepare_piece(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_rook.png'))
+)
+w_rookr = prepare_piece(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'white', 'w_rook.png'))
 )
 
@@ -50,7 +53,10 @@ b_pawn = prepare_piece(
 b_queen = prepare_piece(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_queen.png'))
 )
-b_rook = prepare_piece(
+b_rookl = prepare_piece(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_rook.png'))
+)
+b_rookr = prepare_piece(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_rook.png'))
 )
 
