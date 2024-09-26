@@ -12,8 +12,8 @@ class Abstract_Piece():
     def getPossibleMoves(self, pos):
         moves_list = []
         for move in self.moveset:
-            new_pos = pos + move
-            if new_pos[0] >= 0 or new_pos[1] >= 0 or new_pos[0] <= 7 or new_pos[1] <= 7:   
+            new_pos = (pos[0] + move[0], pos[1] + move[1])
+            if (new_pos[0] >= 0) or (new_pos[1] >= 0) or (new_pos[0] <= 7) or (new_pos[1] <= 7):   
                 moves_list.append(new_pos)
         return moves_list
 

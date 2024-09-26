@@ -57,8 +57,11 @@ class Chess_Board():
                 oldy -= 1
             # if you meet another peice, the move is illegal
             if self.board[oldy][oldx] is not None:
-                print(self.board[oldy][oldx])
                 return
+            
+        moves = piece.getPossibleMoves(self.selected_square)
+        if (newx, newy) not in moves:
+            return
 
         # TODO: add a check to see your taking your own peice
 
@@ -67,8 +70,7 @@ class Chess_Board():
         self.move_counter += 1
         return
         # TODO: move up when getPossibleMoves is implemented
-        if (newx, newy) not in piece.getPossibleMoves():
-            return 
+        
 
     def update(self):
         c = 0

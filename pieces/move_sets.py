@@ -1,5 +1,5 @@
-white_pawn_moves = [(0, 1)]
-black_pawn_moves = [(0, -1)]
+white_pawn_moves = [(0, -1)]
+black_pawn_moves = [(0, +1)]
 
 king_moves = [
     (-1, 1), (0, 1), (1,1),
