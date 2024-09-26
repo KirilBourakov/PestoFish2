@@ -39,36 +39,56 @@ class Chess_Board():
             self.selected_square = None
             return
         
-    def is_legal_move(self, newx, newy):
+    def get_legal_moves(self):
         # TODO: this function should be replaced with get_legal_moves which returns a list of all the moves a piece can make
         piece = self.board[self.selected_square[1]][self.selected_square[0]]
-        
-        # This checks that there is nothing blocking you from moving to that square
-        oldx, oldy = self.selected_square
-        while (abs(oldx-newx) > 1 or abs(oldy-newy) > 1) and piece.hops == False:
-            # walk across, taking the same path as the peice.  
-            if oldx < newx:
-                oldx += 1
-            if oldx > newx:
-                oldx -= 1
-            if oldy < newy:
-                oldy += 1
-            if oldy > newy:
-                oldy -= 1
-            # if you meet another peice, the move is illegal
-            if self.board[oldy][oldx] is not None:
-                return
-            
         moves = piece.getPossibleMoves(self.selected_square)
-        if (newx, newy) not in moves:
-            return
+        oldx, oldy = self.selected_square
 
-        # TODO: add a check to see your taking your own peice
-        if (self.board[newy][newx] is not None) and piece.color == self.board[newy][newx].color:
-            return
+        if (piece.type == "pawn"):
+            print("moving pawn")
+            if (piece.color == "black"):
+                for i in [(1,1), (-1,1)]:
+                    possible_move = (oldx+i[0], oldy+i[1])
+                    possible_move_grid = self.board[possible_move[1]][possible_move[0]]
+                    if  possible_move_grid is not None and possible_move_grid.color == "white":
+                        moves.append(possible_move)
+            elif (piece.color == "white"):
+                for i in [(1,-1), (-1,-1)]:
+                    possible_move = (oldx+i[0], oldy+i[1])
+                    possible_move_grid = self.board[possible_move[1]][possible_move[0]]
+                    if  possible_move_grid is not None and possible_move_grid.color == "black":
+                        moves.append(possible_move)
+        print(moves)
+        purged_moves = []
+        for move in moves:
+            newx, newy = move
+
+            # This checks that there is nothing blocking you from moving to that square
+            while (abs(oldx-newx) > 1 or abs(oldy-newy) > 1) and piece.hops == False:
+                # walk across, taking the same path as the peice.  
+                if oldx < newx:
+                    oldx += 1
+                if oldx > newx:
+                    oldx -= 1
+                if oldy < newy:
+                    oldy += 1
+                if oldy > newy:
+                    oldy -= 1
+                # if you meet another peice, the move is illegal
+                if self.board[oldy][oldx] is not None:
+                    continue
+        
+            # TODO: add a check to see your taking your own peice
+            if (self.board[newy][newx] is not None) and piece.color == self.board[newy][newx].color:
+                continue
+
+            purged_moves.append(move)
+        return purged_moves
 
     def move(self, newx, newy): 
-        if self.is_legal_move(newx, newy):
+        moves = self.get_legal_moves()
+        if (newx, newy) in moves:
             piece = self.board[self.selected_square[1]][self.selected_square[0]]
             self.board[newy][newx] = piece
             self.board[self.selected_square[1]][self.selected_square[0]] = None

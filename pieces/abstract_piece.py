@@ -2,8 +2,8 @@ import pygame
 import globals
 
 class Abstract_Piece():
-    def __init__(self, name, asset, moveset, color, hops=False):
-        self.name = name
+    def __init__(self, type, asset, moveset, color, hops=False):
+        self.type = type
         self.asset = asset
         self.moveset = moveset
         self.has_moved = False
@@ -14,7 +14,7 @@ class Abstract_Piece():
         moves_list = []
         for move in self.moveset:
             new_pos = (pos[0] + move[0], pos[1] + move[1])
-            if (new_pos[0] >= 0) or (new_pos[1] >= 0) or (new_pos[0] <= 7) or (new_pos[1] <= 7):   
+            if (new_pos[0] >= 0) and (new_pos[1] >= 0) and (new_pos[0] <= 7) and (new_pos[1] <= 7):   
                 moves_list.append(new_pos)
         return moves_list
 
