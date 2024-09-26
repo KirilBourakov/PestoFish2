@@ -35,7 +35,7 @@ class Chess_Board():
             return
         
         if self.selected_square != None:
-            self.move(gridx, gridy)
+            self.make_legal_move(gridx, gridy)
             self.selected_square = None
             return
         
@@ -45,8 +45,8 @@ class Chess_Board():
         moves = piece.getPossibleMoves(self.selected_square)
         oldx, oldy = self.selected_square
 
+        # pawns capture to the side
         if (piece.type == "pawn"):
-            print("moving pawn")
             if (piece.color == "black"):
                 for i in [(1,1), (-1,1)]:
                     possible_move = (oldx+i[0], oldy+i[1])
@@ -59,10 +59,28 @@ class Chess_Board():
                     possible_move_grid = self.board[possible_move[1]][possible_move[0]]
                     if  possible_move_grid is not None and possible_move_grid.color == "black":
                         moves.append(possible_move)
-        print(moves)
+        
+        # kings can castle
+        if (piece.type == "king" and piece.has_moved == False):
+            if (piece.color == "white"):
+                # white castling
+                if (wp.rookL.has_moved == False):
+                    moves.append((self.selected_square[0]-2, self.selected_square[1], "long castle"))
+                if (wp.rookR.has_moved == False):
+                    moves.append((self.selected_square[0]+2, self.selected_square[1], "short castle"))
+            elif (piece.color == "black"):
+                # black castling
+                if (bp.rookL.has_moved == False):
+                    moves.append((self.selected_square[0]-2, self.selected_square[1], "long castle"))
+                if (bp.rookR.has_moved == False):
+                    moves.append((self.selected_square[0]+2, self.selected_square[1], "short castle"))
+
         purged_moves = []
         for move in moves:
-            newx, newy = move
+            if (len(move) == 3):
+                newx, newy, catcher = move
+            else:
+                newx, newy = move
 
             # This checks that there is nothing blocking you from moving to that square
             while (abs(oldx-newx) > 1 or abs(oldy-newy) > 1) and piece.hops == False:
@@ -86,15 +104,27 @@ class Chess_Board():
             purged_moves.append(move)
         return purged_moves
 
-    def move(self, newx, newy): 
+    def make_legal_move(self, newx, newy): 
         moves = self.get_legal_moves()
+        piece_location = (self.selected_square[0], self.selected_square[1])
         if (newx, newy) in moves:
-            piece = self.board[self.selected_square[1]][self.selected_square[0]]
-            self.board[newy][newx] = piece
-            self.board[self.selected_square[1]][self.selected_square[0]] = None
-            self.move_counter += 1
-            piece.has_moved = True
-        return    
+            self.move(piece_location, (newx, newy))
+        elif (newx, newy, "short castle") in moves:
+            self.move(piece_location, (newx, newy))
+            self.move((7, newy), (newx-1, newy), turn=0)
+        elif (newx, newy, "long castle") in moves:
+            self.move(piece_location, (newx, newy))
+            self.move((0, newy), (newx+1, newy), turn=0)
+        return 
+
+    def move(self, piece_location, newpos, turn=1):
+        piece = self.board[piece_location[1]][piece_location[0]]
+        newx, newy = newpos
+        self.board[newy][newx] = piece
+        self.board[piece_location[1]][piece_location[0]] = None
+        self.move_counter += turn
+        piece.has_moved = True
+
 
     def update(self):
         c = 0
