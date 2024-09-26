@@ -40,7 +40,6 @@ class Chess_Board():
             return
         
     def get_legal_moves(self):
-        # TODO: this function should be replaced with get_legal_moves which returns a list of all the moves a piece can make
         piece = self.board[self.selected_square[1]][self.selected_square[0]]
         moves = piece.getPossibleMoves(self.selected_square)
         oldx, oldy = self.selected_square
@@ -59,7 +58,8 @@ class Chess_Board():
                     possible_move_grid = self.board[possible_move[1]][possible_move[0]]
                     if  possible_move_grid is not None and possible_move_grid.color == "black":
                         moves.append(possible_move)
-        print(moves)
+
+        # given all possibly legal moves, loop over and remove illegal ones
         purged_moves = []
         for move in moves:
             newx, newy = move
@@ -79,7 +79,6 @@ class Chess_Board():
                 if self.board[oldy][oldx] is not None:
                     continue
         
-            # TODO: add a check to see your taking your own peice
             if (self.board[newy][newx] is not None) and piece.color == self.board[newy][newx].color:
                 continue
 
