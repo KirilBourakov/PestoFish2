@@ -44,8 +44,14 @@ class Chess_Board():
         moves = piece.getPossibleMoves(self.selected_square)
         oldx, oldy = self.selected_square
 
-        # pawns capture to the side
+        # handles special conditions with the pawns
         if (piece.type == "pawn"):
+            # pawns cannot capture ahead of them
+            forward_move = moves[0]
+            if (self.board[forward_move[1]][forward_move[0]] is not None):
+                moves = []
+            
+            # pawns capture to their sides
             if (piece.color == "black"):
                 for i in [(1,1), (-1,1)]:
                     possible_move = (oldx+i[0], oldy+i[1])
