@@ -64,13 +64,14 @@ class Chess_Board():
             return
 
         # TODO: add a check to see your taking your own peice
+        if (self.board[newy][newx] is not None) and piece.color == self.board[newy][newx].color:
+            return
 
         self.board[newy][newx] = piece
         self.board[self.selected_square[1]][self.selected_square[0]] = None
         self.move_counter += 1
-        return
-        # TODO: move up when getPossibleMoves is implemented
-        
+        piece.has_moved = True
+        return    
 
     def update(self):
         c = 0

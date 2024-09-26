@@ -5,7 +5,7 @@ class Abstract_Piece():
     def __init__(self, asset, moveset, color, hops=False):
         self.asset = asset
         self.moveset = moveset
-        self.have_moved = False
+        self.has_moved = False
         self.hops = hops
         self.color = color
 
