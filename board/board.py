@@ -25,7 +25,6 @@ class Chess_Board():
         self.waiting_for_promotion = False
 
     def click(self, gridx, gridy):
-        # TODO: make it so that a peice can only be selected on it's own turn.
         if self.selected_square == (gridx, gridy):
             return
         if self.selected_square is None and self.board[gridy][gridx] is not None:
