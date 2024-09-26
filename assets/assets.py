@@ -13,6 +13,18 @@ light_square = prepare_surface(
 dark_square = prepare_surface(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'darkSquare.png'))
 )
+# TODO: added a promotion image sample we can use, find a way to implement later when promotion ruleset is added
+
+""""
+w_promotion_image = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__),  'imgs', 'w_promotion.png'))
+)
+b_promotion_image = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__),  'imgs', 'b_promotion.png'))
+)
+#sidenote: this code is not final. I just copied the format on the top and put it in there. Probably will need adjustments when the ruleset for it works.
+"""
+
 
 # white pieces
 w_bishop = prepare_piece(
