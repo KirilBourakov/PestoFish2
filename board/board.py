@@ -40,7 +40,8 @@ class Chess_Board():
             self.selected_square = None
             return
         
-    def move(self, newx, newy):
+    def is_legal_move(self, newx, newy):
+        # TODO: this function should be replaced with get_legal_moves which returns a list of all the moves a piece can make
         piece = self.board[self.selected_square[1]][self.selected_square[0]]
         
         # This checks that there is nothing blocking you from moving to that square
@@ -67,10 +68,13 @@ class Chess_Board():
         if (self.board[newy][newx] is not None) and piece.color == self.board[newy][newx].color:
             return
 
-        self.board[newy][newx] = piece
-        self.board[self.selected_square[1]][self.selected_square[0]] = None
-        self.move_counter += 1
-        piece.has_moved = True
+    def move(self, newx, newy): 
+        if self.is_legal_move(newx, newy):
+            piece = self.board[self.selected_square[1]][self.selected_square[0]]
+            self.board[newy][newx] = piece
+            self.board[self.selected_square[1]][self.selected_square[0]] = None
+            self.move_counter += 1
+            piece.has_moved = True
         return    
 
     def update(self):
