@@ -2,7 +2,8 @@ import pygame
 import globals
 
 class Abstract_Piece():
-    def __init__(self, asset, moveset, color, hops=False):
+    def __init__(self, name, asset, moveset, color, hops=False):
+        self.name = name
         self.asset = asset
         self.moveset = moveset
         self.has_moved = False
