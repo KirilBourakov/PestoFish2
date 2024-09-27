@@ -15,7 +15,10 @@ class Abstract_Piece():
         for move in self.moveset:
             new_pos = (pos[0] + move[0], pos[1] + move[1])
             if (new_pos[0] >= 0) and (new_pos[1] >= 0) and (new_pos[0] <= 7) and (new_pos[1] <= 7):   
-                moves_list.append(new_pos)
+                if len(move) == 3:
+                    moves_list.append(new_pos + (move[2],))
+                else:
+                    moves_list.append(new_pos,)
         return moves_list
 
     def show(self, x, y):

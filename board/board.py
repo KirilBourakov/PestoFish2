@@ -43,44 +43,8 @@ class Chess_Board():
     def get_legal_moves(self):
         piece = self.board[self.selected_square[1]][self.selected_square[0]]
         moves = piece.getPossibleMoves(self.selected_square)
-        oldx, oldy = self.selected_square
+        oldx, oldy = self.selected_square     
 
-        # handles special conditions with the pawns
-        if (piece.type == globals.PIECE_PAWN):
-            # pawns cannot capture ahead of them
-            forward_move = moves[0]
-            if (self.board[forward_move[1]][forward_move[0]] is not None):
-                moves = []
-            
-            # pawns capture to their sides
-            if (piece.color == globals.PIECE_BLACK):
-                for i in [(1,1), (-1,1)]:
-                    possible_move = (oldx+i[0], oldy+i[1])
-                    if (possible_move[0] >= 0 and possible_move[1] >= 0 and possible_move[0] < 8 and possible_move[1] < 8):
-                        possible_move_grid = self.board[possible_move[1]][possible_move[0]]
-                        if  possible_move_grid is not None and possible_move_grid.color == globals.PIECE_WHITE:
-                            if possible_move_grid.type == globals.EN_PASSENT_FLAG and possible_move_grid.turn_num == self.move_counter:
-                                moves.append((oldx+i[0], oldy+i[1], globals.EN_PASSENT_FLAG))
-                            elif possible_move_grid.type != globals.EN_PASSENT_FLAG:
-                                moves.append(possible_move) 
-                # pawns can move twice on their first turn
-                if oldy == 1:
-                    moves.append((oldx,oldy+2, globals.DOUBLE_MOVE_FLAG))
-                
-            elif (piece.color == globals.PIECE_WHITE):
-                for i in [(1,-1), (-1,-1)]:
-                    possible_move = (oldx+i[0], oldy+i[1])
-                    if (possible_move[0] >= 0 and possible_move[1] >= 0 and possible_move[0] < 8 and possible_move[1] < 8):
-                        possible_move_grid = self.board[possible_move[1]][possible_move[0]]
-                        if  possible_move_grid is not None and possible_move_grid.color == globals.PIECE_BLACK:
-                            if possible_move_grid.type == globals.EN_PASSENT_FLAG and possible_move_grid.turn_num == self.move_counter:
-                                moves.append((oldx+i[0], oldy+i[1], globals.EN_PASSENT_FLAG))
-                            elif possible_move_grid.type != globals.EN_PASSENT_FLAG:
-                                moves.append(possible_move) 
-                if oldy == 6:
-                    moves.append((oldx,oldy-2, globals.DOUBLE_MOVE_FLAG))
-            
-        
         # handle special king moves
         if (piece.type == globals.PIECE_KING and piece.has_moved == False):
             if (piece.color == globals.PIECE_WHITE):
@@ -101,10 +65,14 @@ class Chess_Board():
         purged_moves = []
         for move in moves:
             if (len(move) == 3):
-                newx, newy, catcher = move
+                newx, newy, func = move
+                possible = func(self.selected_square, piece.color, (newx, newy), self.board, self.move_counter)
+                if (not possible[0]):
+                    continue
+                move = (newx, newy, possible[1])
             else:
                 newx, newy = move
-
+            
             # This checks that there is nothing blocking you from moving to that square
             while (abs(oldx-newx) > 1 or abs(oldy-newy) > 1) and piece.hops == False:
                 # walk across, taking the same path as the peice.  
@@ -125,14 +93,17 @@ class Chess_Board():
         
             if (self.board[newy][newx] is not None) and (piece.color == self.board[newy][newx].color) and (self.board[newy][newx].type != globals.EN_PASSENT_FLAG):
                 continue
-
+                
+            print(move)
             purged_moves.append(move)
+                
+           
         return purged_moves
 
     def make_legal_move(self, newx, newy): 
         moves = self.get_legal_moves()
         piece_location = (self.selected_square[0], self.selected_square[1])
-        if (newx, newy) in moves:
+        if (newx, newy) in moves or (newx, newy, globals.NORMAL_CAPTURE_FLAG) in moves:
             self.move(piece_location, (newx, newy))
         
         elif (newx, newy, globals.SHORT_CASTLE_FLAG) in moves:
