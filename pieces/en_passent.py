@@ -1,4 +1,4 @@
-import pygame, globals
+import pygame, chess.constants.globals as globals
 
 class en_passent():
     def __init__(self, turn_num, color, placer):
