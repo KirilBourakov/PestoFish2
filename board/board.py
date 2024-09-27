@@ -45,22 +45,6 @@ class Chess_Board():
         moves = piece.getPossibleMoves(self.selected_square)
         oldx, oldy = self.selected_square     
 
-        # handle special king moves
-        if (piece.type == globals.PIECE_KING and piece.has_moved == False):
-            if (piece.color == globals.PIECE_WHITE):
-                # white castling
-                if (wp.rookL.has_moved == False):
-                    moves.append((self.selected_square[0]-2, self.selected_square[1], globals.LONG_CASTLE_FLAG))
-                if (wp.rookR.has_moved == False):
-                    moves.append((self.selected_square[0]+2, self.selected_square[1], globals.SHORT_CASTLE_FLAG))
-            elif (piece.color == globals.PIECE_BLACK):
-                # black castling
-                if (bp.rookL.has_moved == False):
-                    moves.append((self.selected_square[0]-2, self.selected_square[1], globals.LONG_CASTLE_FLAG))
-                if (bp.rookR.has_moved == False):
-                    moves.append((self.selected_square[0]+2, self.selected_square[1], globals.SHORT_CASTLE_FLAG))
-
-
         # given all possibly legal moves, loop over and remove illegal ones
         purged_moves = []
         for move in moves:
@@ -94,7 +78,6 @@ class Chess_Board():
             if (self.board[newy][newx] is not None) and (piece.color == self.board[newy][newx].color) and (self.board[newy][newx].type != globals.EN_PASSENT_FLAG):
                 continue
                 
-            print(move)
             purged_moves.append(move)
                 
            

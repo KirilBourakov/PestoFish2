@@ -1,6 +1,6 @@
 import globals
 
-def pawn_capture_possible(pos, color, newpos, board, turn_num):
+def pawn_capture_possible(pos, color, newpos, board, turn_num, *args):
     on_the_board = (newpos[0] >= 0 and newpos[1] >= 0 and newpos[0] < 8 and newpos[1] < 8)
     if on_the_board:
         possible_move_grid = board[newpos[1]][newpos[0]]
@@ -26,10 +26,23 @@ def double_move_possible(pos, color, *args):
 white_pawn_moves = [(0, -1), (0, -2, double_move_possible), (1,-1, pawn_capture_possible), (-1,-1, pawn_capture_possible)]
 black_pawn_moves = [(0, +1), (0, +2, double_move_possible), (1,1, pawn_capture_possible), (-1,1, pawn_capture_possible)]
 
+
+def castle_possible(pos, color, newpos, board, turn_num):
+    newx, newy = newpos
+    if newx == 2:
+        if board[newy][0] is not None and board[newy][0].has_moved == False:
+            return (True, globals.LONG_CASTLE_FLAG)
+    elif newx == 6:
+        if board[newy][7] is not None and board[newy][7].has_moved == False:
+            return (True, globals.SHORT_CASTLE_FLAG)
+    return (False, '')
+
 king_moves = [
     (-1, 1), (0, 1), (1,1),
     (-1,0), (1,0),
-    (-1,-1), (0,-1), (1,-1)
+    (-1,-1), (0,-1), (1,-1),
+    (-2, 0, castle_possible),
+    (+2, 0, castle_possible)
 ]
 
 knight_moves = [
