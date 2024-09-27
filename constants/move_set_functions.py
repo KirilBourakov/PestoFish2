@@ -11,7 +11,7 @@ def pawn_capture_possible(pos, color, newpos, board, turn_num, *args):
             if en_passent_created_last_turn:
                 return (True, globals.EN_PASSENT_FLAG)
             elif possible_move_grid.type != globals.EN_PASSENT_FLAG:
-                return (True, globals.NORMAL_CAPTURE_FLAG)
+                return (True, globals.NORMAL_FLAG)
             
     return (False, '')
 
@@ -22,6 +22,11 @@ def double_move_possible(pos, color, *args):
         return (True, globals.DOUBLE_MOVE_FLAG)
     else:
         return (False, '')
+    
+def move_forward_possible(pos, color, newpos, board, *args):
+    if board[newpos[1]][newpos[0]] is not None and board[newpos[1]][newpos[0]].type != globals.EN_PASSENT_FLAG:
+        return (False, '')
+    return (True, globals.NORMAL_FLAG)
     
 def castle_possible(pos, color, newpos, board, turn_num):
     newx, newy = newpos

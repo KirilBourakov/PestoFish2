@@ -18,9 +18,11 @@ PIECE_KING = "king"
 PIECE_QUEEN = "queen"
 PIECE_PAWN = "pawn"
 
+# general flags
+NORMAL_FLAG = "normal move"
+
 # pawn flags
 EN_PASSENT_FLAG = "en passent"
-NORMAL_CAPTURE_FLAG = "normal capture"
 DOUBLE_MOVE_FLAG = "double move"
 
 # king flags

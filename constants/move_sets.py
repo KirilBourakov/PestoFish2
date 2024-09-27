@@ -1,9 +1,9 @@
 import constants.globals as globals
-from constants.move_set_functions import double_move_possible, pawn_capture_possible, castle_possible
+from constants.move_set_functions import double_move_possible, pawn_capture_possible, move_forward_possible, castle_possible
 
 
-white_pawn_moves = [(0, -1), (0, -2, double_move_possible), (1,-1, pawn_capture_possible), (-1,-1, pawn_capture_possible)]
-black_pawn_moves = [(0, +1), (0, +2, double_move_possible), (1,1, pawn_capture_possible), (-1,1, pawn_capture_possible)]
+white_pawn_moves = [(0, -1, move_forward_possible), (0, -2, double_move_possible), (1,-1, pawn_capture_possible), (-1,-1, pawn_capture_possible)]
+black_pawn_moves = [(0, +1, move_forward_possible), (0, +2, double_move_possible), (1,1, pawn_capture_possible), (-1,1, pawn_capture_possible)]
 
 
 king_moves = [

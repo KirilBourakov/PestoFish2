@@ -86,7 +86,7 @@ class Chess_Board():
     def make_legal_move(self, newx, newy): 
         moves = self.get_legal_moves()
         piece_location = (self.selected_square[0], self.selected_square[1])
-        if (newx, newy) in moves or (newx, newy, globals.NORMAL_CAPTURE_FLAG) in moves:
+        if (newx, newy) in moves or (newx, newy, globals.NORMAL_FLAG) in moves:
             self.move(piece_location, (newx, newy))
         
         elif (newx, newy, globals.SHORT_CASTLE_FLAG) in moves:
