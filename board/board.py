@@ -67,7 +67,7 @@ class Chess_Board():
                         if  possible_move_grid is not None and possible_move_grid.color == "black":
                             moves.append(possible_move)
         
-        # kings can castle
+        # handle special king moves
         if (piece.type == "king" and piece.has_moved == False):
             if (piece.color == "white"):
                 # white castling
