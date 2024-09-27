@@ -1,5 +1,5 @@
 import pygame
-import globals
+import constants.globals as globals
 
 pygame.init()
 pygame.display.set_caption('Chess')

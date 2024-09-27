@@ -1,7 +1,7 @@
 from pieces.abstract_piece import Abstract_Piece
 import assets.assets as assets
-import pieces.move_sets as move_sets
-import globals
+import constants.move_sets as move_sets
+import constants.globals as globals
 
 rookL = Abstract_Piece(globals.PIECE_ROOK, assets.b_rookL, move_sets.rook_moves, globals.PIECE_BLACK)
 rookR = Abstract_Piece(globals.PIECE_ROOK, assets.b_rookR, move_sets.rook_moves, globals.PIECE_BLACK)
