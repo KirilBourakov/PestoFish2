@@ -28,7 +28,7 @@ class Chess_Board():
     def click(self, gridx, gridy):
         if self.selected_square == (gridx, gridy):
             return
-        if self.selected_square is None and self.board[gridy][gridx] is not None:
+        if self.selected_square is None and (self.board[gridy][gridx] is not None and self.board[gridy][gridx].type != globals.EN_PASSENT_FLAG):
             if self.move_counter % 2 == 0 and self.board[gridy][gridx].color == globals.PIECE_WHITE: 
                 self.selected_square = (gridx, gridy)
             elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == globals.PIECE_BLACK:
@@ -117,10 +117,13 @@ class Chess_Board():
                 if oldy > newy:
                     oldy -= 1
                 # if you meet another peice, the move is illegal
-                if self.board[oldy][oldx] is not None:
-                    continue
+                board_square_not_empty = self.board[oldy][oldx] is not None
+                if board_square_not_empty:
+                    not_occupied_by_en_passent = self.board[oldy][oldx].type != globals.EN_PASSENT_FLAG
+                    if not_occupied_by_en_passent:
+                        continue
         
-            if (self.board[newy][newx] is not None) and piece.color == self.board[newy][newx].color:
+            if (self.board[newy][newx] is not None) and (piece.color == self.board[newy][newx].color) and (self.board[newy][newx].type != globals.EN_PASSENT_FLAG):
                 continue
 
             purged_moves.append(move)
@@ -151,7 +154,7 @@ class Chess_Board():
             offset = -1 if self.board[newy][newx].color == globals.PIECE_WHITE else 1
             self.board[newy+offset][newx] = None
             self.move(piece_location, (newx, newy))
-        print(moves)
+
         return 
 
     def move(self, piece_location, newpos, turn=1):
