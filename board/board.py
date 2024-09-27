@@ -59,9 +59,9 @@ class Chess_Board():
                     if (possible_move[0] >= 0 and possible_move[1] >= 0 and possible_move[0] < 8 and possible_move[1] < 8):
                         possible_move_grid = self.board[possible_move[1]][possible_move[0]]
                         if  possible_move_grid is not None and possible_move_grid.color == "white":
-                            if possible_move.type == "en passent" and possible_move.turn_num == self.move_counter:
-                                moves.append(possible_move + ("en passent"))
-                            else:
+                            if possible_move_grid.type == "en passent" and possible_move_grid.turn_num == self.move_counter:
+                                moves.append((oldx+i[0], oldy+i[1], "en passent"))
+                            elif possible_move_grid.type != "en passent":
                                 moves.append(possible_move) 
                 # pawns can move twice on their first turn
                 if oldy == 1:
@@ -73,9 +73,9 @@ class Chess_Board():
                     if (possible_move[0] >= 0 and possible_move[1] >= 0 and possible_move[0] < 8 and possible_move[1] < 8):
                         possible_move_grid = self.board[possible_move[1]][possible_move[0]]
                         if  possible_move_grid is not None and possible_move_grid.color == "black":
-                            if possible_move.type == "en passent" and possible_move.turn_num == self.move_counter:
-                                moves.append(possible_move + ("en passent"))
-                            else:
+                            if possible_move_grid.type == "en passent" and possible_move_grid.turn_num == self.move_counter:
+                                moves.append((oldx+i[0], oldy+i[1], "en passent"))
+                            elif possible_move_grid.type != "en passent":
                                 moves.append(possible_move) 
                 if oldy == 6:
                     moves.append((oldx,oldy-2, "double move"))
@@ -131,21 +131,27 @@ class Chess_Board():
         piece_location = (self.selected_square[0], self.selected_square[1])
         if (newx, newy) in moves:
             self.move(piece_location, (newx, newy))
+        
         elif (newx, newy, "short castle") in moves:
             self.move(piece_location, (newx, newy))
             self.move((7, newy), (newx-1, newy), turn=0)
+        
         elif (newx, newy, "long castle") in moves:
             self.move(piece_location, (newx, newy))
             self.move((0, newy), (newx+1, newy), turn=0)
+        
         elif (newx, newy, "double move") in moves:
             turn_color = "white" if self.move_counter % 2 == 0 else "black"
             offset = 1 if turn_color == "white" else -1 
             self.move(piece_location, (newx, newy))
             self.board[newy+offset][newx] = ep.en_passent(self.move_counter,turn_color, newy)
+        
+        
         elif (newx, newy, "en passent") in moves:
             offset = -1 if self.board[newy][newx].color == "white" else 1
             self.board[newy+offset][newx] = None
             self.move(piece_location, (newx, newy))
+        print(moves)
         return 
 
     def move(self, piece_location, newpos, turn=1):
