@@ -31,7 +31,7 @@ class Chess_Board():
         if self.selected_square is None and self.board[gridy][gridx] is not None:
             if self.move_counter % 2 == 0 and self.board[gridy][gridx].color == "white": 
                 self.selected_square = (gridx, gridy)
-            elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == "black":
+            elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == globals.PIECE_BLACK:
                 self.selected_square = (gridx, gridy) 
             return
         
@@ -53,7 +53,7 @@ class Chess_Board():
                 moves = []
             
             # pawns capture to their sides
-            if (piece.color == "black"):
+            if (piece.color == globals.PIECE_BLACK):
                 for i in [(1,1), (-1,1)]:
                     possible_move = (oldx+i[0], oldy+i[1])
                     if (possible_move[0] >= 0 and possible_move[1] >= 0 and possible_move[0] < 8 and possible_move[1] < 8):
@@ -72,7 +72,7 @@ class Chess_Board():
                     possible_move = (oldx+i[0], oldy+i[1])
                     if (possible_move[0] >= 0 and possible_move[1] >= 0 and possible_move[0] < 8 and possible_move[1] < 8):
                         possible_move_grid = self.board[possible_move[1]][possible_move[0]]
-                        if  possible_move_grid is not None and possible_move_grid.color == "black":
+                        if  possible_move_grid is not None and possible_move_grid.color == globals.PIECE_BLACK:
                             if possible_move_grid.type == "en passent" and possible_move_grid.turn_num == self.move_counter:
                                 moves.append((oldx+i[0], oldy+i[1], "en passent"))
                             elif possible_move_grid.type != "en passent":
@@ -89,7 +89,7 @@ class Chess_Board():
                     moves.append((self.selected_square[0]-2, self.selected_square[1], "long castle"))
                 if (wp.rookR.has_moved == False):
                     moves.append((self.selected_square[0]+2, self.selected_square[1], "short castle"))
-            elif (piece.color == "black"):
+            elif (piece.color == globals.PIECE_BLACK):
                 # black castling
                 if (bp.rookL.has_moved == False):
                     moves.append((self.selected_square[0]-2, self.selected_square[1], "long castle"))
@@ -141,7 +141,7 @@ class Chess_Board():
             self.move((0, newy), (newx+1, newy), turn=0)
         
         elif (newx, newy, "double move") in moves:
-            turn_color = "white" if self.move_counter % 2 == 0 else "black"
+            turn_color = "white" if self.move_counter % 2 == 0 else globals.PIECE_BLACK
             offset = 1 if turn_color == "white" else -1 
             self.move(piece_location, (newx, newy))
             self.board[newy+offset][newx] = ep.en_passent(self.move_counter,turn_color, newy)
