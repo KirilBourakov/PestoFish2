@@ -5,7 +5,7 @@ class en_passent():
         self.turn_num = turn_num
         self.color = color
         self.placer = placer
-        self.type = "en passent"
+        self.type = globals.EN_PASSENT_FLAG
     
     def show(self, x, y):
         # window = pygame.display.get_surface()
