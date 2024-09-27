@@ -8,9 +8,10 @@ class en_passent():
         self.type = "en passent"
     
     def show(self, x, y):
-        window = pygame.display.get_surface()
-        pygame.draw.rect(
-            window, (0, 255, 0), 
-            pygame.Rect(x*globals.grid_size, y*globals.grid_size, globals.grid_size, globals.grid_size),
-            width=1
-        )
+        # window = pygame.display.get_surface()
+        # pygame.draw.rect(
+        #     window, (0, 255, 0), 
+        #     pygame.Rect(x*globals.grid_size, y*globals.grid_size, globals.grid_size, globals.grid_size),
+        #     width=1
+        # )
+        return
