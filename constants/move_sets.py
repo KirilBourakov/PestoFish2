@@ -1,5 +1,5 @@
-import chess.constants.globals as globals
-from chess.constants.move_set_functions import double_move_possible, pawn_capture_possible, castle_possible
+import constants.globals as globals
+from constants.move_set_functions import double_move_possible, pawn_capture_possible, castle_possible
 
 
 white_pawn_moves = [(0, -1), (0, -2, double_move_possible), (1,-1, pawn_capture_possible), (-1,-1, pawn_capture_possible)]

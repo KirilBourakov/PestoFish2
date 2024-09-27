@@ -1,3 +1,5 @@
+import constants.globals as globals
+
 def pawn_capture_possible(pos, color, newpos, board, turn_num, *args):
     on_the_board = (newpos[0] >= 0 and newpos[1] >= 0 and newpos[0] < 8 and newpos[1] < 8)
     if on_the_board:

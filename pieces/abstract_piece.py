@@ -1,5 +1,5 @@
 import pygame
-import chess.constants.globals as globals
+import constants.globals as globals
 
 class Abstract_Piece():
     def __init__(self, type, asset, moveset, color, hops=False):

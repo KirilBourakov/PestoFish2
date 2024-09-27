@@ -3,7 +3,7 @@ import assets.assets as assets
 import pieces.white_pieces as wp
 import pieces.black_pieces as bp
 import pieces.en_passent as ep
-import chess.constants.globals as globals
+import constants.globals as globals
 
 class Chess_Board():
     def __init__(self):
