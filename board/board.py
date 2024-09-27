@@ -59,6 +59,9 @@ class Chess_Board():
                         possible_move_grid = self.board[possible_move[1]][possible_move[0]]
                         if  possible_move_grid is not None and possible_move_grid.color == "white":
                             moves.append(possible_move)
+                if oldy == 1:
+                    moves.append((oldx,oldy+2))
+                
             elif (piece.color == "white"):
                 for i in [(1,-1), (-1,-1)]:
                     possible_move = (oldx+i[0], oldy+i[1])
@@ -66,6 +69,9 @@ class Chess_Board():
                         possible_move_grid = self.board[possible_move[1]][possible_move[0]]
                         if  possible_move_grid is not None and possible_move_grid.color == "black":
                             moves.append(possible_move)
+                if oldy == 6:
+                    moves.append((oldx,oldy-2))
+            
         
         # kings can castle
         if (piece.type == "king" and piece.has_moved == False):
