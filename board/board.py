@@ -48,6 +48,7 @@ class Chess_Board():
         # given all possibly legal moves, loop over and remove illegal ones
         purged_moves = []
         for move in moves:
+            legal = True
             if (len(move) == 3):
                 newx, newy, func = move
                 possible = func(self.selected_square, piece.color, (newx, newy), self.board, self.move_counter)
@@ -57,28 +58,30 @@ class Chess_Board():
             else:
                 newx, newy = move
             
+            x_walker, y_walker = oldx, oldy
             # This checks that there is nothing blocking you from moving to that square
-            while (abs(oldx-newx) > 1 or abs(oldy-newy) > 1) and piece.hops == False:
+            while (abs(x_walker-newx) > 1 or abs(y_walker-newy) > 1) and piece.hops == False:
                 # walk across, taking the same path as the peice.  
-                if oldx < newx:
-                    oldx += 1
-                if oldx > newx:
-                    oldx -= 1
-                if oldy < newy:
-                    oldy += 1
-                if oldy > newy:
-                    oldy -= 1
+                if x_walker < newx:
+                    x_walker += 1
+                if x_walker > newx:
+                    x_walker -= 1
+                if y_walker < newy:
+                    y_walker += 1
+                if y_walker > newy:
+                    y_walker -= 1
                 # if you meet another peice, the move is illegal
-                board_square_not_empty = self.board[oldy][oldx] is not None
+                board_square_not_empty = self.board[y_walker][x_walker] is not None
                 if board_square_not_empty:
-                    not_occupied_by_en_passent = self.board[oldy][oldx].type != globals.EN_PASSENT_FLAG
+                    not_occupied_by_en_passent = self.board[y_walker][x_walker].type != globals.EN_PASSENT_FLAG
                     if not_occupied_by_en_passent:
-                        continue
+                        legal = False
         
             if (self.board[newy][newx] is not None) and (piece.color == self.board[newy][newx].color) and (self.board[newy][newx].type != globals.EN_PASSENT_FLAG):
                 continue
-                
-            purged_moves.append(move)
+            
+            if legal: 
+                purged_moves.append(move)
                 
            
         return purged_moves
