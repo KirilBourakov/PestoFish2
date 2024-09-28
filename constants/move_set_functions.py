@@ -12,6 +12,8 @@ def pawn_capture_possible(**kwargs):
             if en_passent_created_last_turn:
                 return (True, globals.EN_PASSENT_FLAG)
             elif possible_move_grid.type != globals.EN_PASSENT_FLAG:
+                if newpos[1] == 0 or newpos[1] == 7:
+                    return (True, globals.PROMOTION_FLAG)
                 return (True, globals.NORMAL_FLAG)
             
     return (False, '')
@@ -29,6 +31,8 @@ def move_forward_possible(**kwargs):
     newpos, board = kwargs["new_position"], kwargs["board"]
     if board[newpos[1]][newpos[0]] is not None and board[newpos[1]][newpos[0]].type != globals.EN_PASSENT_FLAG:
         return (False, '')
+    if newpos[1] == 0 or newpos[1] == 7:
+        return (True, globals.PROMOTION_FLAG)
     return (True, globals.NORMAL_FLAG)
     
 def castle_possible(**kwargs):

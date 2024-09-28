@@ -24,6 +24,7 @@ NORMAL_FLAG = "normal move"
 # pawn flags
 EN_PASSENT_FLAG = "en passent"
 DOUBLE_MOVE_FLAG = "double move"
+PROMOTION_FLAG = "promotion"
 
 # king flags
 SHORT_CASTLE_FLAG = "short castle"

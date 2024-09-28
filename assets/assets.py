@@ -13,6 +13,10 @@ light_square = prepare_surface(
 dark_square = prepare_surface(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'darkSquare.png'))
 )
+promotion_circle = prepare_surface(
+    pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'promotion.png'))
+)
+
 # TODO: added a promotion image sample we can use, find a way to implement later when promotion ruleset is added
 
 """"

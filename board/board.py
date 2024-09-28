@@ -4,6 +4,8 @@ import pieces.white_pieces as wp
 import pieces.black_pieces as bp
 import pieces.en_passent as ep
 import constants.globals as globals
+from board.decorators import wait_for_promotion
+from board.promotion import Promotion
 
 class Chess_Board():
     def __init__(self):
@@ -23,7 +25,7 @@ class Chess_Board():
         self.move_counter = 0
         self.selected_square = None
         self.past_board_states = {}
-        self.waiting_for_promotion = False
+        self.promotion = None
 
     def click(self, gridx, gridy):
         if self.selected_square == (gridx, gridy):
@@ -104,13 +106,15 @@ class Chess_Board():
             offset = 1 if turn_color == globals.PIECE_WHITE else -1 
             self.move(piece_location, (newx, newy))
             self.board[newy+offset][newx] = ep.en_passent(self.move_counter,turn_color, newy)
-        
+
+        elif (newx, newy, globals.PROMOTION_FLAG) in moves:
+            self.move(piece_location, (newx, newy))
+            self.promotion = Promotion((newx, newy))
         
         elif (newx, newy, globals.EN_PASSENT_FLAG) in moves:
             offset = -1 if self.board[newy][newx].color == globals.PIECE_WHITE else 1
             self.board[newy+offset][newx] = None
             self.move(piece_location, (newx, newy))
-
         return 
 
     def move(self, piece_location, newpos, turn=1):
@@ -146,6 +150,10 @@ class Chess_Board():
 
                 if column is not None:
                     column.show(x,y)
+
+        if self.promotion is not None:
+            self.promotion.show()
+
         if self.selected_square is not None:
             pygame.draw.rect(
                 window, (255, 0, 0), 
