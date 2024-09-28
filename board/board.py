@@ -107,10 +107,16 @@ class Chess_Board():
     def get_sight_on_square_color(self, square, color):
         sight = self.get_sight_on_square(square)
         purged = []
+        
         for s in sight:
-            if s.color == color:
+            if self.board[s[1]][s[0]].color == color:
                 purged.append(s)
         return purged
+    
+    def in_check(self, color):
+        if color == globals.PIECE_WHITE:
+            return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_WHITE), globals.PIECE_BLACK)) > 0
+        return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_BLACK), globals.PIECE_WHITE)) > 0
     
     def search(self, start, direction, type):
         x,y = direction
