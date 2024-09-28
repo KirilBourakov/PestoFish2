@@ -104,6 +104,14 @@ class Chess_Board():
 
         return found
     
+    def get_sight_on_square_color(self, square, color):
+        sight = self.get_sight_on_square(square)
+        purged = []
+        for s in sight:
+            if s.color == color:
+                purged.append(s)
+        return purged
+    
     def search(self, start, direction, type):
         x,y = direction
         factor = 1
