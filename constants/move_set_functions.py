@@ -31,9 +31,11 @@ def move_forward_possible(pos, color, newpos, board, *args):
 def castle_possible(pos, color, newpos, board, turn_num):
     newx, newy = newpos
     if newx == 2:
-        if board[newy][0] is not None and board[newy][0].has_moved == False:
+        path_is_clear = board[newy][1] is None and board[newy][2] is None
+        if board[newy][0] is not None and board[newy][0].has_moved == False and path_is_clear:
             return (True, globals.LONG_CASTLE_FLAG)
     elif newx == 6:
-        if board[newy][7] is not None and board[newy][7].has_moved == False:
+        path_is_clear = board[newy][5] is None and board[newy][6] is None
+        if board[newy][7] is not None and board[newy][7].has_moved == False and path_is_clear:
             return (True, globals.SHORT_CASTLE_FLAG)
     return (False, '')

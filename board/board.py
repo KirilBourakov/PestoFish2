@@ -82,8 +82,7 @@ class Chess_Board():
             
             if legal: 
                 purged_moves.append(move)
-                
-           
+                       
         return purged_moves
 
     def make_legal_move(self, newx, newy): 
