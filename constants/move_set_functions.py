@@ -1,6 +1,7 @@
 import constants.globals as globals
 
-def pawn_capture_possible(pos, color, newpos, board, turn_num, *args):
+def pawn_capture_possible(**kwargs):
+    color, newpos, board, turn_num = kwargs["color"], kwargs["new_position"], kwargs["board"], kwargs["move_num"]
     on_the_board = (newpos[0] >= 0 and newpos[1] >= 0 and newpos[0] < 8 and newpos[1] < 8)
     if on_the_board:
         possible_move_grid = board[newpos[1]][newpos[0]]
@@ -15,7 +16,8 @@ def pawn_capture_possible(pos, color, newpos, board, turn_num, *args):
             
     return (False, '')
 
-def double_move_possible(pos, color, *args):
+def double_move_possible(**kwargs):
+    pos, color = kwargs["old_position"], kwargs["color"]
     white_on_first_rank = (color == globals.PIECE_WHITE and pos[1] == 6)
     black_on_seventh_rank = (color == globals.PIECE_BLACK and pos[1] == 1)
     if (white_on_first_rank or black_on_seventh_rank):
@@ -23,12 +25,14 @@ def double_move_possible(pos, color, *args):
     else:
         return (False, '')
     
-def move_forward_possible(pos, color, newpos, board, *args):
+def move_forward_possible(**kwargs):
+    newpos, board = kwargs["new_position"], kwargs["board"]
     if board[newpos[1]][newpos[0]] is not None and board[newpos[1]][newpos[0]].type != globals.EN_PASSENT_FLAG:
         return (False, '')
     return (True, globals.NORMAL_FLAG)
     
-def castle_possible(pos, color, newpos, board, turn_num):
+def castle_possible(**kwargs):
+    newpos, board = kwargs["new_position"], kwargs["board"]
     newx, newy = newpos
     if newx == 2:
         path_is_clear = board[newy][1] is None and board[newy][2] is None

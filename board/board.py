@@ -51,7 +51,7 @@ class Chess_Board():
             legal = True
             if (len(move) == 3):
                 newx, newy, func = move
-                possible = func(self.selected_square, piece.color, (newx, newy), self.board, self.move_counter)
+                possible = func(old_position=self.selected_square, color=piece.color, new_position=(newx, newy), board=self.board, move_num=self.move_counter)
                 if (not possible[0]):
                     continue
                 move = (newx, newy, possible[1])
