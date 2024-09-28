@@ -31,6 +31,7 @@ class Chess_Board(Abstract_State):
         self.selected_square = None
         self.past_board_states = {}
         self.promotion = None
+        self.game_over = None
 
     def handle_click(self, gridx, gridy):
         if self.promotion is not None:
@@ -204,8 +205,16 @@ class Chess_Board(Abstract_State):
 
         check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
         if (self.is_checkmate(check_color)):
-            print(piece.color, " has won")
+            self.game_over = True
 
+    def ready_to_exit(self):
+        return self.game_over
+    
+    def exit(self):
+        if (self.is_checkmate(globals.PIECE_BLACK)):
+            return ['end', "Black has won"]
+        elif (self.is_checkmate(globals.PIECE_WHITE)):
+            return ['end', "White has won"]
 
     def update(self):
         c = 0
