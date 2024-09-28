@@ -5,7 +5,6 @@ import pieces.black_pieces as bp
 import pieces.en_passent as ep
 import constants.globals as globals
 import constants.move_sets as mv
-from board.decorators import wait_for_promotion
 from board.promotion import Promotion
 
 class Chess_Board():
