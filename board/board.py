@@ -93,11 +93,24 @@ class Chess_Board():
                     found.append((newx,newy))
 
         # gets any pawn or kings looking at the square
-        for move in [(1,1), (-1,-1), (-1,1), (1,-1)]:
+        # white pawn
+        for move in [(1,-1), (-1,-1)]:
             newx, newy = x + move[0], y + move[1]
             if self.inbound((newx, newy)):
-                if self.board[newy][newx] is not None and (self.board[newy][newx].type == globals.PIECE_PAWN or self.board[newy][newx].type == globals.PIECE_KING):
+                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KING
+                if occupied_by_king:
                     found.append((newx,newy))
+                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_PAWN:
+                    found.append((newx,newy, globals.PIECE_WHITE))
+        # black pawn
+        for move in [(1,1), (-1,1)]:
+            newx, newy = x + move[0], y + move[1]
+            if self.inbound((newx, newy)):
+                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KING
+                if occupied_by_king:
+                    found.append((newx,newy))
+                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_PAWN:
+                    found.append((newx,newy, globals.PIECE_BLACK))
         
         # gets any kings looking at the square
         for move in [(0,1), (0,-1), (1,0), (-1,0)]:
@@ -114,7 +127,11 @@ class Chess_Board():
         
         for s in sight:
             if self.board[s[1]][s[0]].color == color:
-                purged.append(s)
+                if len(s) == 3:
+                    if (s[2] != color):
+                        purged.append(s)
+                else:
+                    purged.append(s)
         return purged
     
     def in_check(self, color):
