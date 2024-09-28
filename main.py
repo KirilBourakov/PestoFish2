@@ -6,7 +6,7 @@ pygame.display.set_caption('Chess')
 # TODO: have window be resizable, based on constant values
 
 window = pygame.display.set_mode((globals.appsize, globals.appsize))
-from board.State_Manager import State_Manager
+from game.State_Manager import State_Manager
 
 
 is_running = True

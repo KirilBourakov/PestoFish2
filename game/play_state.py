@@ -5,10 +5,10 @@ import pieces.black_pieces as bp
 import pieces.en_passent as ep
 import constants.globals as globals
 import constants.move_sets as mv
-from board.promotion import Promotion
-from board.abstract_state import Abstract_State
+from game.promotion import Promotion
+from game.abstract_state import Abstract_State
 
-class Chess_Board(Abstract_State):
+class Play_State(Abstract_State):
     def __init__(self, board=None):
         self.enter()
 
@@ -252,7 +252,7 @@ class Chess_Board(Abstract_State):
             )
 
     def self_copy(self):
-        return Chess_Board(self.board)
+        return Play_State(self.board)
     
     def __str__(self):
         final = ""

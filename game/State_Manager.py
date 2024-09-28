@@ -1,9 +1,9 @@
-import board.board as board
+from game.play_state import Play_State
 
 class State_Manager():
     def __init__(self):
         self.states = {
-            "play": board.Chess_Board()
+            "play": Play_State()
         }
         self.current_state = "play"
 
