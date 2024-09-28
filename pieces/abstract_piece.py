@@ -43,8 +43,8 @@ class Abstract_Piece():
             else:
                 newx, newy = move
             
-            x_walker, y_walker = oldx, oldy
             # This checks that there is nothing blocking you from moving to that square
+            x_walker, y_walker = oldx, oldy
             while (abs(x_walker-newx) > 1 or abs(y_walker-newy) > 1) and piece.hops == False:
                 # walk across, taking the same path as the peice.  
                 if x_walker < newx:
@@ -62,7 +62,11 @@ class Abstract_Piece():
                     if not_occupied_by_en_passent:
                         legal = False
         
-            if (board_obj.board[newy][newx] is not None) and (piece.color == board_obj.board[newy][newx].color) and (board_obj.board[newy][newx].type != globals.EN_PASSENT_FLAG):
+            square_contains_same_color_piece = ((board_obj.board[newy][newx] is not None) and 
+                                                (piece.color == board_obj.board[newy][newx].color) and 
+                                                (board_obj.board[newy][newx].type != globals.EN_PASSENT_FLAG)
+                                                )
+            if square_contains_same_color_piece:
                 continue
             
             if legal: 
