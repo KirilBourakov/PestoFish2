@@ -21,10 +21,12 @@ class Abstract_Piece():
                     moves_list.append(new_pos,)
         return moves_list
     
-    def get_legal_moves(self, board_obj):
-        piece = board_obj.board[board_obj.selected_square[1]][board_obj.selected_square[0]]
-        moves = piece.getPossibleMoves(board_obj.selected_square)
-        oldx, oldy = board_obj.selected_square 
+    def get_legal_moves(self, board_obj, pos=None):
+        if pos is None:
+            pos = board_obj.selected_square
+        piece = board_obj.board[pos[1]][pos[0]]
+        moves = piece.getPossibleMoves(pos)
+        oldx, oldy = pos
 
         # given all possibly legal moves, loop over and remove illegal ones
         purged_moves = []
@@ -34,7 +36,7 @@ class Abstract_Piece():
             # certain moves come with functional conditions. If the move does so, make sure the conditions are met
             if (len(move) == 3):
                 newx, newy, func = move
-                possible = func(old_position=board_obj.selected_square, color=piece.color, new_position=(newx, newy), board=board_obj.board, move_num=board_obj.move_counter)
+                possible = func(old_position=pos, color=piece.color, new_position=(newx, newy), board=board_obj.board, move_num=board_obj.move_counter)
                 if (not possible[0]):
                     continue
                 move = (newx, newy, possible[1])

@@ -139,6 +139,15 @@ class Chess_Board():
             return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_WHITE), globals.PIECE_BLACK)) > 0
         return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_BLACK), globals.PIECE_WHITE)) > 0
     
+    def is_checkmate(self, color):
+        for y, row in enumerate(self.board):
+            for x, grid_contents in enumerate(row):
+                grid_empty = grid_contents is not None and grid_contents.type != globals.EN_PASSENT_FLAG
+                if grid_empty and grid_contents.color == color:
+                    if len(self.board[y][x].get_legal_moves(self, (x,y))) > 0:
+                        return False
+        return True
+    
     def search(self, start, direction, type):
         x,y = direction
         factor = 1
@@ -193,6 +202,9 @@ class Chess_Board():
         self.move_counter += turn
         piece.has_moved = True
 
+        check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
+        if (self.is_checkmate(check_color)):
+            print(piece.color, " has won")
 
     def update(self):
         c = 0
