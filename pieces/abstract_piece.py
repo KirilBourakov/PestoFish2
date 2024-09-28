@@ -1,4 +1,4 @@
-import pygame
+import pygame, copy
 import constants.globals as globals
 
 class Abstract_Piece():
@@ -68,6 +68,14 @@ class Abstract_Piece():
                                                 )
             if square_contains_same_color_piece:
                 continue
+
+            # if this moves ends with your king in check, it is not allowed
+            copied = board_obj.self_copy()
+            copied.board[newy][newx] = piece
+            copied.board[oldy][oldx] = None
+            if copied.in_check(self.color):
+                continue
+
             
             if legal: 
                 purged_moves.append(move)

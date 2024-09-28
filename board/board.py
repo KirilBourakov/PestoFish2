@@ -1,4 +1,4 @@
-import pygame
+import pygame, copy
 import assets.assets as assets
 import pieces.white_pieces as wp
 import pieces.black_pieces as bp
@@ -9,8 +9,12 @@ from board.decorators import wait_for_promotion
 from board.promotion import Promotion
 
 class Chess_Board():
-    def __init__(self):
+    def __init__(self, board=None):
         self.set_board()
+
+        if board is not None:
+            for i, col in enumerate(board):
+                self.board[i] = copy.copy(col)
 
     def set_board(self):
         self.board = [
@@ -208,7 +212,18 @@ class Chess_Board():
                 width=1
             )
 
+    def self_copy(self):
+        return Chess_Board(self.board)
     
-                
-                    
+    def __str__(self):
+        final = ""
+
+        for row in self.board:
+            for square in row:
+                if square is None:
+                    final += "   "
+                else:
+                    final += square.color[0] + square.type[0] + " "
+            final += "\n"
+        return final
 
