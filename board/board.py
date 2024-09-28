@@ -4,6 +4,7 @@ import pieces.white_pieces as wp
 import pieces.black_pieces as bp
 import pieces.en_passent as ep
 import constants.globals as globals
+import constants.move_sets as mv
 from board.decorators import wait_for_promotion
 from board.promotion import Promotion
 
@@ -56,7 +57,67 @@ class Chess_Board():
         if self.move_counter % 2 == 0:
             return globals.PIECE_WHITE
         return globals.PIECE_BLACK
+    
+    def inbound(self, pos):
+        x,y = pos
+        return (x >= 0) and (y >= 0) and (x < 8) and (y < 8)
         
+    def get_sight_on_square(self, square):
+        x,y = square
+        found = []
+        
+        # gets any rooks or queens looking at the square
+        rook_directions = [(0,1), (0,-1), (1,0), (-1,0)]
+        for direction in rook_directions:
+            f = self.search(square, direction, [globals.PIECE_ROOK, globals.PIECE_QUEEN])
+            if f is not None:
+                found.append(f)
+
+        # gets any bishops or queens looking at the square
+        bishop_directions = [(1,1), (-1,-1), (-1,1), (1,-1)]
+        for direction in bishop_directions:
+            f = self.search(square, direction, [globals.PIECE_BISHOP, globals.PIECE_QUEEN])
+            if f is not None:
+                found.append(f)
+        
+        # gets any knights looking at the square
+        for move in mv.knight_moves:
+            newx, newy = x + move[0], y + move[1]
+            if self.inbound((newx, newy)):
+                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KNIGHT:
+                    found.append((newx,newy))
+
+        # gets any pawn or kings looking at the square
+        for move in [(1,1), (-1,-1), (-1,1), (1,-1)]:
+            newx, newy = x + move[0], y + move[1]
+            if self.inbound((newx, newy)):
+                if self.board[newy][newx] is not None and (self.board[newy][newx].type == globals.PIECE_PAWN or self.board[newy][newx].type == globals.PIECE_KING):
+                    found.append((newx,newy))
+        
+        # gets any kings looking at the square
+        for move in [(0,1), (0,-1), (1,0), (-1,0)]:
+            newx, newy = x + move[0], y + move[1]
+            if self.inbound((newx, newy)):
+                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KING:
+                    found.append((newx,newy))
+
+        return found
+    
+    def search(self, start, direction, type):
+        x,y = direction
+        factor = 1
+
+        newx, newy = start[0] + (x*factor), start[1] + (y*factor)
+        while self.inbound((newx, newy)):
+            if self.board[newy][newx] is not None and self.board[newy][newx].type != globals.EN_PASSENT_FLAG:
+                if self.board[newy][newx].type in type:
+                    return (newx, newy)
+                else:
+                    return None
+            factor += 1
+            newx, newy = start[0] + (x*factor), start[1] + (y*factor)
+
+        return None
 
     def make_legal_move(self, newx, newy): 
         moves = self.board[self.selected_square[1]][self.selected_square[0]].get_legal_moves(self)
