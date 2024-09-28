@@ -45,15 +45,31 @@ class Chess_Board():
             self.selected_square = None
             return
         
+    def get_king_pos(self, color):
+        for y, colomn in enumerate(self.board):
+            for x, square in enumerate(colomn):
+                if square is not None and square.color == color and square.type == globals.PIECE_KING:
+                    return (x,y)
+        raise Exception("King not found.") 
+    
+    def get_turn(self):
+        if self.move_counter % 2 == 0:
+            return globals.PIECE_WHITE
+        return globals.PIECE_BLACK
+        
     def get_legal_moves(self):
         piece = self.board[self.selected_square[1]][self.selected_square[0]]
         moves = piece.getPossibleMoves(self.selected_square)
-        oldx, oldy = self.selected_square     
+        oldx, oldy = self.selected_square
+
+        king_pos = self.get_king_pos(self.get_turn())    
 
         # given all possibly legal moves, loop over and remove illegal ones
         purged_moves = []
         for move in moves:
             legal = True
+
+            # certain moves come with functional conditions. If the move does so, make sure the conditions are met
             if (len(move) == 3):
                 newx, newy, func = move
                 possible = func(old_position=self.selected_square, color=piece.color, new_position=(newx, newy), board=self.board, move_num=self.move_counter)
