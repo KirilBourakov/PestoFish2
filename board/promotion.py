@@ -15,6 +15,22 @@ class Promotion():
             self.pos[1] + 2 * self.direction,
             self.pos[1] + 3 * self.direction
         ]
+        self.conversion = {
+            7: 0,
+            6: 1,
+            5: 2,
+            4: 3
+        }
+
+    def handle_click(self, pos, board_obj):
+        mousex, mousey = pos
+
+        if (mousex != self.pos[0]) or (mousey not in self.y_positions):
+            return
+        
+        peice_index = self.conversion[mousey] if mousey in self.conversion else mousey
+        board_obj.board[self.pos[1]][self.pos[0]] = self.assets[peice_index]
+        board_obj.promotion = None
 
     def show(self):
         gridx, gridy = self.pos
