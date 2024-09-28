@@ -80,12 +80,11 @@ class Abstract_Piece():
                 if board_obj.in_check(self.color):
                     continue
                 # can't castle through check
-                color = globals.PIECE_WHITE if self.color == globals.PIECE_BLACK else globals.PIECE_WHITE
+                color = globals.PIECE_WHITE if self.color == globals.PIECE_BLACK else globals.PIECE_BLACK
                 if move[2] == globals.LONG_CASTLE_FLAG:
                     if len(board_obj.get_sight_on_square_color((2, oldy), color)) > 0:
                         continue
                 elif move[2] == globals.SHORT_CASTLE_FLAG:
-                    print(board_obj.get_sight_on_square_color((5, oldy), color))
                     if len(board_obj.get_sight_on_square_color((5, oldy), color)) > 0:
                         continue
             
