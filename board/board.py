@@ -6,16 +6,17 @@ import pieces.en_passent as ep
 import constants.globals as globals
 import constants.move_sets as mv
 from board.promotion import Promotion
+from board.abstract_state import Abstract_State
 
-class Chess_Board():
+class Chess_Board(Abstract_State):
     def __init__(self, board=None):
-        self.set_board()
+        self.enter()
 
         if board is not None:
             for i, col in enumerate(board):
                 self.board[i] = copy.copy(col)
 
-    def set_board(self):
+    def enter(self):
         self.board = [
             [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
             [bp.pawn] * 8,
@@ -31,7 +32,7 @@ class Chess_Board():
         self.past_board_states = {}
         self.promotion = None
 
-    def click(self, gridx, gridy):
+    def handle_click(self, gridx, gridy):
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
             return
@@ -204,6 +205,7 @@ class Chess_Board():
         check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
         if (self.is_checkmate(check_color)):
             print(piece.color, " has won")
+
 
     def update(self):
         c = 0
