@@ -31,6 +31,7 @@ class Chess_Board():
     def click(self, gridx, gridy):
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
+            return
 
         if self.selected_square == (gridx, gridy):
             return
