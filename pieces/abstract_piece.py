@@ -24,9 +24,7 @@ class Abstract_Piece():
     def get_legal_moves(self, board_obj):
         piece = board_obj.board[board_obj.selected_square[1]][board_obj.selected_square[0]]
         moves = piece.getPossibleMoves(board_obj.selected_square)
-        oldx, oldy = board_obj.selected_square
-
-        king_pos = board_obj.get_king_pos(board_obj.get_turn())    
+        oldx, oldy = board_obj.selected_square 
 
         # given all possibly legal moves, loop over and remove illegal ones
         purged_moves = []
@@ -75,7 +73,21 @@ class Abstract_Piece():
             copied.board[oldy][oldx] = None
             if copied.in_check(self.color):
                 continue
-
+            
+            castling = len(move) == 3 and (move[2] == globals.LONG_CASTLE_FLAG or move[2] == globals.SHORT_CASTLE_FLAG)
+            if castling:
+                # can't castle out of check
+                if board_obj.in_check(self.color):
+                    continue
+                # can't castle through check
+                color = globals.PIECE_WHITE if self.color == globals.PIECE_BLACK else globals.PIECE_WHITE
+                if move[2] == globals.LONG_CASTLE_FLAG:
+                    if len(board_obj.get_sight_on_square_color((2, oldy), color)) > 0:
+                        continue
+                elif move[2] == globals.SHORT_CASTLE_FLAG:
+                    print(board_obj.get_sight_on_square_color((5, oldy), color))
+                    if len(board_obj.get_sight_on_square_color((5, oldy), color)) > 0:
+                        continue
             
             if legal: 
                 purged_moves.append(move)
