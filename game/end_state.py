@@ -17,7 +17,7 @@ class End_State(Abstract_State):
     def ready_to_exit(self):
         return self.ready_to_exit_bool
     
-    def exit():
+    def exit(self):
         return ["start", ""]
     
     def update(self):
