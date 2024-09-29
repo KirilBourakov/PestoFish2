@@ -58,7 +58,7 @@ class Play_State(Abstract_State):
             return
         
         if self.selected_square != None:
-            self.make_legal_move(gridx, gridy)
+            self.make_legal_move((gridx, gridy))
             self.selected_square = None
             return
         
@@ -184,12 +184,16 @@ class Play_State(Abstract_State):
 
         return None
 
-    def make_legal_move(self, newx, newy): 
-        moves = self.board[self.selected_square[1]][self.selected_square[0]].get_legal_moves(self)
-        piece_location = (self.selected_square[0], self.selected_square[1])
+    def make_legal_move(self, newpos, piece_location=None): 
+        newx, newy = newpos
+
+        if piece_location is None:
+            piece_location = (self.selected_square[0], self.selected_square[1])
+        moves = self.board[piece_location[1]][piece_location[0]].get_legal_moves(self, pos=piece_location)
+        print(newpos, moves)
         if (newx, newy) in moves:
             self.move(piece_location, (newx, newy))
-
+        
         # pawn moves
         elif (newx, newy, globals.NORMAL_FLAG) in moves:
             self.move(piece_location, (newx, newy))

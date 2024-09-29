@@ -17,7 +17,7 @@ def run_engine(func):
         if black_engine_turn:
             self.engine(self, globals.PIECE_BLACK)
         if white_engine_turn:
-            self.engine(self, globals.PIECE_BLACK)
+            self.engine(self, globals.PIECE_WHITE)
         
         func(self, *args, **kwargs)
         return  
