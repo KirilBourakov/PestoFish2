@@ -20,6 +20,9 @@ promotion_circle = prepare_surface(
 text_large = pygame.font.Font(
     os.path.join(os.path.dirname(__file__), 'fonts', 'DancingScript-Regular.otf'), 50
 )
+text_small = pygame.font.Font(
+    os.path.join(os.path.dirname(__file__), 'fonts', 'DancingScript-Regular.otf'), 25
+)
 
 
 # white pieces

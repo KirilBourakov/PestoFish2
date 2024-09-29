@@ -10,20 +10,25 @@ class Start_State(Abstract_State):
     def enter(self, args):
         self.ready_to_exit_bool = False
         self.options = ["PVP", "Engine as black", "Engine as white"]
-        self.chosen = self.options[0]
+        self.chosen = 0
 
     def handle_click(self, x, y):
-        self.ready_to_exit_bool = True
+        return
 
     def handle_key_press(self, event):
-        if event.key == pygame.K_BACKSPACE:
-            print("b")
+        if event.key == pygame.K_UP:
+            self.chosen = max(self.chosen-1, 0)
+        elif event.key == pygame.K_DOWN:
+            self.chosen = min(self.chosen+1, len(self.options)-1)
+        # 13 represents enter that is not ony keypad
+        elif event.key == 13 or event.key == pygame.K_KP_ENTER:
+            self.ready_to_exit_bool = True
 
     def ready_to_exit(self):
         return self.ready_to_exit_bool
 
     def exit(self):
-        return ['play', self.chosen]
+        return ['play', self.options[self.chosen]]
     
     def update(self):
         window = pygame.display.get_surface() 
@@ -33,14 +38,16 @@ class Start_State(Abstract_State):
         x,y = assets.text_large.size("Chess")
         window.blit(render, (int((globals.appsize-x)/2), int((globals.appsize-y)/6)))
 
-        move_factor = 3
-        yprev = y * move_factor
+        offset = (y+50)
         for option in self.options:
             render = assets.text_large.render(option, False, "white")
-            x,y = assets.text_large.size(option)
+            horizontal_size, virtical_size= assets.text_large.size(option)
 
-            window.blit(render, (int((globals.appsize-x)/2), int((globals.appsize-y)/6)+yprev))
-            
-            move_factor += 1
-            yprev = y * move_factor
+            window.blit(render, (int((globals.appsize-horizontal_size)/2), int((globals.appsize-virtical_size)/6)+offset))
+            offset += virtical_size
+        offset += virtical_size
+
+        render = assets.text_small.render("Hit <Enter> to Start", False, "white")
+        x,y = assets.text_small.size("Hit <Enter> to Start")
+        window.blit(render, (int((globals.appsize-x)/2), int((globals.appsize-y)/6)+offset))
             
