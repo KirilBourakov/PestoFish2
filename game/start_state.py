@@ -9,7 +9,7 @@ class Start_State(Abstract_State):
 
     def enter(self, args):
         self.ready_to_exit_bool = False
-        self.options = ["PVP", "Engine as black", "Engine as white"]
+        self.options = [globals.GAME_TYPE_PVP, globals.GAME_TYPE_ENGINE_BLACK, globals.GAME_TYPE_ENGINE_WHITE]
         self.chosen = 0
 
     def handle_click(self, x, y):

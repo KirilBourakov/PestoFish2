@@ -28,10 +28,13 @@ class Play_State(Abstract_State):
             [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
         ]
         self.move_counter = 0
-        self.selected_square = None
         self.past_board_states = {}
+        self.selected_square = None
+        
         self.promotion = None
         self.game_over = None
+
+        self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
 
     def handle_click(self, gridx, gridy):
         if self.promotion is not None:

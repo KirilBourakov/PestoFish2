@@ -29,3 +29,8 @@ PROMOTION_FLAG = "promotion"
 # king flags
 SHORT_CASTLE_FLAG = "short castle"
 LONG_CASTLE_FLAG = "long castle"
+
+# game types
+GAME_TYPE_PVP = "pvp"
+GAME_TYPE_ENGINE_WHITE = "engine as white"
+GAME_TYPE_ENGINE_BLACK = "engine as black"
