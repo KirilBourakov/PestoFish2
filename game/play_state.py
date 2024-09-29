@@ -28,7 +28,10 @@ class Play_State(Abstract_State):
             [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
         ]
         self.move_counter = 0
-        self.past_board_states = {}
+        self.fifty_move_rule_counter = 0
+        self.past_board_states = {
+            str(self.board): 1
+        }
         self.selected_square = None
         
         self.promotion = None
@@ -152,6 +155,12 @@ class Play_State(Abstract_State):
                         return False
         return True
     
+    def is_draw(self):
+        for pos in self.past_board_states:
+            if self.past_board_states[pos] >= 3:
+                return (True, "draw by threefold repition")
+        return (self.fifty_move_rule_counter >= 100, "draw by 50 move rule")
+    
     def search(self, start, direction, type):
         x,y = direction
         factor = 1
@@ -171,8 +180,13 @@ class Play_State(Abstract_State):
     def make_legal_move(self, newx, newy): 
         moves = self.board[self.selected_square[1]][self.selected_square[0]].get_legal_moves(self)
         piece_location = (self.selected_square[0], self.selected_square[1])
-        if (newx, newy) in moves or (newx, newy, globals.NORMAL_FLAG) in moves:
+        if (newx, newy) in moves:
             self.move(piece_location, (newx, newy))
+
+        # pawn moves
+        elif (newx, newy, globals.NORMAL_FLAG) in moves:
+            self.move(piece_location, (newx, newy))
+            self.fifty_move_rule_counter = 0
         
         elif (newx, newy, globals.SHORT_CASTLE_FLAG) in moves:
             self.move(piece_location, (newx, newy))
@@ -201,13 +215,24 @@ class Play_State(Abstract_State):
     def move(self, piece_location, newpos, turn=1):
         piece = self.board[piece_location[1]][piece_location[0]]
         newx, newy = newpos
+        # if it's a capture
+        if self.board[newx][newy] is not None and self.board[newx][newy].type != globals.EN_PASSENT_FLAG:
+            self.fifty_move_rule_counter = 0
         self.board[newy][newx] = piece
         self.board[piece_location[1]][piece_location[0]] = None
         self.move_counter += turn
         piece.has_moved = True
 
+        if str(self.board) in self.past_board_states:
+            self.past_board_states[str(self.board)] += 1
+        else: 
+            self.past_board_states[str(self.board)] = 1
+
         check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
         if (self.is_checkmate(check_color)):
+            self.game_over = True
+
+        if (self.is_draw()[0]):
             self.game_over = True
 
     def ready_to_exit(self):
@@ -219,8 +244,11 @@ class Play_State(Abstract_State):
     def exit(self):
         if (self.is_checkmate(globals.PIECE_BLACK)):
             return ['end', "Black has won"]
-        elif (self.is_checkmate(globals.PIECE_WHITE)):
+        if (self.is_checkmate(globals.PIECE_WHITE)):
             return ['end', "White has won"]
+        draw = self.is_draw()
+        if (draw[0]):
+            return ["end", draw[1]]
 
     def update(self):
         c = 0
