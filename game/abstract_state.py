@@ -5,6 +5,9 @@ class Abstract_State():
     def handle_click(self):
         raise Exception("handle_click not implemented")
     
+    def handle_key_press(self):
+        raise Exception("handle_key_press not implemented")
+    
     def update(self):
         raise Exception("update not implemented")
     

@@ -16,7 +16,7 @@ class Play_State(Abstract_State):
             for i, col in enumerate(board):
                 self.board[i] = copy.copy(col)
 
-    def enter(self):
+    def enter(self, *args):
         self.board = [
             [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
             [bp.pawn] * 8,
@@ -210,6 +210,9 @@ class Play_State(Abstract_State):
     def ready_to_exit(self):
         return self.game_over
     
+    def handle_key_press(self):
+        return
+
     def exit(self):
         if (self.is_checkmate(globals.PIECE_BLACK)):
             return ['end', "Black has won"]
@@ -220,6 +223,7 @@ class Play_State(Abstract_State):
         c = 0
         light_row = False
         window = pygame.display.get_surface() 
+        window.fill('black')
         for y, row in enumerate(self.board):
             light_row = not light_row
             for x, column in enumerate(row):

@@ -1,13 +1,15 @@
 from game.play_state import Play_State
 from game.end_state import End_State
+from game.start_state import Start_State
 
 class State_Manager():
     def __init__(self):
         self.states = {
             "play": Play_State(),
             "end": End_State(),
+            "start": Start_State()
         }
-        self.current_state = "play"
+        self.current_state = "start"
 
     def change_state(self, new_state, args):
         if new_state in self.states.keys():
@@ -18,6 +20,9 @@ class State_Manager():
     
     def handle_click(self, pos):
         self.states[self.current_state].handle_click(pos[0], pos[1])
+
+    def handle_key_press(self, event):
+         self.states[self.current_state].handle_key_press(event)
 
     def update(self):
         state = self.states[self.current_state]

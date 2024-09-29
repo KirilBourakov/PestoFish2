@@ -10,6 +10,9 @@ class End_State(Abstract_State):
     
     def handle_click(self, x, y):
         self.ready_to_exit_bool = True
+
+    def handle_key_press(self, event):
+        self.ready_to_exit_bool = True
     
     def ready_to_exit(self):
         return self.ready_to_exit_bool

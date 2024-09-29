@@ -20,5 +20,8 @@ while is_running:
             mousepos = pygame.mouse.get_pos()
             gridx, gridy = int(mousepos[0]/globals.grid_size), int(mousepos[1]/globals.grid_size)
             manager.handle_click((gridx, gridy))
+        if event.type == pygame.KEYDOWN:
+            manager.handle_key_press(event)
+
     manager.update()
     pygame.display.update()
