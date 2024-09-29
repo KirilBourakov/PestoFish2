@@ -238,7 +238,7 @@ class Play_State(Abstract_State):
     def ready_to_exit(self):
         return self.game_over
     
-    def handle_key_press(self):
+    def handle_key_press(self, event):
         return
 
     def exit(self):

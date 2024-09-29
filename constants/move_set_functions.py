@@ -41,12 +41,12 @@ def castle_possible(**kwargs):
     king = board[old_pos[1]][old_pos[0]]
     if newx == 2:
         path_is_clear = board[newy][1] is None and board[newy][2] is None
-        has_not_moved = king.has_moved == False and board[newy][0].has_moved == False
-        if board[newy][0] is not None and  has_not_moved and path_is_clear:
+        has_not_moved = king.has_moved == False and board[newy][0] is not None and board[newy][0].has_moved == False
+        if has_not_moved and path_is_clear:
             return (True, globals.LONG_CASTLE_FLAG)
     elif newx == 6:
         path_is_clear = board[newy][5] is None and board[newy][6] is None
-        has_not_moved = king.has_moved == False and board[newy][0].has_moved == False
-        if board[newy][7] is not None and has_not_moved and path_is_clear:
+        has_not_moved = king.has_moved == False and board[newy][7] is not None and board[newy][0].has_moved == False
+        if has_not_moved and path_is_clear:
             return (True, globals.SHORT_CASTLE_FLAG)
     return (False, '')
