@@ -243,9 +243,9 @@ class Play_State(Abstract_State):
 
     def exit(self):
         if (self.is_checkmate(globals.PIECE_BLACK)):
-            return ['end', "Black has won"]
-        if (self.is_checkmate(globals.PIECE_WHITE)):
             return ['end', "White has won"]
+        if (self.is_checkmate(globals.PIECE_WHITE)):
+            return ['end', "Black has won"]
         draw = self.is_draw()
         if (draw[0]):
             return ["end", draw[1]]
