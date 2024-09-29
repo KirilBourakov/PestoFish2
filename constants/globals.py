@@ -34,3 +34,7 @@ LONG_CASTLE_FLAG = "long castle"
 GAME_TYPE_PVP = "pvp"
 GAME_TYPE_ENGINE_WHITE = "engine as white"
 GAME_TYPE_ENGINE_BLACK = "engine as black"
+
+#
+CHECKMATE = 'checkmate'
+STALEMATE = 'stalemate'

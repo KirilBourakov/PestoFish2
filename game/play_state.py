@@ -146,14 +146,17 @@ class Play_State(Abstract_State):
             return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_WHITE), globals.PIECE_BLACK)) > 0
         return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_BLACK), globals.PIECE_WHITE)) > 0
     
-    def is_checkmate(self, color):
+    def is_checkmate_or_stalemate(self, color):
         for y, row in enumerate(self.board):
             for x, grid_contents in enumerate(row):
                 grid_empty = grid_contents is not None and grid_contents.type != globals.EN_PASSENT_FLAG
                 if grid_empty and grid_contents.color == color:
                     if len(self.board[y][x].get_legal_moves(self, (x,y))) > 0:
-                        return False
-        return True
+                        return (False, "")
+        if (self.in_check(color)):
+            return (True, globals.CHECKMATE)
+        return (True, globals.STALEMATE)
+
     
     def is_draw(self):
         for pos in self.past_board_states:
@@ -229,7 +232,7 @@ class Play_State(Abstract_State):
             self.past_board_states[str(self.board)] = 1
 
         check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
-        if (self.is_checkmate(check_color)):
+        if (self.is_checkmate_or_stalemate(check_color)[0]):
             self.game_over = True
 
         if (self.is_draw()[0]):
@@ -242,9 +245,15 @@ class Play_State(Abstract_State):
         return
 
     def exit(self):
-        if (self.is_checkmate(globals.PIECE_BLACK)):
-            return ['end', "White has won"]
-        if (self.is_checkmate(globals.PIECE_WHITE)):
+        is_mate_or_stale_white = self.is_checkmate_or_stalemate(globals.PIECE_BLACK)
+        if (is_mate_or_stale_white[0]):
+            if is_mate_or_stale_white[1] == globals.STALEMATE:
+                return ['end', 'Stalemate']
+            return ['end', 'White has won']
+        is_mate_or_stale_black = self.is_checkmate_or_stalemate(globals.PIECE_WHITE)
+        if (is_mate_or_stale_black[0]):
+            if is_mate_or_stale_black[1] == globals.STALEMATE:
+                return ['end', 'Stalemate']
             return ['end', "Black has won"]
         draw = self.is_draw()
         if (draw[0]):
