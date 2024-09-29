@@ -7,6 +7,8 @@ import constants.globals as globals
 import constants.move_sets as mv
 from game.promotion import Promotion
 from game.abstract_state import Abstract_State
+from game.decorators import disable_on_engine_turn, run_engine
+from engine.engine import get_move_and_play
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
@@ -38,7 +40,9 @@ class Play_State(Abstract_State):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
+        self.engine = get_move_and_play
 
+    @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
@@ -259,6 +263,7 @@ class Play_State(Abstract_State):
         if (draw[0]):
             return ["end", draw[1]]
 
+    @run_engine
     def update(self):
         c = 0
         light_row = False
