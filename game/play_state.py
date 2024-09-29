@@ -190,7 +190,6 @@ class Play_State(Abstract_State):
         if piece_location is None:
             piece_location = (self.selected_square[0], self.selected_square[1])
         moves = self.board[piece_location[1]][piece_location[0]].get_legal_moves(self, pos=piece_location)
-        print(newpos, moves)
         if (newx, newy) in moves:
             self.move(piece_location, (newx, newy))
         
