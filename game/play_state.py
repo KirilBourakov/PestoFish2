@@ -5,17 +5,18 @@ import pieces.black_pieces as bp
 import pieces.en_passent as ep
 import constants.globals as globals
 import constants.move_sets as mv
-from board.promotion import Promotion
+from game.promotion import Promotion
+from game.abstract_state import Abstract_State
 
-class Chess_Board():
+class Play_State(Abstract_State):
     def __init__(self, board=None):
-        self.set_board()
+        self.enter()
 
         if board is not None:
             for i, col in enumerate(board):
                 self.board[i] = copy.copy(col)
 
-    def set_board(self):
+    def enter(self, *args):
         self.board = [
             [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
             [bp.pawn] * 8,
@@ -27,11 +28,15 @@ class Chess_Board():
             [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
         ]
         self.move_counter = 0
-        self.selected_square = None
         self.past_board_states = {}
+        self.selected_square = None
+        
         self.promotion = None
+        self.game_over = None
 
-    def click(self, gridx, gridy):
+        self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
+
+    def handle_click(self, gridx, gridy):
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
             return
@@ -203,12 +208,25 @@ class Chess_Board():
 
         check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
         if (self.is_checkmate(check_color)):
-            print(piece.color, " has won")
+            self.game_over = True
+
+    def ready_to_exit(self):
+        return self.game_over
+    
+    def handle_key_press(self):
+        return
+
+    def exit(self):
+        if (self.is_checkmate(globals.PIECE_BLACK)):
+            return ['end', "Black has won"]
+        elif (self.is_checkmate(globals.PIECE_WHITE)):
+            return ['end', "White has won"]
 
     def update(self):
         c = 0
         light_row = False
         window = pygame.display.get_surface() 
+        window.fill('black')
         for y, row in enumerate(self.board):
             light_row = not light_row
             for x, column in enumerate(row):
@@ -241,7 +259,7 @@ class Chess_Board():
             )
 
     def self_copy(self):
-        return Chess_Board(self.board)
+        return Play_State(self.board)
     
     def __str__(self):
         final = ""

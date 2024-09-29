@@ -17,17 +17,12 @@ promotion_circle = prepare_surface(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'promotion.png'))
 )
 
-# TODO: added a promotion image sample we can use, find a way to implement later when promotion ruleset is added
-
-""""
-w_promotion_image = prepare_surface(
-    pygame.image.load(os.path.join(os.path.dirname(__file__),  'imgs', 'w_promotion.png'))
+text_large = pygame.font.Font(
+    os.path.join(os.path.dirname(__file__), 'fonts', 'DancingScript-Regular.otf'), 50
 )
-b_promotion_image = prepare_surface(
-    pygame.image.load(os.path.join(os.path.dirname(__file__),  'imgs', 'b_promotion.png'))
+text_small = pygame.font.Font(
+    os.path.join(os.path.dirname(__file__), 'fonts', 'DancingScript-Regular.otf'), 25
 )
-#sidenote: this code is not final. I just copied the format on the top and put it in there. Probably will need adjustments when the ruleset for it works.
-"""
 
 
 # white pieces
