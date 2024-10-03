@@ -180,22 +180,22 @@ class Play_State(Abstract_State):
         }
         for y, row in enumerate(self.board):
             for x, square in enumerate(row):
-                if square is not None and square.type != globals.EN_PASSENT_FLAG:
-                    print(square.type, square.color)
-                    if square.type == globals.PIECE_BISHOP or square.type == globals.PIECE_BISHOP:
+                if square is not None and square.type != globals.EN_PASSENT_FLAG and square.type != globals.PIECE_KING:
+                    if square.type == globals.PIECE_BISHOP or square.type == globals.PIECE_KNIGHT:
                         tracker[square.color][square.type] += 1
-                        if tracker[square.color][square.type] >= 2:
+                        knight_bishop = tracker[square.color][globals.PIECE_BISHOP] + 1 + tracker[square.color][globals.PIECE_KNIGHT]
+                        if tracker[square.color][square.type] >= 2 or knight_bishop >= 2:
                             has_sufficant = True
                             break
                     else:
+                        print(square.type, square.color)
                         has_sufficant = True
                         break
             if has_sufficant:
                 break
-        print(tracker)
         if has_sufficant:
             return (self.fifty_move_rule_counter >= 100, "draw by 50 move rule")
-        return (False, "draw by insufficant material")
+        return (True, "draw by insufficant material")
     
     def search(self, start, direction, type):
         x,y = direction
