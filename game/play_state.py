@@ -166,7 +166,36 @@ class Play_State(Abstract_State):
         for pos in self.past_board_states:
             if self.past_board_states[pos] >= 3:
                 return (True, "draw by threefold repition")
-        return (self.fifty_move_rule_counter >= 100, "draw by 50 move rule")
+
+        has_sufficant = False
+        tracker = {
+            globals.PIECE_WHITE: {
+                globals.PIECE_KNIGHT: -1,
+                globals.PIECE_BISHOP: 0,
+            },
+            globals.PIECE_BLACK: {
+                globals.PIECE_KNIGHT: -1,
+                globals.PIECE_BISHOP: 0,
+            }
+        }
+        for y, row in enumerate(self.board):
+            for x, square in enumerate(row):
+                if square is not None and square.type != globals.EN_PASSENT_FLAG:
+                    print(square.type, square.color)
+                    if square.type == globals.PIECE_BISHOP or square.type == globals.PIECE_BISHOP:
+                        tracker[square.color][square.type] += 1
+                        if tracker[square.color][square.type] >= 2:
+                            has_sufficant = True
+                            break
+                    else:
+                        has_sufficant = True
+                        break
+            if has_sufficant:
+                break
+        print(tracker)
+        if has_sufficant:
+            return (self.fifty_move_rule_counter >= 100, "draw by 50 move rule")
+        return (False, "draw by insufficant material")
     
     def search(self, start, direction, type):
         x,y = direction
