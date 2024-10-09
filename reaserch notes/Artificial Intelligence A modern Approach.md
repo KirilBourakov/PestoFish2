@@ -1,5 +1,10 @@
-ENG-STACKS Q 335 .R86 2021
+# Citation
+Russell, S. J., Norvig, P., Chang, M.-W., Devlin, J., Dragan, A., Forsyth, D., Goodfellow, I., Malik, J., Mansinghka, V., Pearl, J., & Wooldridge, M. J. (2021). Artificial intelligence : a modern approach (Fourth edition). Pearson.
 
+Q335 .R86 2021
+# Meta
+In addition to the notes below, the book holds a good amount of knowledge on ML.
+# Notes
 **p.147**
 A game can be fully defined with these elements:
 - S<sub>0</sub>: The initial state (initial board position)
