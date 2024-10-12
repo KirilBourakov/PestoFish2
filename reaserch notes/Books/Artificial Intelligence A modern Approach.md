@@ -21,7 +21,7 @@ Minimax search = search the game tree assuming the enemy player will make the op
 
 **p.149**
 Example of a minmax tree
-![[2024_10_07 3_02 p.m. Office Lens.jpg]]
+![](2024_10_07 3_02 p.m. Office Lens.jpg)
 If the enemy is not playing perfectly it sometimes makes sense to make a risky move that say, gives up a guaranted draw for a good chance at winning. 
 
 **p.150**
