@@ -1,7 +1,7 @@
 import pygame
-from game.abstract_state import Abstract_State
-import assets.assets as assets
-import constants.globals as globals
+from game.game_states.abstract_state import Abstract_State
+import game.assets.assets as assets
+import game.constants.globals as globals
 
 class End_State(Abstract_State):
     def enter(self, args):

@@ -1,5 +1,5 @@
-import pygame, copy
-import constants.globals as globals
+import pygame
+import game.constants.globals as globals
 
 class Abstract_Piece():
     def __init__(self, type, asset, moveset, color, hops=False):

@@ -1,6 +1,6 @@
-from game.play_state import Play_State
-from game.end_state import End_State
-from game.start_state import Start_State
+from game.game_states.play_state import Play_State
+from game.game_states.end_state import End_State
+from game.game_states.start_state import Start_State
 
 class State_Manager():
     def __init__(self):

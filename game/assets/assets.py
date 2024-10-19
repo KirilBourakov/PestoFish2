@@ -1,5 +1,5 @@
 import pygame, os
-import constants.globals as globals
+import game.constants.globals as globals
 
 def prepare_surface(surface):
     return pygame.transform.scale(surface.convert_alpha(), (globals.grid_size, globals.grid_size))

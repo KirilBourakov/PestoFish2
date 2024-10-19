@@ -1,4 +1,4 @@
-import constants.globals as globals
+import game.constants.globals as globals
 import random
 
 def get_move_and_play(state, color):

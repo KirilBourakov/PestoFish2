@@ -1,13 +1,13 @@
 import pygame, copy
-import assets.assets as assets
-import pieces.white_pieces as wp
-import pieces.black_pieces as bp
-import pieces.en_passent as ep
-import constants.globals as globals
-import constants.move_sets as mv
-from game.promotion import Promotion
-from game.abstract_state import Abstract_State
-from game.decorators import disable_on_engine_turn, run_engine
+import game.assets.assets as assets
+import game.pieces.white_pieces as wp
+import game.pieces.black_pieces as bp
+import game.pieces.en_passent as ep
+import game.constants.globals as globals
+import game.constants.move_sets as mv
+from game.game_states.promotion import Promotion
+from game.game_states.abstract_state import Abstract_State
+from game.game_states.decorators import disable_on_engine_turn, run_engine
 from engine.engine import get_move_and_play
 
 class Play_State(Abstract_State):

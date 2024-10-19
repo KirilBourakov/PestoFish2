@@ -1,4 +1,5 @@
-import pygame, constants.globals as globals
+import pygame
+import game.constants.globals as globals
 
 class en_passent():
     def __init__(self, turn_num, color, placer):

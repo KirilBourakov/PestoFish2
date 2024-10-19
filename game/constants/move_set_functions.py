@@ -1,4 +1,4 @@
-import constants.globals as globals
+import game.constants.globals as globals
 
 def pawn_capture_possible(**kwargs):
     color, newpos, board, turn_num = kwargs["color"], kwargs["new_position"], kwargs["board"], kwargs["move_num"]

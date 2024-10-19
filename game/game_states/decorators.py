@@ -1,5 +1,5 @@
 
-import constants.globals as globals
+import game.constants.globals as globals
 
 def disable_on_engine_turn(func):
     def wrapper(self, *args, **kwargs):

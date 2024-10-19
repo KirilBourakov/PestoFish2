@@ -1,8 +1,8 @@
 import pygame
-import assets.assets as assets
-import constants.globals as globals
-import pieces.white_pieces as wp
-import pieces.black_pieces as bp
+import game.assets.assets as assets
+import game.constants.globals as globals
+import game.pieces.white_pieces as wp
+import game.pieces.black_pieces as bp
 
 class Promotion():
     def __init__(self, pos):
