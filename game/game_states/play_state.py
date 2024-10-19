@@ -188,7 +188,6 @@ class Play_State(Abstract_State):
                             has_sufficant = True
                             break
                     else:
-                        print(square.type, square.color)
                         has_sufficant = True
                         break
             if has_sufficant:
