@@ -1,5 +1,5 @@
-from engine.src.generator.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
-from engine.src.generator.constants import KING, PAWN, KNIGHT, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
+from engine.src.helpers.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
+from engine.src.helpers.constants import KING, PAWN, KNIGHT, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
 from typing import TypedDict
 
 Vector = TypedDict('Vector', {'maxForce': int, 'directions': list[tuple[int, int]]})
@@ -69,7 +69,7 @@ class Moves():
 
                 if (is_empty(board[new_pos[1]][new_pos[0]])):
                     moveType: str = BACKWARD if piece_color == BLACK and directiony < 0 else FORWARD
-                    moveType: str = BACKWARD if piece_color == WHITE and directiony > 0 else FORWARD
+                    moveType = BACKWARD if piece_color == WHITE and directiony > 0 else FORWARD
 
                     final.append((new_pos[0], new_pos[1], moveType))
                 elif (piece_color != get_color(board[new_pos[1]][new_pos[0]])):

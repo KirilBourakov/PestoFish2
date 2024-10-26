@@ -1,13 +1,9 @@
-
-
 CAPTURE = 'capture'
 FORWARD = 'forward'
 BACKWARD = 'backward'
 DOUBLE_MOVE = 'double move'
 LONG_CASTLE = 'long castle'
 SHORT_CASTLE = 'short castle'
-
-
 
 KING = 'K'
 QUEEN = 'q'
