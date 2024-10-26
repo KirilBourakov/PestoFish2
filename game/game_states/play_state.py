@@ -52,6 +52,49 @@ class Play_State(Abstract_State):
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
         self.engine = get_move_and_play
 
+    def convert_for_engine(self):
+        '''returns a string representing all relevent board state. \n
+        string takes the form of the 8 rows devided by / then the number of half moves, then the number of half moves for the fifty move rule.
+        For example:
+        
+        BrbkbbbqBKbbbkBr/bpbpbpbp  bpbpbp/        be      /        bp      /        wp      /                /wpwpwpwp  wpwpwp/WrwkwbwqWKwbwkWr/2/0
+
+        is the position after 1.e4 e5. 
+
+        Pieces are represented using the first letter of their color, and the first letter of their name, both lowercased, but:
+        \t The king has his k uppercased to differentiate from the knight
+        \t The rook and king may an uppercase color letter, if they have not moved
+        \t enpassent is represented as a piece with a first letter of e, and only appears if enpassent is a valid move
+        '''
+        strState = ''
+
+        for row in self.board:
+            strRow = ''
+            for square in row:
+                strSquare = "  "
+                # if square has a piece
+                if square is not None and square.type != globals.EN_PASSENT_FLAG:
+                    # king represented as wK/bK if moved or WK/BK if not
+                    if square.type == globals.PIECE_KING:
+                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper()
+                    # rook repersented by wr/br if moved else Wr/Br
+                    elif square.type == globals.PIECE_ROOK:
+                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower()
+                    # other pieces represented by w[first letter]/b[first letter]
+                    else:
+                        strSquare = square.color[0].lower() + square.type[0].lower()
+
+                # if square is enpassent, represented by we/be
+                if square is not None and square.type == globals.EN_PASSENT_FLAG:
+                    if square.turn_num == self.move_counter:
+                        strSquare = square.color[0].lower() + "e"
+                strRow += strSquare
+            strState += strRow + "/"
+        
+        strState += f"{self.move_counter}/{self.fifty_move_rule_counter}"
+        print(strState)
+        return strState
+
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
         '''Handles user clicks. Disabled when it's the engine's turn.
