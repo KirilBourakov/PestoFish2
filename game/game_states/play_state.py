@@ -12,6 +12,11 @@ from engine.engine import get_move_and_play
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
+        '''The constructor.
+        
+        Keyword arguments:
+        board -- takes in a board position, and returns a board with a shallow copy of it (default=None)
+        '''
         self.enter()
 
         if board is not None:
@@ -19,6 +24,11 @@ class Play_State(Abstract_State):
                 self.board[i] = copy.copy(col)
 
     def enter(self, *args):
+        '''Initialize all the instance variables to a starting state
+
+        Keyword arguments:
+        args -- a list of lists that contains the game type at index 0,0
+        '''
         self.board = [
             [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
             [bp.pawn] * 8,
@@ -44,6 +54,12 @@ class Play_State(Abstract_State):
 
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
+        '''Handles user clicks. Disabled when it's the engine's turn.
+        
+        Keyword arguments:
+        gridx -- the x position of the click location on the board
+        gridy -- the y position of the click location on the board
+        '''
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
             return
@@ -63,6 +79,11 @@ class Play_State(Abstract_State):
             return
         
     def get_king_pos(self, color):
+        '''Returns the kings position
+        
+        Keyword arguments:
+        color -- the color of the king you're looking for
+        '''
         for y, colomn in enumerate(self.board):
             for x, square in enumerate(colomn):
                 if square is not None and square.color == color and square.type == globals.PIECE_KING:
@@ -70,15 +91,26 @@ class Play_State(Abstract_State):
         raise Exception("King not found.") 
     
     def get_turn(self):
+        '''Returns which colors turn it is'''
         if self.move_counter % 2 == 0:
             return globals.PIECE_WHITE
         return globals.PIECE_BLACK
     
     def inbound(self, pos):
+        '''returns if a position is within the bounds of the board
+        
+        Keyword arguments:
+        pos -- tuple that represents the position
+        '''
         x,y = pos
         return (x >= 0) and (y >= 0) and (x < 8) and (y < 8)
         
     def get_sight_on_square(self, square):
+        '''returns a list of all the pieces that attack a square
+        
+        Keyword arguments:
+        square -- the square
+        '''
         x,y = square
         found = []
         
@@ -133,6 +165,13 @@ class Play_State(Abstract_State):
         return found
     
     def get_sight_on_square_color(self, square, color):
+        '''returns a list of all the pieces that attack a square from a specific color
+        For example, all the black pieces that attack the square
+        
+        Keyword arguments:
+        square -- the square
+        color -- the color of the square
+        '''
         sight = self.get_sight_on_square(square)
         purged = []
         
@@ -146,11 +185,20 @@ class Play_State(Abstract_State):
         return purged
     
     def in_check(self, color):
+        '''returns if a king is in check
+        
+        Keyword arguments:
+        color -- the color of the king
+        '''
         if color == globals.PIECE_WHITE:
             return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_WHITE), globals.PIECE_BLACK)) > 0
         return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_BLACK), globals.PIECE_WHITE)) > 0
     
     def is_checkmate_or_stalemate(self, color):
+        '''returns if the current board state is checkmate or stalemate for a color
+        Keyword arguments:
+        color -- the color you're looking for
+        '''
         for y, row in enumerate(self.board):
             for x, grid_contents in enumerate(row):
                 grid_empty = grid_contents is not None and grid_contents.type != globals.EN_PASSENT_FLAG
@@ -163,6 +211,7 @@ class Play_State(Abstract_State):
 
     
     def is_draw(self):
+        '''returns if the game is a draw'''
         for pos in self.past_board_states:
             if self.past_board_states[pos] >= 3:
                 return (True, "draw by threefold repition")
@@ -197,6 +246,14 @@ class Play_State(Abstract_State):
         return (True, "draw by insufficant material")
     
     def search(self, start, direction, type):
+        '''Search for a specific set of peices in a direction
+        Used as a helper in get_sight_on_square
+        
+        Keyword arguments:
+        start -- the starting position
+        direction -- the vector of the search (eg, [0,-1] for up]
+        type -- the peice types you're looking for
+        '''
         x,y = direction
         factor = 1
 
@@ -213,6 +270,12 @@ class Play_State(Abstract_State):
         return None
 
     def make_legal_move(self, newpos, piece_location=None): 
+        '''Makes a legal move, if the newpos argument is a legal move for the piece at piece_location
+
+            Keyword arguments:
+            newpos -- the target position of the piece
+            piece_location -- the location of the old peice (default=None). If default, uses the selected square.
+        '''
         newx, newy = newpos
 
         if piece_location is None:
@@ -251,6 +314,13 @@ class Play_State(Abstract_State):
         return 
 
     def move(self, piece_location, newpos, turn=1):
+        ''' Makes a move
+
+        Keyword arguments:
+        piece_location -- the location of the piece
+        newpos -- the new positon
+        turn -- the amount the turn counter should be increased (Default=1) 
+        '''
         piece = self.board[piece_location[1]][piece_location[0]]
         newx, newy = newpos
         # if it's a capture
