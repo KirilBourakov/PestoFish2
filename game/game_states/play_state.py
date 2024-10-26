@@ -9,6 +9,7 @@ from game.game_states.promotion import Promotion
 from game.game_states.abstract_state import Abstract_State
 from game.game_states.decorators import disable_on_engine_turn, run_engine
 from engine.engine import get_move_and_play
+from engine.src.engine import engine
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
@@ -57,7 +58,7 @@ class Play_State(Abstract_State):
         string takes the form of the 8 rows devided by / then the number of half moves, then the number of half moves for the fifty move rule.
         For example:
         
-        BrbkbbbqBKbbbkBr/bpbpbpbp  bpbpbp/        be      /        bp      /        wp      /                /wpwpwpwp  wpwpwp/WrwkwbwqWKwbwkWr/2/0
+        Br bk bb bq BK bb bk Br /bp bp bp bp -- bp bp bp /-- -- -- -- be -- -- -- /-- -- -- -- bp -- -- -- /-- -- -- -- wp -- -- -- /-- -- -- -- -- -- -- -- /wp wp wp wp -- wp wp wp /Wr wk wb wq WK wb wk Wr /2/0
 
         is the position after 1.e4 e5. 
 
@@ -71,29 +72,28 @@ class Play_State(Abstract_State):
         for row in self.board:
             strRow = ''
             for square in row:
-                strSquare = "  "
+                strSquare = "-- "
                 # if square has a piece
                 if square is not None and square.type != globals.EN_PASSENT_FLAG:
                     # king represented as wK/bK if moved or WK/BK if not
                     if square.type == globals.PIECE_KING:
-                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper()
+                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper() + " "
                     # rook repersented by wr/br if moved else Wr/Br
                     elif square.type == globals.PIECE_ROOK:
-                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower()
+                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower() + " "
                     # other pieces represented by w[first letter]/b[first letter]
                     else:
-                        strSquare = square.color[0].lower() + square.type[0].lower()
+                        strSquare = square.color[0].lower() + square.type[0].lower() + " "
 
                 # if square is enpassent, represented by we/be
                 if square is not None and square.type == globals.EN_PASSENT_FLAG:
                     if square.turn_num == self.move_counter:
-                        strSquare = square.color[0].lower() + "e"
+                        strSquare = square.color[0].lower() + "e" + " "
                 strRow += strSquare
             strState += strRow + "/"
         
         strState += f"{self.move_counter}/{self.fifty_move_rule_counter}"
-        print(strState)
-        return strState
+        return strState.strip()
 
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
@@ -103,6 +103,9 @@ class Play_State(Abstract_State):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
+        r = engine()
+        r.accept_board(self.convert_for_engine())
+        
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
             return
