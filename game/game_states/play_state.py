@@ -108,6 +108,7 @@ class Play_State(Abstract_State):
         '''
         e = engine()
         r = Moves()
+        r.get_complex_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy))
         r.get_simple_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy))
         
         if self.promotion is not None:

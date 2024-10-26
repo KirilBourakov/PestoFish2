@@ -1,5 +1,9 @@
+
+
 CAPTURE = 'capture'
-DOUBLE_MOVE = 'right enpassent'
+FORWARD = 'forward'
+BACKWARD = 'backward'
+DOUBLE_MOVE = 'double move'
 LONG_CASTLE = 'long castle'
 SHORT_CASTLE = 'short castle'
 

@@ -1,5 +1,5 @@
 from engine.src.generator.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
-from engine.src.generator.constants import KING, PAWN, KNIGHT, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE
+from engine.src.generator.constants import KING, PAWN, KNIGHT, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
 from typing import TypedDict
 
 Vector = TypedDict('Vector', {'maxForce': int, 'directions': list[tuple[int, int]]})
@@ -39,9 +39,10 @@ class Moves():
         moves['wp'] = Vector(maxForce=1, directions=[(0, -1)])
         return moves
     
-    def get_simple_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int]]:
-        '''returns a list of tuples that represents possibly legal simple moves. This tuple repersents (new_x, new_y)
+    def get_simple_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
+        '''returns a list of tuples that represents possibly legal simple moves. This tuple repersents (new_x, new_y, move_type)
         This method doesn't return moves that move you through pieces.
+        move_type indicates if the move is forward, back, or a capture
         
         Keyword arguments:
         \t board: a list of strings repersenting the board position
@@ -56,7 +57,7 @@ class Moves():
         index: str = piece_color + piece_type if piece_type == PAWN else piece_type
         move_vectors: Vector = self.vectors[index]
         
-        final: list[tuple[int, int]] = []
+        final: list[tuple[int, int, str]] = []
         for direction in move_vectors['directions']:
             currForce = 1
             directionx, directiony = direction
@@ -67,14 +68,17 @@ class Moves():
                     break
 
                 if (is_empty(board[new_pos[1]][new_pos[0]])):
-                    final.append(new_pos)
+                    moveType: str = BACKWARD if piece_color == BLACK and directiony < 0 else FORWARD
+                    moveType: str = BACKWARD if piece_color == WHITE and directiony > 0 else FORWARD
+
+                    final.append((new_pos[0], new_pos[1], moveType))
                 elif (piece_color != get_color(board[new_pos[1]][new_pos[0]])):
-                    final.append(new_pos)
+                    final.append((new_pos[0], new_pos[1], CAPTURE))
                     break
                 else: 
                     break
                 currForce += 1
-
+        print(final)
         return final
 
     def get_complex_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
@@ -108,20 +112,20 @@ class Moves():
                 # double move
                 black_pawn_on_start_rank: bool = piece_location[1] == 1
                 if black_pawn_on_start_rank:
-                    final.append(((0, +2, DOUBLE_MOVE)))
+                    final.append(((piece_location[0], piece_location[1]+2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,1), (-1,1)]:
                     black_new_pos: tuple[int, int] = (piece_location[0] + i[0], piece_location[1] + i[1])
                     black_examined_square: str = board[black_new_pos[1]][black_new_pos[0]]
                     filled_by_white: bool = not is_empty_include_en_passent(black_examined_square) and get_color(black_examined_square) == WHITE
                     if filled_by_white:
-                        final.append((i[0], i[1], CAPTURE))
+                        final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
 
             else:
                 # double move
                 white_pawn_on_start_rank: bool = piece_location[1] == 6
                 if white_pawn_on_start_rank:
-                    final.append(((0, -2, DOUBLE_MOVE)))
+                    final.append(((piece_location[0], piece_location[1]-2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,-1), (-1,-1)]:
 
@@ -129,5 +133,7 @@ class Moves():
                     white_examined_square: str = board[white_new_pos[1]][white_new_pos[0]]
                     filled_by_black: bool = not is_empty_include_en_passent(white_examined_square) and get_color(white_examined_square) == BLACK
                     if filled_by_black:
-                        final.append((i[0], i[1], CAPTURE))
+                        final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
+
+        print(final)
         return final
