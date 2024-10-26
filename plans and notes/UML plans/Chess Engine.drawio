@@ -4,10 +4,10 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="UNiOE5RKGvsNSE8sUtjC-1" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="UNiOE5RKGvsNSE8sUtjC-4" edge="1">
+        <mxCell id="UNiOE5RKGvsNSE8sUtjC-1" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="60" y="300" as="sourcePoint" />
-            <mxPoint x="280" y="300" as="targetPoint" />
+            <mxPoint x="60" y="299.5" as="sourcePoint" />
+            <mxPoint x="290" y="299.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="UNiOE5RKGvsNSE8sUtjC-2" value="Takes in information about the board" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="UNiOE5RKGvsNSE8sUtjC-1" vertex="1" connectable="0">
@@ -22,7 +22,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="UNiOE5RKGvsNSE8sUtjC-4" value="Is the move in the the openings database?" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="UNiOE5RKGvsNSE8sUtjC-4" value="Is the position in the the openings database?" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="290" y="270" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="UNiOE5RKGvsNSE8sUtjC-7" value="" style="endArrow=classic;html=1;rounded=0;" parent="1" edge="1">
