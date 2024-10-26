@@ -21,7 +21,4 @@ class engine():
             self.board.append(f_row)
             
 
-        for row in self.board:
-            print(row)
-        print(self.fifty_move_rule_counter)
-        print(self.move_counter)
+        return self.board

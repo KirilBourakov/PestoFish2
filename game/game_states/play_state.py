@@ -9,7 +9,10 @@ from game.game_states.promotion import Promotion
 from game.game_states.abstract_state import Abstract_State
 from game.game_states.decorators import disable_on_engine_turn, run_engine
 from engine.engine import get_move_and_play
+
+# for testing
 from engine.src.engine import engine
+from engine.src.generator.moves import Moves
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
@@ -103,8 +106,9 @@ class Play_State(Abstract_State):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
-        r = engine()
-        r.accept_board(self.convert_for_engine())
+        e = engine()
+        r = Moves()
+        r.get_simple_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy))
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)

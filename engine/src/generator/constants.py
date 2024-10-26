@@ -1,7 +1,9 @@
-PAWN_CAPTURE = 'pawn capture'
+CAPTURE = 'capture'
 DOUBLE_MOVE = 'right enpassent'
 LONG_CASTLE = 'long castle'
 SHORT_CASTLE = 'short castle'
+
+
 
 KING = 'K'
 QUEEN = 'q'

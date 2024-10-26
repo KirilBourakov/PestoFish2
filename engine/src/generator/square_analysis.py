@@ -10,9 +10,13 @@ def has_moved(piece: str) -> bool:
     '''return if a given piece has moved. Empty squares return false.'''
     return piece[0].islower() and len(piece.strip()) > 0
 
-def is_empty(square: str) -> bool:
-    '''returns if a square is empty'''
+def is_empty_include_en_passent(square: str) -> bool:
+    '''returns if a square is empty. En passent is considered a non-empty square'''
     return len(square.strip()) == 0
+
+def is_empty(square: str)-> bool:
+    '''returns if a square is empty. En passent is considered a square'''
+    return len(square.strip()) == 0 or get_type(square) == 'e'
 
 def is_empty_squares(squares: list[str]) -> bool:
     '''returns if a any squares in a list are empty'''
