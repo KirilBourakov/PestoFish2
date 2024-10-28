@@ -132,7 +132,7 @@
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Rdf7iIx9nlK6P8x9TiHN-5" target="Rdf7iIx9nlK6P8x9TiHN-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-5" value="When the player clicks, set a selected Square if there is none, otherwise try to move the peice on the selected square. Clear selected Squre." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-5" value="When the player clicks, set a selected Square if there is none, otherwise try to move the piece on the selected square. Clear selected Squre." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="-220" y="550" width="150" height="95" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-8" value="Promotion" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -162,7 +162,7 @@
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Rdf7iIx9nlK6P8x9TiHN-18" target="Rdf7iIx9nlK6P8x9TiHN-20">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-18" value="Player selects a grid with a peice on it" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-18" value="Player selects a grid with a piece on it" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="70" y="-390" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Rdf7iIx9nlK6P8x9TiHN-20" target="Rdf7iIx9nlK6P8x9TiHN-24">
@@ -174,7 +174,7 @@
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Rdf7iIx9nlK6P8x9TiHN-22" target="Rdf7iIx9nlK6P8x9TiHN-27">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-22" value="If it&#39;s a legal move, move the peice" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-22" value="If it&#39;s a legal move, move the piece" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="420" y="-480" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Rdf7iIx9nlK6P8x9TiHN-24" value="if it&#39;s illegal, clear selection" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -263,7 +263,7 @@
             <mxPoint x="280" y="-770" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-46" value="player chooses peice" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+        <mxCell id="Rdf7iIx9nlK6P8x9TiHN-46" value="player chooses piece" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="210" y="-910" width="120" height="60" as="geometry" />
         </mxCell>
       </root>

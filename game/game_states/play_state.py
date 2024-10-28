@@ -297,13 +297,13 @@ class Play_State(Abstract_State):
         return (True, "draw by insufficant material")
     
     def search(self, start, direction, type):
-        '''Search for a specific set of peices in a direction
+        '''Search for a specific set of pieces in a direction
         Used as a helper in get_sight_on_square
         
         Keyword arguments:
         start -- the starting position
         direction -- the vector of the search (eg, [0,-1] for up]
-        type -- the peice types you're looking for
+        type -- the piece types you're looking for
         '''
         x,y = direction
         factor = 1
@@ -325,7 +325,7 @@ class Play_State(Abstract_State):
 
             Keyword arguments:
             newpos -- the target position of the piece
-            piece_location -- the location of the old peice (default=None). If default, uses the selected square.
+            piece_location -- the location of the old piece (default=None). If default, uses the selected square.
         '''
         newx, newy = newpos
 
