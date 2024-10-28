@@ -1,4 +1,4 @@
-from engine.src.constants.constants import BLACK, WHITE, QUEEN, ROOK, BISHOP, KNIGHT, KING
+from engine.src.constants.constants import BLACK, WHITE, QUEEN, ROOK, BISHOP, KNIGHT, KING, PAWN
 from engine.src.constants.types import coloredPiecesList, peiceType
 from engine.src.helpers.square_analysis import inbounds, is_empty, get_type, get_color
 
@@ -34,14 +34,25 @@ def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> colore
             final[get_color(result['peice'])] = result['location']
 
     # king (not covered by pawn)
-    directions = [(0,1), (0,-1), (1,0), (-1,0)]
+    directions = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,1), (1,-1), (-1,-1)]
     for direction in directions:
-        result: peiceType = walk_search(board, location, direction, 8, [KNIGHT])
+        result: peiceType = walk_search(board, location, direction, 8, [KING])
         if len(result['peice']) > 0:
             final[get_color(result['peice'])] = result['location']
         
-
-    # TODO: black pawn/king (1,1), (-1,1) white pawn/king (1,-1), (-1,-1)
+    # white pawn
+    directions = [(1,-1), (-1,-1)]
+    for direction in directions:
+        result: peiceType = walk_search(board, location, direction, 8, [PAWN], WHITE)
+        if len(result['peice']) > 0:
+            final[get_color(result['peice'])] = result['location']
+    
+    # black
+    directions = [(1,1), (-1,1)]
+    for direction in directions:
+        result: peiceType = walk_search(board, location, direction, 8, [PAWN], BLACK)
+        if len(result['peice']) > 0:
+            final[get_color(result['peice'])] = result['location']
     return final
 
 
