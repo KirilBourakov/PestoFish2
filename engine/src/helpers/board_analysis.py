@@ -30,28 +30,28 @@ def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[s
     # knight
     directions = [(+2, -1), (+2, +1),(-2, -1), (-2, +1),(-1, +2), (+1, +2),(-1, -2), (+1, -2)]
     for direction in directions:
-        result = walk_search(board, location, direction, 8, [KNIGHT])
+        result = walk_search(board, location, direction, 1, [KNIGHT])
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
 
     # king (not covered by pawn)
     directions = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,1), (1,-1), (-1,-1)]
     for direction in directions:
-        result = walk_search(board, location, direction, 8, [KING])
+        result = walk_search(board, location, direction, 1, [KING])
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
         
-    # white pawn
+    # black pawn
     directions = [(1,-1), (-1,-1)]
     for direction in directions:
-        result = walk_search(board, location, direction, 8, [PAWN], WHITE)
+        result = walk_search(board, location, direction, 1, [PAWN], BLACK)
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
     
-    # black
+    # white
     directions = [(1,1), (-1,1)]
     for direction in directions:
-        result = walk_search(board, location, direction, 8, [PAWN], BLACK)
+        result = walk_search(board, location, direction, 1, [PAWN], WHITE)
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
     return final
@@ -77,8 +77,10 @@ def walk_search(board: list[list[str]], start: tuple[int, int], direction: tuple
         piece: pieceType = {'piece': '', 'location': (-1,-1)}
 
         while curr_force <= max_force and inbounds((newx,newy)):
-            if not is_empty(board[newy][newx]) and get_type(board[newy][newx]) in type:
-                if color_restriction == '' or color_restriction == get_color(board[newy][newx]):
+            if not is_empty(board[newy][newx]):
+                type_searched_for: bool = get_type(board[newy][newx]) in type
+                matches_color_restriction: bool = color_restriction == '' or color_restriction == get_color(board[newy][newx])
+                if type_searched_for and matches_color_restriction:
                     piece['piece'] = board[newy][newx]
                     piece['location'] = (newx, newy)
                 break
