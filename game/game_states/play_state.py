@@ -13,6 +13,7 @@ from engine.engine import get_move_and_play
 # for testing
 from engine.src.engine import engine
 from engine.src.generator.moves import Moves
+from engine.src.helpers.board_analysis import sight_on_square
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
@@ -108,8 +109,7 @@ class Play_State(Abstract_State):
         '''
         e = engine()
         r = Moves()
-        r.get_complex_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy))
-        r.get_simple_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy))
+        print(sight_on_square(e.accept_board(self.convert_for_engine()), (gridx, gridy)))
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
