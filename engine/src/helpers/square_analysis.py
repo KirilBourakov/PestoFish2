@@ -15,7 +15,7 @@ def is_empty_include_en_passent(square: str) -> bool:
     return len(square.strip()) == 0
 
 def is_empty(square: str)-> bool:
-    '''returns if a square is empty. En passent is considered a square'''
+    '''returns if a square is empty. En passent is considered a empty square'''
     return len(square.strip()) == 0 or get_type(square) == 'e'
 
 def is_empty_squares(squares: list[str]) -> bool:
@@ -24,3 +24,7 @@ def is_empty_squares(squares: list[str]) -> bool:
         if (not is_empty(square)):
             return False
     return True
+
+def inbounds(square: tuple[int, int]) -> bool:
+    '''returns if a square is on the board'''
+    return (square[0] >= 0) and (square[1] >= 0) and (square[0] <= 7) and (square[1] <= 7)
