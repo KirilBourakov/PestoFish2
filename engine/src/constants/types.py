@@ -1,4 +1,3 @@
-from engine.src.constants.constants import BLACK, WHITE
 from typing import TypedDict
 
 
@@ -6,7 +5,7 @@ from typing import TypedDict
 Vector = TypedDict('Vector', {'maxForce': int, 'directions': list[tuple[int, int]]})
 
 # Represents a list of pieces that can see a square by color
-coloredPiecesList = TypedDict('BoardAnalysis', {BLACK: list[tuple[int, int]], WHITE: list[tuple[int, int]]})
+coloredPiecesList = TypedDict('coloredPiecesList', {'b': list[tuple[int, int]], 'w': list[tuple[int, int]]})
 
 # Represents a piece and it's location
 peiceType = TypedDict('peiceType', {'peice': str, 'location': tuple[int, int]})

@@ -46,7 +46,7 @@ def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> colore
 
 
 
-def walk_search(board: list[list[str]], start: tuple[int, int], direction: tuple[int, int], max_force: int, type: list[str]) -> peiceType:
+def walk_search(board: list[list[str]], start: tuple[int, int], direction: tuple[int, int], max_force: int, type: list[str], color_restriction: str = None) -> peiceType:
         '''Starting at a specific sqaure, 'walk' in a specific direction, and return the pieces you find.
         
         Returns the first piece found in that direction
@@ -57,6 +57,7 @@ def walk_search(board: list[list[str]], start: tuple[int, int], direction: tuple
         \t direction -- the vector of the search (eg, [0,-1] for up]
         \t max_force -- the max force applied to direction
         \t type -- the pieces to look for
+        \t color_restriction -- restrict search to specific color (no restriction by default)
         '''
         x,y = direction
         curr_force: int = 1
@@ -65,7 +66,8 @@ def walk_search(board: list[list[str]], start: tuple[int, int], direction: tuple
 
         while curr_force <= max_force and inbounds(newx,newy):
             if not is_empty(board[newy][newx]) and get_type(board[newy][newx]) in type:
-                piece = (board[newy][newx], (newx, newy))
+                if color_restriction is None or color_restriction == get_color(board[newy][newx]):
+                    piece = (board[newy][newx], (newx, newy))
                 break
             curr_force += 1
             newx, newy = start[0] + (x*curr_force), start[1] + (y*curr_force)

@@ -12,5 +12,5 @@ BISHOP = 'b'
 ROOK = 'r'
 PAWN = 'p'
 
-BLACK = 'b'
-WHITE = 'w'
+BLACK: str = 'b'
+WHITE: str = 'w'
