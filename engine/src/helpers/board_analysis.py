@@ -1,9 +1,9 @@
 from engine.src.constants.constants import BLACK, WHITE, QUEEN, ROOK, BISHOP, KNIGHT, KING, PAWN
-from engine.src.constants.types import coloredPiecesList, pieceType
+from engine.src.constants.types import pieceType
 from engine.src.helpers.square_analysis import inbounds, is_empty, get_type, get_color
 
 def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[str, list[tuple[int,int]]]:
-    '''Returns a list of pieces in the form of a coloredPiecesList that can 'see' a location
+    '''Returns a list of pieces in the form of a dictionary that can 'see' a location
 
     Keyword arguments:
     \t board - a chess board
