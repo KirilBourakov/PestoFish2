@@ -43,7 +43,9 @@ class Moves():
         \t board: a list of strings repersenting the board position
         \t piece_location: the location of the piece 
         '''
-        return self.get_simple_moves(board, piece_location).extend(self.get_complex_moves(board, piece_location))
+        final: list[tuple[int, int, str]] = self.get_simple_moves(board, piece_location)
+        final.extend(self.get_complex_moves(board, piece_location))
+        return final
 
     def get_simple_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
         '''returns a list of tuples that represents possibly legal simple moves. This tuple repersents (new_x, new_y, move_type)
