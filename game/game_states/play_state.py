@@ -12,7 +12,7 @@ from engine.engine import get_move_and_play
 
 # for testing
 from engine.src.engine import engine
-from engine.src.generator.moves import Moves
+from engine.src.generator.generator import Generator
 from engine.src.helpers.board_analysis import sight_on_square
 
 class Play_State(Abstract_State):
@@ -108,8 +108,9 @@ class Play_State(Abstract_State):
         gridy -- the y position of the click location on the board
         '''
         e = engine()
-        r = Moves()
-        print(sight_on_square(e.accept_board(self.convert_for_engine()), (gridx, gridy)))
+        r = Generator()
+        key = 'w' if self.get_turn() == globals.PIECE_WHITE else 'b'
+        print(r.get_moves(e.accept_board(self.convert_for_engine()), e.kingPos[key]))
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)

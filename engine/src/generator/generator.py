@@ -5,8 +5,8 @@ from engine.src.helpers.square_analysis import get_color, get_type
 from engine.src.helpers.board_analysis import sight_on_square 
 from engine.src.helpers.helpers import flip
 
-class generator():
-    def __init__(self):
+class Generator():
+    def __init__(self) -> None:
         self.move_manager: Moves = Moves()
         self.baseRatings: dict[str, int] = {CAPTURE: 3, FORWARD: 2, BACKWARD: 1}
 
@@ -29,16 +29,16 @@ class generator():
         if (colorTarget != BLACK or colorTarget != WHITE) and check != KING:
             raise IndexError("Invalid king position")
 
-        final: list[MoveType]
+        final: list[MoveType] = []
         for y, row in enumerate(board):
             for x, cell in enumerate(row):
                 color = get_color(cell)
                 if color == colorTarget:
-                   moves = self.move_manager.get_all_moves(board, (x,y))
-                   for move in moves:
-                       if self.is_legal_move(board, kingPos, (x,y), (move[0],move[1])):
-                           newMove: MoveType = MoveType(original=(x,y), new=(move[0],move[1]), rating=self.rate_move(move))
-
+                    moves = self.move_manager.get_all_moves(board, (x,y))
+                    for move in moves:
+                        if self.is_legal_move(board, kingPos, (x,y), (move[0],move[1])):
+                            newMove: MoveType = MoveType(original=(x,y), new=(move[0],move[1]), rating=self.rate_move(board, move))
+                            final.append(newMove)
         return final
 
     def rate_move(self, board: list[list[str]], move: tuple[int, int, str]) -> int:
@@ -46,8 +46,7 @@ class generator():
         return rating
 
 
-
-    def is_legal_move(board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int], moveType='') -> bool:
+    def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int], moveType='') -> bool:
         # simulate the new position
         new_board: list[list[str]] = board
         new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]

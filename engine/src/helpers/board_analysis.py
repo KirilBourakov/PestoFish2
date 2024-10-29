@@ -17,7 +17,6 @@ def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[s
     directions: list[tuple[int,int]] = [(0,1), (0,-1), (1,0), (-1,0)]
     for direction in directions:
         result: pieceType = walk_search(board, location, direction, 8, [QUEEN, ROOK])
-        print(result)
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
 

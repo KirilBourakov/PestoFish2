@@ -1,4 +1,5 @@
 from engine.src.helpers.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
+from engine.src.helpers.board_analysis import inbounds
 from engine.src.constants.constants import KING, PAWN, KNIGHT, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
 from engine.src.constants.types import Vector
 
@@ -86,7 +87,6 @@ class Moves():
                 else: 
                     break
                 currForce += 1
-        print(final)
         return final
 
     def get_complex_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
@@ -124,10 +124,11 @@ class Moves():
                 # captures (this also does enpassent)
                 for i in [(1,1), (-1,1)]:
                     black_new_pos: tuple[int, int] = (piece_location[0] + i[0], piece_location[1] + i[1])
-                    black_examined_square: str = board[black_new_pos[1]][black_new_pos[0]]
-                    filled_by_white: bool = not is_empty_include_en_passent(black_examined_square) and get_color(black_examined_square) == WHITE
-                    if filled_by_white:
-                        final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
+                    if inbounds(black_new_pos):
+                        black_examined_square: str = board[black_new_pos[1]][black_new_pos[0]]
+                        filled_by_white: bool = not is_empty_include_en_passent(black_examined_square) and get_color(black_examined_square) == WHITE
+                        if filled_by_white:
+                            final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
 
             else:
                 # double move
@@ -136,12 +137,10 @@ class Moves():
                     final.append(((piece_location[0], piece_location[1]-2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,-1), (-1,-1)]:
-
                     white_new_pos: tuple[int, int] = (piece_location[0] + i[0], piece_location[1] + i[1])
-                    white_examined_square: str = board[white_new_pos[1]][white_new_pos[0]]
-                    filled_by_black: bool = not is_empty_include_en_passent(white_examined_square) and get_color(white_examined_square) == BLACK
-                    if filled_by_black:
-                        final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
-
-        print(final)
+                    if inbounds(white_new_pos):
+                        white_examined_square: str = board[white_new_pos[1]][white_new_pos[0]]
+                        filled_by_black: bool = not is_empty_include_en_passent(white_examined_square) and get_color(white_examined_square) == BLACK
+                        if filled_by_black:
+                            final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
         return final
