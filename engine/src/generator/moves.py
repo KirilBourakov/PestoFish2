@@ -35,7 +35,16 @@ class Moves():
         moves['bp'] = Vector(maxForce=1, directions=[(0, +1)])
         moves['wp'] = Vector(maxForce=1, directions=[(0, -1)])
         return moves
-    
+
+    def get_all_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
+        '''this method returns a list of all legal moves of a piece, not considering checks.
+        
+        Keyword arguments:
+        \t board: a list of strings repersenting the board position
+        \t piece_location: the location of the piece 
+        '''
+        return self.get_simple_moves(board, piece_location).extend(self.get_complex_moves(board, piece_location))
+
     def get_simple_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
         '''returns a list of tuples that represents possibly legal simple moves. This tuple repersents (new_x, new_y, move_type)
         This method doesn't return moves that move you through pieces.

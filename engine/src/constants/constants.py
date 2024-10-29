@@ -11,6 +11,7 @@ KNIGHT = 'k'
 BISHOP = 'b'
 ROOK = 'r'
 PAWN = 'p'
+EMPTY = '  '
 
 BLACK: str = 'b'
 WHITE: str = 'w'

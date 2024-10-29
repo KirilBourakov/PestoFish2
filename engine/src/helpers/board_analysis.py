@@ -4,6 +4,7 @@ from engine.src.helpers.square_analysis import inbounds, is_empty, get_type, get
 
 def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[str, list[tuple[int,int]]]:
     '''Returns a list of pieces in the form of a dictionary that can 'see' a location
+    The dict keys are the color, and the list of tuple is the position the the pieces that can see the king
 
     Keyword arguments:
     \t board - a chess board
