@@ -8,6 +8,9 @@ from copy import deepcopy
 
 class Generator():
     def __init__(self) -> None:
+        '''
+        Constructs a Generator, which is a class for generating legal moves
+        '''
         self.move_manager: Moves = Moves()
         self.baseRatings: dict[str, int] = {CAPTURE: 3, FORWARD: 2, DOUBLE_MOVE: 2, BACKWARD: 1, LONG_CASTLE: 1, SHORT_CASTLE: 1}
 

@@ -5,6 +5,7 @@ from engine.src.constants.types import Vector
 
 class Moves():
     def __init__(self) -> None:
+        '''Constructs a Moves, which is a class for generating pseudolegal moves'''
         self.vectors: dict[str, Vector] = self.gen_vectors()
 
     def gen_vectors(self) ->  dict[str, Vector]:
