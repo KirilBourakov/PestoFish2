@@ -1,14 +1,15 @@
 from .moves import Moves
-from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD
+from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE
 from engine.src.constants.types import MoveType
 from engine.src.helpers.square_analysis import get_color, get_type
 from engine.src.helpers.board_analysis import sight_on_square 
 from engine.src.helpers.helpers import flip
+from copy import deepcopy
 
 class Generator():
     def __init__(self) -> None:
         self.move_manager: Moves = Moves()
-        self.baseRatings: dict[str, int] = {CAPTURE: 3, FORWARD: 2, BACKWARD: 1}
+        self.baseRatings: dict[str, int] = {CAPTURE: 3, FORWARD: 2, DOUBLE_MOVE: 2, BACKWARD: 1, LONG_CASTLE: 1, SHORT_CASTLE: 1}
 
     def get_moves(self, board: list[list[str]], kingPos: tuple[int, int]) -> list[MoveType]:
         '''given a board state return a list of possible moves
@@ -33,7 +34,7 @@ class Generator():
         for y, row in enumerate(board):
             for x, cell in enumerate(row):
                 color = get_color(cell)
-                if color == colorTarget:
+                if color == colorTarget:             
                     moves = self.move_manager.get_all_moves(board, (x,y))
                     for move in moves:
                         if self.is_legal_move(board, kingPos, (x,y), (move[0],move[1])):
@@ -48,13 +49,14 @@ class Generator():
 
     def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int], moveType='') -> bool:
         # simulate the new position
-        new_board: list[list[str]] = board
+        new_board: list[list[str]] = deepcopy(board)
         new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
         new_board[oldPos[1]][oldPos[0]] = EMPTY
 
         # check if the king is in check
         enemyColor: str = flip(get_color(board[kingPos[1]][kingPos[0]]))
         sight: dict[str, list[tuple[int,int]]] = sight_on_square(new_board, kingPos)
+        print(BLACK == get_color(board[kingPos[1]][kingPos[0]]))
         if len(sight[enemyColor]) > 0:
             return False
         

@@ -111,6 +111,7 @@ class Play_State(Abstract_State):
         r = Generator()
         key = 'w' if self.get_turn() == globals.PIECE_WHITE else 'b'
         print(r.get_moves(e.accept_board(self.convert_for_engine()), e.kingPos[key]))
+        # print(r.move_manager.get_all_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy)))
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
