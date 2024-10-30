@@ -1,5 +1,8 @@
-from .constants.constants import BLACK, WHITE, KING
+import copy
+from .constants.constants import BLACK, WHITE, KING, EMPTY
 from .helpers.square_analysis import get_color, get_type
+from .helpers.board_analysis import sight_on_square
+from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 
@@ -34,3 +37,40 @@ class engine():
                     self.kingPos[get_color(square)] = (x,y)
 
         return self.board
+
+    def is_termainal(self, board: list[list[str]], last_move_color: str):
+        '''Returns if the game is over. An int indicates the result. 
+        0 for stalemate, 1 for victory, -1 for not terminal
+        This method only checks if the last move resulted in a terminal position
+
+        Keyword arguements:
+        \t board - the board 
+        \t the color that made the move
+        '''
+        enemy = flip(last_move_color)
+        moves = self.generator.get_moves(board, self.kingPos[enemy])
+
+        king_in_check: bool = len(sight_on_square(board, self.kingPos[enemy])[last_move_color]) > 0
+
+        # checkmate
+        if king_in_check: 
+            if len(moves) == 0:
+                return 1
+
+        # stalemate/draw
+        if self.fifty_move_rule_counter / 2 >= 50 or len(moves) == 0:
+            return 0
+        return -1
+    
+    def result(self, board: list[list[str]], oldPos: tuple[int, int], newPos: tuple[int, int]) -> list[list[str]]:
+        '''Simulates a board position
+        
+        Keyword arguements:
+        \t board - the board 
+        \t oldPos - the old position of the piece
+        \t newPos - the new position of the piec
+        '''
+        new_board: list[list[str]] = copy.deepcopy(board)
+        new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
+        new_board[oldPos[1]][oldPos[0]] = EMPTY
+        return new_board
