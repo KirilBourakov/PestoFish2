@@ -9,7 +9,9 @@ class engine():
         self.kingPos: dict[str, tuple[int, int]] = {BLACK: (-10,-10), WHITE: (-10,-10)}
 
 
-    def accept_board(self, boardStr: str):
+    def accept_board(self, boardStr: str) -> list[list[str]]:
+        '''Takes in a boardStr and parses the board in a way the engine can understand.
+        Also extracts important features about the board'''
         split: list[str] = boardStr.split('/')
         self.fifty_move_rule_counter: int = int(split.pop())
         self.move_counter: int = int(split.pop())

@@ -46,11 +46,21 @@ class Generator():
         return final
 
     def rate_move(self, board: list[list[str]], move: tuple[int, int, str]) -> int:
+        '''Rates the move for ordering'''
         rating: int = self.baseRatings[move[2]]
         return rating
 
 
     def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int], moveType='') -> bool:
+        '''Returns if a move ends up putting the king in check.
+        
+        Keyword arguements:
+        \t board - the board 
+        \t kingPos - the position of the king which is on the side you're checking
+        \t oldPos - the old position of the piece
+        \t newPos - the new position of the piece
+        \t moveType - used to indicate if a move is castling, as more squares must be checked there
+        '''
         # simulate the new position
         new_board: list[list[str]] = deepcopy(board)
         new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
