@@ -15,3 +15,6 @@ EMPTY = '  '
 
 BLACK: str = 'b'
 WHITE: str = 'w'
+
+MIDDLE_GAME = "middle game"
+END_GAME = "end game"
