@@ -37,8 +37,16 @@ class engine():
                     self.kingPos[get_color(square)] = (x,y)
 
         return self.board
+    
 
-    def is_termainal(self, board: list[list[str]], last_move_color: str):
+
+    def to_move(self, turn_count: int) -> str:
+        '''gets who's move it is'''
+        if turn_count % 2 == 0:
+            return WHITE
+        return BLACK
+    
+    def is_termainal(self, board: list[list[str]], last_move_color: str) -> int:
         '''Returns if the game is over. An int indicates the result. 
         0 for stalemate, 1 for victory, -1 for not terminal
         This method only checks if the last move resulted in a terminal position
