@@ -1,10 +1,12 @@
-from engine.src.constants.constants import BLACK, WHITE, KING
-from engine.src.helpers.square_analysis import get_color, get_type
+from .constants.constants import BLACK, WHITE, KING
+from .helpers.square_analysis import get_color, get_type
+from .generator.generator import Generator
+from .evaluator.evaluator import Evaluator
 
 class engine():
     def __init__(self):
-        self.generator = None #should contain a class that is used to generate moves
-        self.evaluator = None #should contain a class that evaluates a given move position
+        self.generator: Generator = Generator()
+        self.evaluator: Evaluator = Evaluator()
 
         self.kingPos: dict[str, tuple[int, int]] = {BLACK: (-10,-10), WHITE: (-10,-10)}
 

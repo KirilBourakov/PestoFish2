@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from engine.src.constants.constants import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN
-from heuristics import common
+from .heuristics import common
 
 class Evaluator():
     def __init__(self) -> None:
