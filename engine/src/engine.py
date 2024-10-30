@@ -42,7 +42,7 @@ class engine():
     def get_best_move(self) -> MoveType:
         '''Gets the engine's best guess at what a move is.'''
         possible_moves = self.generator.get_moves(self.board, self.kingPos[self.to_move(self.move_counter)])
-        value_moves: list[tuple[MoveType, int]]
+        value_moves: list[tuple[MoveType, int]] = []
         
         for move in possible_moves:
             value_moves.append((move, self.value(self.board, move)))

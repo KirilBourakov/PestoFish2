@@ -71,7 +71,6 @@ class Generator():
         # check if the king is in check
         enemyColor: str = flip(get_color(board[kingPos[1]][kingPos[0]]))
         sight: dict[str, list[tuple[int,int]]] = sight_on_square(new_board, kingPos)
-        print(BLACK == get_color(board[kingPos[1]][kingPos[0]]))
         if len(sight[enemyColor]) > 0:
             return False
         

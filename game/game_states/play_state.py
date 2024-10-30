@@ -8,10 +8,10 @@ import game.constants.move_sets as mv
 from game.game_states.promotion import Promotion
 from game.game_states.abstract_state import Abstract_State
 from game.game_states.decorators import disable_on_engine_turn, run_engine
-from engine.engine import get_move_and_play
+from engine.src.engine import engine
 
 # for testing
-from engine.src.engine import engine
+
 from engine.src.generator.generator import Generator
 from engine.src.helpers.board_analysis import sight_on_square
 
@@ -55,7 +55,7 @@ class Play_State(Abstract_State):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
-        self.engine = get_move_and_play
+        self.engine = engine()
 
     def convert_for_engine(self):
         '''returns a string representing all relevent board state. \n
@@ -107,11 +107,6 @@ class Play_State(Abstract_State):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
-        e = engine()
-        r = Generator()
-        key = 'w' if self.get_turn() == globals.PIECE_WHITE else 'b'
-        print(r.get_moves(e.accept_board(self.convert_for_engine()), e.kingPos[key]))
-        # print(r.move_manager.get_all_moves(e.accept_board(self.convert_for_engine()), (gridx, gridy)))
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
