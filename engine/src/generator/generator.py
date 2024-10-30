@@ -43,6 +43,8 @@ class Generator():
                         if self.is_legal_move(board, kingPos, (x,y), (move[0],move[1])):
                             newMove: MoveType = MoveType(original=(x,y), new=(move[0],move[1]), rating=self.rate_move(board, move))
                             final.append(newMove)
+
+        final.sort(key=lambda x: x['rating'], reverse=True)
         return final
 
     def rate_move(self, board: list[list[str]], move: tuple[int, int, str]) -> int:

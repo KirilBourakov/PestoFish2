@@ -1,5 +1,6 @@
 import copy
 from .constants.constants import BLACK, WHITE, KING, EMPTY
+from .constants.types import MoveType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square
 from .helpers.helpers import flip
@@ -7,7 +8,7 @@ from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 
 class engine():
-    def __init__(self):
+    def __init__(self) -> None:
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
 
@@ -38,7 +39,25 @@ class engine():
 
         return self.board
     
+    def get_best_move(self) -> MoveType:
+        '''Gets the engine's best guess at what a move is.'''
+        possible_moves = self.generator.get_moves(self.board, self.kingPos[self.to_move(self.move_counter)])
+        value_moves: list[tuple[MoveType, int]]
+        
+        for move in possible_moves:
+            value_moves.append((move, self.value(self.board, move)))
+        return self.get_best(value_moves, self.to_move(self.move_counter))
 
+    def value(self, board: list[list[str]], move: MoveType) -> int:
+        '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
+        new_pos = self.result(board, move['original'], move['new'])
+        return self.evaluator.eval(new_pos)
+
+    def get_best(self, input: list[tuple[MoveType, int]], color: str) -> MoveType:
+        '''Given a list of moves and their values, return the best move for a specific color'''
+        if color == BLACK:
+            return min(input, key=lambda x: x[1])[0]
+        return max(input, key=lambda x: x[1])[0]
 
     def to_move(self, turn_count: int) -> str:
         '''gets who's move it is'''
