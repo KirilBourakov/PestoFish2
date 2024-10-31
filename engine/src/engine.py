@@ -41,19 +41,47 @@ class engine():
     
     def get_best_move(self) -> MoveType:
         '''Gets the engine's best guess at what a move is.'''
-        possible_moves = self.generator.get_moves(self.board, self.kingPos[self.to_move(self.move_counter)])
-        value_moves: list[tuple[MoveType, int]] = []
+        current_color = self.to_move(self.move_counter)
+        possible_moves = self.generator.get_moves(self.board, self.kingPos[current_color])
+        value_moves: list[tuple[MoveType, float]] = []
         
         for move in possible_moves:
-            value_moves.append((move, self.value(self.board, move)))
-        return self.get_best(value_moves, self.to_move(self.move_counter))
+            moveVal: float = self.value(self.board, move, 1)
+            value_moves.append((move, moveVal))
+        return self.get_best(value_moves, current_color)
 
-    def value(self, board: list[list[str]], move: MoveType) -> int:
+    def value(self, board: list[list[str]], move: MoveType, currDepth, Maxdepth=3) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
-        new_pos = self.result(board, move['original'], move['new'])
-        return self.evaluator.eval(new_pos)
+        new_pos: list[list[str]] = self.result(board, move['original'], move['new'])
+        piece_moved: str = board[move['original'][1]][move['original'][0]]
+        color_just_moved: str = get_color(piece_moved)
 
-    def get_best(self, input: list[tuple[MoveType, int]], color: str) -> MoveType:
+        # base cases
+        if currDepth > Maxdepth:
+            return self.evaluator.eval(new_pos)
+        # the position is terminal
+        terminal: int = self.is_termainal(new_pos, color_just_moved)
+        if terminal != -1:
+            return self.get_terminal_value(terminal, color_just_moved)
+        
+        possible_moves: list[MoveType] = self.generator.get_moves(new_pos, self.kingPos[flip(color_just_moved)])[:3]
+        values: list[float] = []
+        for move in possible_moves:
+            values.append(self.value(self.board, move, currDepth+1))
+        return self.get_best_val(values, flip(color_just_moved))
+
+    def get_terminal_value(self, terminal_key, color) -> float:
+        '''returns the value for a terminal state given a nonnegative terminal key'''
+        if terminal_key == 0:
+            return 0
+        return float('inf') if get_color(color) == WHITE else float('-inf')
+
+    def get_best_val(self, input: list[float], color: str) -> float:
+        if color == BLACK:
+            return min(input)
+        return max(input)
+
+    def get_best(self, input: list[tuple[MoveType, float]], color: str) -> MoveType:
         '''Given a list of moves and their values, return the best move for a specific color'''
         if color == BLACK:
             return min(input, key=lambda x: x[1])[0]
