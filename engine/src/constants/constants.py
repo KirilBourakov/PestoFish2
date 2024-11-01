@@ -12,6 +12,7 @@ BISHOP = 'b'
 ROOK = 'r'
 PAWN = 'p'
 EMPTY = '  '
+EN_PASSENT = 'e'
 
 BLACK: str = 'b'
 WHITE: str = 'w'

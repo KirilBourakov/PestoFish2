@@ -1,5 +1,5 @@
 from .moves import Moves
-from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE
+from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE, EN_PASSENT
 from engine.src.constants.types import MoveType
 from engine.src.helpers.square_analysis import get_color, get_type
 from engine.src.helpers.board_analysis import sight_on_square 
@@ -68,8 +68,14 @@ class Generator():
         new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
         new_board[oldPos[1]][oldPos[0]] = EMPTY
 
+        # if the move is enpassent, we must handle that
+        color = get_color(board[kingPos[1]][kingPos[0]])
+        if get_type(board[newPos[1]][newPos[0]]) == EN_PASSENT:
+            offset = 1 if color == BLACK else -1
+            new_board[newPos[1]+offset][newPos[0]] = EMPTY
+
         # check if the king is in check
-        enemyColor: str = flip(get_color(board[kingPos[1]][kingPos[0]]))
+        enemyColor: str = flip(color)
         sight: dict[str, list[tuple[int,int]]] = sight_on_square(new_board, kingPos)
         if len(sight[enemyColor]) > 0:
             return False
