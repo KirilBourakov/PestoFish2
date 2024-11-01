@@ -14,6 +14,7 @@ class engine():
         self.evaluator: Evaluator = Evaluator()
 
         self.kingPos: dict[str, tuple[int, int]] = {BLACK: (-10,-10), WHITE: (-10,-10)}
+        self.transposeTable: dict[str, float] = {}
 
 
     def accept_board(self, boardStr: str) -> list[list[str]]:
@@ -49,6 +50,7 @@ class engine():
         for move in possible_moves:
             moveVal: float = self.value(self.board, move, 1)
             value_moves.append((move, moveVal))
+            self.transposeTable[str(self.result(self.board, move['original'], move['new']))] = moveVal
         return self.get_best(value_moves, current_color)
 
     def value(self, board: list[list[str]], move: MoveType, currDepth, Maxdepth=3) -> float:
@@ -58,6 +60,8 @@ class engine():
         color_just_moved: str = get_color(piece_moved)
 
         # base cases
+        if str(new_pos) in self.transposeTable:
+            return self.transposeTable[str(new_pos)]
         if currDepth > Maxdepth:
             return self.evaluator.eval(new_pos)
         # the position is terminal
