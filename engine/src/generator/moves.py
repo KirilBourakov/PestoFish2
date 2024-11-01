@@ -114,7 +114,7 @@ class Moves():
 
             king_rook_has_not_moved_and_king_side_empty: bool = not has_moved(board[y][7]) and is_empty_squares([board[y][6], board[y][5]])
             if king_rook_has_not_moved_and_king_side_empty:
-                final.append((7, y, LONG_CASTLE))
+                final.append((6, y, LONG_CASTLE))
 
         elif (piece_type == PAWN):
             if (piece_color == BLACK):

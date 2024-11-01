@@ -1,5 +1,6 @@
 import copy
-from .constants.constants import BLACK, WHITE, KING, EMPTY
+import math
+from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
 from .constants.types import MoveType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square
@@ -128,4 +129,22 @@ class engine():
         new_board: list[list[str]] = copy.deepcopy(board)
         new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
         new_board[oldPos[1]][oldPos[0]] = EMPTY
+
+        # enpassent
+        color = get_color(board[oldPos[1]][oldPos[0]])
+        if get_type(board[newPos[1]][newPos[0]]) == EN_PASSENT:
+            offset = 1 if color == BLACK else -1
+            new_board[newPos[1]+offset][newPos[0]] = EMPTY
+        
+        # castling (if the king is moving more then 1 square, it must be castling)
+        delta_x = abs(oldPos[0] - newPos[0])
+        piece_type = board[oldPos[1]][oldPos[0]]
+        if piece_type == KING and delta_x > 1:
+            if newPos[0] == 2:
+                new_board[newPos[1]][0] = EMPTY
+                new_board[newPos[1]][newPos[0]+1] = board[newPos[1]][0]
+            elif newPos[0] == 6:
+                new_board[newPos[1]][0] = EMPTY
+                new_board[newPos[1]][newPos[0]+1] = board[newPos[0]][0]
+
         return new_board
