@@ -48,38 +48,55 @@ class engine():
         value_moves: list[tuple[MoveType, float]] = []
         
         for move in possible_moves:
-            moveVal: float = self.value(self.board, move, 1)
-            value_moves.append((move, moveVal))
-            self.transposeTable[str(self.result(self.board, move['original'], move['new']))] = moveVal
-        return self.get_best(value_moves, current_color)
+            new_pos: list[list[str]] = self.result(self.board, move['original'], move['new'])
+            pos_val: float = self.value(new_pos, current_color)
+            value_moves.append((move, pos_val))
+            self.transposeTable[str(new_pos)] = pos_val
+        print('got best move')
+        return self.get_best(value_moves, current_color)     
 
-    def value(self, board: list[list[str]], move: MoveType, currDepth, Maxdepth=3) -> float:
+    def value(self, pos: list[list[str]], perspective: str, currDepth: int = 1, 
+            Maxdepth: int=3, max_val:float=float('-inf'), min_val:float=float('-inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
-        new_pos: list[list[str]] = self.result(board, move['original'], move['new'])
-        piece_moved: str = board[move['original'][1]][move['original'][0]]
-        color_just_moved: str = get_color(piece_moved)
 
         # base cases
-        if str(new_pos) in self.transposeTable:
-            return self.transposeTable[str(new_pos)]
+        if str(pos) in self.transposeTable:
+            return self.transposeTable[str(pos)]
         if currDepth > Maxdepth:
-            return self.evaluator.eval(new_pos)
+            return self.evaluator.eval(pos)
         # the position is terminal
-        terminal: int = self.is_termainal(new_pos, color_just_moved)
-        if terminal != -1:
-            return self.get_terminal_value(terminal, color_just_moved)
+        terminal_key: int = self.is_termainal(pos)
+        if terminal_key != -2:
+            return self.get_terminal_value(terminal_key)
         
-        possible_moves: list[MoveType] = self.generator.get_moves(new_pos, self.kingPos[flip(color_just_moved)])[:3]
-        values: list[float] = []
+        # get all the possible moves
+        possible_moves: list[MoveType] = self.generator.get_moves(pos, self.kingPos[flip(perspective)])
+        # initalize dummy values for the best_value
+        best_value = float('-inf') if perspective == WHITE else float('inf')
+        # for every move
         for move in possible_moves:
-            values.append(self.value(self.board, move, currDepth+1))
-        return self.get_best_val(values, flip(color_just_moved))
+            new_pos: list[list[str]] = self.result(self.board, move['original'], move['new'])
+            # get the value of the new position
+            pos_val = self.value(new_pos, currDepth=currDepth+1, max_val=max_val, min_val=min_val)
+            # update the value as needed
+            best_value = self.get_best_val([best_value, pos_val], perspective)
 
-    def get_terminal_value(self, terminal_key, color) -> float:
-        '''returns the value for a terminal state given a nonnegative terminal key'''
+            if perspective == WHITE:
+                max_val = max(max_val, pos_val)
+            else:
+                min_val = min(min_val, pos_val)
+
+            if min_val <= max_val:
+                break
+            
+        return best_value
+
+
+    def get_terminal_value(self, terminal_key) -> float:
+        '''returns the value for a terminal state given a terminal key'''
         if terminal_key == 0:
             return 0
-        return float('inf') if get_color(color) == WHITE else float('-inf')
+        return float('inf') if terminal_key == 1 else float('-inf')
 
     def get_best_val(self, input: list[float], color: str) -> float:
         if color == BLACK:
@@ -98,27 +115,30 @@ class engine():
             return WHITE
         return BLACK
     
-    def is_termainal(self, board: list[list[str]], last_move_color: str) -> int:
+    def is_termainal(self, board: list[list[str]]) -> int:
         '''Returns if the game is over. An int indicates the result. 
-        0 for stalemate, 1 for victory, -1 for not terminal
+        0 for stalemate or draw, 1 for white victory, -1 for black victory, -2 for not terminal
         This method only checks if the last move resulted in a terminal position
 
         Keyword arguements:
         \t board - the board 
         \t the color that made the move
         '''
-        enemy = flip(last_move_color)
-        moves = self.generator.get_moves(board, self.kingPos[enemy])
-
-        king_in_check: bool = len(sight_on_square(board, self.kingPos[enemy])[last_move_color]) > 0
-
-        # checkmate
-        if king_in_check: 
+        for color in [WHITE, BLACK]:
+            enemy = flip(color)
+            moves = self.generator.get_moves(board, self.kingPos[enemy])
+            eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, self.kingPos[color])
+            king_in_check: bool = len(eyes_on_king[enemy]) > 0
+            # a king is in checkmate
+            if king_in_check: 
+                if len(moves) == 0:
+                    return 1 if enemy == WHITE else BLACK
+            # stalemate
             if len(moves) == 0:
-                return 1
+                return 0
 
-        # stalemate/draw
-        if self.fifty_move_rule_counter / 2 >= 50 or len(moves) == 0:
+        # draw by fifty move rule
+        if self.fifty_move_rule_counter / 2 >= 50:
             return 0
         return -1
     

@@ -9,3 +9,5 @@ pieceType = TypedDict('pieceType', {'piece': str, 'location': tuple[int, int]})
 
 # Represents the moves a piece can make
 MoveType = TypedDict('MoveType', {'original': tuple[int, int], 'new': tuple[int, int], 'rating': int})
+
+SearchType = TypedDict('SearchType', {'move': MoveType, 'depth': int})
