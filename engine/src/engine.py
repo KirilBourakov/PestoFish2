@@ -38,7 +38,6 @@ class engine():
             for x, square in enumerate(board_row):
                 if (get_type(square) == KING):
                     self.kingPos[get_color(square)] = (x,y)
-
         return self.board
     
     def get_best_move(self) -> MoveType:
@@ -81,11 +80,12 @@ class engine():
             # update the value as needed
             best_value = self.get_best_val([best_value, pos_val], perspective)
 
+            # keep track of max and min
             if perspective == WHITE:
                 max_val = max(max_val, pos_val)
             else:
                 min_val = min(min_val, pos_val)
-
+            # prune
             if min_val <= max_val:
                 break
             
@@ -143,6 +143,7 @@ class engine():
         return -1
     
     def result(self, board: list[list[str]], oldPos: tuple[int, int], newPos: tuple[int, int]) -> list[list[str]]:
+        # TODO: handle placing of EP flag
         '''Simulates a board position
         
         Keyword arguements:
@@ -152,6 +153,7 @@ class engine():
         '''
         new_board: list[list[str]] = copy.deepcopy(board)
         new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
+        new_board[newPos[1]][newPos[0]] = new_board[newPos[1]][newPos[0]][0].lower() + new_board[newPos[1]][newPos[0]][1]
         new_board[oldPos[1]][oldPos[0]] = EMPTY
 
         # enpassent
