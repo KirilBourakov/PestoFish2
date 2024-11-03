@@ -82,7 +82,7 @@ class Moves():
                     moveType = BACKWARD if piece_color == WHITE and directiony > 0 else FORWARD
 
                     final.append((new_pos[0], new_pos[1], moveType))
-                elif (piece_color != get_color(board[new_pos[1]][new_pos[0]])):
+                elif (piece_color != get_color(board[new_pos[1]][new_pos[0]]) and piece_type != PAWN):
                     final.append((new_pos[0], new_pos[1], CAPTURE))
                     break
                 else: 

@@ -25,7 +25,6 @@ class engine():
         self.move_counter: int = int(split.pop())
 
         self.board: list[list[str]] = []
-
         for row in split:
             row = row.strip()
             s = row.split(" ")
@@ -51,7 +50,6 @@ class engine():
             pos_val: float = self.value(new_pos, current_color)
             value_moves.append((move, pos_val))
             self.transposeTable[str(new_pos)] = pos_val
-        print('got best move')
         return self.get_best(value_moves, current_color)     
 
     def value(self, pos: list[list[str]], perspective: str, currDepth: int = 1, 
@@ -69,7 +67,7 @@ class engine():
             return self.get_terminal_value(terminal_key)
         
         # get all the possible moves
-        possible_moves: list[MoveType] = self.generator.get_moves(pos, self.kingPos[flip(perspective)])
+        possible_moves: list[MoveType] = self.generator.get_moves(pos, self.find_king(pos, flip(perspective)))
         # initalize dummy values for the best_value
         best_value = float('-inf') if perspective == WHITE else float('inf')
         # for every move
@@ -91,6 +89,13 @@ class engine():
             
         return best_value
 
+    def find_king(self, board: list[list[str]], color: str):
+        for y, board_row in enumerate(board):
+            for x, square in enumerate(board_row):
+                if (get_type(square) == KING):
+                    if get_color(square) == color:
+                        return (x,y)
+        raise IndexError('No King Index Found')
 
     def get_terminal_value(self, terminal_key) -> float:
         '''returns the value for a terminal state given a terminal key'''
@@ -126,7 +131,7 @@ class engine():
         '''
         for color in [WHITE, BLACK]:
             enemy = flip(color)
-            moves = self.generator.get_moves(board, self.kingPos[enemy])
+            moves = self.generator.get_moves(board, self.find_king(board, enemy))
             eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, self.kingPos[color])
             king_in_check: bool = len(eyes_on_king[enemy]) > 0
             # a king is in checkmate

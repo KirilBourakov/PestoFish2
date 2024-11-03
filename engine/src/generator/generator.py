@@ -30,7 +30,7 @@ class Generator():
         '''
         colorTarget = get_color(board[kingPos[1]][kingPos[0]])
         check = get_type(board[kingPos[1]][kingPos[0]])
-        if (colorTarget != BLACK or colorTarget != WHITE) and check != KING:
+        if (colorTarget != BLACK and colorTarget != WHITE) or check != KING:
             raise IndexError("Invalid king position")
 
         final: list[MoveType] = []
