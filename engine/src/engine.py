@@ -44,9 +44,8 @@ class engine():
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, self.kingPos[current_color])
         value_moves: list[tuple[MoveType, float]] = []
-        
         for move in possible_moves:
-            new_pos: list[list[str]] = self.result(self.board, move['original'], move['new'])
+            new_pos: list[list[str]] = self.result(self.board, move)
             pos_val: float = self.value(new_pos, current_color)
             value_moves.append((move, pos_val))
             self.transposeTable[str(new_pos)] = pos_val
@@ -72,9 +71,9 @@ class engine():
         best_value = float('-inf') if perspective == WHITE else float('inf')
         # for every move
         for move in possible_moves:
-            new_pos: list[list[str]] = self.result(self.board, move['original'], move['new'])
+            new_pos: list[list[str]] = self.result(self.board, move)
             # get the value of the new position
-            pos_val = self.value(new_pos, currDepth=currDepth+1, max_val=max_val, min_val=min_val)
+            pos_val = self.value(new_pos, flip(perspective), currDepth=currDepth+1, max_val=max_val, min_val=min_val)
             # update the value as needed
             best_value = self.get_best_val([best_value, pos_val], perspective)
 
@@ -137,7 +136,7 @@ class engine():
             # a king is in checkmate
             if king_in_check: 
                 if len(moves) == 0:
-                    return 1 if enemy == WHITE else BLACK
+                    return 1 if enemy == WHITE else -1
             # stalemate
             if len(moves) == 0:
                 return 0
@@ -147,35 +146,40 @@ class engine():
             return 0
         return -1
     
-    def result(self, board: list[list[str]], oldPos: tuple[int, int], newPos: tuple[int, int]) -> list[list[str]]:
+    def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
         # TODO: handle placing of EP flag
         '''Simulates a board position
         
         Keyword arguements:
         \t board - the board 
-        \t oldPos - the old position of the piece
-        \t newPos - the new position of the piec
+        \t move - a dict of moveType, representing the move
         '''
+        oldx, oldy = move['original']
+        newx, newy = move['new']
         new_board: list[list[str]] = copy.deepcopy(board)
-        new_board[newPos[1]][newPos[0]] = new_board[oldPos[1]][oldPos[0]]
-        new_board[newPos[1]][newPos[0]] = new_board[newPos[1]][newPos[0]][0].lower() + new_board[newPos[1]][newPos[0]][1]
-        new_board[oldPos[1]][oldPos[0]] = EMPTY
+        
+        new_board[newy][newx] = new_board[oldy][oldx]
+        new_board[newy][newx] = new_board[newy][newx][0].lower() + new_board[newy][newx][1]
+        new_board[oldy][oldx] = EMPTY
+
+        if move['promotion'] != '':
+            new_board[newy][newx] = new_board[newy][newx][0].lower() + move['promotion']
 
         # enpassent
-        color = get_color(board[oldPos[1]][oldPos[0]])
-        if get_type(board[newPos[1]][newPos[0]]) == EN_PASSENT:
+        color = get_color(board[oldy][oldx])
+        if get_type(board[newy][newx]) == EN_PASSENT:
             offset = 1 if color == BLACK else -1
-            new_board[newPos[1]+offset][newPos[0]] = EMPTY
+            new_board[newy+offset][newx] = EMPTY
         
         # castling (if the king is moving more then 1 square, it must be castling)
-        delta_x = abs(oldPos[0] - newPos[0])
-        piece_type = board[oldPos[1]][oldPos[0]]
+        delta_x = abs(oldx - newx)
+        piece_type = board[oldy][oldx]
         if piece_type == KING and delta_x > 1:
-            if newPos[0] == 2:
-                new_board[newPos[1]][0] = EMPTY
-                new_board[newPos[1]][newPos[0]+1] = board[newPos[1]][0]
-            elif newPos[0] == 6:
-                new_board[newPos[1]][0] = EMPTY
-                new_board[newPos[1]][newPos[0]+1] = board[newPos[0]][0]
+            if newx == 2:
+                new_board[newy][0] = EMPTY
+                new_board[newy][newx+1] = board[newy][0]
+            elif newx == 6:
+                new_board[newy][0] = EMPTY
+                new_board[newy][newx+1] = board[newx][0]
 
         return new_board

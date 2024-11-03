@@ -4,6 +4,7 @@ BACKWARD = 'backward'
 DOUBLE_MOVE = 'double move'
 LONG_CASTLE = 'long castle'
 SHORT_CASTLE = 'short castle'
+PROMOTION = 'PROMOTION'
 
 KING = 'K'
 QUEEN = 'q'

@@ -45,7 +45,7 @@ def run_engine(func):
         if black_engine_turn or white_engine_turn:
             self.engine.accept_board(self.convert_for_engine())
             best_move = self.engine.get_best_move()
-            new_pos = self.engine.result(self.engine.board, best_move['original'], best_move['new'])
+            new_pos = self.engine.result(self.engine.board, best_move)
             translated_board = []
             for i in range(8):
                 translated_board.append([None]*8)

@@ -1,5 +1,5 @@
 from .moves import Moves
-from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE, EN_PASSENT
+from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE, EN_PASSENT, PAWN, QUEEN, ROOK, BISHOP, KNIGHT
 from engine.src.constants.types import MoveType
 from engine.src.helpers.square_analysis import get_color, get_type
 from engine.src.helpers.board_analysis import sight_on_square 
@@ -41,8 +41,15 @@ class Generator():
                     moves = self.move_manager.get_all_moves(board, (x,y))
                     for move in moves:
                         if self.is_legal_move(board, kingPos, (x,y), (move[0],move[1])):
-                            newMove: MoveType = MoveType(original=(x,y), new=(move[0],move[1]), rating=self.rate_move(board, move))
-                            final.append(newMove)
+                            newMove: MoveType = MoveType(original=(x,y), new=(move[0],move[1]), rating=self.rate_move(board, move), promotion='')
+                            promotion = get_type(cell) == PAWN and (move[1] == 0 or move[1] == 7)
+                            if promotion:
+                                for possiblity in [QUEEN, ROOK, BISHOP, KNIGHT]:
+                                    mv: MoveType = deepcopy(newMove)
+                                    mv['promotion'] = possiblity
+                                    final.append(mv)
+                            else:
+                                final.append(newMove)
 
         final.sort(key=lambda x: x['rating'], reverse=True)
         return final
