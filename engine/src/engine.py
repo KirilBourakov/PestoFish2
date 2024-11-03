@@ -54,6 +54,7 @@ class engine():
     def value(self, pos: list[list[str]], perspective: str, currDepth: int = 1, 
             Maxdepth: int=3, max_val:float=float('-inf'), min_val:float=float('-inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
+        # TODO: engine seems to be calculating from wrong perspective
 
         # base cases
         if str(pos) in self.transposeTable:
@@ -71,6 +72,7 @@ class engine():
         best_value = float('-inf') if perspective == WHITE else float('inf')
         # for every move
         for move in possible_moves:
+            
             new_pos: list[list[str]] = self.result(self.board, move)
             # get the value of the new position
             pos_val = self.value(new_pos, flip(perspective), currDepth=currDepth+1, max_val=max_val, min_val=min_val)
@@ -144,7 +146,7 @@ class engine():
         # draw by fifty move rule
         if self.fifty_move_rule_counter / 2 >= 50:
             return 0
-        return -1
+        return -2
     
     def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
         # TODO: handle placing of EP flag
