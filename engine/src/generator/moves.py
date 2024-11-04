@@ -98,7 +98,7 @@ class Moves():
 
     def get_complex_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:
         '''returns a list of tuples that represent possibly legal complex moves. This tuple repersents (new_x, new_y, move_type)
-        This method does not send moves that move you through pieces. 
+        This method does not send moves that move you through pieces. Complex moves are castling, pawn captures, pawn double moves
         
         Keyword arguments:
         \t board: a list of strings repersenting the board position
