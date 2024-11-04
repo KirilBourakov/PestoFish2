@@ -49,7 +49,6 @@ class MovesTests(unittest.TestCase):
         self.assertEqual(len(moves), 2)
 
         moves = move_gen.get_all_moves(board2, (0,1))
-        print(moves)
         self.assertEqual(len(moves), 0)
 
         # king
