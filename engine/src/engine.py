@@ -53,10 +53,8 @@ class engine():
 
     def value(self, pos: list[list[str]], perspective: str, currDepth: int = 1, 
             Maxdepth: int=4, max_val:float=float('-inf'), min_val:float=float('-inf')) -> float:
-            Maxdepth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
         # TODO: engine seems to be calculating from wrong perspective/Something else fundementally wrong
-        # TODO: engine seems to be calculating from wrong perspective. Something wrong with pruning, engine not fully calculating
         # TODO: taking far too long
 
         # base cases
