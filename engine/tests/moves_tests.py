@@ -20,3 +20,17 @@ class MovesTests(unittest.TestCase):
 
         self.assertEqual(len(w_moves), 0)
         self.assertEqual(len(b_moves), 0)
+
+    def test_get_simple_moves(self):
+        moves = Moves()
+        board1 =    [['Br', 'bk', 'bb', '  ', 'BK', 'bb', 'bk', 'Br'],
+                    ['bp', 'bp', 'bp', 'bp', '  ', 'bp', 'bp', 'bp'],
+                    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                    ['  ', '  ', '  ', '  ', 'bp', '  ', '  ', '  '],
+                    ['wp', '  ', '  ', '  ', '  ', '  ', '  ', 'bq'],
+                    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                    ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+                    ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
+        moves = moves.get_simple_moves(board1, (4,7))
+        self.assertEqual(len(moves), 15)
+        print(moves)

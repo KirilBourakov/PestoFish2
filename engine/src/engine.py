@@ -51,37 +51,46 @@ class engine():
             self.transposeTable[str(new_pos)] = pos_val
         return self.get_best(value_moves, current_color)     
 
-    def value(self, pos: list[list[str]], perspective: str, currDepth: int = 1, 
-            Maxdepth: int=4, max_val:float=float('-inf'), min_val:float=float('-inf')) -> float:
-        '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
+    def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
+            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
+        '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
+
+        Keyword arguments:
+        \t pos -- a board position
+        \t perspective -- the perspective from which to examine the moves (IE, the person who just moved)
+        \t currDepth -- the depth to which we have explored (default = 1)
+        \t max_depth -- the max deppth of the engine (default = 3)
+        \t max_val -- the top most value found (used in pruning) (default = -inf) 
+        \t min_val -- the bottom most value found (used in pruning) (default = inf) 
+        '''
         # TODO: engine seems to be calculating from wrong perspective/Something else fundementally wrong
         # TODO: taking far too long
 
         # base cases
         if str(pos) in self.transposeTable:
             return self.transposeTable[str(pos)]
-        if currDepth > Maxdepth:
-            print(self.evaluator.eval(pos))
+        if curr_depth > max_depth:
             return self.evaluator.eval(pos)
         # the position is terminal
         terminal_key: int = self.is_termainal(pos)
         if terminal_key != -2:
             return self.get_terminal_value(terminal_key)
         
+        enemy_perspective: str = flip(perspective)
         # get all the possible moves
-        possible_moves: list[MoveType] = self.generator.get_moves(pos, self.find_king(pos, flip(perspective)))
+        possible_moves: set[MoveType] = self.generator.get_moves(pos, self.find_king(pos, enemy_perspective))
         # initalize dummy values for the best_value
         best_value = float('-inf') if perspective == WHITE else float('inf')
         # for every move
         for move in possible_moves:
             new_pos: list[list[str]] = self.result(self.board, move)
             # get the value of the new position
-            pos_val = self.value(new_pos, flip(perspective), currDepth=currDepth+1, max_val=max_val, min_val=min_val)
+            pos_val = self.value(new_pos, enemy_perspective, curr_depth=curr_depth+1, max_val=max_val, min_val=min_val)
             # update the value as needed
-            best_value = self.get_best_val([best_value, pos_val], perspective)
+            best_value = self.get_best_val([best_value, pos_val], enemy_perspective)
 
             # keep track of max and min
-            if perspective == WHITE:
+            if enemy_perspective == WHITE:
                 max_val = max(max_val, pos_val)
             else:
                 min_val = min(min_val, pos_val)
@@ -92,6 +101,7 @@ class engine():
         return best_value
 
     def find_king(self, board: list[list[str]], color: str):
+        '''Finds a king of a certin color given a position'''
         for y, board_row in enumerate(board):
             for x, square in enumerate(board_row):
                 if (get_type(square) == KING):
@@ -133,13 +143,15 @@ class engine():
         '''
         for color in [WHITE, BLACK]:
             enemy = flip(color)
-            moves = self.generator.get_moves(board, self.find_king(board, enemy))
+
+            # see if the enemy king is in check, but has no moves
+            moves = self.generator.get_moves(board, self.find_king(board, enemy)) 
             eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, self.kingPos[color])
             king_in_check: bool = len(eyes_on_king[enemy]) > 0
             # a king is in checkmate
             if king_in_check: 
                 if len(moves) == 0:
-                    return 1 if enemy == WHITE else -1
+                    return 1 if color == WHITE else -1
             # stalemate
             if len(moves) == 0:
                 return 0

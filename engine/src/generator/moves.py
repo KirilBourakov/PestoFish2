@@ -1,6 +1,6 @@
 from engine.src.helpers.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
 from engine.src.helpers.board_analysis import inbounds
-from engine.src.constants.constants import KING, PAWN, KNIGHT, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
+from engine.src.constants.constants import KING, PAWN, KNIGHT, QUEEN, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
 from engine.src.constants.types import Vector
 
 class Moves():
@@ -31,7 +31,7 @@ class Moves():
         moves['b'] = Vector(maxForce=8, directions=[(-1, 1), (1,1), (-1,-1), (1,-1)])
 
         # queen
-        moves['q'] = Vector(maxForce=8, directions=[(-1, 1), (0, 1), (1,1),(-1,0), (1,0),(-1,-1), (0,-1), (1,-1)])
+        moves['q'] = Vector(maxForce=8, directions=[(-1, 1), (-1,0), (-1,-1), (0,-1), (0, 1), (1,1), (1,0), (1,-1)])
 
         # pawn moves
         moves['bp'] = Vector(maxForce=1, directions=[(0, +1)])
@@ -80,14 +80,20 @@ class Moves():
                 if (is_empty(board[new_pos[1]][new_pos[0]])):
                     moveType: str = BACKWARD if piece_color == BLACK and directiony < 0 else FORWARD
                     moveType = BACKWARD if piece_color == WHITE and directiony > 0 else FORWARD
-
                     final.append((new_pos[0], new_pos[1], moveType))
                 elif (piece_color != get_color(board[new_pos[1]][new_pos[0]]) and piece_type != PAWN):
+                    # if get_type(board[new_pos[1]][new_pos[0]]) == KING:
+                    #     for row in board:
+                    #         print(row)
+                    #     print(direction, currForce, piece_location, new_pos, piece_type)
+                    #     raise IndexError('Trying to capture king')
                     final.append((new_pos[0], new_pos[1], CAPTURE))
                     break
                 else: 
                     break
                 currForce += 1
+        # if piece_type == QUEEN and piece_color == BLACK:
+        #     print(final)
         return final
 
     def get_complex_moves(self, board: list[list[str]], piece_location: tuple[int, int]) -> list[tuple[int, int, str]]:

@@ -17,12 +17,7 @@ class Generator():
     def get_moves(self, board: list[list[str]], kingPos: tuple[int, int]) -> list[MoveType]:
         '''given a board state return a list of possible moves
         
-        this method returns a list of dictionaries that repersent moves. Each dict has the following key value pairs:
-        \t old_x the original x of the piece
-        \t old_y the original y of the piece
-        \t new_x the new x of the piece
-        \t new_y the new y of the piece
-        \t the force of the move (used in ordering)
+        this method returns a list of dictionaries that repersent moves. Each dict is a MoveType
 
         Keyword arguments:
         \t board the board 
@@ -40,7 +35,7 @@ class Generator():
                 if color == colorTarget:             
                     moves = self.move_manager.get_all_moves(board, (x,y))
                     for move in moves:
-                        if self.is_legal_move(board, kingPos, (x,y), (move[0],move[1])):
+                        if self.is_legal_move(board, kingPos, (x,y), move):
                             newMove: MoveType = MoveType(original=(x,y), new=(move[0],move[1]), rating=self.rate_move(board, move), promotion='')
                             promotion = get_type(cell) == PAWN and (move[1] == 0 or move[1] == 7)
                             if promotion:
