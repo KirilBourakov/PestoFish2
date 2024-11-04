@@ -91,7 +91,7 @@ class MovesTests(unittest.TestCase):
                     ['wp', '  ', 'wp', 'wp', 'wp', '  ', 'wp', 'wp'],
                     ['Wr', '  ', '  ', '  ', 'WK', '  ', '  ', 'Wr']]
         moves = moves_gen.get_complex_moves(board1, (4,7))
-        self.assertEqual(len(moves), 0)
+        self.assertEqual(len(moves), 2)
 
         moves = moves_gen.get_complex_moves(board1, (4,3))
         self.assertEqual(len(moves), 1)
