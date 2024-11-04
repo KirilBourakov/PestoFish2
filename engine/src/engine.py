@@ -53,13 +53,17 @@ class engine():
 
     def value(self, pos: list[list[str]], perspective: str, currDepth: int = 1, 
             Maxdepth: int=4, max_val:float=float('-inf'), min_val:float=float('-inf')) -> float:
+            Maxdepth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished.'''
         # TODO: engine seems to be calculating from wrong perspective/Something else fundementally wrong
+        # TODO: engine seems to be calculating from wrong perspective. Something wrong with pruning, engine not fully calculating
+        # TODO: taking far too long
 
         # base cases
         if str(pos) in self.transposeTable:
             return self.transposeTable[str(pos)]
         if currDepth > Maxdepth:
+            print(self.evaluator.eval(pos))
             return self.evaluator.eval(pos)
         # the position is terminal
         terminal_key: int = self.is_termainal(pos)
