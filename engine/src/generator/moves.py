@@ -63,7 +63,6 @@ class Moves():
             return []
         piece_type: str = get_type(piece)
         piece_color: str = get_color(piece)
-
         index: str = piece_color + piece_type if piece_type == PAWN else piece_type
         move_vectors: Vector = self.vectors[index]
         
@@ -78,8 +77,9 @@ class Moves():
                     break
 
                 if (is_empty(board[new_pos[1]][new_pos[0]])):
-                    moveType: str = BACKWARD if piece_color == BLACK and directiony < 0 else FORWARD
-                    moveType = BACKWARD if piece_color == WHITE and directiony > 0 else FORWARD
+                    moveType: str = BACKWARD
+                    if (piece_color == BLACK and directiony > 0) or (piece_color == WHITE and directiony < 0):
+                        moveType = FORWARD
                     final.append((new_pos[0], new_pos[1], moveType))
                 elif (piece_color != get_color(board[new_pos[1]][new_pos[0]]) and piece_type != PAWN):
                     # if get_type(board[new_pos[1]][new_pos[0]]) == KING:
@@ -126,7 +126,8 @@ class Moves():
             if (piece_color == BLACK):
                 # double move
                 black_pawn_on_start_rank: bool = piece_location[1] == 1
-                if black_pawn_on_start_rank:
+                empty_space: bool = is_empty(board[piece_location[1]+1][piece_location[0]]) and is_empty(board[piece_location[1]+2][piece_location[0]])
+                if black_pawn_on_start_rank and empty_space:
                     final.append(((piece_location[0], piece_location[1]+2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,1), (-1,1)]:
@@ -140,7 +141,8 @@ class Moves():
             else:
                 # double move
                 white_pawn_on_start_rank: bool = piece_location[1] == 6
-                if white_pawn_on_start_rank:
+                empty_space = is_empty(board[piece_location[1]+1][piece_location[0]]) and is_empty(board[piece_location[1]+2][piece_location[0]])
+                if white_pawn_on_start_rank and empty_space:
                     final.append(((piece_location[0], piece_location[1]-2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,-1), (-1,-1)]:
