@@ -127,9 +127,10 @@ class Moves():
             if (piece_color == BLACK):
                 # double move
                 black_pawn_on_start_rank: bool = piece_location[1] == 1
-                empty_space: bool = is_empty(board[piece_location[1]+1][piece_location[0]]) and is_empty(board[piece_location[1]+2][piece_location[0]])
-                if black_pawn_on_start_rank and empty_space:
-                    final.append(((piece_location[0], piece_location[1]+2, DOUBLE_MOVE)))
+                if black_pawn_on_start_rank:
+                    empty_space: bool = is_empty(board[piece_location[1]+1][piece_location[0]]) and is_empty(board[piece_location[1]+2][piece_location[0]])
+                    if empty_space:
+                        final.append(((piece_location[0], piece_location[1]+2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,1), (-1,1)]:
                     black_new_pos: tuple[int, int] = (piece_location[0] + i[0], piece_location[1] + i[1])
@@ -142,9 +143,10 @@ class Moves():
             else:
                 # double move
                 white_pawn_on_start_rank: bool = piece_location[1] == 6
-                empty_space = is_empty(board[piece_location[1]-1][piece_location[0]]) and is_empty(board[piece_location[1]-2][piece_location[0]])
-                if white_pawn_on_start_rank and empty_space:
-                    final.append(((piece_location[0], piece_location[1]-2, DOUBLE_MOVE)))
+                if white_pawn_on_start_rank:
+                    empty_space = is_empty(board[piece_location[1]-1][piece_location[0]]) and is_empty(board[piece_location[1]-2][piece_location[0]])
+                    if empty_space:
+                        final.append(((piece_location[0], piece_location[1]-2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
                 for i in [(1,-1), (-1,-1)]:
                     white_new_pos: tuple[int, int] = (piece_location[0] + i[0], piece_location[1] + i[1])

@@ -42,11 +42,10 @@ class engine():
             pos_val: float = self.value(new_pos, current_color)
             value_moves.append((move, pos_val))
             self.transposeTable[str(new_pos)] = pos_val
-        # print(value_moves)
         return self.get_best(value_moves, current_color)     
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
-            max_depth: int=2, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
+            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
 
         Keyword arguments:
@@ -74,7 +73,7 @@ class engine():
         best_value = float('-inf') if enemy_perspective == WHITE else float('inf')
         # for every move
         for move in possible_moves:
-            new_pos: list[list[str]] = self.result(self.board, move)
+            new_pos: list[list[str]] = self.result(pos, move)
             # get the value of the new position
             pos_val: float = self.value(new_pos, enemy_perspective, curr_depth=curr_depth+1, max_val=max_val, min_val=min_val)
             # update the value as needed
