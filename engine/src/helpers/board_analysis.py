@@ -2,6 +2,15 @@ from engine.src.constants.constants import BLACK, WHITE, QUEEN, ROOK, BISHOP, KN
 from engine.src.constants.types import pieceType
 from engine.src.helpers.square_analysis import inbounds, is_empty, get_type, get_color
 
+def find_king(board: list[list[str]], color: str):
+        '''Finds a king of a certin color given a position'''
+        for y, board_row in enumerate(board):
+            for x, square in enumerate(board_row):
+                if (get_type(square) == KING):
+                    if get_color(square) == color:
+                        return (x,y)
+        raise IndexError('No King Index Found')
+
 def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[str, list[tuple[int,int]]]:
     '''Returns a list of pieces in the form of a dictionary that can 'see' a location
     The dict keys are the color, and the list of tuple is the position the the pieces that can see the king

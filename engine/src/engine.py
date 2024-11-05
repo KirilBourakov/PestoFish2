@@ -3,7 +3,7 @@ import math
 from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
 from .constants.types import MoveType
 from .helpers.square_analysis import get_color, get_type
-from .helpers.board_analysis import sight_on_square
+from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
@@ -12,8 +12,6 @@ class engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
-
-        self.kingPos: dict[str, tuple[int, int]] = {BLACK: (-10,-10), WHITE: (-10,-10)}
         self.transposeTable: dict[str, float] = {}
 
     def accept_board(self, boardStr: str) -> list[list[str]]:
@@ -32,16 +30,12 @@ class engine():
                 f_row.append(grid.replace("--", "  "))
             self.board.append(f_row)
             
-        for y, board_row in enumerate(self.board):
-            for x, square in enumerate(board_row):
-                if (get_type(square) == KING):
-                    self.kingPos[get_color(square)] = (x,y)
         return self.board
     
     def get_best_move(self) -> MoveType:
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
-        possible_moves = self.generator.get_moves(self.board, self.kingPos[current_color])
+        possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
         value_moves: list[tuple[MoveType, float]] = []
         for move in possible_moves:
             new_pos: list[list[str]] = self.result(self.board, move)
@@ -68,23 +62,20 @@ class engine():
         # base cases
         if str(pos) in self.transposeTable:
             return self.transposeTable[str(pos)]
-        if curr_depth > max_depth:
-            return self.evaluator.eval(pos)
-        # the position is terminal
-        terminal_key: int = self.is_termainal(pos)
-        if terminal_key != -2:
-            return self.get_terminal_value(terminal_key)
+        finished: bool = self.is_termainal(pos)
+        if curr_depth >= max_depth or finished:
+            return self.evaluator.eval(pos, finished)
         
         enemy_perspective: str = flip(perspective)
         # get all the possible moves
-        possible_moves: list[MoveType] = self.generator.get_moves(pos, self.find_king(pos, enemy_perspective))
+        possible_moves: list[MoveType] = self.generator.get_moves(pos, find_king(pos, enemy_perspective))
         # initalize dummy values for the best_value
         best_value = float('-inf') if perspective == WHITE else float('inf')
         # for every move
         for move in possible_moves:
             new_pos: list[list[str]] = self.result(self.board, move)
             # get the value of the new position
-            pos_val = self.value(new_pos, enemy_perspective, curr_depth=curr_depth+1, max_val=max_val, min_val=min_val)
+            pos_val: float = self.value(new_pos, enemy_perspective, curr_depth=curr_depth+1, max_val=max_val, min_val=min_val)
             # update the value as needed
             best_value = self.get_best_val([best_value, pos_val], enemy_perspective)
 
@@ -98,15 +89,6 @@ class engine():
                 break
             
         return best_value
-
-    def find_king(self, board: list[list[str]], color: str):
-        '''Finds a king of a certin color given a position'''
-        for y, board_row in enumerate(board):
-            for x, square in enumerate(board_row):
-                if (get_type(square) == KING):
-                    if get_color(square) == color:
-                        return (x,y)
-        raise IndexError('No King Index Found')
 
     def get_terminal_value(self, terminal_key) -> float:
         '''returns the value for a terminal state given a terminal key'''
@@ -131,34 +113,30 @@ class engine():
             return WHITE
         return BLACK
     
-    def is_termainal(self, board: list[list[str]]) -> int:
-        '''Returns if the game is over. An int indicates the result. 
-        0 for stalemate or draw, 1 for white victory, -1 for black victory, -2 for not terminal
-        This method only checks if the last move resulted in a terminal position
-
+    def is_termainal(self, board: list[list[str]]) -> bool:
+        '''Returns if the game is over. 
         Keyword arguements:
         \t board - the board 
-        \t the color that made the move
         '''
         for color in [WHITE, BLACK]:
             enemy = flip(color)
 
             # see if the enemy king is in check, but has no moves
-            moves = self.generator.get_moves(board, self.find_king(board, enemy)) 
-            eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, self.kingPos[color])
+            moves = self.generator.get_moves(board, find_king(board, enemy)) 
+            eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, find_king(board, color))
             king_in_check: bool = len(eyes_on_king[enemy]) > 0
             # a king is in checkmate
             if king_in_check: 
                 if len(moves) == 0:
-                    return 1 if color == WHITE else -1
+                    return True
             # stalemate
             if len(moves) == 0:
-                return 0
+                return True
 
         # draw by fifty move rule
         if self.fifty_move_rule_counter / 2 >= 50:
-            return 0
-        return -2
+            return True
+        return False
     
     def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
         # TODO: handle placing of EP flag
