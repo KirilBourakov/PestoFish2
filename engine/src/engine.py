@@ -90,12 +90,6 @@ class engine():
             
         return best_value
 
-    def get_terminal_value(self, terminal_key) -> float:
-        '''returns the value for a terminal state given a terminal key'''
-        if terminal_key == 0:
-            return 0
-        return float('inf') if terminal_key == 1 else float('-inf')
-
     def get_best_val(self, input: list[float], color: str) -> float:
         if color == BLACK:
             return min(input)
