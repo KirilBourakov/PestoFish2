@@ -141,7 +141,7 @@ class Moves():
             else:
                 # double move
                 white_pawn_on_start_rank: bool = piece_location[1] == 6
-                empty_space = is_empty(board[piece_location[1]+1][piece_location[0]]) and is_empty(board[piece_location[1]+2][piece_location[0]])
+                empty_space = is_empty(board[piece_location[1]-1][piece_location[0]]) and is_empty(board[piece_location[1]-2][piece_location[0]])
                 if white_pawn_on_start_rank and empty_space:
                     final.append(((piece_location[0], piece_location[1]-2, DOUBLE_MOVE)))
                 # captures (this also does enpassent)
