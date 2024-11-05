@@ -77,6 +77,7 @@ class engine():
             return self.get_terminal_value(terminal_key)
         
         enemy_perspective: str = flip(perspective)
+        print(perspective)
         # get all the possible moves
         possible_moves: set[MoveType] = self.generator.get_moves(pos, self.find_king(pos, enemy_perspective))
         # initalize dummy values for the best_value
