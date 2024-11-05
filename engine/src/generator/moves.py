@@ -82,6 +82,7 @@ class Moves():
                         moveType = FORWARD
                     final.append((new_pos[0], new_pos[1], moveType))
                 elif (piece_color != get_color(board[new_pos[1]][new_pos[0]]) and piece_type != PAWN):
+                    # causes an error when is_termainal checks, as is_termainal gets both sides moves, including the one that just moved
                     # if get_type(board[new_pos[1]][new_pos[0]]) == KING:
                     #     for row in board:
                     #         print(row)

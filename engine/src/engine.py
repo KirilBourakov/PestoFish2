@@ -42,7 +42,7 @@ class engine():
             pos_val: float = self.value(new_pos, current_color)
             value_moves.append((move, pos_val))
             self.transposeTable[str(new_pos)] = pos_val
-        print(value_moves)
+        # print(value_moves)
         return self.get_best(value_moves, current_color)     
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
@@ -58,7 +58,6 @@ class engine():
         \t min_val -- the bottom most value found (used in pruning) (default = inf) 
         '''
         # TODO: taking far too long. Replace with bfs search to make code more debuggable 
-        # TODO: seems to crash on knight checks
         # TODO: eval seems to be wrong on occasion? Was getting negatives for seemingly no reason
 
         # base cases
