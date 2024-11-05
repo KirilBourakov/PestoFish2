@@ -42,6 +42,7 @@ class engine():
             pos_val: float = self.value(new_pos, current_color)
             value_moves.append((move, pos_val))
             self.transposeTable[str(new_pos)] = pos_val
+        print(value_moves)
         return self.get_best(value_moves, current_color)     
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
@@ -56,7 +57,6 @@ class engine():
         \t max_val -- the top most value found (used in pruning) (default = -inf) 
         \t min_val -- the bottom most value found (used in pruning) (default = inf) 
         '''
-        # TODO: engine seems to be calculating from wrong perspective/Something else fundementally wrong
         # TODO: taking far too long. Replace with dfs search to make code more debuggable 
 
         # base cases
@@ -70,7 +70,7 @@ class engine():
         # get all the possible moves
         possible_moves: list[MoveType] = self.generator.get_moves(pos, find_king(pos, enemy_perspective))
         # initalize dummy values for the best_value
-        best_value = float('-inf') if perspective == WHITE else float('inf')
+        best_value = float('-inf') if enemy_perspective == WHITE else float('inf')
         # for every move
         for move in possible_moves:
             new_pos: list[list[str]] = self.result(self.board, move)
