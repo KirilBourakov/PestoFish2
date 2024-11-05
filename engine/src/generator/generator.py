@@ -55,7 +55,7 @@ class Generator():
         return rating
 
 
-    def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int], moveType='') -> bool:
+    def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int, str], moveType='') -> bool:
         '''Returns if a move ends up putting the king in check.
         
         Keyword arguements:

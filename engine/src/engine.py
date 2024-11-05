@@ -16,7 +16,6 @@ class engine():
         self.kingPos: dict[str, tuple[int, int]] = {BLACK: (-10,-10), WHITE: (-10,-10)}
         self.transposeTable: dict[str, float] = {}
 
-
     def accept_board(self, boardStr: str) -> list[list[str]]:
         '''Takes in a boardStr and parses the board in a way the engine can understand.
         Also extracts important features about the board'''
@@ -52,7 +51,7 @@ class engine():
         return self.get_best(value_moves, current_color)     
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
-            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
+            max_depth: int=2, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
 
         Keyword arguments:
@@ -64,7 +63,7 @@ class engine():
         \t min_val -- the bottom most value found (used in pruning) (default = inf) 
         '''
         # TODO: engine seems to be calculating from wrong perspective/Something else fundementally wrong
-        # TODO: taking far too long
+        # TODO: taking far too long. Replace with dfs search to make code more debuggable 
 
         # base cases
         if str(pos) in self.transposeTable:
@@ -77,9 +76,8 @@ class engine():
             return self.get_terminal_value(terminal_key)
         
         enemy_perspective: str = flip(perspective)
-        print(perspective)
         # get all the possible moves
-        possible_moves: set[MoveType] = self.generator.get_moves(pos, self.find_king(pos, enemy_perspective))
+        possible_moves: list[MoveType] = self.generator.get_moves(pos, self.find_king(pos, enemy_perspective))
         # initalize dummy values for the best_value
         best_value = float('-inf') if perspective == WHITE else float('inf')
         # for every move
