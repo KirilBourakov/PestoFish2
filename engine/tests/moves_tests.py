@@ -55,6 +55,17 @@ class MovesTests(unittest.TestCase):
         moves = move_gen.get_all_moves(board2, (4,0))
         self.assertEqual(len(moves), 2)
 
+        board2 = [['Br', '  ', '  ', 'bq', 'BK', 'bb', 'bk', 'Br'],
+                ['bp', 'bp', 'bp', '  ', '  ', 'bp', 'bp', 'bp'],
+                ['bk', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', 'bp', 'bp', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', 'bb', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', 'wp', 'wp', 'wp', '  ', 'wp', 'wp', 'wp'],
+                ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
+        moves = move_gen.get_simple_moves(board2, (5,7))
+        self.assertEqual(len(moves), 5)
+
     def test_get_simple_moves(self):
         moves_gen = Moves()
         board1 =    [['Br', 'bk', 'bb', '  ', 'BK', 'bb', 'bk', 'Br'],
@@ -65,6 +76,9 @@ class MovesTests(unittest.TestCase):
                     ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                     ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                     ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
+        moves = moves_gen.get_simple_moves(board1, (2,7))
+        self.assertEqual(len(moves), 0)
+
         moves = moves_gen.get_simple_moves(board1, (7,4))
         self.assertEqual(len(moves), 17)
 
@@ -79,6 +93,17 @@ class MovesTests(unittest.TestCase):
 
         moves = moves_gen.get_simple_moves(board1, (1,0))
         self.assertEqual(len(moves), 2)
+
+        board2 = [['Br', '  ', '  ', 'bq', 'BK', 'bb', 'bk', 'Br'],
+                ['bp', 'bp', 'bp', '  ', '  ', 'bp', 'bp', 'bp'],
+                ['bk', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', 'bp', 'bp', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', 'bb', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', 'wp', 'wp', 'wp', '  ', 'wp', 'wp', 'wp'],
+                ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
+        moves = moves_gen.get_simple_moves(board2, (5,7))
+        self.assertEqual(len(moves), 5)
         
     def test_get_complex_moves(self):
         moves_gen = Moves()
