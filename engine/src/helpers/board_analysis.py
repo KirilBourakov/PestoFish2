@@ -32,7 +32,7 @@ def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[s
     # bishop and queen
     directions = [(1,1), (-1,-1), (-1,1), (1,-1)]
     for direction in directions:
-        result = walk_search(board, location, direction, 8, [BISHOP, ROOK])
+        result = walk_search(board, location, direction, 8, [BISHOP, QUEEN])
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
 
@@ -43,7 +43,7 @@ def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[s
         if len(result['piece']) > 0:
             final[get_color(result['piece'])].append(result['location'])
 
-    # king (not covered by pawn)
+    # king
     directions = [(0,1), (0,-1), (1,0), (-1,0), (1,1), (-1,1), (1,-1), (-1,-1)]
     for direction in directions:
         result = walk_search(board, location, direction, 1, [KING])
