@@ -57,7 +57,9 @@ class engine():
         \t max_val -- the top most value found (used in pruning) (default = -inf) 
         \t min_val -- the bottom most value found (used in pruning) (default = inf) 
         '''
-        # TODO: taking far too long. Replace with dfs search to make code more debuggable 
+        # TODO: taking far too long. Replace with bfs search to make code more debuggable 
+        # TODO: seems to crash on knight checks
+        # TODO: eval seems to be wrong on occasion? Was getting negatives for seemingly no reason
 
         # base cases
         if str(pos) in self.transposeTable:
