@@ -76,6 +76,10 @@ class Generator():
             offset = 1 if color == BLACK else -1
             new_board[newPos[1]+offset][newPos[0]] = EMPTY
 
+        # if the king was moved, we need to update the king pos
+        if get_type(board[oldPos[1]][oldPos[0]]) == KING:
+            kingPos = newPos
+
         # check if the king is in check
         enemyColor: str = flip(color)
         sight: dict[str, list[tuple[int,int]]] = sight_on_square(new_board, kingPos)
