@@ -50,7 +50,7 @@ class GeneratorTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', 'wp', 'wp', 'wp', '  ', 'wp', 'wp', 'wp'],
                 ['Wr', 'wk', 'wb', 'wq', 'WK', '  ', 'wk', 'Wr']]
-        s = generator.is_legal_move(board3, (4,0), (4,0), (3,1))
+        s = generator.is_legal_move(board4, (4,0), (4,0), (3,1))
         self.assertFalse(s)
 
     def test_get_moves(self):
@@ -65,3 +65,14 @@ class GeneratorTests(unittest.TestCase):
                 ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
         s = generator.get_moves(board1, (4,7))
         self.assertEqual(len(s), 1)
+
+        board2 = [['Br', '  ', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
+                ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+                ['wp', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', 'wp', 'bk', 'wp', 'wp', 'wp', 'wp', 'wp'],
+                ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
+        s = generator.get_moves(board2, (4,0))
+        self.assertTrue({'original': (1, 1), 'new': (0, 2), 'rating': 3, 'promotion': ''} in s)
