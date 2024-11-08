@@ -45,9 +45,10 @@ class engine():
         # test this things impact on preformance
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]
+        print((time.time_ns()-s) / 10000000)
         return self.get_best(value_moves, current_color)   
 
-    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str):
+    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str) -> tuple[MoveType, float, boardType, str]:
             new_pos: list[list[str]] = self.result(board, move)
             pos_val: float = self.value(new_pos, color)
             return (move, pos_val, new_pos, color)  

@@ -2,7 +2,7 @@ from collections.abc import Callable
 from engine.src.helpers.helpers import flip
 from engine.src.helpers.board_analysis import sight_on_square, find_king
 from engine.src.constants.static import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, BLACK
-from .heuristics import common
+from engine.src.evaluator.heuristics.material import material_eval
 from engine.src.generator.generator import Generator
 
 class Evaluator():
@@ -11,7 +11,7 @@ class Evaluator():
         self.current_game_type: str = MIDDLE_GAME
 
         # heuristics
-        self.common_heuristics: list[Callable[[list[list[str]]], int]] = common
+        self.common_heuristics: list[Callable[[list[list[str]]], int]] = [material_eval]
 
     def eval(self, board: list[list[str]], game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''

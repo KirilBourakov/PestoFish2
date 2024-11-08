@@ -2,7 +2,7 @@ from engine.src.constants.static import BLACK, WHITE, QUEEN, ROOK, BISHOP, KNIGH
 from engine.src.constants.engineTypes import pieceType
 from engine.src.helpers.square_analysis import inbounds, is_empty, get_type, get_color
 
-def find_king(board: list[list[str]], color: str):
+def find_king(board: list[list[str]], color: str) -> tuple[int,int]:
         '''Finds a king of a certin color given a position'''
         for y, board_row in enumerate(board):
             for x, square in enumerate(board_row):

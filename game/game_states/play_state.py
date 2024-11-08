@@ -12,8 +12,8 @@ from engine.src.engine import engine
 
 # for testing
 
-from engine.src.generator.generator import Generator
-from engine.src.helpers.board_analysis import sight_on_square
+# from engine.src.generator.generator import Generator
+# from engine.src.helpers.board_analysis import sight_on_square
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
