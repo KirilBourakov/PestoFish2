@@ -1,4 +1,4 @@
-import copy
+import copy, time
 import math
 from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
 from .constants.types import MoveType
@@ -33,6 +33,7 @@ class engine():
         return self.board
     
     def get_best_move(self) -> MoveType:
+        s = time.time_ns()
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
@@ -41,9 +42,10 @@ class engine():
             new_pos: list[list[str]] = self.result(self.board, move)
             pos_val: float = self.value(new_pos, current_color)
             value_moves.append((move, pos_val))
-            self.transposeTable[str(new_pos)] = pos_val
+            # self.transposeTable[str(new_pos)] = pos_val
         # for row in self.board:
         #     print(row)
+        print((time.time_ns() - s) / 10000000, '1/100s of a second')
         return self.get_best(value_moves, current_color)     
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
