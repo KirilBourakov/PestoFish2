@@ -11,3 +11,5 @@ pieceType = TypedDict('pieceType', {'piece': str, 'location': tuple[int, int]})
 MoveType = TypedDict('MoveType', {'original': tuple[int, int], 'new': tuple[int, int], 'rating': int, 'promotion': str})
 
 SearchType = TypedDict('SearchType', {'move': MoveType, 'depth': int})
+
+type boardType = list[list[str]]

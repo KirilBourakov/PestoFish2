@@ -1,7 +1,7 @@
 import copy
-import math
+from multiprocessing import Pool
 from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
-from .constants.types import MoveType
+from .constants.types import MoveType, boardType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
@@ -36,18 +36,21 @@ class engine():
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
-        value_moves: list[tuple[MoveType, float]] = []
-        for move in possible_moves:
-            new_pos: list[list[str]] = self.result(self.board, move)
-            pos_val: float = self.value(new_pos, current_color)
-            value_moves.append((move, pos_val))
-            self.transposeTable[str(new_pos)] = pos_val
-        # for row in self.board:
-        #     print(row)
-        return self.get_best(value_moves, current_color)     
+        value_moves: list[tuple[MoveType, float, boardType, str]] = [(move, 0, self.board, current_color) for move in possible_moves]
+        
+        with Pool(processes=5) as pool:
+            pool.starmap(self.transformer, value_moves)
+        for move in value_moves:
+            print(move[0], move[1])
+        return self.get_best(value_moves, current_color)   
+
+    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str):
+            new_pos: list[list[str]] = self.result(board, move)
+            pos_val: float = self.value(new_pos, color)
+            return (move, pos_val, new_pos, color)  
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
-            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
+            max_depth: int=4, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
 
         Keyword arguments:
