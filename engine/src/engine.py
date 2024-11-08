@@ -1,4 +1,4 @@
-import copy
+import copy, time
 from multiprocessing import Pool
 from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
 from .constants.types import MoveType, boardType
@@ -34,14 +34,14 @@ class engine():
     
     def get_best_move(self) -> MoveType:
         '''Gets the engine's best guess at what a move is.'''
+        s = time.time_ns()
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
         value_moves: list[tuple[MoveType, float, boardType, str]] = [(move, 0, self.board, current_color) for move in possible_moves]
         
         with Pool(processes=5) as pool:
             pool.starmap(self.transformer, value_moves)
-        for move in value_moves:
-            print(move[0], move[1])
+        print((time.time_ns() - s) / 10000000, '1/100s of a second')
         return self.get_best(value_moves, current_color)   
 
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str):
