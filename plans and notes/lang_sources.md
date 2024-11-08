@@ -13,3 +13,7 @@ So, A., So, W., & Nagy, Z. (2020). The applied artificial intelligence workshop.
 
 Helped with tests:
 Jaworski, M., & Ziadé, T. (2016). Expert Python programming : become an ace Python programmer by learning the best coding practices and advanced-level concepts with Python 3.5 (Second edition). Packt Publishing. https://search.ebscohost.com/login.aspx?direct=true&scope=site&db=nlebk&db=nlabk&AN=1241601
+
+Multiprocessing module:
+Nguyen, Q. (2022). Advanced Python programming (Second edition). Packt Publishing. https://www.oreilly.com/library/view/-/9781801814010/
+Lanaro, G., Nguyen, Q., & Kasampalis, S. (2019). Advanced Python programming : build high performance, concurrent, and multi-threaded apps with Python using proven design patterns. Packt Publishing. https://search.ebscohost.com/login.aspx?direct=true&scope=site&db=nlebk&db=nlabk&AN=2037513
