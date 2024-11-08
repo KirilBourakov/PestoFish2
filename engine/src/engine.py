@@ -1,7 +1,7 @@
 import copy, time
-import math
+from multiprocessing import Pool, cpu_count
 from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
-from .constants.types import MoveType
+from .constants.types import MoveType, boardType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
@@ -37,16 +37,20 @@ class engine():
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
-        value_moves: list[tuple[MoveType, float]] = []
-        for move in possible_moves:
-            new_pos: list[list[str]] = self.result(self.board, move)
-            pos_val: float = self.value(new_pos, current_color)
-            value_moves.append((move, pos_val))
-            # self.transposeTable[str(new_pos)] = pos_val
-        # for row in self.board:
-        #     print(row)
-        print((time.time_ns() - s) / 10000000, '1/100s of a second')
-        return self.get_best(value_moves, current_color)     
+        value_moves: list[tuple[MoveType, float, boardType, str]] = [(move, 0, self.board, current_color) for move in possible_moves]
+
+        with Pool(processes=cpu_count()) as pool:
+            pool.starmap(self.transformer, value_moves)
+
+        # test this things impact on preformance
+        for m in value_moves:
+            self.transposeTable[str(m[2])] = m[1]
+        return self.get_best(value_moves, current_color)   
+
+    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str):
+            new_pos: list[list[str]] = self.result(board, move)
+            pos_val: float = self.value(new_pos, color)
+            return (move, pos_val, new_pos, color)  
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
             max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
@@ -98,7 +102,7 @@ class engine():
             return min(input)
         return max(input)
 
-    def get_best(self, input: list[tuple[MoveType, float]], color: str) -> MoveType:
+    def get_best(self, input: list[tuple[MoveType, float, boardType, str]], color: str) -> MoveType:
         '''Given a list of moves and their values, return the best move for a specific color'''
         if color == BLACK:
             return min(input, key=lambda x: x[1])[0]
@@ -137,6 +141,7 @@ class engine():
     
     def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
         # TODO: handle placing of EP flag
+        # TODO: not handling enpassent properly, in general
         '''Simulates a board position
         
         Keyword arguements:

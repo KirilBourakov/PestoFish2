@@ -78,7 +78,7 @@ class Generator():
 
         # if the king was moved, we need to update the king pos
         if get_type(board[oldPos[1]][oldPos[0]]) == KING:
-            kingPos = newPos
+            kingPos = (newPos[0], newPos[1])
 
         # check if the king is in check
         enemyColor: str = flip(color)
