@@ -1,4 +1,4 @@
-from engine.src.constants.constants import PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, KING
+from engine.src.constants.static import PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, KING
 from engine.src.helpers.board_analysis import get_color, get_type, is_empty
 
 pieceValue: dict[str, int] = {

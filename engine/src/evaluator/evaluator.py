@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from engine.src.helpers.helpers import flip
 from engine.src.helpers.board_analysis import sight_on_square, find_king
-from engine.src.constants.constants import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, BLACK
+from engine.src.constants.static import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, BLACK
 from .heuristics import common
 from engine.src.generator.generator import Generator
 
@@ -31,7 +31,7 @@ class Evaluator():
                         return float('inf') if color == WHITE else float('-inf')
             return 0
 
-        eval_estimate: float = 0
+        eval_estimate: float = 0.0
         heuristic: Callable[[list[list[str]]], int]
         for heuristic in self.common_heuristics:
             eval_estimate += heuristic(board)

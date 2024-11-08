@@ -1,7 +1,7 @@
 from engine.src.helpers.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
 from engine.src.helpers.board_analysis import inbounds
-from engine.src.constants.constants import KING, PAWN, KNIGHT, QUEEN, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
-from engine.src.constants.types import Vector
+from engine.src.constants.static import KING, PAWN, KNIGHT, QUEEN, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
+from engine.src.constants.engineTypes import Vector
 
 class Moves():
     def __init__(self) -> None:

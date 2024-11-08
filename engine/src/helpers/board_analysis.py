@@ -1,5 +1,5 @@
-from engine.src.constants.constants import BLACK, WHITE, QUEEN, ROOK, BISHOP, KNIGHT, KING, PAWN
-from engine.src.constants.types import pieceType
+from engine.src.constants.static import BLACK, WHITE, QUEEN, ROOK, BISHOP, KNIGHT, KING, PAWN
+from engine.src.constants.engineTypes import pieceType
 from engine.src.helpers.square_analysis import inbounds, is_empty, get_type, get_color
 
 def find_king(board: list[list[str]], color: str):

@@ -1,7 +1,7 @@
 import copy, time
 from multiprocessing import Pool, cpu_count
-from .constants.constants import BLACK, WHITE, KING, EMPTY, EN_PASSENT
-from .constants.types import MoveType, boardType
+from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT
+from  engine.src.constants.engineTypes import MoveType, boardType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip

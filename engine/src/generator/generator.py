@@ -1,6 +1,6 @@
 from .moves import Moves
-from engine.src.constants.constants import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE, EN_PASSENT, PAWN, QUEEN, ROOK, BISHOP, KNIGHT
-from engine.src.constants.types import MoveType
+from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, SHORT_CASTLE, LONG_CASTLE, CAPTURE, FORWARD, BACKWARD, DOUBLE_MOVE, LONG_CASTLE, SHORT_CASTLE, EN_PASSENT, PAWN, QUEEN, ROOK, BISHOP, KNIGHT
+from engine.src.constants.engineTypes import MoveType
 from engine.src.helpers.square_analysis import get_color, get_type
 from engine.src.helpers.board_analysis import sight_on_square 
 from engine.src.helpers.helpers import flip
