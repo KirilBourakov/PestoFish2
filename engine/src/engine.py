@@ -50,9 +50,10 @@ class engine():
         return self.get_best(value_moves, current_color)   
 
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str) -> tuple[MoveType, float, boardType, str]:
-            new_pos: list[list[str]] = self.result(board, move)
-            pos_val: float = self.value(new_pos, color)
-            return (move, pos_val, new_pos, color)  
+        '''transforms a list of value moves into one that carries a result and a transformed position'''
+        new_pos: list[list[str]] = self.result(board, move)
+        pos_val: float = self.value(new_pos, color)
+        return (move, pos_val, new_pos, color)  
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
             max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> float:
@@ -100,6 +101,7 @@ class engine():
         return best_value
 
     def get_best_val(self, input: list[float], color: str) -> float:
+        '''runs min or max, on the input, depending on the color provided'''
         if color == BLACK:
             return min(input)
         return max(input)
@@ -142,8 +144,6 @@ class engine():
         return False
     
     def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
-        # TODO: handle placing of EP flag
-        # TODO: not handling enpassent properly, in general
         '''Simulates a board position
         
         Keyword arguements:
