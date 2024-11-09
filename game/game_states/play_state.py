@@ -69,7 +69,7 @@ class Play_State(Abstract_State):
         Pieces are represented using the first letter of their color, and the first letter of their name, both lowercased, but:
         \t The king has his k uppercased to differentiate from the knight
         \t The rook and king may an uppercase color letter, if they have not moved
-        \t enpassent is represented as a piece with a first letter of e, and only appears if enpassent is a valid move
+        \t enpassent is represented as a piece with a second letter of e, and only appears if enpassent is a valid move
         '''
         strState = ''
 

@@ -1,6 +1,6 @@
 import copy, time
 from multiprocessing import Pool, cpu_count
-from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT
+from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT, PAWN
 from  engine.src.constants.engineTypes import MoveType, boardType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square, find_king
@@ -151,30 +151,37 @@ class engine():
         '''
         oldx, oldy = move['original']
         newx, newy = move['new']
+
+        piece_type = get_type(board[oldy][oldx])
+        color = get_color(board[oldy][oldx])
+
         new_board: list[list[str]] = copy.deepcopy(board)
-        
         new_board[newy][newx] = new_board[oldy][oldx]
         new_board[newy][newx] = new_board[newy][newx][0].lower() + new_board[newy][newx][1]
         new_board[oldy][oldx] = EMPTY
 
         if move['promotion'] != '':
             new_board[newy][newx] = new_board[newy][newx][0].lower() + move['promotion']
-
         # enpassent
-        color = get_color(board[oldy][oldx])
-        if get_type(board[newy][newx]) == EN_PASSENT:
-            offset = 1 if color == BLACK else -1
+        if get_type(board[newy][newx]) == EN_PASSENT and piece_type == PAWN:
+            offset = 1 if color == WHITE else -1
+            
             new_board[newy+offset][newx] = EMPTY
         
+        # double move (to place enpassent)
+        delta_y = abs(oldy - newy)
+        if piece_type == PAWN and delta_y == 2:
+            offset = -1 if color == BLACK else 1
+            new_board[newy+offset][newx] = color + EN_PASSENT
+
         # castling (if the king is moving more then 1 square, it must be castling)
         delta_x = abs(oldx - newx)
-        piece_type = board[oldy][oldx]
         if piece_type == KING and delta_x > 1:
             if newx == 2:
                 new_board[newy][0] = EMPTY
-                new_board[newy][newx+1] = board[newy][0]
+                new_board[newy][newx+1] = board[newy][0].lower()
             elif newx == 6:
-                new_board[newy][0] = EMPTY
-                new_board[newy][newx+1] = board[newx][0]
+                new_board[newy][7] = EMPTY
+                new_board[newy][5] = board[newy][0].lower()
 
         return new_board
