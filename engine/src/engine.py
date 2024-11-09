@@ -29,7 +29,7 @@ class engine():
             for grid in s:
                 f_row.append(grid.replace("--", "  "))
             self.board.append(f_row)
-            
+        
         return self.board
     
     def get_best_move(self) -> MoveType:
@@ -37,15 +37,16 @@ class engine():
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
-        value_moves: list[tuple[MoveType, float, boardType, str]] = [(move, 0, self.board, current_color) for move in possible_moves]
-
+        value_moves: list[tuple[MoveType, float, boardType, str]] = [(move, -1, self.board, current_color) for move in possible_moves]
+        # TODO: value moves not being updated
         with Pool(processes=cpu_count()) as pool:
-            pool.starmap(self.transformer, value_moves)
+            value_moves = pool.starmap(self.transformer, value_moves)
 
         # test this things impact on preformance
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]
-        print((time.time_ns()-s) / 10000000)
+        # print((time.time_ns()-s) / 10000000)
+        print(value_moves[1][1])
         return self.get_best(value_moves, current_color)   
 
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str) -> tuple[MoveType, float, boardType, str]:
