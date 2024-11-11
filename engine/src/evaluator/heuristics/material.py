@@ -8,7 +8,6 @@ pieceValue: dict[bool, dict[str, int]] = {
         KNIGHT: 346,
         ROOK: 441,
         QUEEN: 921,
-        EMPTY: 0
     },
     False: {
         PAWN: 106,
@@ -16,11 +15,13 @@ pieceValue: dict[bool, dict[str, int]] = {
         KNIGHT: 268,
         ROOK: 478,
         QUEEN: 886,
-        EMPTY: 0
     }
 }
 
 def material_eval(square: str, location: tuple[int,int], is_endgame: bool) -> int:
     '''Counts the material on each side'''
     factor: int = 1 if get_color(square) == WHITE else -1
-    return pieceValue[is_endgame][get_type(square)] * factor
+    piece_type: str = get_type(square)
+    if piece_type not in pieceValue[True]:
+        return 0
+    return pieceValue[is_endgame][piece_type] * factor
