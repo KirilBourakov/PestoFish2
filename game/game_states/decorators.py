@@ -7,7 +7,7 @@ import game.pieces.en_passent as en_passent
 # TODO: this approuch may create bugs around piece premotions
 piece_dict = {
     'BK': black.king_unmoved,
-    'bk': black.king_moved,
+    'bK': black.king_moved,
     'bk': black.knight,
     'bb': black.bishop,
     'bp': black.pawn,
@@ -55,7 +55,7 @@ def run_engine(func):
             move_is_capture = len(self.engine.board[best_move['new'][1]][best_move['new'][0]]) != 0
             if not move_is_pawn or not move_is_capture:
                 self.fifty_move_rule_counter += 1
-
+            
             for y, row in enumerate(new_pos):
                 for x, square in enumerate(row):
                     if square in piece_dict:
