@@ -8,7 +8,7 @@ from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 # TODO: castles illegally
-# TODO: refusing to checkmate
+# TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
 class engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
