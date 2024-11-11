@@ -7,7 +7,7 @@ from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
-
+# TODO: king vanishes
 class engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
