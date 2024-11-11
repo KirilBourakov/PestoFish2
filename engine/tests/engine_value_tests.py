@@ -15,7 +15,7 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                 ['  ', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
-        val = e.value(board, 'b')
+        val = e.value(board, 'b')[0]
         self.assertTrue(val < 0)
 
 
@@ -27,7 +27,7 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                 ['  ', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
-        val = e.value(board, 'w')
+        val = e.value(board, 'w')[0]
         self.assertTrue(val < 0)
 
         board = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
@@ -38,7 +38,7 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                 ['wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
-        val = e.value(board, 'b')
+        val = e.value(board, 'b')[0]
         self.assertTrue(val < 0)
 
         board = [['  ', 'wq', '  ', '  ', 'BK', '  ', '  ', '  '],
@@ -49,7 +49,7 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', '  ', '  ', '  ', 'WK', '  ', '  ', '  ']]
-        val = e.value(board, 'w')
+        val = e.value(board, 'w')[0]
         self.assertEqual(val, float('inf'))
 
         board = [['  ', '  ', '  ', '  ', 'BK', '  ', '  ', '  '],
@@ -60,5 +60,5 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', '  ', '  ', '  ', 'WK', '  ', '  ', '  ']]
-        val = e.value(board, 'w', max_depth=1)
+        val = e.value(board, 'w', max_depth=1)[0]
         self.assertNotEqual(val, float('inf'))

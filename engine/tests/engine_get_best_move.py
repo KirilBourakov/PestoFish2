@@ -17,6 +17,5 @@ class EngineGetBestMoveTest(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', '  ', '  ', '  ', 'WK', '  ', '  ', '  ']]
         e.board = board1
-        
-        print(e.get_best_move())
+        self.assertTrue(e.get_best_move()['new'] == (1, 0))
         
