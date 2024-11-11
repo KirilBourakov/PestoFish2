@@ -9,6 +9,7 @@ from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 # TODO: castles illegally
 # TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
+# TODO: engine checkmate not dropping user to checkmate screen
 class engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
@@ -31,6 +32,8 @@ class engine():
                 f_row.append(grid.replace("--", "  "))
             self.board.append(f_row)
         
+        for row in self.board:
+            print(row)
         return self.board
     
     def get_best_move(self) -> MoveType:

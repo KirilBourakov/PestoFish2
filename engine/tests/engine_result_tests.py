@@ -35,6 +35,9 @@ class EngineResultTests(unittest.TestCase):
         r = e.result(board2, {'original': (1, 2), 'new': (1, 0), 'rating': 1, 'promotion': ''})
         self.assertEqual(r, board3)
 
+        r = e.result(board2, {'original': (4, 7), 'new': (4, 6), 'rating': 1, 'promotion': ''})
+        self.assertEqual(r[6][4], 'wK')
+
     def test_double_move(self):
         e = engine()
         original = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],

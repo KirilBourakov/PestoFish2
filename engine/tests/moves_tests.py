@@ -124,5 +124,16 @@ class MovesTests(unittest.TestCase):
         moves = moves_gen.get_complex_moves(board1, (0,1))
         self.assertEqual(len(moves), 2)
 
+        board2 =   [['Br', '  ', '  ', '  ', 'BK', 'bb', 'bk', 'Br'],
+                    ['bp', 'bp', 'bp', 'bp', '  ', 'bp', 'bp', 'bp'],
+                    ['  ', 'wp', '  ', '  ', '  ', '  ', '  ', '  '],
+                    ['  ', '  ', '  ', '  ', 'bp', '  ', '  ', '  '],
+                    ['  ', '  ', '  ', '  ', '  ', 'wp', '  ', 'bq'],
+                    ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                    ['wp', '  ', 'wp', 'wp', 'wK', '  ', 'wp', 'wp'],
+                    ['Wr', '  ', '  ', '  ', '  ', '  ', '  ', 'Wr']]
+        moves = moves_gen.get_complex_moves(board2, (4,6))
+        self.assertEqual(len(moves), 0)
+
         
         

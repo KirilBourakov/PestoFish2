@@ -14,8 +14,8 @@ pawn = Abstract_Piece(globals.PIECE_PAWN, assets.b_pawn, move_sets.black_pawn_mo
 # for engine
 rook_unmoved = Abstract_Piece(globals.PIECE_ROOK, assets.b_rook, move_sets.rook_moves, globals.PIECE_BLACK)
 rook_moved = Abstract_Piece(globals.PIECE_ROOK, assets.b_rook, move_sets.rook_moves, globals.PIECE_BLACK)
-rook_moved.has_moved = False
+rook_moved.has_moved = True
 
 king_unmoved = Abstract_Piece(globals.PIECE_KING, assets.b_king, move_sets.king_moves, globals.PIECE_BLACK)
 king_moved = Abstract_Piece(globals.PIECE_KING, assets.b_king, move_sets.king_moves, globals.PIECE_BLACK)
-king_moved.has_moved = False
+king_moved.has_moved = True
