@@ -1,28 +1,28 @@
 from collections.abc import Callable
 from engine.src.helpers.helpers import flip
+from engine.src.helpers.square_analysis import get_color, get_type, is_empty
 from engine.src.helpers.board_analysis import sight_on_square, find_king
-from engine.src.constants.static import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, BLACK
-from engine.src.evaluator.heuristics.material import material_eval
+from engine.src.constants.engineTypes import boardType, MoveType
+from engine.src.constants.static import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, BLACK, KING
+from engine.src.evaluator.heuristics import independant
 from engine.src.generator.generator import Generator
 
 class Evaluator():
     def __init__(self) -> None:
         '''Creates an Evaluator, which is used to evaluate positions'''
-        self.current_game_type: str = MIDDLE_GAME
-
         # heuristics
-        self.common_heuristics: list[Callable[[list[list[str]]], int]] = [material_eval]
+        self.board_independant_heuristics: list[Callable[[str, tuple[int, int], bool], int]] = independant
 
-    def eval(self, board: list[list[str]], game_over: bool) -> float:
+    def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
 
         if game_over:
             for color in [WHITE, BLACK]:
-                enemy = flip(color)
-                generator = Generator()
+                enemy: str = flip(color)
+                generator: Generator = Generator()
 
                 # see if the enemy king is in check, but has no moves
-                moves = generator.get_moves(board, find_king(board, enemy)) 
+                moves: list[MoveType] = generator.get_moves(board, find_king(board, enemy)) 
                 eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, find_king(board, color))
                 king_in_check: bool = len(eyes_on_king[enemy]) > 0
                 # a king is in checkmate
@@ -32,8 +32,23 @@ class Evaluator():
             return 0
 
         eval_estimate: float = 0.0
-        heuristic: Callable[[list[list[str]]], int]
-        for heuristic in self.common_heuristics:
-            eval_estimate += heuristic(board)
+        is_endgame: bool = self.get_is_endgame(board)
+
+        for y, row in enumerate(board):
+            for x, square in enumerate(row):
+                for board_independant_heuristic in self.board_independant_heuristics:
+                    eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
 
         return eval_estimate
+    
+    def get_is_endgame(self, board: boardType) -> bool:
+        count = {
+            BLACK: 0,
+            WHITE: 0
+        }
+        for row in board:
+            for square in row:    
+                if not is_empty(square):
+                    if not get_type(square) == KING and not get_type(square) == PAWN:
+                        count[get_color(square)] += 1
+        return count[BLACK] <= 4 and count[WHITE] <= 4

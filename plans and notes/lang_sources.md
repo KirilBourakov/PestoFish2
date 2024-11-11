@@ -17,3 +17,6 @@ Jaworski, M., & Ziadé, T. (2016). Expert Python programming : become an ace Py
 Multiprocessing module:
 Nguyen, Q. (2022). Advanced Python programming (Second edition). Packt Publishing. https://www.oreilly.com/library/view/-/9781801814010/
 Lanaro, G., Nguyen, Q., & Kasampalis, S. (2019). Advanced Python programming : build high performance, concurrent, and multi-threaded apps with Python using proven design patterns. Packt Publishing. https://search.ebscohost.com/login.aspx?direct=true&scope=site&db=nlebk&db=nlabk&AN=2037513
+
+What is considered an endgame
+Nikolay Minev. (2010). A Practical Guide to Rook Endgames. SCB Distributors.

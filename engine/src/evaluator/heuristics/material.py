@@ -1,20 +1,26 @@
-from engine.src.constants.static import PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, KING
+from engine.src.constants.static import PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, KING, EMPTY
 from engine.src.helpers.board_analysis import get_color, get_type, is_empty
 
-pieceValue: dict[str, int] = {
-    PAWN: 100,
-    BISHOP: 300,
-    KNIGHT: 300,
-    ROOK: 500,
-    QUEEN: 900,
+pieceValue: dict[bool, dict[str, int]] = {
+    True: {
+        PAWN: 84,
+        BISHOP: 333,
+        KNIGHT: 346,
+        ROOK: 441,
+        QUEEN: 921,
+        EMPTY: 0
+    },
+    False: {
+        PAWN: 106,
+        BISHOP: 244,
+        KNIGHT: 268,
+        ROOK: 478,
+        QUEEN: 886,
+        EMPTY: 0
+    }
 }
 
-def material_eval(board: list[list[str]]) -> int:
+def material_eval(square: str, location: tuple[int,int], is_endgame: bool) -> int:
     '''Counts the material on each side'''
-    val: int = 0
-    for row in board:
-        for square in row:
-            if not is_empty(square)and get_type(square) != KING:
-                factor: int = 1 if get_color(square) == WHITE else -1
-                val += pieceValue[get_type(square)] * factor
-    return val
+    factor: int = 1 if get_color(square) == WHITE else -1
+    return pieceValue[is_endgame][get_type(square)] * factor
