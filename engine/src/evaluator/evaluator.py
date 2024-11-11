@@ -18,14 +18,16 @@ class Evaluator():
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
 
         if game_over:
+            generator: Generator = Generator()
             for color in [WHITE, BLACK]:
                 enemy: str = flip(color)
-                generator: Generator = Generator()
-
+                
                 # see if the enemy king is in check, but has no moves
-                moves: list[MoveType] = generator.get_moves(board, find_king(board, enemy)) 
-                eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, find_king(board, color))
-                king_in_check: bool = len(eyes_on_king[enemy]) > 0
+                enemy_king_pos = find_king(board, enemy)
+                moves: list[MoveType] = generator.get_moves(board, enemy_king_pos) 
+                eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, enemy_king_pos)
+                king_in_check: bool = len(eyes_on_king[color]) > 0
+
                 # a king is in checkmate
                 if king_in_check: 
                     if len(moves) == 0:

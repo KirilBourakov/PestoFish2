@@ -46,7 +46,9 @@ class engine():
         # test this things impact on preformance
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]
-        print((time.time_ns()-s) / 10000000)
+        # print((time.time_ns()-s) / 10000000)
+        # for move in value_moves:
+        #     print(move[0], move[1])
         return self.get_best(value_moves, current_color)   
 
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str) -> tuple[MoveType, float, boardType, str]:
@@ -127,9 +129,10 @@ class engine():
             enemy = flip(color)
 
             # see if the enemy king is in check, but has no moves
-            moves = self.generator.get_moves(board, find_king(board, enemy)) 
-            eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, find_king(board, color))
-            king_in_check: bool = len(eyes_on_king[enemy]) > 0
+            enemy_king_pos = find_king(board, enemy)
+            moves: list[MoveType] = self.generator.get_moves(board, enemy_king_pos) 
+            eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, enemy_king_pos)
+            king_in_check: bool = len(eyes_on_king[color]) > 0
             # a king is in checkmate
             if king_in_check: 
                 if len(moves) == 0:
