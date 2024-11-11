@@ -39,7 +39,7 @@ class Evaluator():
             for x, square in enumerate(row):
                 for board_independant_heuristic in self.board_independant_heuristics:
                     eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
-        # TODO: very expensive, find a better way. Espically something like piece_mobility.
+        # TODO: very expensive, find a better way. Espically something like piece_mobility, which adds 2,3x to eval move choice time.
         for heuristic in self.board_dependant_heuristics:
             eval_estimate += heuristic(board, is_endgame)
 

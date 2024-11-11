@@ -4,3 +4,5 @@ env
 build
 *.pyd
 *.so
+
+*.pgn
