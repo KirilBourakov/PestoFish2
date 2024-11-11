@@ -14,7 +14,7 @@ heat_hash = {
             "Q": generate_start(),
             "R": generate_start(),
             "B": generate_start(),
-            "K": generate_start(),
+            "N": generate_start(),
         },
         # white piece heatmap
         "W": {
@@ -23,7 +23,7 @@ heat_hash = {
             "Q": generate_start(),
             "R": generate_start(),
             "B": generate_start(),
-            "K": generate_start(),
+            "N": generate_start(),
         }   
     },
     # Middle game
@@ -35,7 +35,7 @@ heat_hash = {
             "Q": generate_start(),
             "R": generate_start(),
             "B": generate_start(),
-            "K": generate_start(),
+            "N": generate_start(),
         },
         # white piece heatmap
         "W": {
@@ -44,7 +44,7 @@ heat_hash = {
             "Q": generate_start(),
             "R": generate_start(),
             "B": generate_start(),
-            "K": generate_start(),
+            "N": generate_start(),
         }   
     }
 }
