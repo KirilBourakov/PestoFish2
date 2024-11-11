@@ -46,7 +46,6 @@ class engine():
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]
         # print((time.time_ns()-s) / 10000000)
-        print(value_moves[1][1])
         return self.get_best(value_moves, current_color)   
 
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str) -> tuple[MoveType, float, boardType, str]:

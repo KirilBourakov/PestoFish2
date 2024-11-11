@@ -4,7 +4,7 @@ from engine.src.helpers.square_analysis import get_color, get_type, is_empty
 from engine.src.helpers.board_analysis import sight_on_square, find_king
 from engine.src.constants.engineTypes import boardType, MoveType
 from engine.src.constants.static import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, BLACK, KING
-from engine.src.evaluator.heuristics import independant
+from engine.src.evaluator.heuristics import independant, dependant
 from engine.src.generator.generator import Generator
 
 class Evaluator():
@@ -12,6 +12,7 @@ class Evaluator():
         '''Creates an Evaluator, which is used to evaluate positions'''
         # heuristics
         self.board_independant_heuristics: list[Callable[[str, tuple[int, int], bool], int]] = independant
+        self.board_dependant_heuristics: list[Callable[[boardType, bool], int]] = dependant
 
     def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
@@ -38,6 +39,9 @@ class Evaluator():
             for x, square in enumerate(row):
                 for board_independant_heuristic in self.board_independant_heuristics:
                     eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
+        # TODO: very expensive, find a better way. Espically something like piece_mobility.
+        for heuristic in self.board_dependant_heuristics:
+            eval_estimate += heuristic(board, is_endgame)
 
         return eval_estimate
     
