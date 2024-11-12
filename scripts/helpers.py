@@ -15,9 +15,13 @@ def get_piece_and_location(move: str, color: str):
         move = move.replace("+", "").replace("#", "")
 
     # piece
-    if move[0] in ["N", "B", "K", "Q", "R"]:
-        print(move)
-        return [(move[0], (letter_to_x_pos(move[-2]),int(move[-1])-1))]
-    else:
-        print(move)
-        return [('P', (letter_to_x_pos(move[-2]),int(move[-1])-1))]
+    try:
+        if move[0] in ["N", "B", "K", "Q", "R"]:
+            return [(move[0], (letter_to_x_pos(move[-2]),int(move[-1])-1))]
+        else:
+            if move.count("(") > 0 or move.count("=") > 0:
+                start = move.index("=")
+                return [('P', (letter_to_x_pos(move[start-2]),int(move[start-1])-1))]
+            return [('P', (letter_to_x_pos(move[-2]),int(move[-1])-1))]
+    except ValueError:
+        return [("", (10,10))]
