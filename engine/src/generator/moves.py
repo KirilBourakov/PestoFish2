@@ -115,11 +115,11 @@ class Moves():
         # castling
         if (piece_type == KING and not has_moved(piece)):
             y: int = 0 if piece_color == BLACK else 7
-            queen_rook_has_not_moved_and_queen_side_empty: bool = not has_moved(board[y][0]) and is_empty_squares([board[y][1], board[y][2], board[y][3]])
+            queen_rook_has_not_moved_and_queen_side_empty: bool = not has_moved(board[y][0]) and is_empty_squares([board[y][1], board[y][2], board[y][3]]) and not is_empty(board[y][0])
             if queen_rook_has_not_moved_and_queen_side_empty:
                 final.append((2, y, SHORT_CASTLE))
 
-            king_rook_has_not_moved_and_king_side_empty: bool = not has_moved(board[y][7]) and is_empty_squares([board[y][6], board[y][5]])
+            king_rook_has_not_moved_and_king_side_empty: bool = not has_moved(board[y][7]) and is_empty_squares([board[y][6], board[y][5]]) and not is_empty(board[y][7])
             if king_rook_has_not_moved_and_king_side_empty:
                 final.append((6, y, LONG_CASTLE))
 

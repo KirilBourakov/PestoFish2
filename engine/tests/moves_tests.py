@@ -135,5 +135,26 @@ class MovesTests(unittest.TestCase):
         moves = moves_gen.get_complex_moves(board2, (4,6))
         self.assertEqual(len(moves), 0)
 
+        board3 = [['  ', '  ', 'bb', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', 'bp', '  ', '  ', 'bK', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', 'wk', '  ', 'bp'],
+                ['bp', 'br', '  ', '  ', '  ', '  ', '  ', 'wp'],
+                ['  ', '  ', '  ', 'wp', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', 'wp', 'wp', '  ', '  ', 'wp', 'wp', 'wr'],
+                ['Wr', '  ', '  ', '  ', 'WK', '  ', '  ', '  ']]
+        moves = moves_gen.get_complex_moves(board3, (4,7))
+        self.assertEqual(len(moves), 1)
+        board4 = [['  ', '  ', 'bb', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', 'bp', '  ', '  ', 'bK', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', 'wk', '  ', 'bp'],
+                ['bp', 'br', '  ', '  ', '  ', '  ', '  ', 'wp'],
+                ['  ', '  ', '  ', 'wp', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['wr', 'wp', 'wp', '  ', '  ', 'wp', 'wp', 'wr'],
+                ['  ', '  ', '  ', '  ', 'WK', '  ', '  ', '  ']]
+        moves = moves_gen.get_complex_moves(board4, (4,7))
+        self.assertEqual(len(moves), 0)
+
         
         
