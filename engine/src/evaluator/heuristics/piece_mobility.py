@@ -11,8 +11,8 @@ pieceMobilityValue: dict[bool, dict[str, int]] = {
         PAWN: 0,
         BISHOP: 3,
         KNIGHT: 3,
-        ROOK: 2,
-        QUEEN: 4,
+        ROOK: 3,
+        QUEEN: 3,
         KING: 2,
     },
     False: {
@@ -20,7 +20,7 @@ pieceMobilityValue: dict[bool, dict[str, int]] = {
         BISHOP: 3,
         KNIGHT: 5,
         ROOK: 3,
-        QUEEN: 1,
+        QUEEN: 0,
         KING: 1,
     }
 }
