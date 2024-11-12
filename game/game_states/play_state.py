@@ -8,7 +8,12 @@ import game.constants.move_sets as mv
 from game.game_states.promotion import Promotion
 from game.game_states.abstract_state import Abstract_State
 from game.game_states.decorators import disable_on_engine_turn, run_engine
-from engine.engine import get_move_and_play
+from engine.src.engine import engine
+
+# for testing
+
+# from engine.src.generator.generator import Generator
+# from engine.src.helpers.board_analysis import sight_on_square
 
 class Play_State(Abstract_State):
     def __init__(self, board=None):
@@ -50,50 +55,49 @@ class Play_State(Abstract_State):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
-        self.engine = get_move_and_play
+        self.engine = engine()
 
     def convert_for_engine(self):
         '''returns a string representing all relevent board state. \n
         string takes the form of the 8 rows devided by / then the number of half moves, then the number of half moves for the fifty move rule.
         For example:
         
-        BrbkbbbqBKbbbkBr/bpbpbpbp  bpbpbp/        be      /        bp      /        wp      /                /wpwpwpwp  wpwpwp/WrwkwbwqWKwbwkWr/2/0
+        Br bk bb bq BK bb bk Br /bp bp bp bp -- bp bp bp /-- -- -- -- be -- -- -- /-- -- -- -- bp -- -- -- /-- -- -- -- wp -- -- -- /-- -- -- -- -- -- -- -- /wp wp wp wp -- wp wp wp /Wr wk wb wq WK wb wk Wr /2/0
 
         is the position after 1.e4 e5. 
 
         Pieces are represented using the first letter of their color, and the first letter of their name, both lowercased, but:
         \t The king has his k uppercased to differentiate from the knight
         \t The rook and king may an uppercase color letter, if they have not moved
-        \t enpassent is represented as a piece with a first letter of e, and only appears if enpassent is a valid move
+        \t enpassent is represented as a piece with a second letter of e, and only appears if enpassent is a valid move
         '''
         strState = ''
 
         for row in self.board:
             strRow = ''
             for square in row:
-                strSquare = "  "
+                strSquare = "-- "
                 # if square has a piece
                 if square is not None and square.type != globals.EN_PASSENT_FLAG:
                     # king represented as wK/bK if moved or WK/BK if not
                     if square.type == globals.PIECE_KING:
-                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper()
+                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper() + " "
                     # rook repersented by wr/br if moved else Wr/Br
                     elif square.type == globals.PIECE_ROOK:
-                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower()
+                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower() + " "
                     # other pieces represented by w[first letter]/b[first letter]
                     else:
-                        strSquare = square.color[0].lower() + square.type[0].lower()
+                        strSquare = square.color[0].lower() + square.type[0].lower() + " "
 
                 # if square is enpassent, represented by we/be
                 if square is not None and square.type == globals.EN_PASSENT_FLAG:
                     if square.turn_num == self.move_counter:
-                        strSquare = square.color[0].lower() + "e"
+                        strSquare = square.color[0].lower() + "e" + " "
                 strRow += strSquare
             strState += strRow + "/"
         
         strState += f"{self.move_counter}/{self.fifty_move_rule_counter}"
-        print(strState)
-        return strState
+        return strState.strip()
 
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
@@ -103,6 +107,7 @@ class Play_State(Abstract_State):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
+        
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
             return
@@ -289,13 +294,13 @@ class Play_State(Abstract_State):
         return (True, "draw by insufficant material")
     
     def search(self, start, direction, type):
-        '''Search for a specific set of peices in a direction
+        '''Search for a specific set of pieces in a direction
         Used as a helper in get_sight_on_square
         
         Keyword arguments:
         start -- the starting position
         direction -- the vector of the search (eg, [0,-1] for up]
-        type -- the peice types you're looking for
+        type -- the piece types you're looking for
         '''
         x,y = direction
         factor = 1
@@ -317,7 +322,7 @@ class Play_State(Abstract_State):
 
             Keyword arguments:
             newpos -- the target position of the piece
-            piece_location -- the location of the old peice (default=None). If default, uses the selected square.
+            piece_location -- the location of the old piece (default=None). If default, uses the selected square.
         '''
         newx, newy = newpos
 

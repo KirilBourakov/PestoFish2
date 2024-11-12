@@ -10,3 +10,12 @@ knight = Abstract_Piece(globals.PIECE_KNIGHT, assets.w_knight, move_sets.knight_
 king = Abstract_Piece(globals.PIECE_KING, assets.w_king, move_sets.king_moves, globals.PIECE_WHITE)
 queen = Abstract_Piece(globals.PIECE_QUEEN, assets.w_queen, move_sets.queen_moves, globals.PIECE_WHITE)
 pawn = Abstract_Piece(globals.PIECE_PAWN, assets.w_pawn, move_sets.white_pawn_moves, globals.PIECE_WHITE)
+
+# for engine
+rook_unmoved = Abstract_Piece(globals.PIECE_ROOK, assets.w_rook, move_sets.rook_moves, globals.PIECE_WHITE)
+rook_moved = Abstract_Piece(globals.PIECE_ROOK, assets.w_rook, move_sets.rook_moves, globals.PIECE_WHITE)
+rook_moved.has_moved = True
+
+king_unmoved = Abstract_Piece(globals.PIECE_KING, assets.w_king, move_sets.king_moves, globals.PIECE_WHITE)
+king_moved = Abstract_Piece(globals.PIECE_KING, assets.w_king, move_sets.king_moves, globals.PIECE_WHITE)
+king_moved.has_moved = True

@@ -28,8 +28,8 @@ class Promotion():
         if (mousex != self.pos[0]) or (mousey not in self.y_positions):
             return
         
-        peice_index = self.conversion[mousey] if mousey in self.conversion else mousey
-        board_obj.board[self.pos[1]][self.pos[0]] = self.assets[peice_index]
+        piece_index = self.conversion[mousey] if mousey in self.conversion else mousey
+        board_obj.board[self.pos[1]][self.pos[0]] = self.assets[piece_index]
         board_obj.promotion = None
 
     def show(self):
