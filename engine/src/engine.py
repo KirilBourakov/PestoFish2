@@ -7,7 +7,7 @@ from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
-# TODO: castles illegally
+# TODO: castles illegally (out of check)
 # TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
 # TODO: engine checkmate not dropping user to checkmate screen
 class engine():

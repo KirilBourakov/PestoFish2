@@ -55,7 +55,7 @@ class Generator():
         return rating
 
 
-    def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int, str], moveType: str ='') -> bool:
+    def is_legal_move(self, board: list[list[str]], kingPos: tuple[int, int], oldPos: tuple[int, int], newPos: tuple[int, int, str]) -> bool:
         '''Returns if a move ends up putting the king in check.
         
         Keyword arguements:
@@ -87,15 +87,16 @@ class Generator():
             return False
         
         # if the move is castling, we must also check that
+        moveType: str = newPos[2]
         if moveType == SHORT_CASTLE:
             y: int = 0 if get_color(board[kingPos[1]][kingPos[0]]) == BLACK else 7
-            for i in [(y,1), (y,2), (y,3)]:
+            for i in [(y,1), (y,2), (y,3), oldPos]:
                 sight = sight_on_square(new_board, (y,1))
                 if len(sight[enemyColor]) > 0:
                     return False
         elif moveType == LONG_CASTLE:
             y = 0 if get_color(board[kingPos[1]][kingPos[0]]) == BLACK else 7
-            for i in [(y,6), (y,5)]:
+            for i in [(y,6), (y,5), oldPos]:
                 sight = sight_on_square(new_board, (y,1))
                 if len(sight[enemyColor]) > 0:
                     return False

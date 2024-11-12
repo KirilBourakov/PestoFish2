@@ -1,6 +1,7 @@
 import unittest
 
 from engine.src.generator.generator import Generator
+from engine.src.constants.static import SHORT_CASTLE
 
 class GeneratorTests(unittest.TestCase):
     def test_is_legal_move(self):
@@ -53,6 +54,17 @@ class GeneratorTests(unittest.TestCase):
         s = generator.is_legal_move(board4, (4,0), (4,0), (3,1))
         self.assertFalse(s)
 
+        board3 = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
+                ['bp', '  ', 'bp', 'bp', 'bp', 'bp', '  ', 'bp'],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['wp', 'bp', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', 'br', '  ', 'bp', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', 'wp', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['Wr', '  ', '  ', '  ', 'WK', '  ', '  ', 'Wr']]
+        s = generator.is_legal_move(board2, (4,7), (4,7), (6,7, SHORT_CASTLE))
+        self.assertFalse(s)
+
     def test_get_moves(self):
         generator = Generator()
         board1 = [['Br', '  ', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
@@ -76,3 +88,4 @@ class GeneratorTests(unittest.TestCase):
                 ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
         s = generator.get_moves(board2, (4,0))
         self.assertTrue({'original': (1, 1), 'new': (0, 2), 'rating': 3, 'promotion': ''} in s)
+        
