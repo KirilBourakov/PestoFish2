@@ -31,9 +31,9 @@ class engine():
             for grid in s:
                 f_row.append(grid.replace("--", "  "))
             self.board.append(f_row)
-        print("----------------- Accepted Pos ----------")
-        for row in self.board:
-            print(row)
+        # print("----------------- Accepted Pos ----------")
+        # for row in self.board:
+        #     print(row)
         return self.board
     
     def get_best_move(self) -> MoveType:
