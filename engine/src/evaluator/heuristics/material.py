@@ -3,16 +3,16 @@ from engine.src.helpers.board_analysis import get_color, get_type, is_empty
 
 pieceValue: dict[bool, dict[str, int]] = {
     True: {
-        PAWN: 84,
-        BISHOP: 333,
-        KNIGHT: 346,
-        ROOK: 441,
+        PAWN: 80,
+        BISHOP: 325,
+        KNIGHT: 310,
+        ROOK: 465,
         QUEEN: 921,
     },
     False: {
         PAWN: 106,
-        BISHOP: 244,
-        KNIGHT: 268,
+        BISHOP: 264,
+        KNIGHT: 248,
         ROOK: 478,
         QUEEN: 886,
     }
