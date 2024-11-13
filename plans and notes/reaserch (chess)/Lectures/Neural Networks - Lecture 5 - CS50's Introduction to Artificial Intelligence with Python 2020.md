@@ -37,3 +37,5 @@ activation= string, with the name of the activation func
 epochs = to set epochs (go through data n times)
 
 .evaluate() tests the model against testing data
+
+.save([filename]) save a model
