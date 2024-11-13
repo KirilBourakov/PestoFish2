@@ -3,29 +3,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 import numpy as np
 import sys
-
-code_map = {
-    '  ': 1,
-    'wr': 2,
-    'Wr': 3,
-    'wk': 4,
-    'wb': 5,
-    'wq': 6,
-    'wK': 7,
-    'WK': 8,
-    'we': 9,
-    'wp': 10,
-
-    'br': 22,
-    'Br': 23,
-    'bk': 24,
-    'bb': 25,
-    'bq': 26,
-    'bK': 27,
-    'BK': 28,
-    'be': 29,
-    'bp': 210,
-}
+from code_maps import code_map_rev1 as code_map
 
 def main():
     with open(sys.argv[1], newline='') as file:
@@ -52,6 +30,8 @@ def model(eval, features):
     model.compile(optimizer='adam', loss='MAPE', metrics=['MAPE', 'mae'])
     model.fit(training_features, training_eval, epochs=10)
     model.evaluate(testing_features, testing_eval)
+
+    model.save('run4.keras')
 
 
 def transform(row: dict[str, str]):

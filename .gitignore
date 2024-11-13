@@ -8,3 +8,6 @@ build
 *.pgn
 *.csv
 *.zip
+
+*.keras
+*.h5
