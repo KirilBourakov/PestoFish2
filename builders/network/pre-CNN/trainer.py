@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import sys
 from code_maps import code_map_rev2 as code_map
-from transformers import transform_rev_2 as transform
+from transformers import transform_rev_3 as transform
 
 # TODO: try 2 models, one to classify who has the advantage, the other to estimate the value of the adv
 def main():
@@ -33,7 +33,7 @@ def model(eval, features):
     model.fit(training_features, training_eval, epochs=10)
     model.evaluate(testing_features, testing_eval)
 
-    model.save('run10.keras')
+    model.save('run11.keras')
 
 if __name__ == "__main__":
     main()

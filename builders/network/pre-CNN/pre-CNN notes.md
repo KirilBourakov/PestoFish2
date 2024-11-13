@@ -128,7 +128,7 @@ Notes: loss nearly identical at epoch 1 as at epoch 10
 **result**
     202470/202470 ━━━━━━━━━━━━━━━━━━━━ 9419s 47ms/step - loss: 635993.0625 - mae: 318.6691 - mse: 635993.0625 
 
-## 10th run (uses rev2 transformer & rev2 map)
+## 10th run (uses rev3 transformer & rev2 map)
 **pre-compile**
     model.add(tf.keras.layers.Dense(64, input_shape=(64,)))
     model.add(tf.keras.layers.Dense(135))
@@ -141,3 +141,16 @@ Notes: loss nearly identical at epoch 1 as at epoch 10
     epoch 10
 **result**
     202470/202470 ━━━━━━━━━━━━━━━━━━━━ 122s 604us/step - loss: 296.9246 - mae: 296.9246
+## 11th run
+**pre-compile**
+    model.add(tf.keras.layers.Dense(64, input_shape=(64,)))
+    model.add(tf.keras.layers.Dense(135))
+    model.add(tf.keras.layers.Dense(271))
+    model.add(tf.keras.layers.Dense(543))
+    model.add(tf.keras.layers.Dense(1))
+**compile**
+    optimizer='adam', loss='mae', metrics=['mae']
+**fit**
+    epoch 10
+**result**
+    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 109s 539us/step - loss: 296.6443 - mae: 296.6443
