@@ -34,6 +34,7 @@ def main():
         eval = []
         for row in reader:
             features.append(transform(row))
+            # NOTE: this is incorrect; moves that start with a # should be purged, as they show the number of moves until checkmate, not an eval
             eval.append(int(row['Evaluation'].replace('#', '')))
     eval = np.array(eval)
     features = np.array(features)
@@ -44,9 +45,11 @@ def model(eval, features):
 
     model = tf.keras.models.Sequential()
     model.add(tf.keras.layers.Dense(67, input_shape=(67,)))
-    model.add(tf.keras.layers.Dense(12))
+    model.add(tf.keras.layers.Dense(135))
+    model.add(tf.keras.layers.Dense(271))
+    model.add(tf.keras.layers.Dense(543))
     model.add(tf.keras.layers.Dense(1))
-    model.compile(optimizer='adam', loss='mae', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='MAPE', metrics=['MAPE', 'mae'])
     model.fit(training_features, training_eval, epochs=10)
     model.evaluate(testing_features, testing_eval)
 
