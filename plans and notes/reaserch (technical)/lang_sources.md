@@ -33,3 +33,6 @@ Keras
 https://keras.io/api/
 <!-- tf keras docs -->
 https://www.tensorflow.org/api_docs/python/tf/keras/
+
+MAPE not working for values at or close to 0
+https://www.sciencedirect.com/science/article/pii/S0169207016000121
