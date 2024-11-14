@@ -16,31 +16,17 @@ class Evaluator():
         # heuristics
         self.board_independant_heuristics: list[Callable[[str, tuple[int, int], bool], int]] = independant
         self.board_dependant_heuristics: list[Callable[[boardType, bool], int]] = dependant
-        self.model = tf.keras.models.load_model('m.keras')
-        self.code_map = {
-                        '  ': 0,
-                        'wr': 490,
-                        'Wr': 505,
-                        'wk': 300,
-                        'wb': 325,
-                        'wq': 900,
-                        'wK': 1000,
-                        'WK': 1001,
-                        'we': 1,
-                        'wp': 100,
+        self.model = tf.keras.models.load_model('m.keras', compile=True)
+        self.index = {
+            'K': 0,
+            'q': 1,
+            'r': 2,
+            'b': 3,
+            'k': 4,
+            'p': 5
+        }
 
-                        'br': -490,
-                        'Br': -505,
-                        'bk': -300,
-                        'bb': -325,
-                        'bq': -900,
-                        'bK': -1000,
-                        'BK': -1001,
-                        'be': -1,
-                        'bp': -100,
-                    }
-
-    def net_eval(self, board: boardType, game_over: bool) -> float:
+    def net_eval(self, board: boardType, game_over: bool, move_color: str) -> float:
         if game_over:
             generator: Generator = Generator()
             for color in [WHITE, BLACK]:
@@ -57,24 +43,29 @@ class Evaluator():
                     if len(moves) == 0:
                         return float('inf') if color == WHITE else float('-inf')
             return 0
-        nb = self.parse_board(board)
-        try:
-            val = self.model.predict(nb)
-            return val
-        except:
-            for row in board:
-                print("board", row)
-            print(nb)
-            raise Exception('error')
+        nb = self.parse_board(board, move_color)
+        val = self.model.predict(nb, verbose=0)
+        return val[0][0]
         
 
-    def parse_board(self, board: boardType):
-        final = []
-        for y in range(len(board)):
-            for x in range(len(board)):
-                final.append(self.code_map[board[y][x]])
+    def parse_board(self, board: boardType, move_color: str):
+        final_board = []
+        for i in range(8):
+            final_board.append([])
+        for i in range(8):
+            for j in range(8):
+                final_board[i].append([0]*6)
+
+        for y, row in enumerate(board):
+            for x, square in enumerate(row):
+                if not is_empty(square):
+                    white = 1 if move_color == WHITE else -1
+                    if get_color(square) == BLACK:
+                        final_board[y][x][self.index[get_type(square)]] = white * -1
+                    else:
+                        final_board[y][x][self.index[get_type(square)]] = white
     
-        return np.array(final)
+        return np.array(final_board).reshape(-1, 8, 8, 6)
 
     def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''

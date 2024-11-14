@@ -43,13 +43,13 @@ class engine():
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
         # TODO: value moves not being updated
-        with Pool(processes=1) as pool:
+        with Pool(processes=cpu_count()) as pool:
             value_moves = pool.starmap(self.transformer, value_moves)
 
         # test this things impact on preformance
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]
-        # print((time.time_ns()-s) / 10000000)
+        print((time.time_ns()-s) / 10000000)
         # for move in value_moves:
         #     print(move[0], move[1], move[4])
         value_moves = sorted(value_moves, key=lambda x: x[4], reverse=True)
@@ -76,13 +76,13 @@ class engine():
         # TODO: taking far too long. Replace with bfs search to make code more debuggable 
         # TODO: eval seems to be wrong on occasion? Was getting negatives for seemingly no reason
         # base cases
+        enemy_perspective: str = flip(perspective)
         if str(pos) in self.transposeTable:
             return (self.transposeTable[str(pos)], curr_depth)
         finished: bool = self.is_termainal(pos)
         if curr_depth >= max_depth or finished:
-            return (self.evaluator.net_eval(pos, finished), curr_depth)
+            return (self.evaluator.net_eval(pos, finished, enemy_perspective), curr_depth)
         
-        enemy_perspective: str = flip(perspective)
         # get all the possible moves
         possible_moves: list[MoveType] = self.generator.get_moves(pos, find_king(pos, enemy_perspective))
         # initalize dummy values for the best_value
