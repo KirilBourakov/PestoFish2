@@ -1,7 +1,7 @@
 import unittest
 
 from engine.src.generator.generator import Generator
-from engine.src.constants.static import SHORT_CASTLE
+from engine.src.constants.static import SHORT_CASTLE, LONG_CASTLE
 
 class GeneratorTests(unittest.TestCase):
     def test_is_legal_move(self):
@@ -63,6 +63,17 @@ class GeneratorTests(unittest.TestCase):
                 ['  ', 'wp', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['Wr', '  ', '  ', '  ', 'WK', '  ', '  ', 'Wr']]
         s = generator.is_legal_move(board2, (4,7), (4,7), (6,7, SHORT_CASTLE))
+        self.assertFalse(s)
+
+        board4 = [['Br', '  ', '  ', '  ', 'BK', 'bb', 'bk', 'Br'],
+                ['bp', '  ', 'bp', '  ', 'bp', 'bp', '  ', 'bp'],
+                ['  ', '  ', 'wq', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', 'WK', '  ', '  ', '  ']]
+        s = generator.is_legal_move(board4, (4,0), (4,0), (2,0, LONG_CASTLE))
         self.assertFalse(s)
 
     def test_get_moves(self):

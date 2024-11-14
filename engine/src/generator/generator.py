@@ -91,13 +91,13 @@ class Generator():
         if moveType == SHORT_CASTLE:
             y: int = 0 if get_color(board[kingPos[1]][kingPos[0]]) == BLACK else 7
             for i in [(y,1), (y,2), (y,3), oldPos]:
-                sight = sight_on_square(new_board, (y,1))
+                sight = sight_on_square(new_board, i)
                 if len(sight[enemyColor]) > 0:
                     return False
         elif moveType == LONG_CASTLE:
             y = 0 if get_color(board[kingPos[1]][kingPos[0]]) == BLACK else 7
             for i in [(y,6), (y,5), oldPos]:
-                sight = sight_on_square(new_board, (y,1))
+                sight = sight_on_square(new_board, i)
                 if len(sight[enemyColor]) > 0:
                     return False
                 
