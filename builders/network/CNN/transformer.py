@@ -1,3 +1,4 @@
+import numpy as np
 
 def transform(fen_board, color_to_move):
     '''Turns data from fen, to board representaion, to bitboard (8x8x6):
@@ -53,5 +54,5 @@ def transform(fen_board, color_to_move):
                 final_board[y][x_true_index][index[letter.lower()]] = white
             x_true_index += 1
             x_fen_index += 1
-
-    return final_board
+    f = np.array(final_board)
+    return f
