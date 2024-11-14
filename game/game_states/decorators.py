@@ -46,9 +46,9 @@ def run_engine(func):
             self.engine.accept_board(self.convert_for_engine())
             best_move = self.engine.get_best_move()
             new_pos = self.engine.result(self.engine.board, best_move)
-            # print("----------------- new Pos ----------")
-            # for row in new_pos:
-            #     print(row)
+            print("----------------- new Pos ----------")
+            for row in new_pos:
+                print(row)
             translated_board = []
             for i in range(8):
                 translated_board.append([None]*8)
