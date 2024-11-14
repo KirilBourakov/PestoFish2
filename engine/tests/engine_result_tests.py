@@ -135,3 +135,16 @@ class EngineResultTests(unittest.TestCase):
         self.assertEqual('  ', result[0][1])
         self.assertEqual('bK', result[0][2])
         self.assertEqual('br', result[0][3])
+
+        original = [['  ', '  ', '  ', '  ', 'BK', '  ', '  ', 'Br'],
+                ['bp', '  ', 'bp', 'bp', 'bp', 'bp', '  ', 'bp'],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['wp', 'bp', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', 'bp', 'wp'],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', 'we'],
+                ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', '  '],
+                ['Wr', '  ', '  ', '  ', 'WK', '  ', '  ', 'Wr']]
+        result = e.result(original, {'original': (4, 0), 'new': (6, 0), 'rating': 1, 'promotion': ''})
+        self.assertEqual('  ', result[0][7])
+        self.assertEqual('bK', result[0][6])
+        self.assertEqual('br', result[0][5])

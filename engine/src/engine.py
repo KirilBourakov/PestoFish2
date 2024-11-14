@@ -196,6 +196,6 @@ class engine():
                 new_board[newy][newx+1] = board[newy][0].lower()
             elif newx == 6:
                 new_board[newy][7] = EMPTY
-                new_board[newy][5] = board[newy][0].lower()
+                new_board[newy][5] = board[newy][7].lower()
 
         return new_board
