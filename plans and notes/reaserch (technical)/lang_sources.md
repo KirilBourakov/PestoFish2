@@ -31,8 +31,9 @@ http://www.ee.unb.ca/cgi-bin/tervo/fen.pl?select=rnbqkbnr%2Fpppppppp%2F8%2F8%2F4
 Keras
 <!-- Keras api docs -->
 https://keras.io/api/
-<!-- tf keras docs -->
+<!-- tf keras docs & guide -->
 https://www.tensorflow.org/api_docs/python/tf/keras/
+https://www.tensorflow.org/guide/data#consuming_csv_data
 
 MAPE not working for values at or close to 0
 https://www.sciencedirect.com/science/article/pii/S0169207016000121
