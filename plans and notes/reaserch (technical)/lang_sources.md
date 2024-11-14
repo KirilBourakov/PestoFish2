@@ -23,6 +23,7 @@ Nikolay Minev. (2010). A Practical Guide to Rook Endgames. SCB Distributors.
 
 Chess dataset
 https://www.kaggle.com/datasets/ronakbadhe/chess-evaluations?resource=download
+https://www.kaggle.com/datasets/lichess/chess-evaluations
 
 FEN
 https://www.chess.com/terms/fen-chess#how-does-fen-work
