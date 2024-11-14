@@ -39,3 +39,35 @@ epochs = to set epochs (go through data n times)
 .evaluate() tests the model against testing data
 
 .save([filename]) save a model
+
+## Computer vision
+Just have each pixel be a input. But, that is alot of input. You also loose structure. It may be challanging to learn.
+
+## image convolution
+Filtering an image, by applying a filter
+A kernal matrix is applied to the pixels to create new, smaller 'images'.
+For example, a kernal of:
+[-1,-1,-1]
+[-1, 8,-1]
+[-1,-1,-1]
+will extract information about the edge
+
+pooling:
+reduce the quality of the image to reduce it's size
+## CNN
+
+1. take image
+2. apply convolution (often several times)
+3. images produced pooled
+4. flatten the result
+5. put it into a conventional neural network
+
+.Sequential can take a list of layers instead of calling add every single time
+
+.Conv2D(num_kernals: int, size: tuple[int], activation: str, input_shape: tuple[size, size, channels])
+
+.layers <- pooling, such MaxPooling2d
+
+.flatten <- flatten the CNN to be fed into dense layers
+
+.Dropout() <- declare some amount of dropout to prevent over fitting
