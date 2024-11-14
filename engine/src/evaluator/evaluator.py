@@ -1,4 +1,5 @@
 import tensorflow as tf
+import time
 import numpy as np
 import numpy.typing as npt
 from collections.abc import Callable
@@ -16,6 +17,7 @@ class Evaluator():
         # heuristics
         self.board_independant_heuristics: list[Callable[[str, tuple[int, int], bool], int]] = independant
         self.board_dependant_heuristics: list[Callable[[boardType, bool], int]] = dependant
+
         self.model = tf.keras.models.load_model('m.keras', compile=True)
         self.index = {
             'K': 0,
@@ -43,9 +45,18 @@ class Evaluator():
                     if len(moves) == 0:
                         return float('inf') if color == WHITE else float('-inf')
             return 0
+        
+        eval_estimate: float = 0.0
+        is_endgame: bool = self.get_is_endgame(board)
+
+        for y, row in enumerate(board):
+            for x, square in enumerate(row):
+                for board_independant_heuristic in self.board_independant_heuristics:
+                    eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
+
         nb = self.parse_board(board, move_color)
-        val = self.model.predict(nb, verbose=0)
-        return val[0][0]
+        eval_estimate += self.model(nb)[0][0]
+        return eval_estimate
         
 
     def parse_board(self, board: boardType, move_color: str):
@@ -64,8 +75,8 @@ class Evaluator():
                         final_board[y][x][self.index[get_type(square)]] = white * -1
                     else:
                         final_board[y][x][self.index[get_type(square)]] = white
-    
-        return np.array(final_board).reshape(-1, 8, 8, 6)
+        x = np.array(final_board).reshape(-1, 8, 8, 6)
+        return x
 
     def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
