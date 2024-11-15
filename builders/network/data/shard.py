@@ -32,5 +32,5 @@ with open(sys.argv[1], newline='') as file:
             line_counter = 0
             writer.close()
             writer = open(f"{file_out_dir}/{file_counter}.csv", 'a')
-
+        
 writer.close()

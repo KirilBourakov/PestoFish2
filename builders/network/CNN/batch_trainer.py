@@ -2,10 +2,10 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import sys
 import time
-from lichess_read import read
+from reader import read
+import os
 
 def main():
-
     model = tf.keras.Sequential([
         tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,6)),
         tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
@@ -28,11 +28,12 @@ def main():
             features, evaluation = read(f"{location}/{file+1}.csv")
             model.fit(features, evaluation, batch_size=1750000)
         curr_epoch += 1
+        model.save_weights(f"models/weights_{curr_epoch-1}_{time.ctime(time.time())}.weights.h5".replace(":", "."))
 
     features, evaluation = read(f"{location}/{cap+1}.csv")
     model.evaluate(features, evaluation)
     
-    model.save(f"model_{time.ctime(time.time())}.keras".replace(":", "."))
+    model.save(f"models/model_{time.ctime(time.time())}.keras".replace(":", "."))
 
 if __name__ == '__main__':
     main()
