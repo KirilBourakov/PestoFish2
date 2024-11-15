@@ -1,26 +1,27 @@
+import csv, itertools
 import numpy as np
 
+def read(file_path):
+    with open(file_path, newline='') as file:
+        reader = csv.DictReader(file)
+
+        counter = 0
+        for row in itertools.cycle(reader):
+            if row['cp'] == '':
+                continue
+
+            s = row['fen'].split()
+            board, color = s[0], s[1]
+
+            rating = float(row['cp'])
+            if rating < 0:
+                rating = max(int(rating), -127)
+            else: 
+                rating = min(int(rating), 127)
+            yield(np.array([transform(board, color)], dtype=np.byte), np.array([rating], dtype=np.byte))
+
+
 def transform(fen_board, color_to_move):
-    '''Turns data from fen, to board representaion, to bitboard (8x8x6):
-        
-    Row
-        [
-           Col
-           [
-                Piece
-                [-1, 0, 0, 0, 0 ... 0],
-                [0, 0, 0, 0, 1 ... 0],
-                ...
-                [0, 0, 0, 0, 1 ... 0],
-           ],
-           [
-                [-1, 0, 0, 0, 0 ... 0],
-                [-1, 0, 0, 0, 0 ... 0],
-                ...
-                [-1, 0, 0, 0, 0 ... 0],
-           ]
-        ]
-    '''
     final_board = []
     for i in range(8):
         final_board.append([])

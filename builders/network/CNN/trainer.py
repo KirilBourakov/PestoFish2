@@ -1,14 +1,10 @@
-from sklearn.model_selection import train_test_split
-import tensorflow as tf
 import sys
+import tensorflow as tf
 import time
-from reader import read
+from utils import read
 
 def main():
-    features, evals = read(sys.argv[1])
-
-    training_features, testing_features, training_eval, testing_eval = train_test_split(features, evals, test_size=0.3)
-    print('h')
+    filepath = sys.argv[1]
     model = tf.keras.Sequential([
         tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,6)),
         tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
@@ -20,12 +16,12 @@ def main():
         tf.keras.layers.Dense(32),
         tf.keras.layers.Dense(1)
     ])
-    print('d')
     model.compile(optimizer='adam', loss='mae', metrics=['mae'])
-    model.fit(training_features, training_eval, epochs=10)
-    model.evaluate(testing_features, testing_eval)
-    print('c')
-    # model.save(f"model_{time.ctime(time.time())}.keras".replace(":", "."))
+    model.fit(read(filepath), epochs=10, steps_per_epoch=4000000)
+
+    model.evaluate(read(filepath), steps_per_epoch=4000000)
+    
+    model.save(f"models/model_{time.ctime(time.time())}.keras".replace(":", "."))
 
 if __name__ == '__main__':
     main()
