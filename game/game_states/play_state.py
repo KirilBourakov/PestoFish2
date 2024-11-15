@@ -35,14 +35,14 @@ class Play_State(Abstract_State):
         args -- a list of lists that contains the game type at index 0,0
         '''
         self.board = [
-            [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
+            [bp.rook_unmoved, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rook_unmoved],
             [bp.pawn] * 8,
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [wp.pawn] * 8,
-            [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
+            [wp.rook_unmoved, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook_unmoved]
         ]
         self.move_counter = 0
         self.fifty_move_rule_counter = 0
@@ -377,7 +377,13 @@ class Play_State(Abstract_State):
         self.board[newy][newx] = piece
         self.board[piece_location[1]][piece_location[0]] = None
         self.move_counter += turn
-        piece.has_moved = True
+
+        if piece == bp.rook_unmoved:
+            self.board[newy][newx] = bp.rook_moved
+        elif piece == wp.rook_unmoved:
+            self.board[newy][newx] = wp.rook_moved
+        else:
+            piece.has_moved = True
 
         if str(self.board) in self.past_board_states:
             self.past_board_states[str(self.board)] += 1
