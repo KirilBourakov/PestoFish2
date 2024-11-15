@@ -120,3 +120,4 @@ model
     tf.keras.layers.Dense(32),
     tf.keras.layers.Dense(1)
 result
+    18750/18750 ━━━━━━━━━━━━━━━━━━━━ 13s 662us/step - loss: 33.9112 - mae: 33.9112
