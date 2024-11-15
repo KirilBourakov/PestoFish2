@@ -1,5 +1,5 @@
 # Citation
-
+https://www.ai.rug.nl/~mwiering/GROUP/ARTICLES/ICPRAM_CHESS_DNN_2018.pdf
 # Meta
 
 # Notes
