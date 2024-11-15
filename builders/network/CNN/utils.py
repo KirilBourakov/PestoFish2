@@ -5,7 +5,6 @@ def read(file_path):
     with open(file_path, newline='') as file:
         reader = csv.DictReader(file)
 
-        counter = 0
         for row in itertools.cycle(reader):
             if row['cp'] == '':
                 continue
@@ -18,8 +17,50 @@ def read(file_path):
                 rating = max(int(rating), -127)
             else: 
                 rating = min(int(rating), 127)
-            yield(np.array([transform(board, color)], dtype=np.byte), np.array([rating], dtype=np.byte))
 
+            yield(np.array([transform_13(board, color)], dtype=np.byte), np.array([rating], dtype=np.byte))
+
+def transform_13(fen_board, color_to_move):
+    final_board = []
+    for i in range(8):
+        final_board.append([])
+    for i in range(8):
+        for j in range(8):
+            final_board[i].append([0]*13)
+
+    index = {
+        'k': 0,
+        'q': 1,
+        'r': 2,
+        'b': 3,
+        'n': 4,
+        'p': 5,
+
+        'K': 6,
+        'Q': 7,
+        'R': 8,
+        'B': 9,
+        'N': 10,
+        'P': 11,
+
+        ' ': 12
+    }
+
+    fen_board = fen_board.split('/')
+    for y,row in enumerate(fen_board):
+        x_fen_index = 0
+        x_true_index = 0
+        while x_true_index < 8:
+            letter = row[x_fen_index]
+            if letter.isdigit():
+                for i in range(int(letter)):
+                    final_board[y][x_true_index][index[' ']] = 1
+                    x_true_index += 1
+            else:
+                final_board[y][x_true_index][index[letter]] = 1
+                x_true_index += 1
+            x_fen_index += 1
+    return np.array(final_board)
 
 def transform(fen_board, color_to_move):
     final_board = []

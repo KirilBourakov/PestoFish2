@@ -121,3 +121,38 @@ model
     tf.keras.layers.Dense(1)
 result
     18750/18750 ━━━━━━━━━━━━━━━━━━━━ 13s 662us/step - loss: 33.9112 - mae: 33.9112
+
+
+# New
+
+## 1st run (standered transform)
+Layers:
+    tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,13)),
+    tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
+    tf.keras.layers.Conv2D(64, (2,2), activation='relu'),
+
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(64),
+    tf.keras.layers.Dense(1)
+Run:
+    model.fit(read(filepath), epochs=10, steps_per_epoch=100000)
+    model.evaluate(read(filepath), steps=10000)
+Result:
+    10000/10000 ━━━━━━━━━━━━━━━━━━━━ 6s 583us/step - loss: 47.3083 - mae: 47.3083
+
+## 2nd run (13 transform) (NOTE: training loss was reliably lower, 1st run beating this is likely luck)
+Layers:
+    tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,13)),
+    tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
+    tf.keras.layers.Conv2D(64, (2,2), activation='relu'),
+
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(64),
+    tf.keras.layers.Dense(1)
+Run:
+    model.fit(read(filepath), epochs=10, steps_per_epoch=100000)
+    model.evaluate(read(filepath), steps=10000)
+Result:
+    10000/10000 ━━━━━━━━━━━━━━━━━━━━ 6s 591us/step - loss: 48.7128 - mae: 48.7128
