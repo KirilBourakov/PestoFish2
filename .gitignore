@@ -11,3 +11,4 @@ build
 
 *.keras
 *.h5
+*.tflite
