@@ -6,7 +6,7 @@ from utils import read
 def main():
     filepath = sys.argv[1]
     model = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,13)),
+        tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,6)),
         tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
         tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
         tf.keras.layers.Conv2D(64, (2,2), activation='relu'),
@@ -18,7 +18,7 @@ def main():
     ]) 
 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="models/other_adam.weights.h5",
+        filepath="models/small_adam.weights.h5",
         monitor='loss',
         mode='min',
         save_best_only=True,
@@ -26,8 +26,7 @@ def main():
     )
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='mse', metrics=['mae'])
-    model.load_weights('models/full_adam_00001.weights.h5')
-    # model.fit(read(filepath, 1), epochs=20, steps_per_epoch=10000, callbacks=[model_checkpoint_callback])
+    model.fit(read(filepath, 60), epochs=10, steps_per_epoch=200000, callbacks=[model_checkpoint_callback])
 
     model.evaluate(read(filepath, 1), steps=10000)
     
