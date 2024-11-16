@@ -6,7 +6,7 @@ class MovesTests(unittest.TestCase):
     def get_board(self, pieces: list[tuple[str, tuple[int,int]]]):
         board = []
         for i in range(8):
-            board.append([' ']*8)
+            board.append(['  ']*8)
 
         for piece in pieces:
             board[piece[1][1]][piece[1][0]] = piece[0]
@@ -156,5 +156,15 @@ class MovesTests(unittest.TestCase):
         moves = moves_gen.get_complex_moves(board4, (4,7))
         self.assertEqual(len(moves), 0)
 
+        board5 = [['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', 'bp', '  ', '  '],
+                ['  ', 'bp', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['bp', '  ', '  ', 'br', 'bK', '  ', '  ', 'bp'],
+                ['bp', '  ', 'wp', '  ', 'bp', 'wp', '  ', 'wp'],
+                ['wp', '  ', '  ', '  ', '  ', 'we', '  ', '  '],
+                ['  ', 'wp', 'wK', '  ', '  ', '  ', 'wp', '  '],
+                ['  ', '  ', '  ', '  ', '  ', 'wb', '  ', 'wr']]
+        moves = moves_gen.get_complex_moves(board5, (4,4))
+        self.assertEqual(len(moves), 1)
         
         

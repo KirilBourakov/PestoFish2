@@ -99,4 +99,15 @@ class GeneratorTests(unittest.TestCase):
                 ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
         s = generator.get_moves(board2, (4,0))
         self.assertTrue({'original': (1, 1), 'new': (0, 2), 'rating': 3, 'promotion': ''} in s)
+
+        board3 = [['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', 'bp', '  ', '  '],
+                ['  ', 'bp', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['bp', '  ', '  ', 'br', 'bK', '  ', '  ', 'bp'],
+                ['bp', '  ', 'wp', '  ', 'bp', 'wp', '  ', 'wp'],
+                ['wp', '  ', '  ', '  ', '  ', 'we', '  ', '  '],
+                ['  ', 'wp', 'wK', '  ', '  ', '  ', 'wp', '  '],
+                ['  ', '  ', '  ', '  ', '  ', 'wb', '  ', 'wr']]
+        s = generator.get_moves(board3, (4,3))
+        self.assertEqual(len(s), 6)
         
