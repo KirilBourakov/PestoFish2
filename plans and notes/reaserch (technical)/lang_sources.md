@@ -38,3 +38,6 @@ https://www.tensorflow.org/guide/data#consuming_csv_data
 
 MAPE not working for values at or close to 0
 https://www.sciencedirect.com/science/article/pii/S0169207016000121
+
+conversion
+https://android.googlesource.com/platform/external/tensorflow/+/632ff3f6169ef18a6947c53bd6f3cb5bf7fc26a6/tensorflow/lite/g3doc/convert/index.md
