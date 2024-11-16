@@ -16,10 +16,20 @@ def main():
         # tf.keras.layers.Dense(32),
         tf.keras.layers.Dense(1)
     ]) 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001), loss='mae', metrics=['mae'])
-    model.fit(read(filepath), epochs=10, steps_per_epoch=100000)
 
-    model.evaluate(read(filepath), steps=10000)
+    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath="models/other_adam.weights.h5",
+        monitor='loss',
+        mode='min',
+        save_best_only=True,
+        save_weights_only=True,
+    )
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='mse', metrics=['mae'])
+    model.load_weights('models/full_adam_00001.weights.h5')
+    # model.fit(read(filepath, 1), epochs=20, steps_per_epoch=10000, callbacks=[model_checkpoint_callback])
+
+    model.evaluate(read(filepath, 1), steps=10000)
     
     model.save(f"models/model_{time.ctime(time.time())}.keras".replace(":", "."))
 

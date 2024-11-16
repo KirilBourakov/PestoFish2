@@ -1,24 +1,33 @@
 import csv, itertools
 import numpy as np
+import tensorflow as tf
 
-def read(file_path):
+def read(file_path, size):
     with open(file_path, newline='') as file:
         reader = csv.DictReader(file)
 
+        data = []
+        labels = []
+
         for row in itertools.cycle(reader):
-            if row['cp'] == '':
+            if row['Evaluation'].count('#'):
                 continue
 
-            s = row['fen'].split()
+            s = row['FEN'].split()
             board, color = s[0], s[1]
-
-            rating = float(row['cp'])
+        
+            rating = float(row['Evaluation'])
             if rating < 0:
                 rating = max(int(rating), -127)
             else: 
                 rating = min(int(rating), 127)
+            labels.append(rating)
+            data.append(transform_13(board, color))
 
-            yield(np.array([transform_13(board, color)], dtype=np.byte), np.array([rating], dtype=np.byte))
+            if len(labels) >= size:
+                yield (np.array(data, dtype=np.byte), np.array(labels, dtype=np.byte))
+                labels = []
+                data = []
 
 def transform_13(fen_board, color_to_move):
     final_board = []
