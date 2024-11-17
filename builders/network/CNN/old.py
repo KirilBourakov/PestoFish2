@@ -7,29 +7,34 @@ import csv
 
 def main():
     model = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,6)),
-        tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
-        tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-        tf.keras.layers.Conv2D(64, (2,2), activation='relu'),
-
+        tf.keras.layers.Conv2D(64, (3,3), input_shape=(6,8,8), activation='relu', padding="same"),
+        
         tf.keras.layers.Flatten(),
 
-        tf.keras.layers.Dense(64),
+        tf.keras.layers.Dense(32, activation='softmax'),
+
+        tf.keras.layers.Dense(128, activation='softmax'),
+
         tf.keras.layers.Dense(1)
     ])
 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="models/small_adam.weights.h5",
+        filepath="models/6x8x8_full.weights.h5",
         monitor='loss',
         mode='min',
         save_best_only=True,
         save_weights_only=True,
     )
+    model.load_weights("models/6x8x8_full.weights.h5")
+    # model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
-    model.compile(optimizer='adam', loss='mae', metrics=['mae'])
-    for i in range(6):
-        features, evals = read(f"{sys.argv[1]}/{i+1}.csv")
-        model.fit(features, evals, epochs=5, callbacks=[model_checkpoint_callback])
+    for j in range(2):
+        print('epoch:', j)
+        for i in range(140):
+            print('part:', i)
+            features, evals = read(f"{sys.argv[1]}/{i+1}.csv")
+            model.fit(features, evals, epochs=1, callbacks=[model_checkpoint_callback])
+
     features, evals = read(f"{sys.argv[1]}/{7}.csv")
     model.evaluate(features, evals)
 
@@ -43,30 +48,32 @@ def read(file_path):
         labels = []
 
         for row in reader:
-            if row['Evaluation'].count('#'):
+            if len(row['cp'].strip()) == 0:
                 continue
+            # if row['Evaluation'].count('#') > 0:
+            #     continue
 
-            s = row['FEN'].split()
+            s = row['fen'].split()
             board, color = s[0], s[1]
         
-            rating = float(row['Evaluation'])
+            rating = float(row['cp'])
             if rating < 0:
-                rating = max(int(rating), -127)
+                rating = max(int(rating), -32767)
             else: 
-                rating = min(int(rating), 127)
+                rating = min(int(rating), 32767)
             labels.append(rating)
             data.append(transform(board, color))
 
-    return (np.array(data, dtype=np.byte), np.array(labels, dtype=np.byte))
+    return (np.array(data, dtype=np.byte), np.array(labels, dtype=np.short))
                 
 
 def transform(fen_board, color_to_move):
     final_board = []
-    for i in range(8):
+    for i in range(6):
         final_board.append([])
-    for i in range(8):
+    for i in range(6):
         for j in range(8):
-            final_board[i].append([0]*6)
+            final_board[i].append([0]*8)
 
     index = {
         'k': 0,
@@ -89,9 +96,9 @@ def transform(fen_board, color_to_move):
             
             white = 1 if color_to_move == "w" else -1
             if letter.islower():
-                final_board[y][x_true_index][index[letter]] = white * -1
+                final_board[index[letter]][y][x_true_index] = white * -1
             else:
-                final_board[y][x_true_index][index[letter.lower()]] = white
+                final_board[index[letter.lower()]][y][x_true_index] = white
             x_true_index += 1
             x_fen_index += 1
     f = final_board
