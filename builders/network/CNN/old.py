@@ -11,8 +11,7 @@ def main():
         
         tf.keras.layers.Flatten(),
 
-        tf.keras.layers.Dense(32, activation='softmax'),
-
+        tf.keras.layers.Dense(256, activation='softmax'),
         tf.keras.layers.Dense(128, activation='softmax'),
 
         tf.keras.layers.Dense(1)
@@ -25,10 +24,10 @@ def main():
         save_best_only=True,
         save_weights_only=True,
     )
-    model.load_weights("models/6x8x8_full.weights.h5")
-    # model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    # model.load_weights("models/6x8x8_full.weights.h5")
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
-    for j in range(2):
+    for j in range(3):
         print('epoch:', j)
         for i in range(140):
             print('part:', i)
