@@ -11,7 +11,8 @@ def main():
         
         tf.keras.layers.Flatten(),
 
-        tf.keras.layers.Dense(512, activation='softmax'),
+        tf.keras.layers.Dense(2048, activation='softmax'),
+        tf.keras.layers.Dense(2048, activation='softmax'),
 
         tf.keras.layers.Dense(1)
     ])

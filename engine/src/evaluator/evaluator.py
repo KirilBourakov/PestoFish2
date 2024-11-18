@@ -26,23 +26,12 @@ class Evaluator():
 
         # tf.keras.models.load_model('m.keras', compile=True)
         self.index = {
-            'bK': 0,
-            'br': 2,
-            'bq': 1,
-            'bb': 3,
-            'bk': 4,
-            'bp': 5,
-
-            'wK': 6,
-            'wr': 8,
-            'wq': 7,
-            'wb': 9,
-            'wk': 10,
-            'wp': 11,
-
-            '  ': 12,
-            'we': 12,
-            'be': 12
+            'K': 0,
+            'q': 1,
+            'r': 2,
+            'b': 3,
+            'k': 4,
+            'p': 5
         }
 
     def net_eval(self, board: boardType, game_over: bool, move_color: str) -> float:
@@ -78,18 +67,23 @@ class Evaluator():
 
     def parse_board(self, board: boardType, move_color: str):
         final_board = []
-        for i in range(8):
+        for i in range(6):
             final_board.append([])
-        for i in range(8):
+        for i in range(6):
             for j in range(8):
-                final_board[i].append([0]*13)
-
+                final_board[i].append([0]*8)
+        white = 1 if move_color == WHITE else -1
         for y, row in enumerate(board):
             for x, square in enumerate(row):
-                final_board[y][x][self.index[square[0].lower()+square[1]]] = 1
-        x = np.array(final_board, dtype=np.float32).reshape(-1, 8, 8, 13)
-        return x
-
+                if not is_empty(square):
+                    if get_color(square) == WHITE:
+                        final_board[self.index[get_type(square)]][y][x] = white
+                    else:
+                        final_board[y][y][x] = white * -1
+        z = np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
+        print(z)
+        return z
+    
     def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
 
