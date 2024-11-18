@@ -79,10 +79,8 @@ class Evaluator():
                     if get_color(square) == WHITE:
                         final_board[self.index[get_type(square)]][y][x] = white
                     else:
-                        final_board[y][y][x] = white * -1
-        z = np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
-        print(z)
-        return z
+                        final_board[y][y][x] = white * -1 
+        return np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
     
     def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
