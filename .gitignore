@@ -4,11 +4,3 @@ env
 build
 *.pyd
 *.so
-
-*.pgn
-*.csv
-*.zip
-
-*.keras
-*.h5
-*.tflite
