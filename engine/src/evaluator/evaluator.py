@@ -79,7 +79,7 @@ class Evaluator():
                     if get_color(square) == WHITE:
                         final_board[self.index[get_type(square)]][y][x] = white
                     else:
-                        final_board[y][y][x] = white * -1 
+                        final_board[self.index[get_type(square)]][y][x] = white * -1 
         return np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
     
     def eval(self, board: boardType, game_over: bool) -> float:
