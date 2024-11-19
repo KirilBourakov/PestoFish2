@@ -44,9 +44,9 @@ class engine():
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
         # TODO: value moves not being updated
-        # with Pool(processes=cpu_count()) as pool:
-        #     value_moves = pool.starmap(self.transformer, value_moves)
-        value_moves = itertools.starmap(self.transformer, value_moves)
+        with Pool(processes=cpu_count()) as pool:
+            value_moves = pool.starmap(self.transformer, value_moves)
+        # value_moves = itertools.starmap(self.transformer, value_moves)
         # test this things impact on preformance
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]

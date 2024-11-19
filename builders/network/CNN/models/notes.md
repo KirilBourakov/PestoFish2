@@ -1,5 +1,6 @@
 neural netsize seems to not have large impact on running times after converted to a lite model
 
+
 6x8x8_full (restart 104).weights.h5 
 - trained out till 104 on the lichess database. Stabalized at a loss of 700k, with 2.5 centipawn error. 
 - 1ms/step.
@@ -7,6 +8,7 @@ neural netsize seems to not have large impact on running times after converted t
 - tf.keras.layers.Dense(32, activation='softmax'),
     tf.keras.layers.Dense(128, activation='softmax'),
     tf.keras.layers.Dense(1)
+- **ALWAYS RETURNS 40.719643**
 
 6x8x8_full (restart 7)
  - train until 7 on lichess database. Ended with loss: 974420.0625 - mae: 234.6449 

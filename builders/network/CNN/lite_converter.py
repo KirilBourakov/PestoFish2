@@ -6,8 +6,8 @@ model = tf.keras.Sequential([
         
         tf.keras.layers.Flatten(),
 
-        tf.keras.layers.Dense(32, activation='softmax'),
-        tf.keras.layers.Dense(128, activation='softmax'),
+        tf.keras.layers.Dense(2048),
+        tf.keras.layers.Dense(2048),
         tf.keras.layers.Dense(1)
     ])
 model.load_weights(sys.argv[1])
