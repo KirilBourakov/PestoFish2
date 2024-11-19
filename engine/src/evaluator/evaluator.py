@@ -12,10 +12,10 @@ from engine.src.evaluator.heuristics import independant, dependant
 from engine.src.generator.generator import Generator
 
 
-model = tf.lite.Interpreter('lite.tflite')
-model.allocate_tensors()
-inp = model.get_input_details()[0] 
-outp = model.get_output_details()[0]
+# model = tf.lite.Interpreter('lite.tflite')
+# model.allocate_tensors()
+# inp = model.get_input_details()[0] 
+# outp = model.get_output_details()[0]
 
 class Evaluator():
     def __init__(self) -> None:
@@ -23,7 +23,7 @@ class Evaluator():
         # heuristics
         self.board_independant_heuristics: list[Callable[[str, tuple[int, int], bool], int]] = independant
         self.board_dependant_heuristics: list[Callable[[boardType, bool], int]] = dependant
-
+        self.model = tf.keras.models.load_model("m.keras")
         # tf.keras.models.load_model('m.keras', compile=True)
         self.index = {
             'K': 0,
@@ -55,14 +55,15 @@ class Evaluator():
         eval_estimate: float = 0.0
         is_endgame: bool = self.get_is_endgame(board)
 
-        for y, row in enumerate(board):
-            for x, square in enumerate(row):
-                for board_independant_heuristic in self.board_independant_heuristics:
-                    eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
+        # for y, row in enumerate(board):
+        #     for x, square in enumerate(row):
+        #         for board_independant_heuristic in self.board_independant_heuristics:
+        #             eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
 
-        model.set_tensor(inp['index'], self.parse_board(board, move_color))
-        model.invoke()
-        eval_estimate += (model.get_tensor(outp['index']) / 2)
+        # model.set_tensor(inp['index'], )
+        # model.invoke()
+        eval_estimate += self.model(self.parse_board(board, move_color)) #(model.get_tensor(outp['index']) / 1)
+        print(eval_estimate)
         return eval_estimate
 
     def parse_board(self, board: boardType, move_color: str):
@@ -79,7 +80,7 @@ class Evaluator():
                     if get_color(square) == WHITE:
                         final_board[self.index[get_type(square)]][y][x] = white
                     else:
-                        final_board[y][y][x] = white * -1 
+                        final_board[self.index[get_type(square)]][y][x] = white * -1 
         return np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
     
     def eval(self, board: boardType, game_over: bool) -> float:
