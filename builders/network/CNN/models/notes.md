@@ -26,3 +26,11 @@ neural netsize seems to not have large impact on running times after converted t
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(512, activation='softmax'),
     tf.keras.layers.Dense(1)
+    
+6x8x8_full (restart 28)
+- Struggled to get below loss of 1mil.
+- tf.keras.layers.Conv2D(64, (3,3), input_shape=(6,8,8), activation='relu', padding="same"),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(2048, activation='softmax'),
+    tf.keras.layers.Dense(2048, activation='softmax'),
+    tf.keras.layers.Dense(1)
