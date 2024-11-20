@@ -1,36 +1,43 @@
 import sys
 import tensorflow as tf
 import time
-from utils import read
+from sklearn.model_selection import train_test_split
+import numpy as np
+import csv
 
 def main():
-    filepath = sys.argv[1]
     model = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(8,8,6)),
-        tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
-        tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-        tf.keras.layers.Conv2D(64, (2,2), activation='relu'),
+        #tf.keras.layers.Conv2D(64, (3,3), input_shape=(6,8,8), activation='relu', padding="same"),
+        tf.keras.layers.Dense(384, input_shape=(6,8,8)),
+        #tf.keras.layers.Flatten(),
 
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(64),
-        # tf.keras.layers.Dense(32),
+        # tf.keras.layers.Dense(2048),
+        tf.keras.layers.Dense(2048),
+
         tf.keras.layers.Dense(1)
-    ]) 
+    ])
 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="models/small_adam.weights.h5",
+        filepath="models/6x8x8_non_convo_full.keras",
         monitor='loss',
         mode='min',
-        save_best_only=True,
-        save_weights_only=True,
     )
+    # model.load_weights("models/6x8x8_full.weights.h5")
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='mse', metrics=['mae'])
-    model.fit(read(filepath, 60), epochs=10, steps_per_epoch=200000, callbacks=[model_checkpoint_callback])
+    for j in range(3):
+        print('epoch:', j)
+        for i in range(140):
+            print('part:', i)
+            features, evals = read(f"{sys.argv[1]}/{i+1}.csv")
+            model.fit(features, evals, epochs=1, callbacks=[model_checkpoint_callback])
 
-    model.evaluate(read(filepath, 1), steps=10000)
-    
-    model.save(f"models/model_{time.ctime(time.time())}.keras".replace(":", "."))
+    features, evals = read(f"{sys.argv[1]}/{7}.csv")
+    model.evaluate(features, evals)
+
+    model.save(f"model_{time.ctime(time.time())}.keras".replace(":", "."))
+
+
 
 if __name__ == '__main__':
     main()
