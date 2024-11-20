@@ -66,8 +66,8 @@ class Evaluator():
 
         return eval_estimate
 
-    def parse_board(self, board: boardType, move_color: str):
-        final_board = []
+    def parse_board(self, board: boardType, move_color: str) -> npt.NDArray:
+        final_board: list[list[list[int]]] = []
         for i in range(6):
             final_board.append([])
         for i in range(6):
