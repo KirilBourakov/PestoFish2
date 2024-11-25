@@ -9,6 +9,8 @@ def piece_position(square: str, location: tuple[int,int], is_endgame: bool) -> i
 
     if is_empty(square):
         return 0
+
+    return piece_value_map[str(is_endgame)][square.lower()][location[1]][location[0]]
     
     index = piece_type
     if piece_type == KING:
