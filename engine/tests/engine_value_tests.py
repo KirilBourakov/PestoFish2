@@ -15,9 +15,8 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                 ['  ', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
-        val = e.value(board, 'b')[0]
+        val = e.value(board, 'b', max_depth=1)[0]
         self.assertTrue(val < 0)
-
 
         board = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
                 ['bp', '  ', 'bp', '  ', '  ', '  ', 'bp', 'bp'],
