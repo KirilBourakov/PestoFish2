@@ -41,6 +41,7 @@ class engine():
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
+        # print(possible_moves)
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
         # TODO: value moves not being updated
         with Pool(processes=cpu_count()) as pool:
