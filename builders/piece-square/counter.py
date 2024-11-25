@@ -36,12 +36,7 @@ def update(locations, evaluation, board):
         
         
         elif char in translation_map:
-            if abs(evaluation) < 0.5:
-                locations[is_endgame][translation_map[char]][y][x] += 1
-            elif evaluation > 0 and char.isupper():
-                locations[is_endgame][translation_map[char]][y][x] += 1
-            elif evaluation < 0 and char.islower():
-                locations[is_endgame][translation_map[char]][y][x] += 1
+            locations[is_endgame][translation_map[char]][y][x] += evaluation
             x += 1
     return
 

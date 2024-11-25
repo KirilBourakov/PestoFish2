@@ -10,7 +10,7 @@ def normalize(counter, outfile, cap):
 
             highest = 0
             for row in piece_map:
-                highest = max(row + [highest])
+                highest = abs(max(row + [highest]))
                 
 
             for i, row in enumerate(piece_map):

@@ -1,4 +1,5 @@
 from engine.src.constants.static import PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE, KING, EMPTY, MIDDLE_GAME, END_GAME
+import json
 
 rook_map: list[list[int]] = [
     [4] * 8,
@@ -77,12 +78,4 @@ eg_king_map: list[list[int]] = [
     [-40,-40,-30,-25,-25,-30,-40,-40]
 ]
 
-piece_value_map: dict[str, list[list[int]]] = {
-    PAWN: pawn_map,
-    BISHOP: bishop_map,
-    KNIGHT: knight_map,
-    ROOK: rook_map,
-    QUEEN: queen_map,
-    MIDDLE_GAME: mg_king_map,
-    END_GAME: eg_king_map
-}
+piece_value_map: dict[str, dict[str, list[list[int]]]] = json.load(open('out3.json'))
