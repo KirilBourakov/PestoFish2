@@ -9,4 +9,4 @@ def piece_position(square: str, location: tuple[int,int], is_endgame: bool) -> i
     if is_empty(square):
         return 0
 
-    return piece_value_map[str(is_endgame)][square.lower()][location[1]][location[0]] * factor
+    return piece_value_map[str(is_endgame)][square[0].lower() + square[1]][location[1]][location[0]] * factor
