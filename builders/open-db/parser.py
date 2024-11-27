@@ -1,10 +1,12 @@
 from html.parser import HTMLParser
 import sys
+import re
 
 class Parse(HTMLParser):
     def __init__(self):
         super().__init__()
         self.inli = False
+        self.searcher = re.compile(r"/*1. (N|)[a-h][0-9] (N|)[a-h][0-9]*") #
 
     def handle_starttag(self, tag, attrs):
         if tag == "li":
@@ -15,9 +17,14 @@ class Parse(HTMLParser):
             self.inli = True
 
     def handle_data(self, data):
-        if self.inli:
-            if data.strip():
-                print(data.strip())
+        if not self.inli:
+            return
+        if not data.strip():
+            return
+        data = data.strip().replace("\n", " ")
+        if self.searcher.search(data):
+            print(data)
+
 
 def main():
     parser = Parse()
