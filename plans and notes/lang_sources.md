@@ -25,3 +25,6 @@ openings
 https://en.wikipedia.org/wiki/List_of_chess_openings
 pgn-extract
 https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
+
+sql syntax
+https://www.w3schools.com/sql/
