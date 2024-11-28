@@ -15,7 +15,7 @@ class Parse(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag == "li":
-            self.inli = True
+            self.inli = False
 
     def handle_data(self, data):
         if not self.inli:
