@@ -11,11 +11,17 @@ def main(file_in, file_out, tmp_file):
             tmp_writer.write(row)
             tmp_writer.close()
 
-            result = subprocess.run(["pgn-extract.exe", "-Wfen", tmp_file], capture_output=True)
+            result = subprocess.run(['pgn-extract.exe', '-Wfen', tmp_file], capture_output=True)
             out = result.stdout.decode().split('\n')
             for row in out:
                 if row.count("[") == 0:
-                    writer.write(row)
+                    row = row.split()
+                    final = ''
+                    for i, section in enumerate(row):
+                        if i < 4:
+                            final += '  ' + section
+                    writer.write(final)
+                    writer.write('\n')
             
             writer.write('\n')
             tmp_writer = open(tmp_file, 'w')
