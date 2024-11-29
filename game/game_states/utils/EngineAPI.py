@@ -1,7 +1,7 @@
 import game.constants.globals as globals
 import game.pieces.black_pieces as black
 import game.pieces.white_pieces as white
-import game.pieces.EnPassent as EnPassent
+from game.pieces.EnPassent import EnPassent
 from engine.src.Engine import Engine
 
 class EngineAPI():
@@ -74,7 +74,14 @@ class EngineAPI():
     def engine_make_move(self, playState):
         self.engine.accept_board(self.convert_for_engine(playState))
         best_move = self.engine.get_best_move()
-        new_pos = self.engine.result(self.engine.board, best_move)
+
+        # prevent enpassent flags from becoming zombies
+        for y, row in enumerate(self.engine.board):
+            for x, square in enumerate(row):
+                if square == 'be' or square == 'we':
+                    self.engine.board[y][x] = '  '
+                    
+        new_pos = self.engine.result(self.engine.board, best_move)       
         print("----------------- new Pos ----------")
         for row in new_pos:
             print(row)
@@ -92,8 +99,8 @@ class EngineAPI():
             for x, square in enumerate(row):
                 if square in self.piece_dict:
                     translated_board[y][x] = self.piece_dict[square]
-                elif square == 'ep':
+                elif square == 'be' or square == 'we':
                     color = globals.PIECE_BLACK if y == 1 else globals.PIECE_WHITE
                     offset = -1 if color == globals.PIECE_BLACK else 1
-                    translated_board[y][x] = EnPassent(playState.board.move_counter, color, y+offset)
+                    translated_board[y][x] = EnPassent(playState.move_counter, color, y+offset)
         playState.board = translated_board

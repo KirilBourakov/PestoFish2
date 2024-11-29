@@ -35,7 +35,7 @@ class Engine():
             self.board.append(f_row)
         print("----------------- Accepted Pos ----------")
         for row2 in self.board:
-            print(row)
+            print(row2)
 
         self.search.query_theory(self.board, self.to_move(self.move_counter))
         return self.board

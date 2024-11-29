@@ -41,7 +41,7 @@ class Searcher():
     def query_theory(self, board: boardType, color_to_move: str) -> MoveType:
         '''Given a board state, return a random theoretical move it has.'''
         fen = self.board_to_fen(board, color_to_move)
-        print(fen)
+        print('fen:', fen)
         query_results = executor.execute('SELECT new from transpositions WHERE inital == (SELECT pk FROM positions WHERE position == ?)', (fen,))
         results: list[str] = query_results.fetchall()
         if len(results) == 0:
@@ -151,7 +151,8 @@ class Searcher():
         if ep_pos[0] == -1:
             en_passent = '-'
         else:
-            factor = -1 if color_to_move == BLACK else 1
-            en_passent = self.square_letter_map[ep_pos[0]] + str(7-ep_pos[1]+factor)
+            y = 3 if color_to_move == BLACK else 6
+            print(ep_pos)
+            en_passent = self.square_letter_map[ep_pos[0]] + str(y)
         fen += f'  {en_passent}'
         return fen
