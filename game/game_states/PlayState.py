@@ -5,10 +5,10 @@ import game.pieces.black_pieces as bp
 import game.pieces.EnPassent as ep
 import game.constants.globals as globals
 import game.constants.move_sets as mv
-from game.game_states.Promotion import Promotion
+from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
-from game.game_states.decorators import disable_on_engine_turn, run_engine
-from engine.src.Engine import Engine
+from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
+from game.game_states.utils.EngineAPI import EngineAPI
 
 # for testing
 
@@ -55,7 +55,6 @@ class PlayState(AbstractState):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
-        self.engine = Engine()
 
     def convert_for_engine(self):
         '''returns a string representing all relevent board state. \n
@@ -401,6 +400,10 @@ class PlayState(AbstractState):
         return self.game_over
     
     def handle_key_press(self, event):
+        if event.unicode == 'w' and self.move_counter % 2 == 0:
+            EngineAPI.engine_make_move(self)
+        if event.unicode == 'b' and self.move_counter % 2 != 0:
+            EngineAPI.engine_make_move(self)
         return
 
     def exit(self):
