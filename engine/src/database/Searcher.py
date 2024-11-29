@@ -42,8 +42,8 @@ class Searcher():
         '''Given a board state, return a random theoretical move it has.'''
         fen = self.board_to_fen(board, color_to_move)
         print(fen)
-        results = executor.execute('SELECT new from transpositions WHERE inital == (SELECT pk FROM positions WHERE position == ?)', (fen,))
-        results = results.fetchall()
+        query_results = executor.execute('SELECT new from transpositions WHERE inital == (SELECT pk FROM positions WHERE position == ?)', (fen,))
+        results: list[str] = query_results.fetchall()
         if len(results) == 0:
             print('no theory')
             return MoveType(original=(-1,-1), new=(-1,-1), rating=0, promotion='')
