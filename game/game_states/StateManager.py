@@ -1,13 +1,13 @@
-from game.game_states.play_state import Play_State
-from game.game_states.end_state import End_State
-from game.game_states.start_state import Start_State
+from game.game_states.PlayState import PlayState
+from game.game_states.EndState import EndState
+from game.game_states.StartState import StartState
 
-class State_Manager():
+class StateManager():
     def __init__(self):
         self.states = {
-            "play": Play_State(),
-            "end": End_State(),
-            "start": Start_State()
+            "play": PlayState(),
+            "end": EndState(),
+            "start": StartState()
         }
         self.current_state = "start"
 

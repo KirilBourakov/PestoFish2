@@ -2,20 +2,20 @@ import pygame, copy
 import game.assets.assets as assets
 import game.pieces.white_pieces as wp
 import game.pieces.black_pieces as bp
-import game.pieces.en_passent as ep
+import game.pieces.EnPassent as ep
 import game.constants.globals as globals
 import game.constants.move_sets as mv
-from game.game_states.promotion import Promotion
-from game.game_states.abstract_state import Abstract_State
+from game.game_states.Promotion import Promotion
+from game.game_states.AbstractState import AbstractState
 from game.game_states.decorators import disable_on_engine_turn, run_engine
-from engine.src.engine import engine
+from engine.src.Engine import Engine
 
 # for testing
 
 # from engine.src.generator.generator import Generator
 # from engine.src.helpers.board_analysis import sight_on_square
 
-class Play_State(Abstract_State):
+class PlayState(AbstractState):
     def __init__(self, board=None):
         '''The constructor.
         
@@ -55,7 +55,7 @@ class Play_State(Abstract_State):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
-        self.engine = engine()
+        self.engine = Engine()
 
     def convert_for_engine(self):
         '''returns a string representing all relevent board state. \n
@@ -349,7 +349,7 @@ class Play_State(Abstract_State):
             turn_color = globals.PIECE_WHITE if self.move_counter % 2 == 0 else globals.PIECE_BLACK
             offset = 1 if turn_color == globals.PIECE_WHITE else -1 
             self.move(piece_location, (newx, newy))
-            self.board[newy+offset][newx] = ep.en_passent(self.move_counter,turn_color, newy)
+            self.board[newy+offset][newx] = ep.EnPassent(self.move_counter,turn_color, newy)
 
         elif (newx, newy, globals.PROMOTION_FLAG) in moves:
             self.move(piece_location, (newx, newy))
@@ -456,7 +456,7 @@ class Play_State(Abstract_State):
             )
 
     def self_copy(self):
-        return Play_State(self.board)
+        return PlayState(self.board)
     
     def __str__(self):
         final = ""

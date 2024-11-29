@@ -1,7 +1,7 @@
 import pygame
 import game.constants.globals as globals
 
-class Abstract_Piece():
+class AbstractPiece():
     def __init__(self, type, asset, moveset, color, hops=False):
         self.type = type
         self.asset = asset

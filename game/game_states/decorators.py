@@ -2,7 +2,7 @@
 import game.constants.globals as globals
 import game.pieces.black_pieces as black
 import game.pieces.white_pieces as white
-import game.pieces.en_passent as en_passent
+import game.pieces.EnPassent as EnPassent
 
 # TODO: this approuch may create bugs around piece premotions
 piece_dict = {
@@ -66,7 +66,7 @@ def run_engine(func):
                     elif square == 'ep':
                         color = globals.PIECE_BLACK if y == 1 else globals.PIECE_WHITE
                         offset = -1 if color == globals.PIECE_BLACK else 1
-                        translated_board[y][x] = en_passent(self.board.move_counter, color, y+offset)
+                        translated_board[y][x] = EnPassent(self.board.move_counter, color, y+offset)
             self.board = translated_board           
 
         return  

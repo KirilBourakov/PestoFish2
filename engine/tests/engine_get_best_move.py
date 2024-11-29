@@ -1,11 +1,11 @@
 import unittest
 
-from engine.src.engine import engine
+from engine.src.engine import Engine
 from engine.src.helpers.board_analysis import find_king
 
 class EngineGetBestMoveTest(unittest.TestCase):
     def test_get_best_move(self):
-        e = engine()
+        e = Engine()
         e.fifty_move_rule_counter = 0
         e.move_counter = 0
         board1 = [['  ', '  ', '  ', '  ', 'BK', '  ', '  ', '  '],
