@@ -1,9 +1,4 @@
-import tkinter
-
-app = tkinter.Tk()
-size = (app.winfo_screenwidth(), app.winfo_screenheight())
-
-appsize = size[1] / 2
+appsize = 512
 grid_size = appsize / 8
 
 resize_num = grid_size * .2
