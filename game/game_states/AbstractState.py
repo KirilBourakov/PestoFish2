@@ -1,4 +1,4 @@
-class Abstract_State():
+class AbstractState():
     def enter(self):
         raise Exception("enter not implemented")
 

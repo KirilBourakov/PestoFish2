@@ -11,7 +11,7 @@ from .database.Searcher import Searcher
 # TODO: castles illegally (out of check)
 # TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
 # TODO: engine checkmate not dropping user to checkmate screen
-class engine():
+class Engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
