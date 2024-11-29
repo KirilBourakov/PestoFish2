@@ -41,10 +41,12 @@ class Searcher():
     def query_theory(self, board: boardType, color_to_move: str) -> MoveType:
         '''Given a board state, return a random theoretical move it has.'''
         fen = self.board_to_fen(board, color_to_move)
-
+        print(fen)
         results = executor.execute('SELECT new from transpositions WHERE inital == (SELECT pk FROM positions WHERE position == ?)', (fen,))
         results = results.fetchall()
-        
+        if len(results) == 0:
+            print('no theory')
+            return MoveType(original=(-1,-1), new=(-1,-1), rating=0, promotion='')
         chosen = random.choice(results)
 
         new_pos = executor.execute('SELECT position FROM positions WHERE pk == ?', (chosen[0],))
@@ -60,8 +62,6 @@ class Searcher():
         old_board = old_pos.split('/')
         new_board = new_pos.split('/')
 
-        print(old_board)
-        print(new_board)
         new_white_space: list[tuple[int,int]] = []
         new_piece_location: list[tuple[int,int]] = []
         for y in range(8):
@@ -94,8 +94,10 @@ class Searcher():
                 move['new'] = new_piece_location[0]
                 move['original'] = new_white_space[0]
 
-        print(move)
         return move
+
+    def is_valid(self, move: MoveType) -> bool:
+        return move['original'][0] != -1 and move['original'][1] != -1 and move['new'][0] != -1 and move['new'][1] != -1
 
     def board_to_fen(self, board: boardType, color_to_move: str) -> str:
         '''Given a boardType and the color who's turn it is to move, return a FEN string (move and halfmove counter removed).'''
@@ -149,6 +151,7 @@ class Searcher():
         if ep_pos[0] == -1:
             en_passent = '-'
         else:
-            en_passent = self.square_letter_map[ep_pos[0]] + str(ep_pos[1]+1)
+            factor = -1 if color_to_move == BLACK else 1
+            en_passent = self.square_letter_map[ep_pos[0]] + str(7-ep_pos[1]+factor)
         fen += f'  {en_passent}'
         return fen
