@@ -53,7 +53,7 @@ class Searcher():
         return self.get_move_from_fen(fen.split()[0], new_pos_str.split()[0])
 
     def get_move_from_fen(self, old_pos: str, new_pos: str) -> MoveType:
-        '''Given two FEN strings that are 1 move apart, return the move that was played.'''
+        '''Given two positions represented as FEN strings that are 1 move apart, return the move that was played.'''
         for i in range(8):
             old_pos = old_pos.replace(str(i+1), ' '*(i+1))
             new_pos = new_pos.replace(str(i+1), ' '*(i+1))

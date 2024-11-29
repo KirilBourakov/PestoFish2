@@ -5,6 +5,8 @@ from engine.tests.engine_result_tests import EngineResultTests
 from engine.tests.engine_value_tests import EngineValueTests
 from engine.tests.engine_get_best_move import EngineGetBestMoveTest
 from engine.tests.engine_is_terminal_tests import EngineIsTerminalTest
+from engine.tests.searcher_tests import SearcherTests
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(MovesTests))
@@ -13,6 +15,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(EngineValueTests))
     suite.addTest(unittest.makeSuite(EngineGetBestMoveTest))
     suite.addTest(unittest.makeSuite(EngineIsTerminalTest))
+    suite.addTest(unittest.makeSuite(SearcherTests))
     return suite
 
 if __name__ == '__main__':
