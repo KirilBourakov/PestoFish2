@@ -34,7 +34,7 @@ class engine():
                 f_row.append(grid.replace("--", "  "))
             self.board.append(f_row)
         print("----------------- Accepted Pos ----------")
-        for row in self.board:
+        for row2 in self.board:
             print(row)
 
         self.search.query_theory(self.board, self.to_move(self.move_counter))
