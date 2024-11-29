@@ -8,8 +8,7 @@ from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 from .database.Searcher import Searcher
-# TODO: castles illegally (out of check)
-# TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
+
 # TODO: engine checkmate not dropping user to checkmate screen
 class Engine():
     def __init__(self) -> None:
@@ -51,7 +50,6 @@ class Engine():
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
         # print(possible_moves)
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
-        # TODO: value moves not being updated
         with Pool(processes=cpu_count()) as pool:
             value_moves = pool.starmap(self.transformer, value_moves)
 
@@ -82,8 +80,6 @@ class Engine():
         \t max_val -- the top most value found (used in pruning) (default = -inf) 
         \t min_val -- the bottom most value found (used in pruning) (default = inf) 
         '''
-        # TODO: taking far too long. Replace with bfs search to make code more debuggable 
-        # TODO: eval seems to be wrong on occasion? Was getting negatives for seemingly no reason
         # base cases
         if str(pos) in self.transposeTable:
             return (self.transposeTable[str(pos)], curr_depth)

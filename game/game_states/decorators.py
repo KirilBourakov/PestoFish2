@@ -37,9 +37,6 @@ def disable_on_engine_turn(func):
 def run_engine(func):
     def wrapper(self, *args, **kwargs):
         func(self, *args, **kwargs)
-        # TODO: the engine should take direct control of the board. This will make the logic simpler, and incorrect move gen in the engine
-        # easier to spot. Maybe have the board updated to what the engine sees
-        # engine move not being accepted leads to infinite loop
         black_engine_turn = self.game_type == globals.GAME_TYPE_ENGINE_BLACK and self.move_counter % 2 != 0
         white_engine_turn = self.game_type == globals.GAME_TYPE_ENGINE_WHITE and self.move_counter % 2 == 0
         if black_engine_turn or white_engine_turn:
