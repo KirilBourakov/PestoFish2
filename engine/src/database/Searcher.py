@@ -55,8 +55,48 @@ class Searcher():
 
     def get_move_from_fen(self, old_pos: str, new_pos: str) -> MoveType:
         '''Given two FEN strings that are 1 move apart, return the move that was played.'''
-        print(old_pos)
-        print(new_pos)
+        for i in range(8):
+            old_pos = old_pos.replace(str(i+1), ' '*(i+1))
+            new_pos = new_pos.replace(str(i+1), ' '*(i+1))
+        old_board = old_pos.split('/')
+        new_board = new_pos.split('/')
+
+        print(old_board)
+        print(new_board)
+        new_white_space: list[tuple[int,int]] = []
+        new_piece_location: list[tuple[int,int]] = []
+        for y in range(8):
+            for x in range(8):
+                if old_board[y][x] != new_board[y][x]:
+                    if new_board[y][x] != ' ':
+                        new_piece_location.append((x,y))
+                    else:
+                        new_white_space.append((x,y))
+        
+        move: MoveType = {'original': (-1,-1), 'new': (-1,-1), 'rating': 0, 'promotion': ''}
+        # needs to handle castling
+        if len(new_piece_location) == 2:
+            for location in new_piece_location:
+                if new_board[location[1]][location[0]].lower() == 'k':
+                    move['new'] = location
+            for location in new_white_space:
+                if old_board[location[1]][location[0]].lower() == 'k':
+                    move['original'] = location
+        # other moves
+        else:
+            #  en passent
+            if len(new_white_space) == 2:
+                move['new'] = new_piece_location[0]
+                for location in new_white_space:
+                    if old_board[location[1]][location[0]].lower() == 'p':
+                        move['original'] = location
+            # normal captures
+            else:
+                move['new'] = new_piece_location[0]
+                move['original'] = new_white_space[0]
+
+        print(move)
+        return move
 
     def board_to_fen(self, board: boardType, color_to_move: str) -> str:
         '''Given a boardType and the color who's turn it is to move, return a FEN string (move and halfmove counter removed).'''
