@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import random
-from engine.src.constants.engineTypes import boardType
+from engine.src.constants.engineTypes import boardType, MoveType
 from engine.src.constants.static import EMPTY, WHITE, BLACK, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, EN_PASSENT
 from engine.src.helpers.square_analysis import is_empty, get_type
 
@@ -38,29 +38,28 @@ class Searcher():
             6: 'g',
             7: 'h'
         }
-        
     
-    def get_possible_move():
-        # return a random move from DB
-        return
-    
-    def query_theory(self, board: boardType, color_to_move: str) -> bool:
+    def query_theory(self, board: boardType, color_to_move: str) -> MoveType:
+        '''Given a board state, return a random theoretical move it has.'''
         fen = self.board_to_fen(board, color_to_move)
-        print(fen)
+
         results = self.executor.execute('SELECT new from transpositions WHERE inital == (SELECT pk FROM positions WHERE position == ?)', (fen,))
         results = results.fetchall()
         
         chosen = random.choice(results)
 
         new_pos = self.executor.execute('SELECT position FROM positions WHERE pk == ?', (chosen[0],))
-        new_pos = new_pos.fetchone()
+        new_pos_str: str = new_pos.fetchone()[0]
+
+        return self.get_move_from_fen(fen.split()[0], new_pos_str.split()[0])
+
+    def get_move_from_fen(self, old_pos: str, new_pos: str) -> MoveType:
+        '''Given two FEN strings that are 1 move apart, return the move that was played.'''
+        print(old_pos)
         print(new_pos)
-        # store the results
-        return
 
     def board_to_fen(self, board: boardType, color_to_move: str) -> str:
-        # accept a board
-        # turn it into FEN
+        '''Given a boardType and the color who's turn it is to move, return a FEN string (move and halfmove counter removed).'''
         fen = ''
         count = 0
         ep_pos = (-1, -1)
