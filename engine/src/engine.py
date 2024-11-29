@@ -7,6 +7,7 @@ from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
+from .database.Searcher import Searcher
 # TODO: castles illegally (out of check)
 # TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
 # TODO: engine checkmate not dropping user to checkmate screen
@@ -14,6 +15,7 @@ class engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
+        self.search: Searcher = Searcher()
         self.transposeTable: dict[str, float] = {}
 
     def accept_board(self, boardStr: str) -> list[list[str]]:
@@ -32,14 +34,20 @@ class engine():
                 f_row.append(grid.replace("--", "  "))
             self.board.append(f_row)
         print("----------------- Accepted Pos ----------")
-        for row in self.board:
+        for row2 in self.board:
             print(row)
+
+        self.search.query_theory(self.board, self.to_move(self.move_counter))
         return self.board
     
     def get_best_move(self) -> MoveType:
-        s = time.time_ns()
         '''Gets the engine's best guess at what a move is.'''
+        s = time.time_ns()
         current_color = self.to_move(self.move_counter)
+        mv = self.search.query_theory(self.board, current_color)
+        if self.search.is_valid(mv):
+            return mv
+
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
         # TODO: value moves not being updated

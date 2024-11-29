@@ -20,3 +20,11 @@ Lanaro, G., Nguyen, Q., & Kasampalis, S. (2019). Advanced Python programming : b
 
 What is considered an endgame
 Nikolay Minev. (2010). A Practical Guide to Rook Endgames. SCB Distributors.
+
+openings
+https://en.wikipedia.org/wiki/List_of_chess_openings
+pgn-extract
+https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
+
+sql syntax
+https://www.w3schools.com/sql/
