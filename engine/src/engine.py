@@ -7,6 +7,7 @@ from .helpers.board_analysis import sight_on_square, find_king
 from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
+from .database.Searcher import Searcher
 # TODO: castles illegally (out of check)
 # TODO: refusing to checkmate. If it sees several checkmates, doesn't play the quickest.
 # TODO: engine checkmate not dropping user to checkmate screen
@@ -14,6 +15,7 @@ class engine():
     def __init__(self) -> None:
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
+        self.search: Searcher = Searcher()
         self.transposeTable: dict[str, float] = {}
 
     def accept_board(self, boardStr: str) -> list[list[str]]:
@@ -34,6 +36,8 @@ class engine():
         print("----------------- Accepted Pos ----------")
         for row in self.board:
             print(row)
+
+        self.search.query_theory(self.board, self.to_move(self.move_counter))
         return self.board
     
     def get_best_move(self) -> MoveType:
