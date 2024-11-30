@@ -3,6 +3,7 @@ import game.pieces.black_pieces as black
 import game.pieces.white_pieces as white
 from game.pieces.EnPassent import EnPassent
 from engine.src.Engine import Engine
+import pygame
 
 class EngineAPI():
     # TODO: this approuch may create bugs around piece premotions
@@ -72,6 +73,8 @@ class EngineAPI():
     
     @classmethod
     def engine_make_move(self, playState):
+        pygame.display.update()
+
         self.engine.accept_board(self.convert_for_engine(playState))
         best_move = self.engine.get_best_move()
 
@@ -94,7 +97,7 @@ class EngineAPI():
         move_is_capture = len(self.engine.board[best_move['new'][1]][best_move['new'][0]]) != 0
         if not move_is_pawn or not move_is_capture:
             playState.fifty_move_rule_counter += 1
-        
+
         for y, row in enumerate(new_pos):
             for x, square in enumerate(row):
                 if square in self.piece_dict:
@@ -103,4 +106,5 @@ class EngineAPI():
                     color = globals.PIECE_BLACK if y == 1 else globals.PIECE_WHITE
                     offset = -1 if color == globals.PIECE_BLACK else 1
                     translated_board[y][x] = EnPassent(playState.move_counter, color, y+offset)
-        playState.board = translated_board
+        playState.board = translated_board       
+        playState.update_bottom_text()

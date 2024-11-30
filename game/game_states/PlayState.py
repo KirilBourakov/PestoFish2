@@ -55,6 +55,7 @@ class PlayState(AbstractState):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
+        self.bottom_text = globals.WHITE_TO_MOVE
 
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
@@ -64,6 +65,8 @@ class PlayState(AbstractState):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
+        if gridx >= 8 or gridy >= 8:
+            return
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
@@ -334,6 +337,7 @@ class PlayState(AbstractState):
         self.board[newy][newx] = piece
         self.board[piece_location[1]][piece_location[0]] = None
         self.move_counter += turn
+        self.update_bottom_text()
 
         if piece == bp.rook_unmoved:
             self.board[newy][newx] = bp.rook_moved
@@ -353,6 +357,12 @@ class PlayState(AbstractState):
 
         if (self.is_draw()[0]):
             self.game_over = True
+
+    def update_bottom_text(self):
+        if self.move_counter % 2 == 0:
+            self.bottom_text = globals.WHITE_TO_MOVE
+        else:
+            self.bottom_text = globals.BLACK_TO_MOVE
 
     def ready_to_exit(self):
         return self.game_over
@@ -405,6 +415,9 @@ class PlayState(AbstractState):
 
                 if column is not None:
                     column.show(x,y)
+
+        render = assets.text_large.render(self.bottom_text, False, "white")
+        window.blit(render, (10, (8*globals.grid_size)))
 
         if self.promotion is not None:
             self.promotion.show()
