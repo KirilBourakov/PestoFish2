@@ -1,9 +1,9 @@
 import pygame
-from game.game_states.abstract_state import Abstract_State
+from game.game_states.AbstractState import AbstractState
 import game.assets.assets as assets
 import game.constants.globals as globals
 
-class Start_State(Abstract_State):
+class StartState(AbstractState):
     def __init__ (self):
         self.enter('')
 

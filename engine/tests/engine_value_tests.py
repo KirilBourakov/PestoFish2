@@ -1,10 +1,10 @@
 import unittest
 
-from engine.src.Engine import engine
+from engine.src.Engine import Engine
 
 class EngineValueTests(unittest.TestCase):
     def test_result(self):
-        e = engine()
+        e = Engine()
         e.fifty_move_rule_counter = 0
         e.move_counter = 0
         board = [['Br', 'bk', '  ', 'bq', 'BK', 'bb', 'bk', 'Br'],
@@ -15,9 +15,8 @@ class EngineValueTests(unittest.TestCase):
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                 ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                 ['  ', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
-        val = e.value(board, 'b')[0]
+        val = e.value(board, 'b', max_depth=1)[0]
         self.assertTrue(val < 0)
-
 
         board = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
                 ['bp', '  ', 'bp', '  ', '  ', '  ', 'bp', 'bp'],

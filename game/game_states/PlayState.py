@@ -2,20 +2,20 @@ import pygame, copy
 import game.assets.assets as assets
 import game.pieces.white_pieces as wp
 import game.pieces.black_pieces as bp
-import game.pieces.en_passent as ep
+import game.pieces.EnPassent as ep
 import game.constants.globals as globals
 import game.constants.move_sets as mv
-from game.game_states.promotion import Promotion
-from game.game_states.abstract_state import Abstract_State
-from game.game_states.decorators import disable_on_engine_turn, run_engine
-from engine.src.Engine import engine
+from game.game_states.utils.Promotion import Promotion
+from game.game_states.AbstractState import AbstractState
+from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
+from game.game_states.utils.EngineAPI import EngineAPI
 
 # for testing
 
 # from engine.src.generator.generator import Generator
 # from engine.src.helpers.board_analysis import sight_on_square
 
-class Play_State(Abstract_State):
+class PlayState(AbstractState):
     def __init__(self, board=None):
         '''The constructor.
         
@@ -35,14 +35,14 @@ class Play_State(Abstract_State):
         args -- a list of lists that contains the game type at index 0,0
         '''
         self.board = [
-            [bp.rookL, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rookR],
+            [bp.rook_unmoved, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rook_unmoved],
             [bp.pawn] * 8,
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [None, None, None, None, None, None, None, None],
             [wp.pawn] * 8,
-            [wp.rookL, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rookR]
+            [wp.rook_unmoved, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook_unmoved]
         ]
         self.move_counter = 0
         self.fifty_move_rule_counter = 0
@@ -55,49 +55,7 @@ class Play_State(Abstract_State):
         self.game_over = None
 
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
-        self.engine = engine()
-
-    def convert_for_engine(self):
-        '''returns a string representing all relevent board state. \n
-        string takes the form of the 8 rows devided by / then the number of half moves, then the number of half moves for the fifty move rule.
-        For example:
-        
-        Br bk bb bq BK bb bk Br /bp bp bp bp -- bp bp bp /-- -- -- -- be -- -- -- /-- -- -- -- bp -- -- -- /-- -- -- -- wp -- -- -- /-- -- -- -- -- -- -- -- /wp wp wp wp -- wp wp wp /Wr wk wb wq WK wb wk Wr /2/0
-
-        is the position after 1.e4 e5. 
-
-        Pieces are represented using the first letter of their color, and the first letter of their name, both lowercased, but:
-        \t The king has his k uppercased to differentiate from the knight
-        \t The rook and king may an uppercase color letter, if they have not moved
-        \t enpassent is represented as a piece with a second letter of e, and only appears if enpassent is a valid move
-        '''
-        strState = ''
-
-        for row in self.board:
-            strRow = ''
-            for square in row:
-                strSquare = "-- "
-                # if square has a piece
-                if square is not None and square.type != globals.EN_PASSENT_FLAG:
-                    # king represented as wK/bK if moved or WK/BK if not
-                    if square.type == globals.PIECE_KING:
-                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper() + " "
-                    # rook repersented by wr/br if moved else Wr/Br
-                    elif square.type == globals.PIECE_ROOK:
-                        strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower() + " "
-                    # other pieces represented by w[first letter]/b[first letter]
-                    else:
-                        strSquare = square.color[0].lower() + square.type[0].lower() + " "
-
-                # if square is enpassent, represented by we/be
-                if square is not None and square.type == globals.EN_PASSENT_FLAG:
-                    if square.turn_num == self.move_counter:
-                        strSquare = square.color[0].lower() + "e" + " "
-                strRow += strSquare
-            strState += strRow + "/"
-        
-        strState += f"{self.move_counter}/{self.fifty_move_rule_counter}"
-        return strState.strip()
+        self.bottom_text = globals.WHITE_TO_MOVE
 
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
@@ -107,6 +65,8 @@ class Play_State(Abstract_State):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
+        if gridx >= 8 or gridy >= 8:
+            return
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
@@ -349,7 +309,7 @@ class Play_State(Abstract_State):
             turn_color = globals.PIECE_WHITE if self.move_counter % 2 == 0 else globals.PIECE_BLACK
             offset = 1 if turn_color == globals.PIECE_WHITE else -1 
             self.move(piece_location, (newx, newy))
-            self.board[newy+offset][newx] = ep.en_passent(self.move_counter,turn_color, newy)
+            self.board[newy+offset][newx] = ep.EnPassent(self.move_counter,turn_color, newy)
 
         elif (newx, newy, globals.PROMOTION_FLAG) in moves:
             self.move(piece_location, (newx, newy))
@@ -377,7 +337,14 @@ class Play_State(Abstract_State):
         self.board[newy][newx] = piece
         self.board[piece_location[1]][piece_location[0]] = None
         self.move_counter += turn
-        piece.has_moved = True
+        self.update_bottom_text()
+
+        if piece == bp.rook_unmoved:
+            self.board[newy][newx] = bp.rook_moved
+        elif piece == wp.rook_unmoved:
+            self.board[newy][newx] = wp.rook_moved
+        else:
+            piece.has_moved = True
 
         if str(self.board) in self.past_board_states:
             self.past_board_states[str(self.board)] += 1
@@ -391,10 +358,20 @@ class Play_State(Abstract_State):
         if (self.is_draw()[0]):
             self.game_over = True
 
+    def update_bottom_text(self):
+        if self.move_counter % 2 == 0:
+            self.bottom_text = globals.WHITE_TO_MOVE
+        else:
+            self.bottom_text = globals.BLACK_TO_MOVE
+
     def ready_to_exit(self):
         return self.game_over
     
     def handle_key_press(self, event):
+        if event.unicode == 'w' and self.move_counter % 2 == 0:
+            EngineAPI.engine_make_move(self)
+        if event.unicode == 'b' and self.move_counter % 2 != 0:
+            EngineAPI.engine_make_move(self)
         return
 
     def exit(self):
@@ -439,6 +416,9 @@ class Play_State(Abstract_State):
                 if column is not None:
                     column.show(x,y)
 
+        render = assets.text_large.render(self.bottom_text, False, "white")
+        window.blit(render, (10, (8*globals.grid_size)))
+
         if self.promotion is not None:
             self.promotion.show()
 
@@ -450,7 +430,7 @@ class Play_State(Abstract_State):
             )
 
     def self_copy(self):
-        return Play_State(self.board)
+        return PlayState(self.board)
     
     def __str__(self):
         final = ""

@@ -1,7 +1,7 @@
 import pygame
 import game.constants.globals as globals
 
-class en_passent():
+class EnPassent():
     def __init__(self, turn_num, color, placer):
         self.turn_num = turn_num
         self.color = color

@@ -9,6 +9,9 @@ def find_king(board: list[list[str]], color: str) -> tuple[int,int]:
                 if (get_type(square) == KING):
                     if get_color(square) == color:
                         return (x,y)
+                    
+        # for row in board:
+        #     print(row)
         raise IndexError('No King Index Found')
 
 def sight_on_square(board: list[list[str]], location: tuple[int, int]) -> dict[str, list[tuple[int,int]]]:

@@ -5,16 +5,8 @@ from engine.src.constants.static import PAWN, ROOK, BISHOP, KNIGHT, QUEEN, WHITE
 def piece_position(square: str, location: tuple[int,int], is_endgame: bool) -> int:
     '''factor in the position of a piece'''
     factor: int = 1 if get_color(square) == WHITE else -1
-    piece_type: str = get_type(square)
 
     if is_empty(square):
         return 0
-    
-    index = piece_type
-    if piece_type == KING:
-        index = END_GAME if is_endgame else MIDDLE_GAME
 
-    x,y = location
-    if get_color(square) == BLACK:
-        y = 7-y
-    return piece_value_map[index][y][x] * factor
+    return piece_value_map[str(is_endgame)][square[0].lower() + square[1]][location[1]][location[0]] * factor

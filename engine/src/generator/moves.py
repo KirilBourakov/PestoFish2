@@ -1,6 +1,6 @@
 from engine.src.helpers.square_analysis import get_color, get_type, has_moved, is_empty_squares, is_empty, is_empty_include_en_passent
 from engine.src.helpers.board_analysis import inbounds
-from engine.src.constants.static import KING, PAWN, KNIGHT, QUEEN, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD
+from engine.src.constants.static import KING, PAWN, KNIGHT, QUEEN, BLACK, WHITE, SHORT_CASTLE, LONG_CASTLE, DOUBLE_MOVE, CAPTURE, FORWARD, BACKWARD, EN_PASSENT
 from engine.src.constants.engineTypes import Vector
 
 class Moves():
@@ -111,7 +111,6 @@ class Moves():
         piece_type: str = get_type(piece)
         piece_color: str = get_color(piece)
 
-
         # castling
         if (piece_type == KING and not has_moved(piece)):
             y: int = 0 if piece_color == BLACK else 7
@@ -137,7 +136,10 @@ class Moves():
                     if inbounds(black_new_pos):
                         black_examined_square: str = board[black_new_pos[1]][black_new_pos[0]]
                         filled_by_white: bool = not is_empty_include_en_passent(black_examined_square) and get_color(black_examined_square) == WHITE
-                        if filled_by_white:
+                        valid_enpassent: bool = True
+                        if get_type(black_examined_square) == EN_PASSENT:
+                            valid_enpassent = board[black_new_pos[1]-1][black_new_pos[0]] == WHITE+PAWN
+                        if filled_by_white and valid_enpassent:
                             final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
 
             else:
@@ -153,6 +155,9 @@ class Moves():
                     if inbounds(white_new_pos):
                         white_examined_square: str = board[white_new_pos[1]][white_new_pos[0]]
                         filled_by_black: bool = not is_empty_include_en_passent(white_examined_square) and get_color(white_examined_square) == BLACK
-                        if filled_by_black:
+                        valid_enpassent = True
+                        if get_type(white_examined_square) == EN_PASSENT:
+                            valid_enpassent = board[white_new_pos[1]+1][white_new_pos[0]] == BLACK+PAWN
+                        if filled_by_black and valid_enpassent:
                             final.append((piece_location[0]+i[0], piece_location[1]+i[1], CAPTURE))
         return final
