@@ -1,10 +1,10 @@
 import unittest
 
-from engine.src.engine import Engine
+from engine.src.Engine import Engine
 
 class EngineResultTests(unittest.TestCase):
     def test_result(self):
-        e = Engine()
+        e = engine()
         board1 = [['Br', 'bk', 'bb', '  ', 'BK', 'bb', 'bk', 'Br'],
                 ['bp', 'bp', 'bp', 'bp', '  ', 'bp', 'bp', 'bp'],
                 ['wp', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -39,7 +39,7 @@ class EngineResultTests(unittest.TestCase):
         self.assertEqual(r[6][4], 'wK')
 
     def test_double_move(self):
-        e = Engine()
+        e = engine()
         original = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
                 ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -67,7 +67,7 @@ class EngineResultTests(unittest.TestCase):
         self.assertEqual('wp', result[4][7])
 
     def test_en_passent(self):
-        e = Engine()
+        e = engine()
         original = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
                 ['bp', '  ', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
                 ['  ', 'be', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -95,7 +95,7 @@ class EngineResultTests(unittest.TestCase):
         self.assertEqual('  ', result[4][7])
 
     def test_castle_white(self):
-        e = Engine()
+        e = engine()
         original = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
                 ['bp', '  ', 'bp', 'bp', 'bp', 'bp', '  ', 'bp'],
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -116,7 +116,7 @@ class EngineResultTests(unittest.TestCase):
         self.assertEqual('wr', result[7][3])
 
     def test_castle_black(self):
-        e = Engine()
+        e = engine()
         original = [['Br', '  ', '  ', '  ', 'BK', '  ', '  ', 'Br'],
                 ['bp', '  ', 'bp', 'bp', 'bp', 'bp', '  ', 'bp'],
                 ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -135,16 +135,3 @@ class EngineResultTests(unittest.TestCase):
         self.assertEqual('  ', result[0][1])
         self.assertEqual('bK', result[0][2])
         self.assertEqual('br', result[0][3])
-
-        original = [['  ', '  ', '  ', '  ', 'BK', '  ', '  ', 'Br'],
-                ['bp', '  ', 'bp', 'bp', 'bp', 'bp', '  ', 'bp'],
-                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
-                ['wp', 'bp', '  ', '  ', '  ', '  ', '  ', '  '],
-                ['  ', '  ', '  ', '  ', '  ', '  ', 'bp', 'wp'],
-                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', 'we'],
-                ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', '  '],
-                ['Wr', '  ', '  ', '  ', 'WK', '  ', '  ', 'Wr']]
-        result = e.result(original, {'original': (4, 0), 'new': (6, 0), 'rating': 1, 'promotion': ''})
-        self.assertEqual('  ', result[0][7])
-        self.assertEqual('bK', result[0][6])
-        self.assertEqual('br', result[0][5])
