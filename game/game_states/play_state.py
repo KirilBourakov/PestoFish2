@@ -8,7 +8,7 @@ import game.constants.move_sets as mv
 from game.game_states.promotion import Promotion
 from game.game_states.abstract_state import Abstract_State
 from game.game_states.decorators import disable_on_engine_turn, run_engine
-from engine.src.engine import engine
+from engine.src.Engine import engine
 
 # for testing
 

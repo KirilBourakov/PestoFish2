@@ -1,6 +1,6 @@
 import unittest
 
-from engine.src.engine import engine
+from engine.src.Engine import engine
 
 class EngineValueTests(unittest.TestCase):
     def test_result(self):
