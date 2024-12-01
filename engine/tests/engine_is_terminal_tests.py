@@ -1,6 +1,6 @@
 import unittest
 
-from engine.src.engine import engine
+from engine.src.Engine import engine
 
 class EngineIsTerminalTest(unittest.TestCase):
     def test_get_best_move(self):

@@ -113,7 +113,6 @@ class Evaluator():
         # TODO: very expensive, find a better way. Espically something like piece_mobility, which adds 2,3x to eval move choice time.
         for heuristic in self.board_dependant_heuristics:
             eval_estimate += heuristic(board, is_endgame)
-
         return eval_estimate
     
     def get_is_endgame(self, board: boardType) -> bool:
