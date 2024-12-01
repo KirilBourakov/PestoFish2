@@ -2,7 +2,7 @@
 Neural Networks for Chess The magic of deep and reinforcement learning revealed
 https://arxiv.org/pdf/2209.01506
 # Meta
-
+Inspired the use of deeper neural network
 # Notes
 # 4.6
 **p.194**
