@@ -6,3 +6,4 @@
 *.h5
 *.tflite
 data/tuner
+data/Bayesian_tuner

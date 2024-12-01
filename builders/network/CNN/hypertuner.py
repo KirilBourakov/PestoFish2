@@ -12,25 +12,25 @@ def make_model(hp):
 
     # hidden layer
     for i in range(hp.Choice('num_layers', [1,2,3])):
-        model.add(tf.keras.layers.Dense(hp.Int(f'nodes_{i}', min_value=128, max_value=512, step=64)))
+        model.add(tf.keras.layers.Dense(hp.Int(f'nodes_{i}', min_value=128, max_value=2048, step=64)))
     
     # output
     model.add(tf.keras.layers.Dense(1))
 
     # compile
-    rate = hp.Choice('learning_rate', values=[0.001, 0.0001])
+    rate = hp.Choice('learning_rate', values=[0.001])
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=rate),
                 loss='mse',
                 metrics=['mae'])
     return model
 
 def main():
-    hyper_tuner = kt.Hyperband(
+    hyper_tuner = kt.BayesianOptimization(
         make_model,
         objective='val_loss',
-        factor=2,
         directory="../data",
-        project_name="tuner"
+        max_trials=35,
+        project_name="Bayesian tuner"
     )
     print('reading...')
     boards, evals = read_other('../data/out/1.csv')
