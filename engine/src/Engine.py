@@ -1,6 +1,6 @@
 
 import copy, time
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, JoinableQueue, Queue
 from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT, PAWN
 from  engine.src.constants.engineTypes import MoveType, boardType
 from .helpers.square_analysis import get_color, get_type
@@ -9,6 +9,7 @@ from .helpers.helpers import flip
 from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 from .database.Searcher import Searcher
+from .EngineRunner import EngineRunner
 
 # TODO: engine checkmate not dropping user to checkmate screen
 class Engine():
@@ -17,6 +18,12 @@ class Engine():
         self.evaluator: Evaluator = Evaluator()
         self.search: Searcher = Searcher()
         self.transposeTable: dict[str, float] = {}
+
+        self.to_examine = JoinableQueue()
+        self.results = Queue()
+        self.runners = [EngineRunner(self.to_examine, self.results, self) for i in range(cpu_count())]
+        for runner in self.runners:
+            runner.start()
 
     def accept_board(self, boardStr: str) -> list[list[str]]:
         '''Takes in a boardStr and parses the board in a way the engine can understand.
@@ -48,18 +55,25 @@ class Engine():
             return mv
         
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
-        # TODO: value moves not being updated
-        with Pool(processes=cpu_count()) as pool:
-            value_moves = pool.starmap(self.transformer, value_moves)
-        # value_moves = itertools.starmap(self.transformer, value_moves)
-        # test this things impact on preformance
-        for m in value_moves:
+        print('Starting value_moves ---------------------')
+        for move in value_moves:
+            self.to_examine.put(move)
+        
+        print('Joining ---------------------')
+        self.to_examine.join()
+
+        print('transforming ---------------------')
+        final_moves = []
+        for i in range(self.results.qsize()):
+            final_moves.append(self.results.get())
+
+
+        for m in final_moves:
             self.transposeTable[str(m[2])] = m[1]
         print((time.time_ns()-s) / 10000000)
-        # for move in value_moves:
-        #     print(move[0], move[1], move[4])
-        value_moves = sorted(value_moves, key=lambda x: x[4], reverse=True)
-        return self.get_best(value_moves, current_color)   
+
+        final_moves = sorted(final_moves, key=lambda x: x[4], reverse=True)
+        return self.get_best(final_moves, current_color)   
 
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str, depth: int) -> tuple[MoveType, float, boardType, str, int]:
         '''transforms a list of value moves into one that carries a result and a transformed position'''
