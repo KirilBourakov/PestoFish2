@@ -59,3 +59,4 @@ board2 = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
 model = tf.keras.models.load_model("m.keras")
 
 print(model(transform(board1, 'w')))
+print(model(transform(board2, 'w')))
