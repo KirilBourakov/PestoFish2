@@ -57,7 +57,7 @@ class Engine():
         # test this things impact on preformance
         for m in value_moves:
             self.transposeTable[str(m[2])] = m[1]
-        # print((time.time_ns()-s) / 10000000)
+        print((time.time_ns()-s) / 10000000)
         # for move in value_moves:
         #     print(move[0], move[1], move[4])
         value_moves = sorted(value_moves, key=lambda x: x[4], reverse=True)
@@ -70,7 +70,7 @@ class Engine():
         return (move, pos_val[0], new_pos, color, pos_val[1])  
 
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
-            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> tuple[float, int]:
+            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf'), abs_max: int = 6) -> tuple[float, int]:
         '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
 
         Keyword arguments:
@@ -81,16 +81,22 @@ class Engine():
         \t max_val -- the top most value found (used in pruning) (default = -inf) 
         \t min_val -- the bottom most value found (used in pruning) (default = inf) 
         '''
+
         # base cases
         if str(pos) in self.transposeTable:
             return (self.transposeTable[str(pos)], curr_depth)
         finished: bool = self.is_termainal(pos)
-        if curr_depth >= max_depth or finished:
+        if finished:
             return (self.evaluator.eval(pos, finished), curr_depth)
         
-        enemy_perspective: str = flip(perspective)
         # get all the possible moves
+        enemy_perspective: str = flip(perspective)
         possible_moves: list[MoveType] = self.generator.get_moves(pos, find_king(pos, enemy_perspective))
+        stable = len(possible_moves) > 0 and possible_moves[0]['rating'] <= 3
+        # the position is stable and we have hit max_depth, or we have hit absolute max
+        if (curr_depth >= max_depth and stable) or curr_depth >= abs_max:
+            return (self.evaluator.eval(pos, finished), curr_depth)
+        
         # initalize dummy values for the best_value
         best_value = float('-inf') if enemy_perspective == WHITE else float('inf')
         search_depth = 0
