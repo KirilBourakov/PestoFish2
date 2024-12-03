@@ -1,6 +1,6 @@
 import unittest
 
-from engine.src.engine import Engine
+from engine.src.Engine import Engine
 from engine.src.helpers.board_analysis import find_king
 
 class EngineGetBestMoveTest(unittest.TestCase):
