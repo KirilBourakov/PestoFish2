@@ -30,6 +30,9 @@ class EngineRunner(Process):
             self.tasks.task_done()
             self.results.put((move, dummy, board, color, depth))
 
+    def update(self, new: dict[str, float]):
+        self.transposeTable = new
+
     def transformer(self, move: MoveType, dummy: float, board: boardType, color: str, depth: int) -> tuple[MoveType, float, boardType, str, int]:
         '''transforms a list of value moves into one that carries a result and a transformed position'''
         new_pos: list[list[str]] = self.result(board, move)

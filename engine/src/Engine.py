@@ -71,6 +71,9 @@ class Engine():
 
         for m in final_moves:
             self.transposeTable[str(m[2])] = m[1]
+        for runner in self.runners:
+            runner.update(self.transposeTable)
+    
         print((time.time_ns()-s) / 10000000)
 
         final_moves = sorted(final_moves, key=lambda x: x[4], reverse=True)
