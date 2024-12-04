@@ -21,12 +21,8 @@ class EngineRunner(Process):
 
     def run(self) -> None:
         while True:
-            print(f'running {self.name}')
             move, dummy, board, color, depth = self.tasks.get()
-
             move, dummy, board, color, depth = self.transformer(move, dummy, board, color, depth)
-
-
             self.tasks.task_done()
             self.results.put((move, dummy, board, color, depth))
 

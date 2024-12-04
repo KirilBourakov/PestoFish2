@@ -53,17 +53,12 @@ class Engine():
             return mv
         
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
-        print('Starting value_moves ---------------------')
-        # for runner in self.runners:
-        #     runner.run()
         
         for move in value_moves:
             self.to_examine.put(move)
         
-        print('Joining ---------------------')
         self.to_examine.join()
 
-        print('transforming ---------------------')
         final_moves = []
         for i in range(self.results.qsize()):
             final_moves.append(self.results.get())
