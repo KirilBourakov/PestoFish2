@@ -13,3 +13,5 @@ MoveType = TypedDict('MoveType', {'original': tuple[int, int], 'new': tuple[int,
 SearchType = TypedDict('SearchType', {'move': MoveType, 'depth': int})
 
 type boardType = list[list[str]]
+
+RunType = TypedDict('RunType', {'move': MoveType, 'value': float, 'board': boardType, 'depth': int})
