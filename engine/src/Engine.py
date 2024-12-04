@@ -5,23 +5,21 @@ from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT, P
 from  engine.src.constants.engineTypes import MoveType, boardType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square, find_king
-from .helpers.helpers import flip
-from .generator.generator import Generator
-from .evaluator.evaluator import Evaluator
 from .database.Searcher import Searcher
 from .EngineRunner import EngineRunner
+from .generator.generator import Generator
 
 # TODO: engine checkmate not dropping user to checkmate screen
 class Engine():
     def __init__(self) -> None:
-        self.generator: Generator = Generator()
-        self.evaluator: Evaluator = Evaluator()
         self.search: Searcher = Searcher()
         self.transposeTable: dict[str, float] = {}
+        self.generator: Generator = Generator()
 
-        self.to_examine = JoinableQueue()
-        self.results = Queue()
-        self.runners = [EngineRunner(self.to_examine, self.results, self) for i in range(cpu_count())]
+        self.to_examine: JoinableQueue = JoinableQueue()
+        self.results: Queue = Queue()
+
+        self.runners = [EngineRunner(self.to_examine, self.results, self.transposeTable) for i in range(cpu_count())]
         for runner in self.runners:
             runner.start()
 
@@ -29,8 +27,8 @@ class Engine():
         '''Takes in a boardStr and parses the board in a way the engine can understand.
         Also extracts important features about the board'''
         split: list[str] = boardStr.split('/')
-        self.fifty_move_rule_counter: int = int(split.pop())
-        self.move_counter: int = int(split.pop())
+        self.fifty_move_rule_counter = int(split.pop())
+        self.move_counter = int(split.pop())
 
         self.board: list[list[str]] = []
         for row in split:
@@ -56,6 +54,9 @@ class Engine():
         
         value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
         print('Starting value_moves ---------------------')
+        # for runner in self.runners:
+        #     runner.run()
+        
         for move in value_moves:
             self.to_examine.put(move)
         
@@ -75,63 +76,6 @@ class Engine():
         final_moves = sorted(final_moves, key=lambda x: x[4], reverse=True)
         return self.get_best(final_moves, current_color)   
 
-    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str, depth: int) -> tuple[MoveType, float, boardType, str, int]:
-        '''transforms a list of value moves into one that carries a result and a transformed position'''
-        new_pos: list[list[str]] = self.result(board, move)
-        pos_val: tuple[float, int] = self.value(new_pos, color)
-        return (move, pos_val[0], new_pos, color, pos_val[1])  
-
-    def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
-            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> tuple[float, int]:
-        '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
-
-        Keyword arguments:
-        \t pos -- a board position
-        \t perspective -- the perspective from which to examine the moves (IE, the person who just moved)
-        \t currDepth -- the depth to which we have explored (default = 1)
-        \t max_depth -- the max deppth of the engine (default = 3)
-        \t max_val -- the top most value found (used in pruning) (default = -inf) 
-        \t min_val -- the bottom most value found (used in pruning) (default = inf) 
-        '''
-        # TODO: taking far too long. Replace with bfs search to make code more debuggable 
-        # TODO: eval seems to be wrong on occasion? Was getting negatives for seemingly no reason
-        # base cases
-        enemy_perspective: str = flip(perspective)
-        if str(pos) in self.transposeTable:
-            return (self.transposeTable[str(pos)], curr_depth)
-        finished: bool = self.is_termainal(pos)
-        if curr_depth >= max_depth or finished:
-            return (self.evaluator.net_eval(pos, finished, enemy_perspective), curr_depth)
-        
-        # get all the possible moves
-        possible_moves: list[MoveType] = self.generator.get_moves(pos, find_king(pos, enemy_perspective))
-        # initalize dummy values for the best_value
-        best_value = float('-inf') if enemy_perspective == WHITE else float('inf')
-        search_depth = 0
-        # for every move
-        for move in possible_moves:
-            new_pos: list[list[str]] = self.result(pos, move)
-            # get the value of the new position
-            pos_val, n_depth = self.value(new_pos, enemy_perspective, curr_depth=curr_depth+1, max_val=max_val, min_val=min_val)
-            # update the value as needed
-            if enemy_perspective == WHITE and pos_val > best_value:
-                search_depth = n_depth
-                best_value = max(best_value, pos_val)
-            elif enemy_perspective == BLACK and pos_val < best_value:
-                search_depth = n_depth
-                best_value = min(best_value, pos_val)
-
-            # keep track of max and min
-            if enemy_perspective == WHITE:
-                max_val = max(max_val, pos_val)
-            else:
-                min_val = min(min_val, pos_val)
-            # prune
-            if min_val <= max_val:
-                break
-            
-        return (best_value, search_depth)
-
     def get_best_val(self, input: list[float], color: str) -> float:
         '''runs min or max, on the input, depending on the color provided'''
         if color == BLACK:
@@ -149,33 +93,8 @@ class Engine():
         if turn_count % 2 == 0:
             return WHITE
         return BLACK
-    
-    def is_termainal(self, board: list[list[str]]) -> bool:
-        '''Returns if the game is over. 
-        Keyword arguements:
-        \t board - the board 
-        '''
-        for color in [WHITE, BLACK]:
-            enemy = flip(color)
 
-            # see if the enemy king is in check, but has no moves
-            enemy_king_pos = find_king(board, enemy)
-            moves: list[MoveType] = self.generator.get_moves(board, enemy_king_pos) 
-            eyes_on_king: dict[str, list[tuple[int, int]]] = sight_on_square(board, enemy_king_pos)
-            king_in_check: bool = len(eyes_on_king[color]) > 0
-            # a king is in checkmate
-            if king_in_check: 
-                if len(moves) == 0:
-                    return True
-            # stalemate
-            if len(moves) == 0:
-                return True
 
-        # draw by fifty move rule
-        if self.fifty_move_rule_counter / 2 >= 50:
-            return True
-        return False
-    
     def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
         '''Simulates a board position
         
