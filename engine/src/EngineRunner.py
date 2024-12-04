@@ -9,10 +9,10 @@ from .helpers.square_analysis import get_color, get_type
 import copy
 
 class EngineRunner(Process):
-    def __init__(self, tasks: JoinableQueue, results: Queue, transposeTable: dict[str, float]) -> None:
+    def __init__(self, tasks: JoinableQueue[tuple[MoveType, boardType, str]], results: Queue[RunType], transposeTable: dict[str, float]) -> None:
         Process.__init__(self)
-        self.tasks: JoinableQueue = tasks
-        self.results: Queue = results
+        self.tasks: JoinableQueue[tuple[MoveType, boardType, str]] = tasks
+        self.results: Queue[RunType] = results
 
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
@@ -29,7 +29,7 @@ class EngineRunner(Process):
             self.tasks.task_done()
             self.results.put(result)
 
-    def update(self, new: dict[str, float]):
+    def update(self, new: dict[str, float]) -> None:
         self.transposeTable = new
 
     def transformer(self, move: MoveType, board: boardType, color: str) -> tuple[MoveType, float, boardType, int]:

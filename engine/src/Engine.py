@@ -15,8 +15,8 @@ class Engine():
         self.transposeTable: dict[str, float] = {}
         self.generator: Generator = Generator()
 
-        self.to_examine: JoinableQueue = JoinableQueue()
-        self.results: Queue = Queue()
+        self.to_examine: JoinableQueue[tuple[MoveType, boardType, str]] = JoinableQueue()
+        self.results: Queue[RunType] = Queue()
 
         self.runners = [EngineRunner(self.to_examine, self.results, self.transposeTable) for i in range(cpu_count())]
         for runner in self.runners:
