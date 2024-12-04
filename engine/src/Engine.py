@@ -1,8 +1,7 @@
-
 import copy, time
 from multiprocessing import Pool, cpu_count, JoinableQueue, Queue
 from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT, PAWN
-from  engine.src.constants.engineTypes import MoveType, boardType
+from  engine.src.constants.engineTypes import MoveType, boardType, RunType
 from .helpers.square_analysis import get_color, get_type
 from .helpers.board_analysis import sight_on_square, find_king
 from .database.Searcher import Searcher
@@ -47,31 +46,30 @@ class Engine():
         s = time.time_ns()
         '''Gets the engine's best guess at what a move is.'''
         current_color = self.to_move(self.move_counter)
-        possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
+        
         mv = self.search.query_theory(self.board, current_color)
         if self.search.is_valid(mv):
             return mv
         
-        value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
-        
-        for move in value_moves:
-            self.to_examine.put(move)
+        possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
+        for move in possible_moves:
+            self.to_examine.put((move, self.board, current_color))
         
         self.to_examine.join()
 
-        final_moves = []
+        results: list[RunType] = []
         for i in range(self.results.qsize()):
-            final_moves.append(self.results.get())
+            results.append(self.results.get())
 
+        for result in results:
+            self.transposeTable[str(result['board'])] = result['value']
 
-        for m in final_moves:
-            self.transposeTable[str(m[2])] = m[1]
         for runner in self.runners:
             runner.update(self.transposeTable)
     
         print((time.time_ns()-s) / 10000000)
 
-        final_moves = sorted(final_moves, key=lambda x: x[4], reverse=True)
+        final_moves = sorted(results, key=lambda x: x['depth'], reverse=True)
         return self.get_best(final_moves, current_color)   
 
     def get_best_val(self, input: list[float], color: str) -> float:
@@ -80,18 +78,17 @@ class Engine():
             return min(input)
         return max(input)
 
-    def get_best(self, input: list[tuple[MoveType, float, boardType, str, int]], color: str) -> MoveType:
+    def get_best(self, input: list[RunType], color: str) -> MoveType:
         '''Given a list of moves and their values, return the best move for a specific color'''
         if color == BLACK:
-            return min(input, key=lambda x: x[1])[0]
-        return max(input, key=lambda x: x[1])[0]
+            return min(input, key=lambda x: x['value'])['move']
+        return max(input, key=lambda x: x['value'])['move']
 
     def to_move(self, turn_count: int) -> str:
         '''gets who's move it is'''
         if turn_count % 2 == 0:
             return WHITE
         return BLACK
-
 
     def result(self, board: list[list[str]], move: MoveType) -> list[list[str]]:
         '''Simulates a board position

@@ -1,6 +1,6 @@
 from multiprocessing import Process, Queue, JoinableQueue
 from engine.src.constants.static import BLACK, WHITE, KING, EMPTY, EN_PASSENT, PAWN
-from engine.src.constants.engineTypes import MoveType, boardType
+from engine.src.constants.engineTypes import MoveType, boardType, RunType
 from .helpers.helpers import flip
 from .helpers.board_analysis import sight_on_square, find_king
 from .generator.generator import Generator
@@ -21,19 +21,22 @@ class EngineRunner(Process):
 
     def run(self) -> None:
         while True:
-            move, dummy, board, color, depth = self.tasks.get()
-            move, dummy, board, color, depth = self.transformer(move, dummy, board, color, depth)
+            move, board, color = self.tasks.get()
+
+            move, value, board, depth = self.transformer(move, board, color)
+            result = RunType(move=move,value=value,board=board,depth=depth)
+
             self.tasks.task_done()
-            self.results.put((move, dummy, board, color, depth))
+            self.results.put(result)
 
     def update(self, new: dict[str, float]):
         self.transposeTable = new
 
-    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str, depth: int) -> tuple[MoveType, float, boardType, str, int]:
+    def transformer(self, move: MoveType, board: boardType, color: str) -> tuple[MoveType, float, boardType, int]:
         '''transforms a list of value moves into one that carries a result and a transformed position'''
         new_pos: list[list[str]] = self.result(board, move)
         pos_val: tuple[float, int] = self.value(new_pos, color)
-        return (move, pos_val[0], new_pos, color, pos_val[1])  
+        return (move, pos_val[0], new_pos, pos_val[1])  
     
     def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
             max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> tuple[float, int]:
