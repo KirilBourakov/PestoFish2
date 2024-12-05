@@ -9,9 +9,7 @@ from .generator.generator import Generator
 from .evaluator.evaluator import Evaluator
 from .database.Searcher import Searcher
 
-# TODO: engine checkmate not dropping user to checkmate screen
-class Engine():
-    
+class Engine(): 
     def __init__(self) -> None:
         self.generator: Generator = Generator()
         self.evaluator: Evaluator = Evaluator()
