@@ -9,7 +9,6 @@ from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
 from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
 from game.game_states.utils.EngineAPI import EngineAPI
-
 # for testing
 
 # from engine.src.generator.generator import Generator

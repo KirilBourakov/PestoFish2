@@ -110,3 +110,12 @@ class EngineAPI():
         assets.sfx_takes.play()
         playState.board = translated_board       
         playState.update_bottom_text()
+
+        
+        if (playState.is_checkmate_or_stalemate(globals.PIECE_BLACK)[0]):
+            playState.game_over = True
+        if (playState.is_checkmate_or_stalemate(globals.PIECE_WHITE)[0]):
+            playState.game_over = True
+
+        if (playState.is_draw()[0]):
+            playState.game_over = True
