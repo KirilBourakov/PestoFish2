@@ -1,4 +1,5 @@
 import game.constants.globals as globals
+import game.assets.assets as assets
 import game.pieces.black_pieces as black
 import game.pieces.white_pieces as white
 from game.pieces.EnPassent import EnPassent
@@ -106,5 +107,6 @@ class EngineAPI():
                     color = globals.PIECE_BLACK if y == 1 else globals.PIECE_WHITE
                     offset = -1 if color == globals.PIECE_BLACK else 1
                     translated_board[y][x] = EnPassent(playState.move_counter, color, y+offset)
+        assets.sfx_takes.play()
         playState.board = translated_board       
         playState.update_bottom_text()

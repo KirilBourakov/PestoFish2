@@ -1,6 +1,7 @@
 if __name__ == "__main__":
     import pygame
     import game.constants.globals as globals
+    pygame.mixer.init()
     pygame.init()
     pygame.display.set_caption('Chess')
     # TODO: have window be resizable, based on constant values

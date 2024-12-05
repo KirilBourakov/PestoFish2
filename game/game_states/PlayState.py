@@ -329,6 +329,7 @@ class PlayState(AbstractState):
         newpos -- the new positon
         turn -- the amount the turn counter should be increased (Default=1) 
         '''
+        assets.sfx_takes.play()
         piece = self.board[piece_location[1]][piece_location[0]]
         newx, newy = newpos
         # if it's a capture
