@@ -1,54 +1,54 @@
 import tensorflow as tf
 import sys
-from utils import read_other as read 
+from utils import read_lichess_double as read 
 
 # currently not impressive
 def create_model():
-    inputs = tf.keras.Input(shape=(6,8,8))
+    position = tf.keras.Input(shape=(6,8,8), dtype="float32", name='pos')
+    color_move = tf.keras.Input(shape=(1,), dtype="int16", name='color_move')
+
 
     # 2d convolution
-    twod_conv =  tf.keras.layers.Conv2D(96, (3,3), activation='relu', padding="same")(inputs)
-    twod_conv = tf.keras.layers.Flatten()(twod_conv)
+    conv =  tf.keras.layers.Conv2D(96, (3,3), activation='relu', padding="same", name='conv')(position)
+    conv = tf.keras.layers.Flatten()(conv)
 
-    # 
-    h_line = tf.keras.layers.Conv2D(10, (1,8), activation='relu', padding="same")(inputs)
-    h_line = tf.keras.layers.Flatten()(h_line)
+    x = tf.keras.layers.concatenate([conv, color_move])
+    x = tf.keras.layers.Dense(256)(x)
+    x = tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.Dense(256)(x)
+    tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.Dense(256)(x)
+    tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.Dense(256)(x)
+    tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.Dense(256)(x)
+    tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.Dense(256)(x)
+    tf.keras.layers.LeakyReLU()(x)
+    x = tf.keras.layers.Dense(256)(x)
+    tf.keras.layers.LeakyReLU()(x)
 
-    # 
-    v_line = tf.keras.layers.Conv2D(10, (1,8), activation='relu', padding="same")(inputs)
-    v_line = tf.keras.layers.Flatten()(v_line)
+    output = tf.keras.layers.Dense(1, name='output')(x)
 
-    x = tf.keras.layers.concatenate([v_line, h_line, twod_conv])
-    
-    # network
-    x = tf.keras.layers.Dense(128)(x)
-    x = tf.keras.layers.Dense(128)(x)
-    x = tf.keras.layers.Dense(128)(x)
-    x = tf.keras.layers.Dense(128)(x)
-    x = tf.keras.layers.Dense(128)(x)
-    x = tf.keras.layers.Dense(128)(x)
-    x = tf.keras.layers.Dense(128)(x)
-
-    output = tf.keras.layers.Dense(1)(x)
-
-    model = tf.keras.Model(inputs=[inputs], outputs=[output])
+    model = tf.keras.Model(inputs=[position, color_move], outputs=output)
     tf.keras.utils.plot_model(model, "graph.png", show_shapes=True)
     return model
 
 def train(model, path):
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="models/96,128x10 (relu),1.keras",
+        filepath="training/double.keras",
         monitor='loss',
         mode='min',
     )
     model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-    for j in range(20):
+    for j in range(150):
         print('epoch:', j+1)
         for i in range(7):
             print('part:', i+1)
-            features, evals = read(f"{path}/{i+1}.csv")
-            model.fit(features, evals, epochs=1, callbacks=[model_checkpoint_callback], validation_split=0.1)
+            board, move, evals = read(f"{path}/{i+1}.csv")
+            model.fit(x=[board, move], y=evals, epochs=1, callbacks=[model_checkpoint_callback])
 
 if __name__ == "__main__":
-    model = create_model()
+    # model = create_model()
+    model = tf.keras.models.load_model("models/double.keras")
     train(model, sys.argv[1])

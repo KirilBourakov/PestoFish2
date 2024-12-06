@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import sys
 
 index = {
         'K': 0,
@@ -28,15 +29,16 @@ def transform(board, move_color):
     for i in range(6):
         for j in range(8):
             final_board[i].append([0]*8)
-    white = 1 if move_color == 'w' else -1
+
     for y, row in enumerate(board):
         for x, square in enumerate(row):
             if not is_empty(square):
                 if get_color(square) == 'w':
-                    final_board[index[get_type(square)]][y][x] = white
+                    final_board[index[get_type(square)]][y][x] = 1
                 else:
-                    final_board[index[get_type(square)]][y][x] = white * -1 
-    return np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
+                    final_board[index[get_type(square)]][y][x] = -1 
+    x = 1 if move_color == 'w' else -1
+    return [np.array(final_board, dtype=np.byte).reshape(-1, 6, 8, 8), np.array([x], dtype=np.byte)]
 
 board1 = [['  ', '  ', '  ', '  ', 'BK', '  ', '  ', '  '],
                 ['wq', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
@@ -56,7 +58,17 @@ board2 = [['Br', 'bk', 'bb', 'bq', 'BK', 'bb', 'bk', 'Br'],
                 ['  ', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
                 ['Wr', 'wk', 'wb', 'wq', 'WK', 'wb', 'wk', 'Wr']]
 
-model = tf.keras.models.load_model("m.keras")
+board3 = [['  ', '  ', '  ', '  ', 'WK', '  ', '  ', '  '],
+                ['bq', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', 'bq', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
+                ['  ', '  ', '  ', '  ', 'BK', '  ', '  ', '  ']]
 
-print(model(transform(board1, 'w')))
-print(model(transform(board2, 'w')))
+model = tf.keras.models.load_model(sys.argv[1])
+
+print('board1',model(transform(board1, 'w')))
+print('board2',model(transform(board2, 'w')))
+print('board3', model(transform(board3, 'w')))

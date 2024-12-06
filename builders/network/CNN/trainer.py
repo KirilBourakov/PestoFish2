@@ -4,37 +4,38 @@ import time
 from sklearn.model_selection import train_test_split
 import numpy as np
 import csv
-from utils import read_lichess as read
+from utils import read_other as read
 
 def main():
-    # model = tf.keras.Sequential([
-    #     tf.keras.layers.Conv2D(96, (3,3), input_shape=(6,8,8), activation='LeakyReLU', padding="same", use_bias=True),
-        
-    #     tf.keras.layers.Flatten(),
+    model = tf.keras.Sequential([
+        tf.keras.layers.Input(shape=(6,8,8)),
+        tf.keras.layers.Conv2D(96, (3,3), activation='relu', padding="same"),
 
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
-    #     tf.keras.layers.Dense(128, activation='LeakyReLU'),
+        tf.keras.layers.Flatten(),
+
+        tf.keras.layers.Dense(256, activation='tanh'),
+        tf.keras.layers.Dense(256, activation='tanh'),
+        tf.keras.layers.Dense(256, activation='tanh'),
+        tf.keras.layers.Dense(256, activation='tanh'),
+        tf.keras.layers.Dense(256, activation='tanh'),
+        tf.keras.layers.Dense(256, activation='tanh'),
+        tf.keras.layers.Dense(256, activation='tanh'),
         
-    #     tf.keras.layers.Dense(1)
-    # ])
+        tf.keras.layers.Dense(1)
+    ])
 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath="training/96,256x7 (relu), 1 (epoch 12).keras",
+        filepath="training/96,256x7 (tanh) 1.keras",
         monitor='loss',
         mode='min',
     )
     # model.load_weights("models/6x8x8_full.weights.h5")
-    # model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-    model = tf.keras.models.load_model("models/96,256x7 (relu), 1 (epoch 12).keras")
+    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    # model = tf.keras.models.load_model("models/96,256x7 (relu), 1 (epoch 12).keras")
 
     for j in range(20):
         print('epoch:', j+1)
-        for i in range(150):
+        for i in range(7):
             print('part:', i+1)
             features, evals = read(f"{sys.argv[1]}/{i+1}.csv")
             model.fit(features, evals, epochs=1, callbacks=[model_checkpoint_callback], validation_split=0.1)
