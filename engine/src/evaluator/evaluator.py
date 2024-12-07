@@ -1,5 +1,5 @@
 import tensorflow as tf
-import time
+import os
 import numpy as np
 import numpy.typing as npt
 from collections.abc import Callable
@@ -11,13 +11,13 @@ from engine.src.constants.static import MIDDLE_GAME, END_GAME, PAWN, ROOK, BISHO
 from engine.src.evaluator.heuristics import independant, dependant
 from engine.src.generator.generator import Generator
 
-
-model = tf.lite.Interpreter('lite.tflite')
-model.allocate_tensors()
-inp = model.get_input_details()[0] 
-outp = model.get_output_details()[0]
-
 class Evaluator():
+    model = tf.lite.Interpreter(os.path.join(os.path.dirname(__file__), 'lite.tflite'))
+    model.allocate_tensors()
+    board_tensor = model.get_input_details()[0]
+    color_tensor = model.get_input_details()[1]
+    output = model.get_output_details()[0]
+
     def __init__(self) -> None:
         '''Creates an Evaluator, which is used to evaluate positions'''
         # heuristics
@@ -35,6 +35,7 @@ class Evaluator():
         }
 
     def net_eval(self, board: boardType, game_over: bool, move_color: str) -> float:
+        '''Estimates the value of a board, using static eval functions and the CNN.'''
         if game_over:
             generator: Generator = Generator()
             for color in [WHITE, BLACK]:
@@ -60,28 +61,35 @@ class Evaluator():
                 for board_independant_heuristic in self.board_independant_heuristics:
                     eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
 
-        model.set_tensor(inp['index'], self.parse_board(board, move_color))
-        model.invoke()
-        eval_estimate += (model.get_tensor(outp['index']) / 4)
+        for heuristic in self.board_dependant_heuristics:
+            eval_estimate += heuristic(board, is_endgame)
+
+        ready_board, ready_color = self.parse_board(board, move_color)
+
+        self.model.set_tensor(self.board_tensor['index'], ready_board)
+        self.model.set_tensor(self.color_tensor['index'], ready_color)
+        self.model.invoke()
+        eval_estimate += (self.model.get_tensor(self.output['index']) / 4)
 
         return eval_estimate
 
-    def parse_board(self, board: boardType, move_color: str) -> npt.NDArray[np.float32]:
+    def parse_board(self, board: boardType, move_color: str) -> tuple[npt.NDArray[np.float32],npt.NDArray[np.short]]:
         final_board: list[list[list[int]]] = []
         for i in range(6):
             final_board.append([])
         for i in range(6):
             for j in range(8):
                 final_board[i].append([0]*8)
-        white = 1 if move_color == WHITE else -1
         for y, row in enumerate(board):
             for x, square in enumerate(row):
                 if not is_empty(square):
                     if get_color(square) == WHITE:
-                        final_board[self.index[get_type(square)]][y][x] = white
+                        final_board[self.index[get_type(square)]][y][x] = 1
                     else:
-                        final_board[self.index[get_type(square)]][y][x] = white * -1 
-        return np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8)
+                        final_board[self.index[get_type(square)]][y][x] = -1 
+
+        color = 1 if move_color == WHITE else -1
+        return (np.array(final_board, dtype=np.float32).reshape(-1, 6, 8, 8), np.array([color], dtype=np.short).reshape(-1, 1))
     
     def eval(self, board: boardType, game_over: bool) -> float:
         '''Evaluates a given board. Returns a score in centipawns (1/100 of a pawn).'''
@@ -111,8 +119,7 @@ class Evaluator():
                 for board_independant_heuristic in self.board_independant_heuristics:
                     eval_estimate += board_independant_heuristic(square, (x,y), is_endgame) 
         # TODO: very expensive, find a better way. Espically something like piece_mobility, which adds 2,3x to eval move choice time.
-        for heuristic in self.board_dependant_heuristics:
-            eval_estimate += heuristic(board, is_endgame)
+        
         return eval_estimate
     
     def get_is_endgame(self, board: boardType) -> bool:

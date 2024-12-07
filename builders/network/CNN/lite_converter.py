@@ -11,7 +11,7 @@ import sys
 #         tf.keras.layers.Dense(1)
 #     ])
 # model.load_weights(sys.argv[1])
-model = tf.keras.models.load_model('m.keras')
+model = tf.keras.models.load_model(sys.argv[1])
 converter = tf.lite.TFLiteConverter.from_keras_model(model)
 tflite_model = converter.convert()
 
