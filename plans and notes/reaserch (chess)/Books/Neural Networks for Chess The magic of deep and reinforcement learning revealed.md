@@ -33,7 +33,7 @@ Then there are 32 and 32 nodes connecting everything
 The weights that connect the half represening ones own king to the first layer are the same that connect "the second half of the input layer to the second half of the first layer"
 For example "own king on e1, own pawn on d2" and "enemy king on e8, enemy pawn on d7" have the same weight
 **p.201**
-![alt text](Assets/image.png)
+![alt text](-ASSETS/image.png)
 **p.204**
 The idea of the layers is to represent the "weights by 8 bit values so that we can use acceleration features
 of modern CPUs"
