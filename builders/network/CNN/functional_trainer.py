@@ -1,6 +1,6 @@
 import tensorflow as tf
 import sys
-from utils import read_lichess_double as read 
+from utils import read_other_double as read
 
 # currently not impressive
 def create_model():
@@ -41,12 +41,14 @@ def train(model, path):
         mode='min',
     )
     model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-    for j in range(150):
+
+
+    for j in range(1):
         print('epoch:', j+1)
         for i in range(7):
             print('part:', i+1)
             board, move, evals = read(f"{path}/{i+1}.csv")
-            model.fit(x=[board, move], y=evals, epochs=1, callbacks=[model_checkpoint_callback])
+            model.fit(x=[board, move], y=evals, epochs=1, callbacks=[model_checkpoint_callback], validation_split=0.1)
 
 if __name__ == "__main__":
     # model = create_model()

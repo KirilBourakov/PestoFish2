@@ -52,6 +52,33 @@ def read_lichess_double(file_path):
 
     return (np.array(data, dtype=np.byte), np.array(colors, dtype=np.byte), np.array(labels, dtype=np.short))
 
+def read_other_double(file_path):
+    with open(file_path, newline='') as file:
+        reader = csv.DictReader(file)
+
+        data = []
+        colors = []
+        labels = []
+
+        for row in reader:
+            if row['Evaluation'].count('#') > 0:
+                continue
+
+            s = row['FEN'].split()
+            board, color = s[0], s[1]
+            to_mv = 1 if color == 'w' else -1
+            colors.append(to_mv)
+        
+            rating = float(row['Evaluation'])
+            if rating < 0:
+                rating = max(int(rating), -32767)
+            else: 
+                rating = min(int(rating), 32767)
+            labels.append(rating)
+            data.append(transform_new(board))
+
+    return (np.array(data, dtype=np.byte), np.array(colors, dtype=np.byte), np.array(labels, dtype=np.short))             
+
 def read_other(file_path):
     with open(file_path, newline='') as file:
         reader = csv.DictReader(file)
