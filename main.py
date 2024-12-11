@@ -1,25 +1,17 @@
-
-def clean():
+if __name__ == "__main__":
     import os
     os.environ['TF_CPP_MIN_LOG_LEVEL']='1'
 
-def init_pygame():
+
     import pygame
     import game.constants.globals as globals
     pygame.mixer.init()
     pygame.init()
     pygame.display.set_mode((globals.appsize, globals.appsize+70))
 
-    import game.assets.assets as assets
     pygame.display.set_caption('Chess')
-    pygame.display.set_icon(assets.pesto)
 
-def main():
-    clean()
-    init_pygame()
 
-    import pygame
-    import game.constants.globals as globals
     from game.game_states.StateManager import StateManager
     is_running = True
     manager = StateManager()
@@ -38,8 +30,4 @@ def main():
 
         manager.update()
         pygame.display.update()
-
-
-if __name__ == "__main__":
-    main()
     
