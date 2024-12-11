@@ -10,7 +10,9 @@ if __name__ == "__main__":
     pygame.display.set_mode((globals.appsize, globals.appsize+70))
 
     pygame.display.set_caption('Chess')
-
+    pygame.display.set_icon(
+        pygame.image.load(os.path.join('game', 'assets', 'imgs', 'pesto.png'))
+    )
 
     from game.game_states.StateManager import StateManager
     is_running = True
