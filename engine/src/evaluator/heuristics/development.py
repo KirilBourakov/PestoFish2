@@ -27,5 +27,5 @@ def development_eval(square: str, location: tuple[int,int], is_endgame: bool) ->
     if not is_empty(square):
         if location in bad_squares[get_color(square)][get_type(square)]:
             factor: int = -1 if get_color(square) == BLACK else 1
-            return -10 * factor
+            return -20 * factor
     return 0

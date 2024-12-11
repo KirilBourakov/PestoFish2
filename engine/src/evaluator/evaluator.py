@@ -69,7 +69,7 @@ class Evaluator():
         self.model.set_tensor(self.board_tensor['index'], ready_board)
         self.model.set_tensor(self.color_tensor['index'], ready_color)
         self.model.invoke()
-        eval_estimate += (self.model.get_tensor(self.output['index']) / 4)
+        eval_estimate += (self.model.get_tensor(self.output['index']) / 2)
 
         return eval_estimate
 
