@@ -78,7 +78,7 @@ class EngineAPI():
 
         self.engine.accept_board(self.convert_for_engine(playState))
         best_move = self.engine.get_best_move()
-        to_move = self.engine.to_move()
+        to_move = self.engine.to_move(playState.move_counter)
 
         # prevent enpassent flags from becoming zombies
         for y, row in enumerate(self.engine.board):
