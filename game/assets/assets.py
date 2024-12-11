@@ -65,6 +65,8 @@ b_rook = prepare_piece(
     pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'black', 'b_rook.png'))
 )
 
+pesto = pygame.image.load(os.path.join(os.path.dirname(__file__), 'imgs', 'pesto.png'))
+
 # sfx
 sfx_takes = pygame.mixer.Sound(os.path.join(os.path.dirname(__file__), 'sfx', 'takes.mp3'))
 
