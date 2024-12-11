@@ -18,7 +18,7 @@ def run_engine(func):
         
         black_engine_turn = self.game_type == globals.GAME_TYPE_ENGINE_BLACK and self.move_counter % 2 != 0 and self.promotion is None
         white_engine_turn = self.game_type == globals.GAME_TYPE_ENGINE_WHITE and self.move_counter % 2 == 0 and self.promotion is None
-        if black_engine_turn or white_engine_turn:
+        if (black_engine_turn or white_engine_turn) and (not self.game_over):
             EngineAPI.engine_make_move(self)    
         return  
     return wrapper

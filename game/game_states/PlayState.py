@@ -9,7 +9,6 @@ from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
 from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
 from game.game_states.utils.EngineAPI import EngineAPI
-
 # for testing
 
 # from engine.src.generator.generator import Generator
@@ -329,6 +328,7 @@ class PlayState(AbstractState):
         newpos -- the new positon
         turn -- the amount the turn counter should be increased (Default=1) 
         '''
+        assets.sfx_takes.play()
         piece = self.board[piece_location[1]][piece_location[0]]
         newx, newy = newpos
         # if it's a capture

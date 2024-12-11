@@ -3,9 +3,9 @@ if __name__ == "__main__":
     os.environ['TF_CPP_MIN_LOG_LEVEL']='1'
     import pygame
     import game.constants.globals as globals
+    pygame.mixer.init()
     pygame.init()
     pygame.display.set_caption('Chess')
-    # TODO: have window be resizable, based on constant values
     window = pygame.display.set_mode((globals.appsize, globals.appsize+70))
     from game.game_states.StateManager import StateManager
     is_running = True
