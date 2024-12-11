@@ -12,11 +12,11 @@ from engine.src.evaluator.heuristics import independant, dependant
 from engine.src.generator.generator import Generator
 
 class Evaluator():
-    model = tf.lite.Interpreter(os.path.join(os.path.dirname(__file__), 'lite.tflite'))
-    model.allocate_tensors()
-    board_tensor = model.get_input_details()[0]
-    color_tensor = model.get_input_details()[1]
-    output = model.get_output_details()[0]
+    # model = tf.lite.Interpreter(os.path.join(os.path.dirname(__file__), 'lite.tflite'))
+    # model.allocate_tensors()
+    # board_tensor = model.get_input_details()[0]
+    # color_tensor = model.get_input_details()[1]
+    # output = model.get_output_details()[0]
 
     def __init__(self) -> None:
         '''Creates an Evaluator, which is used to evaluate positions'''
@@ -64,12 +64,12 @@ class Evaluator():
         for heuristic in self.board_dependant_heuristics:
             eval_estimate += heuristic(board, is_endgame)
 
-        ready_board, ready_color = self.parse_board(board, move_color)
+        # ready_board, ready_color = self.parse_board(board, move_color)
 
-        self.model.set_tensor(self.board_tensor['index'], ready_board)
-        self.model.set_tensor(self.color_tensor['index'], ready_color)
-        self.model.invoke()
-        eval_estimate += (self.model.get_tensor(self.output['index']) / 4)
+        # self.model.set_tensor(self.board_tensor['index'], ready_board)
+        # self.model.set_tensor(self.color_tensor['index'], ready_color)
+        # self.model.invoke()
+        # eval_estimate += (self.model.get_tensor(self.output['index']) / 4)
 
         return eval_estimate
 
