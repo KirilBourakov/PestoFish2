@@ -8,7 +8,8 @@ from .database.Searcher import Searcher
 from .EngineRunner import EngineRunner
 from .generator.generator import Generator
 
-class Engine(): 
+# TODO: engine checkmate not dropping user to checkmate screen
+class Engine():
     def __init__(self) -> None:
         self.search: Searcher = Searcher()
         self.transposeTable: dict[str, float] = {}
@@ -51,55 +52,6 @@ class Engine():
             return mv
         
         possible_moves = self.generator.get_moves(self.board, find_king(self.board, current_color))
-        # print(possible_moves)
-        value_moves: list[tuple[MoveType, float, boardType, str, int]] = [(move, -1, self.board, current_color, 0) for move in possible_moves]
-        with Pool(processes=cpu_count()) as pool:
-            value_moves = pool.starmap(self.transformer, value_moves)
-
-        # test this things impact on preformance
-        for m in value_moves:
-            self.transposeTable[str(m[2])] = m[1]
-        print((time.time_ns()-s) / 10000000)
-        # for move in value_moves:
-        #     print(move[0], move[1], move[4])
-        value_moves = sorted(value_moves, key=lambda x: x[4], reverse=True)
-        return self.get_best(value_moves, current_color)   
-
-    def transformer(self, move: MoveType, dummy: float, board: boardType, color: str, depth: int) -> tuple[MoveType, float, boardType, str, int]:
-        '''transforms a list of value moves into one that carries a result and a transformed position'''
-        new_pos: list[list[str]] = self.result(board, move)
-        pos_val: tuple[float, int] = self.value(new_pos, color)
-        return (move, pos_val[0], new_pos, color, pos_val[1])  
-
-    def value(self, pos: list[list[str]], perspective: str, curr_depth: int = 1, 
-            max_depth: int=3, max_val:float=float('-inf'), min_val:float=float('inf')) -> tuple[float, int]:
-        '''Estimates the value of a move using evaluator and MINIMAX. Currently unfinished. 
-
-        Keyword arguments:
-        \t pos -- a board position
-        \t perspective -- the perspective from which to examine the moves (IE, the person who just moved)
-        \t currDepth -- the depth to which we have explored (default = 1)
-        \t max_depth -- the max deppth of the engine (default = 3)
-        \t max_val -- the top most value found (used in pruning) (default = -inf) 
-        \t min_val -- the bottom most value found (used in pruning) (default = inf) 
-        '''
-
-        # base cases
-        if str(pos) in self.transposeTable:
-            return (self.transposeTable[str(pos)], curr_depth)
-        finished: bool = self.is_termainal(pos)
-        if finished or curr_depth >= max_depth:
-            return (self.evaluator.eval(pos, finished), curr_depth)
-        
-        # get all the possible moves
-        enemy_perspective: str = flip(perspective)
-        possible_moves: list[MoveType] = self.generator.get_moves(pos, find_king(pos, enemy_perspective))
-        # the position is stable and we have hit max_depth, or we have hit absolute max
-        
-        # initalize dummy values for the best_value
-        best_value = float('-inf') if enemy_perspective == WHITE else float('inf')
-        search_depth = 0
-        # for every move
         for move in possible_moves:
             self.to_examine.put((move, self.board, current_color))
         
