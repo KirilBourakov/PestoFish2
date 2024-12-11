@@ -78,6 +78,7 @@ class EngineAPI():
 
         self.engine.accept_board(self.convert_for_engine(playState))
         best_move = self.engine.get_best_move()
+        to_move = self.engine.to_move()
 
         # prevent enpassent flags from becoming zombies
         for y, row in enumerate(self.engine.board):
@@ -112,9 +113,8 @@ class EngineAPI():
         playState.update_bottom_text()
 
         
-        if (playState.is_checkmate_or_stalemate(globals.PIECE_BLACK)[0]):
-            playState.game_over = True
-        if (playState.is_checkmate_or_stalemate(globals.PIECE_WHITE)[0]):
+        color_check = globals.PIECE_BLACK if to_move == 'w' else globals.PIECE_WHITE
+        if (playState.is_checkmate_or_stalemate(color_check)[0]):
             playState.game_over = True
 
         if (playState.is_draw()[0]):
