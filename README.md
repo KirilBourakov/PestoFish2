@@ -41,7 +41,11 @@ With python3 installed, run:
 3. Install dependencies:
 ```pip install -r requirements.txt```
 
-This project has 3 top level dependencies: pygame (for graphics), tensorflow (for machine learning), and mypy (for type checking)
+This project has 3 top level dependencies: 
+- pygame (for graphics)
+- tensorflow (for machine learning) 
+- mypy (for type checking; it is not needed to actually run the game)
+
 While mypyc is included as a dependency, it is not used; the compiler is still in development, and seems to have problems with multiprocessing. It also lacks other python features, such as \_\_file\_\_.
 
 # Attribution
