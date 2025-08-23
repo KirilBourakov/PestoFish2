@@ -28,6 +28,10 @@ enum Color {
     BLACK = -1,
     WHITE = 1,
 };
+enum CastleType {
+    SHORT = 0,
+    LONG = 1
+};
 
 using BoardArray = std::array<std::array<Piece, 8>, 8>;
 
