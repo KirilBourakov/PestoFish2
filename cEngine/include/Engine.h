@@ -12,11 +12,12 @@ public:
     Engine();
     int add(int a, int b);
 
-    void makeMove(boardPostion original, boardPostion destination);
+    void makeMove(Move move);
 
 private:
     BoardArray board;
 
+    Color moveTurn;
     int castlingRights;
     boardPostion enPassantSquare;
     int halfMoveClock;

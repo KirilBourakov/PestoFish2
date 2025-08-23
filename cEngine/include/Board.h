@@ -6,7 +6,9 @@
 #define BOARD_H
 #include <array>
 
-enum Squares {
+const int8_t BOARD_SIZE = 8;
+
+enum Piece {
     EMPTY = 0,
 
     WHITE_PAWN = 1,
@@ -16,18 +18,31 @@ enum Squares {
     WHITE_QUEEN = 5,
     WHITE_KING = 6,
 
-    BLACK_PAWN = 7,
-    BLACK_KNIGHT = 8,
-    BLACK_BISHOP = 9,
-    BLACK_ROOK = 10,
-    BLACK_QUEEN = 11,
-    BLACK_KING = 12
+    BLACK_PAWN = -1,
+    BLACK_KNIGHT = -2,
+    BLACK_BISHOP = -3,
+    BLACK_ROOK = -4,
+    BLACK_QUEEN = -5,
+    BLACK_KING = -6
 };
-using BoardArray = std::array<std::array<Squares, 8>, 8>;
+enum Color {
+    BLACK = -1,
+    WHITE = 1,
+};
+
+using BoardArray = std::array<std::array<Piece, 8>, 8>;
 using boardPostion = unsigned char;
 
+struct BoardPosition {
+    int8_t x, y;
+};
+
+struct Move {
+    BoardPosition start;
+    BoardPosition end;
+    Piece promotion = EMPTY;
+};
+
 BoardArray get_start_board();
-int getY(boardPostion inp);
-int getX(boardPostion inp);
 
 #endif //BOARD_H

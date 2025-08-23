@@ -6,6 +6,7 @@
 Engine::Engine() {
     board = get_start_board();
 
+    moveTurn = WHITE;
     castlingRights = 0b1111;
     enPassantSquare = 0x88;
     halfMoveClock = 0;
@@ -16,14 +17,11 @@ Engine::Engine() {
 
 }
 
-void Engine::makeMove(boardPostion original, boardPostion destination) {
-    int oldY = getY(original);
-    int oldX = getX(original);
-    int newY = getY(destination);
-    int newX = getX(destination);
-
-    board[newY][newX] = board[oldY][oldX];
-    board[oldY][oldX] = EMPTY;
+void Engine::makeMove(Move move) {
+    // TODO: handle castling, enpassent
+    Piece newPiece = move.promotion == EMPTY ? board[move.start.y][move.start.x] : move.promotion;
+    board[move.end.y][move.end.x] = newPiece;
+    board[move.start.y][move.start.x] = EMPTY;
 }
 
 int Engine::add(int a, int b) {
