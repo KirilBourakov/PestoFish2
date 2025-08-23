@@ -1,6 +1,7 @@
 Pestofish
 ==============
-Pestofish is a chess engine that uses search, static evaluation functions, and a convolutional neural network to play chess. 
+Pestofish2 is a WIP improvement on the original [PestoFish](https://github.com/KirilBourakov/Pestofish), featuring an
+engine written in C++.
 
 # Code
 main.py - Call the to run the game \
@@ -8,17 +9,11 @@ runtests.py - Runs tests for the engine. Currently not functional.
 ## Game
 The folder contains the code for the game itself; the GUI, the SFX, the assets, the various states, etc.
 
-## Engine/Src
-This contains the code for the engine:
-- Engine.py - The code for the engine itself, this essentially manages each engine runner (and creates ```cpu_count()``` of them), and is used to get the best move for a positions. 
-- EngineRunner.py - An object that represents a process that runs in the background, always waiting for the Engine to tell it to get the value of moves. 
-- Generator: Contains 2 objects that work together to generate all the legal moves in a position. The moves object generates possible moves, and the generator object purges illegal ones.
-- Evaluator: Contains an object responsible for evaluating a position using static evals and the tensorflow lite model.
-- Database: Contains an object that is responsible for querying the database to check if there is a theoretically good move.
-- Constants: A set of useful constants.
+## cEngine
+PestoFish2's C++ engine, currently WIP.
 
-## Engine/tests
-Automated tests for the engine
+## Engine
+The original PestoFish Engine
 
 ## Builders 
 Contains a set of builders for the engine. Builders are scripts to be run once to create information for the engine.
