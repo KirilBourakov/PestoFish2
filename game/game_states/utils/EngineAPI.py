@@ -51,19 +51,19 @@ class EngineAPI():
             for square in row:
                 strSquare = "-- "
                 # if square has a piece
-                if square is not None and square.type != globals.EN_PASSENT_FLAG:
+                if square is not None and square.type != globals.EN_PASSANT_FLAG:
                     # king represented as wK/bK if moved or WK/BK if not
-                    if square.type == globals.PIECE_KING:
+                    if square.type == globals.Piece.KING:
                         strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].upper() + " "
                     # rook repersented by wr/br if moved else Wr/Br
-                    elif square.type == globals.PIECE_ROOK:
+                    elif square.type == globals.Piece.ROOK:
                         strSquare = (square.color[0].lower() if square.has_moved else square.color[0].upper()) + square.type[0].lower() + " "
                     # other pieces represented by w[first letter]/b[first letter]
                     else:
                         strSquare = square.color[0].lower() + square.type[0].lower() + " "
 
                 # if square is enpassent, represented by we/be
-                if square is not None and square.type == globals.EN_PASSENT_FLAG:
+                if square is not None and square.type == globals.EN_PASSANT_FLAG:
                     if square.turn_num == gameObj.move_counter:
                         strSquare = square.color[0].lower() + "e" + " "
                 strRow += strSquare
@@ -105,15 +105,15 @@ class EngineAPI():
                 if square in self.piece_dict:
                     translated_board[y][x] = self.piece_dict[square]
                 elif square == 'be' or square == 'we':
-                    color = globals.PIECE_BLACK if y == 1 else globals.PIECE_WHITE
-                    offset = -1 if color == globals.PIECE_BLACK else 1
+                    color = globals.Color.BLACK if y == 1 else globals.Color.WHITE
+                    offset = -1 if color == globals.Color.BLACK else 1
                     translated_board[y][x] = EnPassent(playState.move_counter, color, y+offset)
         assets.sfx_takes.play()
         playState.board = translated_board       
         playState.update_bottom_text()
 
         
-        color_check = globals.PIECE_BLACK if to_move == 'w' else globals.PIECE_WHITE
+        color_check = globals.Color.BLACK if to_move == 'w' else globals.Color.WHITE
         if (playState.is_checkmate_or_stalemate(color_check)[0]):
             playState.game_over = True
 

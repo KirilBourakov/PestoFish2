@@ -1,3 +1,4 @@
+import numpy as np
 import pygame, copy
 import game.assets.assets as assets
 import game.pieces.white_pieces as wp
@@ -33,7 +34,7 @@ class PlayState(AbstractState):
         Keyword arguments:
         args -- a list of lists that contains the game type at index 0,0
         '''
-        self.board = [
+        self.board = np.array([
             [bp.rook_unmoved, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rook_unmoved],
             [bp.pawn] * 8,
             [None, None, None, None, None, None, None, None],
@@ -42,7 +43,7 @@ class PlayState(AbstractState):
             [None, None, None, None, None, None, None, None],
             [wp.pawn] * 8,
             [wp.rook_unmoved, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook_unmoved]
-        ]
+        ])
         self.move_counter = 0
         self.fifty_move_rule_counter = 0
         self.past_board_states = {
@@ -73,14 +74,14 @@ class PlayState(AbstractState):
 
         if self.selected_square == (gridx, gridy):
             return
-        if self.selected_square is None and (self.board[gridy][gridx] is not None and self.board[gridy][gridx].type != globals.EN_PASSENT_FLAG):
-            if self.move_counter % 2 == 0 and self.board[gridy][gridx].color == globals.PIECE_WHITE: 
+        if self.selected_square is None and (self.board[gridy][gridx] is not None and self.board[gridy][gridx].type != globals.EN_PASSANT_FLAG):
+            if self.move_counter % 2 == 0 and self.board[gridy][gridx].color == globals.Color.WHITE: 
                 self.selected_square = (gridx, gridy)
-            elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == globals.PIECE_BLACK:
+            elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == globals.Color.BLACK:
                 self.selected_square = (gridx, gridy) 
             return
         
-        if self.selected_square != None:
+        if self.selected_square is not None:
             self.make_legal_move((gridx, gridy))
             self.selected_square = None
             return
@@ -93,15 +94,15 @@ class PlayState(AbstractState):
         '''
         for y, colomn in enumerate(self.board):
             for x, square in enumerate(colomn):
-                if square is not None and square.color == color and square.type == globals.PIECE_KING:
+                if square is not None and square.color == color and square.type == globals.Piece.KING:
                     return (x,y)
         raise Exception("King not found.") 
     
     def get_turn(self):
         '''Returns which colors turn it is'''
         if self.move_counter % 2 == 0:
-            return globals.PIECE_WHITE
-        return globals.PIECE_BLACK
+            return globals.Color.WHITE
+        return globals.Color.BLACK
     
     def inbound(self, pos):
         '''returns if a position is within the bounds of the board
@@ -124,14 +125,14 @@ class PlayState(AbstractState):
         # gets any rooks or queens looking at the square
         rook_directions = [(0,1), (0,-1), (1,0), (-1,0)]
         for direction in rook_directions:
-            f = self.search(square, direction, [globals.PIECE_ROOK, globals.PIECE_QUEEN])
+            f = self.search(square, direction, [globals.Piece.ROOK, globals.Piece.QUEEN])
             if f is not None:
                 found.append(f)
 
         # gets any bishops or queens looking at the square
         bishop_directions = [(1,1), (-1,-1), (-1,1), (1,-1)]
         for direction in bishop_directions:
-            f = self.search(square, direction, [globals.PIECE_BISHOP, globals.PIECE_QUEEN])
+            f = self.search(square, direction, [globals.Piece.BISHOP, globals.Piece.QUEEN])
             if f is not None:
                 found.append(f)
         
@@ -139,7 +140,7 @@ class PlayState(AbstractState):
         for move in mv.knight_moves:
             newx, newy = x + move[0], y + move[1]
             if self.inbound((newx, newy)):
-                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KNIGHT:
+                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KNIGHT:
                     found.append((newx,newy))
 
         # gets any pawn or kings looking at the square
@@ -147,26 +148,26 @@ class PlayState(AbstractState):
         for move in [(1,-1), (-1,-1)]:
             newx, newy = x + move[0], y + move[1]
             if self.inbound((newx, newy)):
-                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KING
+                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KING
                 if occupied_by_king:
                     found.append((newx,newy))
-                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_PAWN:
-                    found.append((newx,newy, globals.PIECE_WHITE))
+                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.PAWN:
+                    found.append((newx,newy, globals.Color.WHITE))
         # black pawn
         for move in [(1,1), (-1,1)]:
             newx, newy = x + move[0], y + move[1]
             if self.inbound((newx, newy)):
-                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KING
+                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KING
                 if occupied_by_king:
                     found.append((newx,newy))
-                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_PAWN:
-                    found.append((newx,newy, globals.PIECE_BLACK))
+                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.PAWN:
+                    found.append((newx, newy, globals.Color.BLACK))
         
         # gets any kings looking at the square
         for move in [(0,1), (0,-1), (1,0), (-1,0)]:
             newx, newy = x + move[0], y + move[1]
             if self.inbound((newx, newy)):
-                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.PIECE_KING:
+                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KING:
                     found.append((newx,newy))
 
         return found
@@ -197,9 +198,9 @@ class PlayState(AbstractState):
         Keyword arguments:
         color -- the color of the king
         '''
-        if color == globals.PIECE_WHITE:
-            return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_WHITE), globals.PIECE_BLACK)) > 0
-        return len(self.get_sight_on_square_color(self.get_king_pos(globals.PIECE_BLACK), globals.PIECE_WHITE)) > 0
+        if color == globals.Color.WHITE:
+            return len(self.get_sight_on_square_color(self.get_king_pos(globals.Color.WHITE), globals.Color.BLACK)) > 0
+        return len(self.get_sight_on_square_color(self.get_king_pos(globals.Color.BLACK), globals.Color.WHITE)) > 0
     
     def is_checkmate_or_stalemate(self, color):
         '''returns if the current board state is checkmate or stalemate for a color
@@ -208,7 +209,7 @@ class PlayState(AbstractState):
         '''
         for y, row in enumerate(self.board):
             for x, grid_contents in enumerate(row):
-                grid_empty = grid_contents is not None and grid_contents.type != globals.EN_PASSENT_FLAG
+                grid_empty = grid_contents is not None and grid_contents.type != globals.EN_PASSANT_FLAG
                 if grid_empty and grid_contents.color == color:
                     if len(self.board[y][x].get_legal_moves(self, (x,y))) > 0:
                         return (False, "")
@@ -225,21 +226,21 @@ class PlayState(AbstractState):
 
         has_sufficant = False
         tracker = {
-            globals.PIECE_WHITE: {
-                globals.PIECE_KNIGHT: -1,
-                globals.PIECE_BISHOP: 0,
+            globals.Color.WHITE: {
+                globals.Piece.KNIGHT: -1,
+                globals.Piece.BISHOP: 0,
             },
-            globals.PIECE_BLACK: {
-                globals.PIECE_KNIGHT: -1,
-                globals.PIECE_BISHOP: 0,
+            globals.Color.BLACK: {
+                globals.Piece.KNIGHT: -1,
+                globals.Piece.BISHOP: 0,
             }
         }
         for y, row in enumerate(self.board):
             for x, square in enumerate(row):
-                if square is not None and square.type != globals.EN_PASSENT_FLAG and square.type != globals.PIECE_KING:
-                    if square.type == globals.PIECE_BISHOP or square.type == globals.PIECE_KNIGHT:
+                if square is not None and square.type != globals.EN_PASSANT_FLAG and square.type != globals.Piece.KING:
+                    if square.type == globals.Piece.BISHOP or square.type == globals.Piece.KNIGHT:
                         tracker[square.color][square.type] += 1
-                        knight_bishop = tracker[square.color][globals.PIECE_BISHOP] + 1 + tracker[square.color][globals.PIECE_KNIGHT]
+                        knight_bishop = tracker[square.color][globals.Piece.BISHOP] + 1 + tracker[square.color][globals.Piece.KNIGHT]
                         if tracker[square.color][square.type] >= 2 or knight_bishop >= 2:
                             has_sufficant = True
                             break
@@ -266,7 +267,7 @@ class PlayState(AbstractState):
 
         newx, newy = start[0] + (x*factor), start[1] + (y*factor)
         while self.inbound((newx, newy)):
-            if self.board[newy][newx] is not None and self.board[newy][newx].type != globals.EN_PASSENT_FLAG:
+            if self.board[newy][newx] is not None and self.board[newy][newx].type != globals.EN_PASSANT_FLAG:
                 if self.board[newy][newx].type in type:
                     return (newx, newy)
                 else:
@@ -305,8 +306,8 @@ class PlayState(AbstractState):
             self.move((0, newy), (newx+1, newy), turn=0)
         
         elif (newx, newy, globals.DOUBLE_MOVE_FLAG) in moves:
-            turn_color = globals.PIECE_WHITE if self.move_counter % 2 == 0 else globals.PIECE_BLACK
-            offset = 1 if turn_color == globals.PIECE_WHITE else -1 
+            turn_color = globals.Color.WHITE if self.move_counter % 2 == 0 else globals.Color.BLACK
+            offset = 1 if turn_color == globals.Color.WHITE else -1 
             self.move(piece_location, (newx, newy))
             self.board[newy+offset][newx] = ep.EnPassent(self.move_counter,turn_color, newy)
 
@@ -314,8 +315,8 @@ class PlayState(AbstractState):
             self.move(piece_location, (newx, newy))
             self.promotion = Promotion((newx, newy))
         
-        elif (newx, newy, globals.EN_PASSENT_FLAG) in moves:
-            offset = -1 if self.board[newy][newx].color == globals.PIECE_WHITE else 1
+        elif (newx, newy, globals.EN_PASSANT_FLAG) in moves:
+            offset = -1 if self.board[newy][newx].color == globals.Color.WHITE else 1
             self.board[newy+offset][newx] = None
             self.move(piece_location, (newx, newy))
         return 
@@ -332,7 +333,7 @@ class PlayState(AbstractState):
         piece = self.board[piece_location[1]][piece_location[0]]
         newx, newy = newpos
         # if it's a capture
-        if self.board[newx][newy] is not None and self.board[newx][newy].type != globals.EN_PASSENT_FLAG:
+        if self.board[newx][newy] is not None and self.board[newx][newy].type != globals.EN_PASSANT_FLAG:
             self.fifty_move_rule_counter = 0
         self.board[newy][newx] = piece
         self.board[piece_location[1]][piece_location[0]] = None
@@ -351,7 +352,7 @@ class PlayState(AbstractState):
         else: 
             self.past_board_states[str(self.board)] = 1
 
-        check_color = globals.PIECE_WHITE if piece.color == globals.PIECE_BLACK else globals.PIECE_BLACK
+        check_color = globals.Color.WHITE if piece.color == globals.Color.BLACK else globals.Color.BLACK
         if (self.is_checkmate_or_stalemate(check_color)[0]):
             self.game_over = True
 
@@ -375,12 +376,12 @@ class PlayState(AbstractState):
         return
 
     def exit(self):
-        is_mate_or_stale_white = self.is_checkmate_or_stalemate(globals.PIECE_BLACK)
+        is_mate_or_stale_white = self.is_checkmate_or_stalemate(globals.Color.BLACK)
         if (is_mate_or_stale_white[0]):
             if is_mate_or_stale_white[1] == globals.STALEMATE:
                 return ['end', 'Stalemate']
             return ['end', 'White has won']
-        is_mate_or_stale_black = self.is_checkmate_or_stalemate(globals.PIECE_WHITE)
+        is_mate_or_stale_black = self.is_checkmate_or_stalemate(globals.Color.WHITE)
         if (is_mate_or_stale_black[0]):
             if is_mate_or_stale_black[1] == globals.STALEMATE:
                 return ['end', 'Stalemate']

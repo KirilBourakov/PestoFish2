@@ -8,10 +8,10 @@ def pawn_capture_possible(**kwargs):
         space_occupied_by_enemy = possible_move_grid is not None and possible_move_grid.color != color
         if space_occupied_by_enemy:
             # if it's an enpassent flag placed last turn
-            en_passent_created_last_turn = possible_move_grid.type == globals.EN_PASSENT_FLAG and possible_move_grid.turn_num == turn_num
+            en_passent_created_last_turn = possible_move_grid.type == globals.EN_PASSANT_FLAG and possible_move_grid.turn_num == turn_num
             if en_passent_created_last_turn:
-                return (True, globals.EN_PASSENT_FLAG)
-            elif possible_move_grid.type != globals.EN_PASSENT_FLAG:
+                return (True, globals.EN_PASSANT_FLAG)
+            elif possible_move_grid.type != globals.EN_PASSANT_FLAG:
                 if newpos[1] == 0 or newpos[1] == 7:
                     return (True, globals.PROMOTION_FLAG)
                 return (True, globals.NORMAL_FLAG)
@@ -20,8 +20,8 @@ def pawn_capture_possible(**kwargs):
 
 def double_move_possible(**kwargs):
     pos, color = kwargs["old_position"], kwargs["color"]
-    white_on_first_rank = (color == globals.PIECE_WHITE and pos[1] == 6)
-    black_on_seventh_rank = (color == globals.PIECE_BLACK and pos[1] == 1)
+    white_on_first_rank = (color == globals.Color.WHITE and pos[1] == 6)
+    black_on_seventh_rank = (color == globals.Color.BLACK and pos[1] == 1)
     if (white_on_first_rank or black_on_seventh_rank):
         return (True, globals.DOUBLE_MOVE_FLAG)
     else:
@@ -29,7 +29,7 @@ def double_move_possible(**kwargs):
     
 def move_forward_possible(**kwargs):
     newpos, board = kwargs["new_position"], kwargs["board"]
-    if board[newpos[1]][newpos[0]] is not None and board[newpos[1]][newpos[0]].type != globals.EN_PASSENT_FLAG:
+    if board[newpos[1]][newpos[0]] is not None and board[newpos[1]][newpos[0]].type != globals.EN_PASSANT_FLAG:
         return (False, '')
     if newpos[1] == 0 or newpos[1] == 7:
         return (True, globals.PROMOTION_FLAG)

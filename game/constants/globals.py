@@ -1,23 +1,28 @@
+from enum import Enum
+
 appsize = 512
 grid_size = appsize / 8
 
 resize_num = grid_size * .2
 
-PIECE_BLACK = "black"
-PIECE_WHITE = "white"
 
-PIECE_ROOK = "rook"
-PIECE_BISHOP = "bishop"
-PIECE_KNIGHT = "knight"
-PIECE_KING = "king"
-PIECE_QUEEN = "queen"
-PIECE_PAWN = "pawn"
+class Color(Enum):
+    BLACK = 0
+    WHITE = 1
+
+class Piece(Enum):
+    ROOK = 0
+    BISHOP = 1
+    KNIGHT = 2
+    QUEEN = 3
+    KING = 4
+    PAWN = 5
 
 # general flags
 NORMAL_FLAG = "normal move"
 
 # pawn flags
-EN_PASSENT_FLAG = "en passent"
+EN_PASSANT_FLAG = "en passent"
 DOUBLE_MOVE_FLAG = "double move"
 PROMOTION_FLAG = "promotion"
 

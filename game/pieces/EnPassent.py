@@ -6,7 +6,7 @@ class EnPassent():
         self.turn_num = turn_num
         self.color = color
         self.placer = placer
-        self.type = globals.EN_PASSENT_FLAG
+        self.type = globals.EN_PASSANT_FLAG
     
     def show(self, x, y):
         # window = pygame.display.get_surface()

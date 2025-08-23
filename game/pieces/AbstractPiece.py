@@ -58,13 +58,13 @@ class AbstractPiece():
                 # if you meet another piece, the move is illegal
                 board_square_not_empty = board_obj.board[y_walker][x_walker] is not None
                 if board_square_not_empty:
-                    not_occupied_by_en_passent = board_obj.board[y_walker][x_walker].type != globals.EN_PASSENT_FLAG
+                    not_occupied_by_en_passent = board_obj.board[y_walker][x_walker].type != globals.EN_PASSANT_FLAG
                     if not_occupied_by_en_passent:
                         legal = False
         
             square_contains_same_color_piece = ((board_obj.board[newy][newx] is not None) and 
                                                 (piece.color == board_obj.board[newy][newx].color) and 
-                                                (board_obj.board[newy][newx].type != globals.EN_PASSENT_FLAG)
+                                                (board_obj.board[newy][newx].type != globals.EN_PASSANT_FLAG)
                                                 )
             if square_contains_same_color_piece:
                 continue
@@ -82,7 +82,7 @@ class AbstractPiece():
                 if board_obj.in_check(self.color):
                     continue
                 # can't castle through check
-                color = globals.PIECE_WHITE if self.color == globals.PIECE_BLACK else globals.PIECE_BLACK
+                color = globals.Color.WHITE if self.color == globals.Color.BLACK else globals.Color.BLACK
                 if move[2] == globals.LONG_CASTLE_FLAG:
                     if len(board_obj.get_sight_on_square_color((2, oldy), color)) > 0:
                         continue
