@@ -2,7 +2,6 @@ if __name__ == "__main__":
     import os
     os.environ['TF_CPP_MIN_LOG_LEVEL']='1'
 
-
     import pygame
     import game.constants.globals as globals
     pygame.mixer.init()
