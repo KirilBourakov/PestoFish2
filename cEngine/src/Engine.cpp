@@ -8,12 +8,12 @@ Engine::Engine() {
 
     moveTurn = WHITE;
     castlingRights = 0b1111;
-    enPassantSquare = 0x88;
+    enPassantSquare = std::nullopt;
     halfMoveClock = 0;
     fullMoveCock = 0;
 
-    whiteKingSquare = 0x74;
-    blackKingSquare = 0x04;
+    whiteKingSquare = {.x=4, .y=7};
+    blackKingSquare = {.x=4, .y=0};
 
 }
 

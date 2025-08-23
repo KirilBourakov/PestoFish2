@@ -4,6 +4,8 @@
 #pragma once
 #ifndef ENGINE_H
 #define ENGINE_H
+#include <optional>
+
 #include "Board.h"
 
 
@@ -19,12 +21,12 @@ private:
 
     Color moveTurn;
     int castlingRights;
-    boardPostion enPassantSquare;
+    std::optional<BoardPosition> enPassantSquare;
     int halfMoveClock;
     int fullMoveCock;
 
-    boardPostion whiteKingSquare;
-    boardPostion blackKingSquare;
+    BoardPosition whiteKingSquare;
+    BoardPosition blackKingSquare;
 };
 
 

@@ -31,7 +31,6 @@ enum Color {
 };
 
 using BoardArray = std::array<std::array<Piece, 8>, 8>;
-using boardPostion = unsigned char;
 
 struct BoardPosition {
     int8_t x, y;
