@@ -10,11 +10,40 @@
 
 #include "Board.h"
 #include "Types.h"
+#include "Utils.h"
 
 using moveSet = std::vector<std::pair<int8_t,int8_t>>;
 
 Move createMove(const BoardPosition& start, const int8_t newX, const int8_t newY) {
     return Move {start,BoardPosition{.x = newX, .y = newY}};
+}
+
+void addKingMoves(const BoardArray& board, const int8_t x, const int8_t y, const Color color, const int castleRights, std::vector<Move> &moves) {
+    static const moveSet straight_diag = {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
+    const BoardPosition start {
+        .x = x, .y = y
+    };
+    for (auto [dx, dy] : straight_diag) {
+        const int8_t newX = x + dx;
+        const int8_t newY = y + dy;
+        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX])) {
+            moves.push_back(createMove(start, newX, newY));
+        }
+    }
+
+    const int8_t newY = color == BLACK ? 0 : 7;
+    if (castleAllowed(color, SHORT, castleRights)) {
+        constexpr int8_t newX = 6;
+        Move newMove = createMove(start, newX, newY);
+        newMove.castle = SHORT;
+        moves.push_back(newMove);
+    }
+    if (castleAllowed(color, LONG, castleRights)) {
+        constexpr int8_t newX = 2;
+        Move newMove = createMove(start, newX, newY);
+        newMove.castle = LONG;
+        moves.push_back(newMove);
+    }
 }
 
 void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const Color color, const std::optional<BoardPosition>& enPassantSquare, std::vector<Move> &moves) {
