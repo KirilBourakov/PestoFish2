@@ -15,7 +15,7 @@ bool castleAllowed(const Color color, const CastleType type, const int castleRig
     } else {
         bit = 0;
     }
-    return (castleRights >> bit) & 1;
+    return castleRights >> bit & 1;
 }
 void disAllowCastle(const Color color, const CastleType type, int& castleRights) {
     int bit;
@@ -28,5 +28,5 @@ void disAllowCastle(const Color color, const CastleType type, int& castleRights)
     } else {
         bit = 0;
     }
-    castleRights &= ~(1 << bit);;
+    castleRights &= ~(1 << bit);
 }

@@ -49,7 +49,7 @@ void addKingMoves(const BoardArray& board, const int8_t x, const int8_t y, const
 void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const Color color, const std::optional<BoardPosition>& enPassantSquare, std::vector<Move> &moves) {
     int8_t dir = color == WHITE ? -1 : 1;
     int8_t newY = y + dir;
-    BoardPosition start {
+    const BoardPosition start {
         .x = x, .y = y
     };
     // standered move

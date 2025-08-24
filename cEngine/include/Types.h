@@ -6,6 +6,7 @@
 #define TYPES_H
 #include <array>
 #include <cstdint>
+#include <optional>
 
 enum Piece {
     EMPTY = 0,
