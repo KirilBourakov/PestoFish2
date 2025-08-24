@@ -42,7 +42,8 @@ struct BoardPosition {
 struct Move {
     BoardPosition start;
     BoardPosition end;
-    Piece promotion = EMPTY;
+    std::optional<Piece> promotion = std::nullopt;
+    std::optional<CastleType> castle = std::nullopt;
 };
 
 #endif //TYPES_H

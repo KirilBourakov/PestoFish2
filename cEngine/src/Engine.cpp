@@ -19,7 +19,7 @@ Engine::Engine() {
 
 void Engine::makeMove(Move move) {
     // TODO: handle castling, enpassent
-    Piece newPiece = move.promotion == EMPTY ? board[move.start.y][move.start.x] : move.promotion;
+    Piece newPiece = move.promotion.value_or(board[move.start.y][move.start.x]);
     board[move.end.y][move.end.x] = newPiece;
     board[move.start.y][move.start.x] = EMPTY;
 }
