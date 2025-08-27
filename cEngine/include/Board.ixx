@@ -4,7 +4,7 @@
 
 export module Board;
 import Types;
-#include <cstdint>
+import <cstdint>;
 
 export constexpr std::int8_t BOARD_SIZE = 8;
 

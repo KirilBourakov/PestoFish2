@@ -6,19 +6,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(pybind11_DIR "${CMAKE_SOURCE_DIR}/../.venv/Lib/site-packages/pybind11/share/cmake/pybind11")
 find_package(pybind11 REQUIRED)
 
-# Build cEngine
-pybind11_add_module(cEngine
+set(ENGINE_SOURCES
         src/Engine.cpp
         src/Board.cpp
         src/Move.cpp
         src/Utils.cpp
+)
 
+set(ENGINE_MODULES
         include/Engine.ixx
         include/Board.ixx
         include/Utils.ixx
         include/Types.ixx
         include/Move.ixx
+)
 
+# Build cEngine
+pybind11_add_module(cEngine
+        ${ENGINE_SOURCES}
+        ${ENGINE_MODULES}
         pybind/bindings.cpp
 )
 target_include_directories(cEngine
@@ -31,16 +37,10 @@ enable_testing()
 add_executable(runTests
         test/TestMove.cpp
         test/testBoards.cpp
+        test/testBoard.ixx
 
-        src/Board.cpp
-        src/Move.cpp
-        src/Utils.cpp
-
-        include/Board.ixx
-        include/Utils.ixx
-        include/Types.ixx
-        include/Move.ixx
-
+        ${ENGINE_SOURCES}
+        ${ENGINE_MODULES}
 )
 
 target_link_libraries(runTests
