@@ -4,9 +4,9 @@
 
 #ifndef BOARD_H
 #define BOARD_H
-#include <array>
+import <array>;
 
-#include "Types.h"
+import Types;
 
 const int8_t BOARD_SIZE = 8;
 

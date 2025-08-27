@@ -10,6 +10,11 @@ find_package(pybind11 REQUIRED)
 pybind11_add_module(cEngine
         src/Engine.cpp
         src/Board.cpp
+        src/Move.cpp
+        src/Utils.cpp
+        include/Utils.ixx
+        include/Types.ixx
+        include/Move.ixx
 
         pybind/bindings.cpp
 )
@@ -27,6 +32,9 @@ add_executable(runTests
         src/Board.cpp
         src/Move.cpp
         src/Utils.cpp
+        include/Utils.ixx
+        include/Types.ixx
+        include/Move.ixx
 
 )
 

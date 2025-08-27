@@ -2,7 +2,8 @@
 // Created by Kiril on 2025-08-23.
 //
 
-#include "Utils.h"
+module Utils;
+import Types;
 
 bool castleAllowed(const Color color, const CastleType type, const int castleRights) {
     int bit;

@@ -1,14 +1,14 @@
 //
-// Created by Kiril on 2025-08-23.
+// Created by Kiril on 2025-08-27.
 //
 
-#ifndef TYPES_H
-#define TYPES_H
-#include <array>
-#include <cstdint>
-#include <optional>
+export module Types;
 
-enum Piece {
+import <array>;
+import <cstdint>;
+import <optional>;
+
+export enum Piece {
     EMPTY = 0,
 
     WHITE_PAWN = 1,
@@ -25,22 +25,24 @@ enum Piece {
     BLACK_QUEEN = -5,
     BLACK_KING = -6
 };
-enum Color {
+
+export enum Color {
     BLACK = -1,
     WHITE = 1,
 };
-enum CastleType {
+
+export enum CastleType {
     SHORT = 0,
     LONG = 1
 };
 
-using BoardArray = std::array<std::array<Piece, 8>, 8>;
+export using BoardArray = std::array<std::array<Piece, 8>, 8>;
 
-struct BoardPosition {
+export struct BoardPosition {
     int8_t x, y;
 };
 
-struct Move {
+export struct Move {
     BoardPosition start;
     BoardPosition end;
     std::optional<Piece> promotion = std::nullopt;
@@ -48,9 +50,7 @@ struct Move {
 
     bool operator==(const Move& other) const {
         return other.start.x == start.x && other.start.y == start.y
-                && other.end.x == end.x && other.end.y == end.y
-                && promotion == other.promotion && castle == other.castle;
+            && other.end.x == end.x && other.end.y == end.y
+            && promotion == other.promotion && castle == other.castle;
     }
 };
-
-#endif //TYPES_H

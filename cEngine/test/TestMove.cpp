@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "Move.h"
-#include "Types.h"
+import Move;
+import Types;
 #include "testBoards.h"
 
 // BoardArray foolsMatePosition() {

@@ -2,7 +2,7 @@
 // Created by Kiril on 2025-08-26.
 //
 
-#include "Types.h"
+import Types;
 #include "testBoards.h"
 
 BoardArray whiteReadyToPromote() {

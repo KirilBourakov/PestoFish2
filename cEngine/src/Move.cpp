@@ -1,17 +1,15 @@
 //
 // Created by Kiril on 2025-08-23.
 //
-
-#include "Move.h"
-
 #include <iostream>
-#include <optional>
 #include <stdexcept>
-#include <vector>
 
 #include "Board.h"
-#include "Types.h"
-#include "Utils.h"
+module Move;
+import <optional>;
+import <vector>;
+import Types;
+import Utils;
 
 using moveSet = std::vector<std::pair<int8_t,int8_t>>;
 

@@ -3,7 +3,7 @@
 //
 
 #include "Board.h"
-#include "Types.h"
+import Types;
 
 
 BoardArray get_start_board() {
