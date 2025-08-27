@@ -21,11 +21,22 @@ target_include_directories(cEngine
 add_subdirectory(extern/googletest)
 enable_testing()
 add_executable(runTests
-        test/RunTests.cpp
+        test/TestMove.cpp
+        test/testBoards.cpp
+
+        src/Board.cpp
+        src/Move.cpp
+        src/Utils.cpp
+
 )
 
 target_link_libraries(runTests
         GTest::gtest_main
+)
+
+target_include_directories(runTests
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/test/
 )
 
 include(GoogleTest)

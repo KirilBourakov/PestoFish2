@@ -45,6 +45,12 @@ struct Move {
     BoardPosition end;
     std::optional<Piece> promotion = std::nullopt;
     std::optional<CastleType> castle = std::nullopt;
+
+    bool operator==(const Move& other) const {
+        return other.start.x == start.x && other.start.y == start.y
+                && other.end.x == end.x && other.end.y == end.y
+                && promotion == other.promotion && castle == other.castle;
+    }
 };
 
 #endif //TYPES_H

@@ -12,7 +12,7 @@ const int8_t BOARD_SIZE = 8;
 
 
 BoardArray get_start_board();
-bool inBounds(const int x, const int y);
-bool sameColor(const Color color, const Piece piece);
+bool inBounds(int8_t x, int8_t y);
+bool sameColor(Color color, Piece piece);
 
 #endif //BOARD_H

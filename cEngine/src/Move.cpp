@@ -4,6 +4,7 @@
 
 #include "Move.h"
 
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <vector>
@@ -53,7 +54,7 @@ void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const
         .x = x, .y = y
     };
     // standered move
-    if (inBounds(x,y) && board[newY][x] == EMPTY) {
+    if (inBounds(x,newY) && board[newY][x] == EMPTY) {
         moves.push_back(createMove(start, x, newY));
     }
 
@@ -128,10 +129,10 @@ void addSlidingMoves(BoardArray& board, int8_t x, int8_t y, std::vector<Move> &m
         throw std::invalid_argument("Invalid direction");
     }
 
-    for (auto [dx, dy] : dirs) {
+    for (auto [dx, dy] : *dirs) {
         for (int i = 1; i < BOARD_SIZE; i++) {
-            int8_t newY = y + i*dy;
-            int8_t newX = x + i*dx;
+            const int8_t newY = y + i*dy;
+            const int8_t newX = x + i*dx;
             if (!inBounds(newX, newY)) {
                 break;
             }

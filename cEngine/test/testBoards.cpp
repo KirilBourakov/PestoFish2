@@ -3,7 +3,7 @@
 //
 
 #include "Types.h"
-module testBoards;
+#include "testBoards.h"
 
 BoardArray whiteReadyToPromote() {
     return BoardArray{{
@@ -34,12 +34,12 @@ BoardArray unBlockedCastle() {
 BoardArray foolsMatePosition() {
     return BoardArray{{
         {{BLACK_ROOK,   BLACK_KNIGHT, BLACK_BISHOP, EMPTY,       BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
-        {{BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,  EMPTY,      BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN, EMPTY,       EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{BLACK_PAWN,   EMPTY,        BLACK_PAWN,   BLACK_PAWN,  EMPTY,      BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN,EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        BLACK_PAWN,   EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        WHITE_PAWN}},
         {{EMPTY,        EMPTY,        WHITE_PAWN,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        WHITE_PAWN,  EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{WHITE_PAWN,   WHITE_PAWN,   EMPTY,        EMPTY,       WHITE_PAWN, WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN}},
+        {{WHITE_PAWN,   WHITE_PAWN,   EMPTY,        EMPTY,       WHITE_PAWN, WHITE_PAWN,   WHITE_PAWN,   EMPTY}},
         {{WHITE_ROOK,   WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}}
     }};
 }
