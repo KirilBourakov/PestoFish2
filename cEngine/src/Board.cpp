@@ -2,9 +2,8 @@
 // Created by Kiril on 2025-08-23.
 //
 
-#include "Board.h"
+module Board;
 import Types;
-
 
 BoardArray get_start_board() {
     return BoardArray{{

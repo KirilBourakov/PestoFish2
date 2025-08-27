@@ -2,7 +2,8 @@
 // Created by Kiril on 2025-08-23.
 //
 
-#include "Engine.h"
+module Engine;
+
 Engine::Engine() {
     board = get_start_board();
 

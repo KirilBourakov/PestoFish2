@@ -4,12 +4,12 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "Board.h"
 module Move;
 import <optional>;
 import <vector>;
 import Types;
 import Utils;
+import Board;
 
 using moveSet = std::vector<std::pair<int8_t,int8_t>>;
 

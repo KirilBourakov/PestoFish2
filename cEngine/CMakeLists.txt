@@ -12,6 +12,9 @@ pybind11_add_module(cEngine
         src/Board.cpp
         src/Move.cpp
         src/Utils.cpp
+
+        include/Engine.ixx
+        include/Board.ixx
         include/Utils.ixx
         include/Types.ixx
         include/Move.ixx
@@ -32,6 +35,8 @@ add_executable(runTests
         src/Board.cpp
         src/Move.cpp
         src/Utils.cpp
+
+        include/Board.ixx
         include/Utils.ixx
         include/Types.ixx
         include/Move.ixx

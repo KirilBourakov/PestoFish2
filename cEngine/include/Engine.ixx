@@ -1,15 +1,14 @@
 //
-// Created by Kiril on 2025-08-23.
+// Created by Kiril on 2025-08-27.
 //
-#pragma once
-#ifndef ENGINE_H
-#define ENGINE_H
+
+export module Engine;
 import <optional>;
+import Board;
+import Types;
 
-#include "Board.h"
 
-
-class Engine {
+export class Engine {
 public:
     Engine();
     int add(int a, int b);
@@ -28,7 +27,3 @@ private:
     BoardPosition whiteKingSquare;
     BoardPosition blackKingSquare;
 };
-
-
-
-#endif //ENGINE_H
