@@ -1,12 +1,16 @@
 //
 // Created by Kiril on 2025-08-27.
 //
+module;
+#include <iostream>
 
 export module Types;
 
 import <array>;
 import <cstdint>;
 import <optional>;
+import <string>;
+
 
 export enum Piece {
     EMPTY = 0,
@@ -41,10 +45,13 @@ export using BoardArray = std::array<std::array<Piece, 8>, 8>;
 export struct BoardPosition {
     int8_t x, y;
 };
+export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
+    return os << "(" << static_cast<int>(pos.x) << "," << static_cast<int>(pos.y) << ")";
+}
 
 export struct Move {
-    BoardPosition start;
-    BoardPosition end;
+    BoardPosition start{};
+    BoardPosition end{};
     std::optional<Piece> promotion = std::nullopt;
     std::optional<CastleType> castle = std::nullopt;
 
@@ -54,3 +61,6 @@ export struct Move {
             && promotion == other.promotion && castle == other.castle;
     }
 };
+export inline std::ostream& operator<<(std::ostream& os, const Move& m) {
+    return os << "(" << m.start <<" -> " << m.end;
+}

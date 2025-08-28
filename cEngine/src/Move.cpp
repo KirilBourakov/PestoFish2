@@ -34,15 +34,19 @@ void addKingMoves(const BoardArray& board, const int8_t x, const int8_t y, const
     const int8_t newY = color == BLACK ? 0 : 7;
     if (castleAllowed(color, SHORT, castleRights)) {
         constexpr int8_t newX = 6;
-        Move newMove = createMove(start, newX, newY);
-        newMove.castle = SHORT;
-        moves.push_back(newMove);
+        if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY) {
+            Move newMove = createMove(start, newX, newY);
+            newMove.castle = SHORT;
+            moves.push_back(newMove);
+        }
     }
     if (castleAllowed(color, LONG, castleRights)) {
         constexpr int8_t newX = 2;
-        Move newMove = createMove(start, newX, newY);
-        newMove.castle = LONG;
-        moves.push_back(newMove);
+        if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY && board[newY][newX+1] == EMPTY) {
+            Move newMove = createMove(start, newX, newY);
+            newMove.castle = LONG;
+            moves.push_back(newMove);
+        }
     }
 }
 

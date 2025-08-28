@@ -6,3 +6,5 @@ export module testBoard;
 import Types;
 
 export BoardArray foolsMatePosition();
+export BoardArray smotheredMatePosition();
+export BoardArray unBlockedCastle();

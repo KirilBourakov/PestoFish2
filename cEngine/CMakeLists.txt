@@ -45,6 +45,8 @@ add_executable(runTests
 
 target_link_libraries(runTests
         GTest::gtest_main
+        GTest::gmock
+        GTest::gmock_main
 )
 
 target_include_directories(runTests
