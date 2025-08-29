@@ -12,28 +12,28 @@ import Types;
 import Utils;
 import Board;
 
-using moveSet = std::vector<std::pair<int8_t,int8_t>>;
+using moveSet = std::vector<std::pair<int,int>>;
 
-Move createMove(const BoardPosition& start, const int8_t newX, const int8_t newY) {
+Move createMove(const BoardPosition& start, const int newX, const int newY) {
     return Move {start,BoardPosition{.x = newX, .y = newY}};
 }
 
-void addKingMoves(const BoardArray& board, const int8_t x, const int8_t y, const Color color, const int castleRights, std::vector<Move> &moves) {
+void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights, std::vector<Move> &moves) {
     static const moveSet straight_diag = {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
     const BoardPosition start {
         .x = x, .y = y
     };
     for (auto [dx, dy] : straight_diag) {
-        const int8_t newX = x + dx;
-        const int8_t newY = y + dy;
+        const int newX = x + dx;
+        const int newY = y + dy;
         if (inBounds(newX, newY) && !sameColor(color, board[newY][newX])) {
             moves.push_back(createMove(start, newX, newY));
         }
     }
 
-    const int8_t newY = color == BLACK ? 0 : 7;
+    const int newY = color == BLACK ? 0 : 7;
     if (castleAllowed(color, SHORT, castleRights)) {
-        constexpr int8_t newX = 6;
+        constexpr int newX = 6;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY) {
             Move newMove = createMove(start, newX, newY);
             newMove.castle = SHORT;
@@ -41,7 +41,7 @@ void addKingMoves(const BoardArray& board, const int8_t x, const int8_t y, const
         }
     }
     if (castleAllowed(color, LONG, castleRights)) {
-        constexpr int8_t newX = 2;
+        constexpr int newX = 2;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY && board[newY][newX+1] == EMPTY) {
             Move newMove = createMove(start, newX, newY);
             newMove.castle = LONG;
@@ -50,9 +50,9 @@ void addKingMoves(const BoardArray& board, const int8_t x, const int8_t y, const
     }
 }
 
-void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const Color color, const std::optional<BoardPosition>& enPassantSquare, std::vector<Move> &moves) {
-    int8_t dir = color == WHITE ? -1 : 1;
-    int8_t newY = y + dir;
+void addPawnMoves(const BoardArray& board, const int x, const int y, const Color color, const std::optional<BoardPosition>& enPassantSquare, std::vector<Move> &moves) {
+    int dir = color == WHITE ? -1 : 1;
+    int newY = y + dir;
     const BoardPosition start {
         .x = x, .y = y
     };
@@ -64,7 +64,7 @@ void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const
     // attacks
    moveSet attacks = {{+1, dir}, {-1,dir}};
     for (auto [dx, dy] : attacks) {
-        int8_t newX = x + dx;
+        int newX = x + dx;
         newY = y + dy;
         if (inBounds(newX, newY)) {
             if (board[newY][newX] != EMPTY && !sameColor(color, board[newY][newX])) {
@@ -83,13 +83,13 @@ void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const
     }
 
     // double move
-    int8_t startY = color == WHITE ? 6 : 1;
+    int startY = color == WHITE ? 6 : 1;
     if (y == startY) {
         newY = y + 2 * dir;
         if (inBounds(x, newY)) {
             if (board[newY][x] == EMPTY) {
                 Move m = createMove(start, x, newY);
-                const int8_t enPassantSquareY = newY-dir;
+                const int enPassantSquareY = newY-dir;
                 m.enPassant = BoardPosition{x, enPassantSquareY};
                 moves.push_back(m);
             }
@@ -97,14 +97,14 @@ void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const
     }
 }
 
-void addKnightMoves(const BoardArray& board, const int8_t x, const int8_t y, const Color color, std::vector<Move> &moves) {
+void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move> &moves) {
     static const moveSet possible = {{+2, -1}, {+2, +1},{-2, -1}, {-2, +1},{-1, +2}, {+1, +2},{-1, -2}, {+1, -2}};
     const BoardPosition start {
         .x = x, .y = y
     };
     for (auto [off_x, off_y] : possible) {
-        const int8_t newX = x + off_x;
-        const int8_t newY = y + off_y;
+        const int newX = x + off_x;
+        const int newY = y + off_y;
         if (inBounds(newX, newY)) {
             if (!sameColor(color, board[newY][newX])) {
                 moves.push_back(createMove(start, newX, newY));
@@ -113,7 +113,7 @@ void addKnightMoves(const BoardArray& board, const int8_t x, const int8_t y, con
     }
 }
 
-void addSlidingMoves(const BoardArray& board, int8_t x, int8_t y, const bool straight, const bool diag, const Color color, std::vector<Move> &moves) {
+void addSlidingMoves(const BoardArray& board, int x, int y, const bool straight, const bool diag, const Color color, std::vector<Move> &moves) {
     static const moveSet straight_diag = {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
     static const moveSet diag_dir = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
     static const moveSet straight_dir = {{0,1}, {0,-1}, {1,0}, {-1,0}};
@@ -137,8 +137,8 @@ void addSlidingMoves(const BoardArray& board, int8_t x, int8_t y, const bool str
 
     for (auto [dx, dy] : *dirs) {
         for (int i = 1; i < BOARD_SIZE; i++) {
-            const int8_t newY = y + i*dy;
-            const int8_t newX = x + i*dx;
+            const int newY = y + i*dy;
+            const int newX = x + i*dx;
             if (!inBounds(newX, newY)) {
                 break;
             }

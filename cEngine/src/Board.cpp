@@ -18,10 +18,10 @@ BoardArray get_start_board() {
     }};
 }
 
-bool inBounds(const int8_t x) {
+bool inBounds(const int x) {
     return x >= 0 && x < BOARD_SIZE;
 }
-bool inBounds(const int8_t x, const int8_t y) {
+bool inBounds(const int x, const int y) {
     return inBounds(x) && inBounds(y);
 }
 

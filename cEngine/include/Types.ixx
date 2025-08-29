@@ -43,13 +43,13 @@ export enum CastleType {
 export using BoardArray = std::array<std::array<Piece, 8>, 8>;
 
 export struct BoardPosition {
-    int8_t x, y;
+    int x, y;
     bool operator==(const BoardPosition &other) const {
         return x == other.x && y == other.y;
     }
 };
 export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
-    return os << "(" << static_cast<int>(pos.x) << "," << static_cast<int>(pos.y) << ")";
+    return os << "(" << pos.x << "," << pos.y << ")";
 }
 
 export struct Move {
