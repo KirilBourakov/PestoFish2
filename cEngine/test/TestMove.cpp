@@ -16,7 +16,7 @@ TEST(TestMove, GetMovesFromStartWhitePawn) {
     constexpr BoardPosition start{.x = 0, .y = 6};
     const std::vector<Move> expectedMoves = {
         {start, BoardPosition{0, 5}},
-        {start, BoardPosition{0, 4}}
+        {.start = start, .end = BoardPosition{0, 4}, .enPassant = BoardPosition{0, 5}},
     };
 
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
@@ -30,7 +30,7 @@ TEST(TestMove, GetMovesFromStartBlackPawn) {
     constexpr BoardPosition start{.x = 5, .y = 1};
     const std::vector<Move> expectedMoves = {
         {start, BoardPosition{5, 2}},
-        {start, BoardPosition{5, 3}}
+        {.start = start, .end = BoardPosition{5, 3}, .enPassant = BoardPosition{5, 2}}
     };
 
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
@@ -178,4 +178,38 @@ TEST(TestMove, CastleDisAllowed) {
         {bStart, {6, 0}, std::nullopt, SHORT},
     };
     EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
+}
+
+// Sliding Moves
+TEST(TestMove, RookSlidingMoves) {
+    std::vector<Move> moves;
+    addSlidingMoves(unBlockedCastle(), 7, 7, true, false, WHITE, moves);
+
+    constexpr BoardPosition start{ 7, 7};
+    const std::vector<Move> expectedMoves = {
+        {start, {6, 7}},
+        {start, {5, 7}},
+
+        {start, {7, 6}},
+        {start, {7, 5}},
+        {start, {7, 4}},
+        {start, {7, 3}},
+        {start, {7, 2}},
+        {start, {7, 1}},
+        {start, {7, 0}}
+    };
+    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
+}
+
+TEST(TestMove, BishopSlidingMoves) {
+    std::vector<Move> moves;
+    addSlidingMoves(smotheredMatePosition(), 3, 0, false, true, BLACK, moves);
+
+    constexpr BoardPosition start{ 3, 0};
+    const std::vector<Move> expectedMoves = {
+        {start, {2,1}},
+        {start, {1, 2}},
+        {start, {0, 3}}
+    };
+    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }

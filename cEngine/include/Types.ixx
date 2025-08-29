@@ -44,6 +44,9 @@ export using BoardArray = std::array<std::array<Piece, 8>, 8>;
 
 export struct BoardPosition {
     int8_t x, y;
+    bool operator==(const BoardPosition &other) const {
+        return x == other.x && y == other.y;
+    }
 };
 export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
     return os << "(" << static_cast<int>(pos.x) << "," << static_cast<int>(pos.y) << ")";
@@ -54,11 +57,11 @@ export struct Move {
     BoardPosition end{};
     std::optional<Piece> promotion = std::nullopt;
     std::optional<CastleType> castle = std::nullopt;
+    std::optional<BoardPosition> enPassant = std::nullopt;
 
     bool operator==(const Move& other) const {
-        return other.start.x == start.x && other.start.y == start.y
-            && other.end.x == end.x && other.end.y == end.y
-            && promotion == other.promotion && castle == other.castle;
+        return other.start == start && other.end == end
+            && promotion == other.promotion && castle == other.castle && enPassant == other.enPassant;
     }
 };
 export inline std::ostream& operator<<(std::ostream& os, const Move& m) {

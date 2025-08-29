@@ -88,7 +88,10 @@ void addPawnMoves(const BoardArray& board, const int8_t x, const int8_t y, const
         newY = y + 2 * dir;
         if (inBounds(x, newY)) {
             if (board[newY][x] == EMPTY) {
-                moves.push_back(createMove(start, x, newY));
+                Move m = createMove(start, x, newY);
+                const int8_t enPassantSquareY = newY-dir;
+                m.enPassant = BoardPosition{x, enPassantSquareY};
+                moves.push_back(m);
             }
         }
     }
@@ -110,7 +113,7 @@ void addKnightMoves(const BoardArray& board, const int8_t x, const int8_t y, con
     }
 }
 
-void addSlidingMoves(BoardArray& board, int8_t x, int8_t y, std::vector<Move> &moves, const bool straight, const bool diag, const Color color) {
+void addSlidingMoves(const BoardArray& board, int8_t x, int8_t y, const bool straight, const bool diag, const Color color, std::vector<Move> &moves) {
     static const moveSet straight_diag = {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
     static const moveSet diag_dir = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
     static const moveSet straight_dir = {{0,1}, {0,-1}, {1,0}, {-1,0}};
