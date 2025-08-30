@@ -17,7 +17,13 @@ public:
 
     void makeMove(Move move);
 
-    std::vector<Move> getMoves(const BoardArray& board,  Color color, int castleRights, const std::optional<BoardPosition>& enPassantSquare);
+    std::vector<Move> getMoves(
+        const BoardArray& board,
+        Color color,
+        int castleRights,
+        BoardPosition kingPosition,
+        const std::optional<BoardPosition>& enPassantSquare
+    );
 
 private:
     BoardArray board;

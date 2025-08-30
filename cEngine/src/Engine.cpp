@@ -21,9 +21,16 @@ Engine::Engine() {
 
 }
 
-std::vector<Move> Engine::getMoves(const BoardArray& board, const Color color, int castleRights, const std::optional<BoardPosition>& enPassantSquare) {
+std::vector<Move> Engine::getMoves(
+    const BoardArray& board,
+    const Color color,
+    const int castleRights,
+    const BoardPosition kingPosition,
+    const std::optional<BoardPosition>& enPassantSquare
+) {
     std::vector<Move> moves;
 
+    // get all pseudo legal moves
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
             if (sameColor(color, board[y][x])) {
