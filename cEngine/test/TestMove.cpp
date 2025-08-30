@@ -7,6 +7,52 @@ import Move;
 import Types;
 import testBoard;
 
+
+// KING IN CHECK
+TEST(TestMove, NoCheck) {
+    EXPECT_FALSE(isInCheck(foolsMatePosition(), BoardPosition{4,7}));
+    EXPECT_FALSE(isInCheck(foolsMatePosition(), BoardPosition{4,0}));
+}
+
+TEST(TestMove, CheckBlockedByPawn) {
+    EXPECT_FALSE(isInCheck(foolsMatePosition(), BoardPosition{4,7}));
+}
+
+TEST(TestMove, KnightCheck) {
+    EXPECT_TRUE(isInCheck(knightCheck(), BoardPosition{4,7}));
+    EXPECT_TRUE(isInCheck(knightCheck(), BoardPosition{4,0}));
+}
+
+TEST(TestMove, StrightCheck) {
+    EXPECT_TRUE(isInCheck(straightCheck(), BoardPosition{4,7}));
+    EXPECT_TRUE(isInCheck(straightCheck(), BoardPosition{4,0}));
+}
+
+TEST(TestMove, DiagCheck) {
+    EXPECT_TRUE(isInCheck(diagCheck(), BoardPosition{3,7}));
+    EXPECT_TRUE(isInCheck(diagCheck(), BoardPosition{4,0}));
+}
+
+TEST(TestMove, PawnCheck) {
+    EXPECT_TRUE(isInCheck(pawnCheck(), BoardPosition{1,0}));
+    EXPECT_TRUE(isInCheck(pawnCheck(), BoardPosition{1,3}));
+}
+
+TEST(TestMove, PawnBackNotCheck) {
+    EXPECT_FALSE(isInCheck(kingsFlankPawns(), BoardPosition{1,2}));
+    EXPECT_FALSE(isInCheck(kingsFlankPawns(), BoardPosition{3,1}));
+}
+
+TEST(TestMove, InvalidPostion) {
+    EXPECT_THROW(isInCheck(pawnCheck(), BoardPosition{9,9}), std::invalid_argument);
+    EXPECT_THROW(isInCheck(pawnCheck(), BoardPosition{7,7}), std::invalid_argument);
+}
+
+TEST(TestMove, KingCheck) {
+    EXPECT_TRUE(isInCheck(kingCheck(), BoardPosition{1,0}));
+    EXPECT_TRUE(isInCheck(kingCheck(), BoardPosition{0,1}));
+}
+
 // PAWN MOVES
 TEST(TestMove, GetMovesFromStartWhitePawn) {
     std::vector<Move> moves;

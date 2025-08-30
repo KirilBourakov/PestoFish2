@@ -44,6 +44,96 @@ BoardArray unBlockedCastle() {
     }};
 }
 
+BoardArray simpleMiddleGame() {
+    return BoardArray{{
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        BLACK_ROOK}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN, EMPTY,       EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_PAWN, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        WHITE_ROOK,   EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        WHITE_QUEEN, WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
+BoardArray knightCheck() {
+    return BoardArray{{
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        BLACK_ROOK}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN, WHITE_KNIGHT,EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_PAWN, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        WHITE_ROOK,   EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        BLACK_KNIGHT,EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        WHITE_QUEEN, WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
+BoardArray straightCheck() {
+    return BoardArray{{
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        WHITE_ROOK}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        BLACK_ROOK}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN,EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_PAWN, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        BLACK_QUEEN,  EMPTY,       WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
+BoardArray diagCheck() {
+    return BoardArray{{
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        BLACK_ROOK}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN,EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_PAWN, EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_BISHOP, EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        BLACK_QUEEN,  EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        WHITE_KING,  EMPTY, EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
+BoardArray pawnCheck() {
+    return BoardArray{{
+        {{EMPTY,        BLACK_KING,   EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        BLACK_PAWN,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        WHITE_KING,   EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
+BoardArray kingCheck() {
+    return BoardArray{{
+        {{EMPTY,        BLACK_KING,   EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_KING,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
+BoardArray kingsFlankPawns() {
+    return BoardArray{{
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        WHITE_KING,  EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        BLACK_KING,   BLACK_PAWN,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
 
 
 // UNUSED
@@ -58,19 +148,6 @@ BoardArray whiteReadyToPromote() {
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
-    }};
-}
-
-BoardArray simpleMiddleGame() {
-    return BoardArray{{
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        BLACK_ROOK}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_QUEEN, EMPTY,       EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_PAWN, EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        WHITE_ROOK,   EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        WHITE_QUEEN, WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
     }};
 }
 

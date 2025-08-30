@@ -156,12 +156,12 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
 }
 
 
-bool kingInCheck(BoardArray board, BoardPosition kingPosition) {
-    if (std::abs(board[kingPosition.y][kingPosition.x]) != WHITE_KING) {
-        throw std::invalid_argument("King position does not contain king");
+bool isInCheck(const BoardArray &board, const BoardPosition kingPosition) {
+    if (!inBounds(kingPosition.x, kingPosition.y) || std::abs(board[kingPosition.y][kingPosition.x]) != WHITE_KING) {
+        throw std::invalid_argument("King position does not contain king or is out of bounds.");
     }
 
-    Color color = board[kingPosition.y][kingPosition.x] > 0 ? WHITE : BLACK;
+    const Color color = board[kingPosition.y][kingPosition.x] > 0 ? WHITE : BLACK;
 
     static const moveSet straight_dir = {{0,1}, {0,-1}, {1,0}, {-1,0}};
     for (auto [dx, dy] : straight_dir) {
@@ -206,7 +206,7 @@ bool kingInCheck(BoardArray board, BoardPosition kingPosition) {
         }
     }
     // check pawn
-    int dir = color == WHITE ? 1 : -1;
+    int dir = color == WHITE ? -1 : 1;
     moveSet pawnAttacks = {{+1, dir}, {-1,dir}};
     for (auto [dx, dy] : pawnAttacks) {
         const int newY = kingPosition.y + dy;
