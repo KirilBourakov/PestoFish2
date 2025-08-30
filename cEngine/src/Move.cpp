@@ -113,7 +113,7 @@ void addKnightMoves(const BoardArray& board, const int x, const int y, const Col
     }
 }
 
-void addSlidingMoves(const BoardArray& board, int x, int y, const bool straight, const bool diag, const Color color, std::vector<Move> &moves) {
+void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, const bool straight, const bool diag, std::vector<Move> &moves) {
     static const moveSet straight_diag = {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
     static const moveSet diag_dir = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
     static const moveSet straight_dir = {{0,1}, {0,-1}, {1,0}, {-1,0}};

@@ -183,7 +183,7 @@ TEST(TestMove, CastleDisAllowed) {
 // Sliding Moves
 TEST(TestMove, RookSlidingMoves) {
     std::vector<Move> moves;
-    addSlidingMoves(unBlockedCastle(), 7, 7, true, false, WHITE, moves);
+    addSlidingMoves(unBlockedCastle(), 7, 7, WHITE, true, false, moves);
 
     constexpr BoardPosition start{ 7, 7};
     const std::vector<Move> expectedMoves = {
@@ -203,7 +203,7 @@ TEST(TestMove, RookSlidingMoves) {
 
 TEST(TestMove, BishopSlidingMoves) {
     std::vector<Move> moves;
-    addSlidingMoves(smotheredMatePosition(), 3, 0, false, true, BLACK, moves);
+    addSlidingMoves(smotheredMatePosition(), 3, 0, BLACK, false, true, moves);
 
     constexpr BoardPosition start{ 3, 0};
     const std::vector<Move> expectedMoves = {

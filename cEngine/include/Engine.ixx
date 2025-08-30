@@ -4,8 +4,10 @@
 
 export module Engine;
 import <optional>;
+import <vector>;
 import Board;
 import Types;
+
 
 
 export class Engine {
@@ -14,6 +16,8 @@ public:
     int add(int a, int b);
 
     void makeMove(Move move);
+
+    std::vector<Move> getMoves(const BoardArray& board,  Color color, int castleRights, const std::optional<BoardPosition>& enPassantSquare);
 
 private:
     BoardArray board;
