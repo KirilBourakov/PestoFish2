@@ -156,18 +156,18 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
 }
 
 
-bool isInCheck(const BoardArray &board, const BoardPosition kingPosition) {
-    if (!inBounds(kingPosition.x, kingPosition.y) || std::abs(board[kingPosition.y][kingPosition.x]) != WHITE_KING) {
-        throw std::invalid_argument("King position does not contain king or is out of bounds.");
+bool isAttacked(const BoardArray &board, const BoardPosition position) {
+    if (!inBounds(position.x, position.y)) {
+        throw std::invalid_argument("Position is out of bounds");
     }
 
-    const Color color = board[kingPosition.y][kingPosition.x] > 0 ? WHITE : BLACK;
+    const Color color = board[position.y][position.x] > 0 ? WHITE : BLACK;
 
     static const moveSet straight_dir = {{0,1}, {0,-1}, {1,0}, {-1,0}};
     for (auto [dx, dy] : straight_dir) {
         for (int i = 1; i < BOARD_SIZE; i++) {
-            const int newY = kingPosition.y + i*dy;
-            const int newX = kingPosition.x + i*dx;
+            const int newY = position.y + i*dy;
+            const int newX = position.x + i*dx;
             if (!inBounds(newX, newY) || sameColor(color, board[newY][newX])) {
                 break;
             }
@@ -183,8 +183,8 @@ bool isInCheck(const BoardArray &board, const BoardPosition kingPosition) {
     static const moveSet diag_dir = {{1,1}, {1,-1}, {-1,1}, {-1,-1}};
     for (auto [dx, dy] : diag_dir) {
         for (int i = 1; i < BOARD_SIZE; i++) {
-            const int newY = kingPosition.y + i*dy;
-            const int newX = kingPosition.x + i*dx;
+            const int newY = position.y + i*dy;
+            const int newX = position.x + i*dx;
             if (!inBounds(newX, newY) || sameColor(color, board[newY][newX])) {
                 break;
             }
@@ -199,8 +199,8 @@ bool isInCheck(const BoardArray &board, const BoardPosition kingPosition) {
 
     static const moveSet knightHops = {{+2, -1}, {+2, +1},{-2, -1}, {-2, +1},{-1, +2}, {+1, +2},{-1, -2}, {+1, -2}};
     for (auto [dx, dy] : knightHops) {
-        const int newY = kingPosition.y + dy;
-        const int newX = kingPosition.x + dx;
+        const int newY = position.y + dy;
+        const int newX = position.x + dx;
         if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && std::abs(board[newY][newX]) == WHITE_KNIGHT) {
             return true;
         }
@@ -209,8 +209,8 @@ bool isInCheck(const BoardArray &board, const BoardPosition kingPosition) {
     int dir = color == WHITE ? -1 : 1;
     moveSet pawnAttacks = {{+1, dir}, {-1,dir}};
     for (auto [dx, dy] : pawnAttacks) {
-        const int newY = kingPosition.y + dy;
-        const int newX = kingPosition.x + dx;
+        const int newY = position.y + dy;
+        const int newX = position.x + dx;
         if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && std::abs(board[newY][newX]) == WHITE_PAWN) {
             return true;
         }
@@ -220,8 +220,8 @@ bool isInCheck(const BoardArray &board, const BoardPosition kingPosition) {
     for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
             if (dx == 0 && dy == 0) continue;
-            int newX = kingPosition.x + dx;
-            int newY = kingPosition.y + dy;
+            int newX = position.x + dx;
+            int newY = position.y + dy;
             if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) &&std::abs(board[newY][newX]) == WHITE_KING) {
                 return true;
             }

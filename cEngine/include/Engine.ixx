@@ -15,14 +15,12 @@ public:
     Engine();
     int add(int a, int b);
 
-    void makeMove(Move move);
-
     std::vector<Move> getMoves(
-        const BoardArray& board,
+        BoardArray &board,
         Color color,
         int castleRights,
         BoardPosition kingPosition,
-        const std::optional<BoardPosition>& enPassantSquare
+        const std::optional<BoardPosition> &enPassantSquare
     );
 
 private:
@@ -36,4 +34,7 @@ private:
 
     BoardPosition whiteKingSquare;
     BoardPosition blackKingSquare;
+
+    void simulateMove(BoardArray& board, const Move &move);
+    void undoSimulateMove(BoardArray& board, const Move &move, const Piece moved, const Piece captured, std::optional<Piece> enPassantPiece);
 };
