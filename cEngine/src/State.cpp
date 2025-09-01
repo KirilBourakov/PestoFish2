@@ -20,7 +20,7 @@ State::State() {
 }
 
 void State::makeMove(Move move) {
-    castlingHistory.push_back(castlingRights);
+    const HistoricalEntry entry = {move, castlingRights, enPassantSquare};
 
     const Piece newPiece = move.promotedTo.value_or(board[move.start.y][move.start.x]);
     if (!sameColor(activeColor, newPiece)) {
@@ -29,18 +29,31 @@ void State::makeMove(Move move) {
 
     board[move.end.y][move.end.x] = newPiece;
     board[move.start.y][move.start.x] = EMPTY;
-
-    if (move.enPassant.has_value()) {
-        auto [x, y] = move.enPassant.value();
-        board[y][x] = EMPTY;
+    if (move.enPassantCapture) {
+        if (activeColor == WHITE) {
+            board[move.end.y+1][move.end.x] = EMPTY;
+        }
+        else {
+            board[move.end.y-1][move.end.x] = EMPTY;
+        }
     }
+    if (move.newEnPassantSquare.has_value()) {
+        enPassantSquare = move.newEnPassantSquare.value();
+    }
+
 
     // handle removing castling when a rook is taken
-    int backRow = activeColor == WHITE ? 7 : 0;
-    if (backRow == move.start.y && move.start.x == 0 && allowCastle(activeColor, LONG, castlingRights)) {
+    const int backRow = activeColor == WHITE ? 7 : 0;
+    const bool movingKing = std::abs(newPiece) == WHITE_KING;
+
+    const bool movingQueenSideRook = backRow == move.start.y && move.start.x == 0;
+    const bool capturingQueenSideRook = backRow == move.end.y && move.end.x == 0;
+    if ((movingQueenSideRook || capturingQueenSideRook || movingKing) && allowCastle(activeColor, LONG, castlingRights)) {
         disAllowCastle(activeColor, LONG, castlingRights);
     }
-    if (backRow == move.start.y && move.end.x == 7 && allowCastle(activeColor, SHORT, castlingRights)) {
+    const bool movingKingSideRook = backRow == move.start.y && move.start.x == 7;
+    const bool capturingKingSideRook = backRow == move.end.y && move.end.x == 7;
+    if ((movingKingSideRook || capturingKingSideRook || movingKing) && allowCastle(activeColor, SHORT, castlingRights)) {
         disAllowCastle(activeColor, SHORT, castlingRights);
     }
 
@@ -57,14 +70,14 @@ void State::makeMove(Move move) {
         disAllowCastle(activeColor, SHORT, castlingRights);
     }
 
-    history.push_back(move);
+    history.push_back(entry);
     activeColor = activeColor == WHITE ? BLACK : WHITE;
 }
 
 void State::undoMove() {
-    Move move = history.back();
+    HistoricalEntry entry = history.back();
+    Move move = entry.move;
     history.pop_back();
-
     activeColor = activeColor == WHITE ? BLACK : WHITE;
 
     const int color = activeColor == WHITE ? 1 : -1;
@@ -78,15 +91,18 @@ void State::undoMove() {
         board[move.end.y][7] = static_cast<Piece>(color * WHITE_ROOK);
         board[move.end.y][move.end.x-1] = EMPTY;
     }
-
-    if (move.enPassant.has_value()) {
-        auto [x, y] = move.enPassant.value();
-        board[y][x] = static_cast<Piece>(-1 * color * WHITE_PAWN);
-        enPassantSquare = move.enPassant.value();
+    if (move.enPassantCapture) {
+        if (activeColor == WHITE) {
+            board[move.end.y+1][move.end.x] = BLACK_PAWN;
+        }
+        else {
+            board[move.end.y-1][move.end.x] = WHITE_PAWN;
+        }
     }
 
     board[move.end.y][move.end.x] = move.endPiece;
     board[move.start.y][move.start.x] = pieceMoved;
-    castlingRights = castlingHistory.back();
-    castlingHistory.pop_back();
+
+    castlingRights = entry.castlingBeforeMove;
+    enPassantSquare = entry.enPassantBeforeMove;
 }

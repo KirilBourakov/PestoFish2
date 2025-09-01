@@ -53,7 +53,6 @@ export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& po
 }
 
 export struct Move {
-    // TODO: track captured
     BoardPosition start{}; // starting square
     BoardPosition end{}; // end square
     Piece endPiece; // piece on old square

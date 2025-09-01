@@ -16,6 +16,13 @@ public:
     void undoMove();
 
 private:
+    struct HistoricalEntry {
+        Move move;
+        int castlingBeforeMove;
+        std::optional<BoardPosition> enPassantBeforeMove;
+
+    };
+
     // FEN info
     BoardArray board;
     Color activeColor;
@@ -27,7 +34,6 @@ private:
     // Other useful info
     BoardPosition whiteKingSquare;
     BoardPosition blackKingSquare;
-    std::vector<Move> history;
-    std::vector<int> castlingHistory;
-    // TODO: consider enpassent history?
+
+    std::vector<HistoricalEntry> history;
 };
