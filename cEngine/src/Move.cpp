@@ -24,7 +24,7 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
         const int newX = x + dx;
         const int newY = y + dy;
         if (inBounds(newX, newY) && !sameColor(color, board[newY][newX])) {
-            moves.push_back(Move::standardMove(start, {newX, newY}, board[newY][newX]));
+            moves.push_back(Move::standardMove(start, {newX, newY}));
         }
     }
 
@@ -32,13 +32,13 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
     if (castleAllowed(color, SHORT, castleRights)) {
         constexpr int newX = 6;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY) {
-            moves.push_back(Move::castleMove(start, {newX, newY}, board[newY][newX], SHORT));
+            moves.push_back(Move::castleMove(start, {newX, newY}, SHORT));
         }
     }
     if (castleAllowed(color, LONG, castleRights)) {
         constexpr int newX = 2;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY && board[newY][newX+1] == EMPTY) {
-            moves.push_back(Move::castleMove(start, {newX, newY}, board[newY][newX], LONG));
+            moves.push_back(Move::castleMove(start, {newX, newY}, LONG));
         }
     }
 }
@@ -50,7 +50,7 @@ void addPromotions(BoardPosition start, BoardPosition end, Piece piece, Color co
     const auto& usedPieces = (color == WHITE ? whitePieces : blackPieces);
 
     for (const Piece promoteTo : usedPieces) {
-        moves.push_back(Move::promotionMove(start, end, piece, promoteTo));
+        moves.push_back(Move::promotionMove(start, end, promoteTo));
     }
 }
 
@@ -65,7 +65,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         if (newY == 7 || newY == 0) {
             addPromotions(start, {x,newY}, board[newY][x], color, moves);
         } else {
-            moves.push_back(Move::standardMove(start, {x,newY}, board[newY][x]));
+            moves.push_back(Move::standardMove(start, {x,newY}));
         }
     }
 
@@ -79,7 +79,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
                 if (newY == 7 || newY == 0) {
                     addPromotions(start, {x,newY}, board[newY][x], color, moves);
                 } else {
-                    moves.push_back(Move::standardMove(start, {newX, newY}, board[newY][newX]));
+                    moves.push_back(Move::standardMove(start, {newX, newY}));
                 }
             }
         }
@@ -90,7 +90,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         const bool correctX = std::abs(enPassantSquare->x - x) == 1;
         const bool correctY = enPassantSquare->y == y + dir;
         if (correctX && correctY) {
-            moves.push_back(Move::enPassantCaptureMove(start, {enPassantSquare->x, enPassantSquare->y}, board[enPassantSquare->y][enPassantSquare->x]));
+            moves.push_back(Move::enPassantCaptureMove(start, {enPassantSquare->x, enPassantSquare->y}));
         }
     }
 
@@ -101,11 +101,10 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         if (inBounds(x, newY)) {
             if (board[newY][x] == EMPTY) {
                 const int enPassantSquareY = newY-dir;
-                moves.push_back(Move::doublePawnMove(start, {x, newY}, board[newY][x], {x, enPassantSquareY}));
+                moves.push_back(Move::doublePawnMove(start, {x, newY}, {x, enPassantSquareY}));
             }
         }
     }
-    // TODO: handle promotion
 }
 
 void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move> &moves) {
@@ -118,7 +117,7 @@ void addKnightMoves(const BoardArray& board, const int x, const int y, const Col
         const int newY = y + off_y;
         if (inBounds(newX, newY)) {
             if (!sameColor(color, board[newY][newX])) {
-                moves.push_back(Move::standardMove(start, {newX, newY}, board[newY][newX]));
+                moves.push_back(Move::standardMove(start, {newX, newY}));
             }
         }
     }
@@ -158,7 +157,7 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
                 break;
             }
 
-            moves.push_back(Move::standardMove(start, {newX, newY}, board[newY][newX]));
+            moves.push_back(Move::standardMove(start, {newX, newY}));
             if (board[newY][newX] != EMPTY) {
                 break;
             }

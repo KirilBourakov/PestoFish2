@@ -18,7 +18,11 @@ public:
 private:
     struct HistoricalEntry {
         Move move;
+        Piece movedPiece; // piece moved by move
+        Piece overwrittenPiece; // piece replaced by movedPiece
+
         int castlingBeforeMove;
+        int halfMoveClockBeforeMove;
         std::optional<BoardPosition> enPassantBeforeMove;
 
     };
@@ -29,7 +33,7 @@ private:
     int castlingRights;
     std::optional<BoardPosition> enPassantSquare;
     int halfMoveClock;
-    int fullMoveCock;
+    int fullMoveClock;
 
     // Other useful info
     BoardPosition whiteKingSquare;

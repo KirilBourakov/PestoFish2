@@ -55,53 +55,50 @@ export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& po
 export struct Move {
     BoardPosition start{}; // starting square
     BoardPosition end{}; // end square
-    Piece endPiece; // piece on old square
 
     bool enPassantCapture = false;
     std::optional<Piece> promotedTo = std::nullopt; // piece being promoted to
     std::optional<CastleType> castle = std::nullopt; // castle type
     std::optional<BoardPosition> newEnPassantSquare = std::nullopt; // location where en passant square now is
 
-    static Move standardMove(BoardPosition start, BoardPosition end, Piece endPiece) {
-        return {start, end, endPiece};
+    static Move standardMove(BoardPosition start, BoardPosition end) {
+        return {start, end};
     }
-    static Move promotionMove(BoardPosition start, BoardPosition end, Piece endPiece, Piece promotedTo) {
-        return {start, end, endPiece, promotedTo};
+    static Move promotionMove(BoardPosition start, BoardPosition end, Piece promotedTo) {
+        return {start, end, promotedTo};
     }
-    static Move castleMove(BoardPosition start, BoardPosition end, Piece endPiece, CastleType castle) {
-        return {start, end, endPiece, castle};
+    static Move castleMove(BoardPosition start, BoardPosition end, CastleType castle) {
+        return {start, end, castle};
     }
-    static Move doublePawnMove(BoardPosition start, BoardPosition end, Piece endPiece, BoardPosition enPassantSquare) {
-        return {start, end, endPiece, enPassantSquare};
+    static Move doublePawnMove(BoardPosition start, BoardPosition end, BoardPosition enPassantSquare) {
+        return {start, end, enPassantSquare};
     }
-    static Move enPassantCaptureMove(BoardPosition start, BoardPosition end, Piece endPiece){
-        Move m = {start, end, endPiece};
+    static Move enPassantCaptureMove(BoardPosition start, BoardPosition end){
+        Move m = {start, end};
         m.enPassantCapture = true;
         return m;
     }
 
     bool operator==(const Move& other) const {
         return other.start == start && other.end == end
-            && promotedTo == other.promotedTo && castle == other.castle && newEnPassantSquare == other.newEnPassantSquare && endPiece == other.endPiece;
+            && promotedTo == other.promotedTo && castle == other.castle && newEnPassantSquare == other.newEnPassantSquare;
     }
 private:
     Move() = default;
-    Move(BoardPosition start, BoardPosition end, Piece endPiece) {
+    Move(BoardPosition start, BoardPosition end) {
         this->start = start;
         this->end = end;
-        this->endPiece = endPiece;
     }
-    Move(BoardPosition start, BoardPosition end, Piece endPiece, Piece promotedTo) : Move(start, end, endPiece) {
+    Move(BoardPosition start, BoardPosition end, Piece promotedTo) : Move(start, end) {
         this->promotedTo = promotedTo;
     }
-    Move(BoardPosition start, BoardPosition end, Piece endPiece, CastleType castle) : Move(start, end, endPiece) {
+    Move(BoardPosition start, BoardPosition end, CastleType castle) : Move(start, end) {
         this->castle = castle;
     }
-    Move(BoardPosition start, BoardPosition end, Piece endPiece, BoardPosition enPassant) : Move(start, end, endPiece) {
+    Move(BoardPosition start, BoardPosition end, BoardPosition enPassant) : Move(start, end) {
         this->newEnPassantSquare = enPassant;
     }
-
 };
 export inline std::ostream& operator<<(std::ostream& os, const Move& m) {
-    return os << "(" << m.start <<" -> " << m.end << "[" << std::to_string(m.endPiece) << "]";
+    return os << "(" << m.start <<" -> " << m.end;
 }
