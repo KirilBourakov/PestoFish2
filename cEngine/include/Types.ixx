@@ -53,6 +53,7 @@ export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& po
 }
 
 export struct Move {
+    // TODO: track captured
     BoardPosition start{};
     BoardPosition end{};
     std::optional<Piece> promotion = std::nullopt;

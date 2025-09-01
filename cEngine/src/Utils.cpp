@@ -31,3 +31,17 @@ void disAllowCastle(const Color color, const CastleType type, int& castleRights)
     }
     castleRights &= ~(1 << bit);
 }
+void allowCastle(const Color color, const CastleType type, int& castleRights) {
+    int bit;
+    if (type == SHORT && color == WHITE) {
+        bit = 3;
+    } else if (type == LONG && color == WHITE) {
+        bit = 2;
+    } else if (type == SHORT && color == BLACK) {
+        bit = 1;
+    } else {
+        bit = 0;
+    }
+    castleRights |= (1 << bit);
+}
+

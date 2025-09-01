@@ -28,7 +28,7 @@ std::vector<Move> Engine::getMoves(
     const BoardPosition kingPosition,
     const std::optional<BoardPosition> &enPassantSquare
 ) {
-    /// TODO: add perft testing for this (depth 6)?
+    /// TODO: add perft testing for this (depth 6)? Refactor to board state struct (board state class?)
 
     std::vector<Move> moves;
 
@@ -85,9 +85,9 @@ std::vector<Move> Engine::getMoves(
                 newKingPos = move.end;
             }
 
-            this->simulateMove(board, move);
+            Engine::simulateMove(board, move);
             isValid = !isAttacked(board, newKingPos);
-            this->undoSimulateMove(board, move, moved, captured, enPassantPiece);
+            Engine::undoSimulateMove(board, move, moved, captured, enPassantPiece);
         }
         if (isValid) {
             legalMoves.push_back(move);
