@@ -20,6 +20,8 @@ State::State() {
 }
 
 void State::makeMove(Move move) {
+    castlingHistory.push_back(castlingRights);
+
     const Piece newPiece = move.promotion.value_or(board[move.start.y][move.start.x]);
     if (!sameColor(activeColor, newPiece)) {
         throw std::invalid_argument("Moving piece from wrong side.");
@@ -33,7 +35,15 @@ void State::makeMove(Move move) {
         board[y][x] = EMPTY;
     }
 
-    // TODO: handle rook moves changing castling rights
+    // handle removing castling when a rook is taken
+    int backRow = activeColor == WHITE ? 7 : 0;
+    if (backRow == move.start.y && move.start.x == 0 && allowCastle(activeColor, LONG, castlingRights)) {
+        disAllowCastle(activeColor, LONG, castlingRights);
+    }
+    if (backRow == move.start.y && move.end.x == 7 && allowCastle(activeColor, SHORT, castlingRights)) {
+        disAllowCastle(activeColor, SHORT, castlingRights);
+    }
+
     if (move.castle == LONG) {
         const Piece rook = board[move.end.y][0];
         board[move.end.y][0] = EMPTY;
@@ -57,18 +67,16 @@ void State::undoMove() {
 
     activeColor = activeColor == WHITE ? BLACK : WHITE;
 
-    const int color = board[move.end.y][move.end.x] < 0 ? -1 : 1;
+    const int color = activeColor == WHITE ? 1 : -1;
     const Piece pieceMoved = move.promotion.has_value() ? static_cast<Piece>(color * WHITE_PAWN) : board[move.end.y][move.end.x];
 
     if (move.castle == LONG) {
         board[move.end.y][0] = static_cast<Piece>(color * WHITE_ROOK);
         board[move.end.y][move.end.x+1] = EMPTY;
-        allowCastle(activeColor, LONG, castlingRights);
     }
     else if (move.castle == SHORT) {
         board[move.end.y][7] = static_cast<Piece>(color * WHITE_ROOK);
         board[move.end.y][move.end.x-1] = EMPTY;
-        allowCastle(activeColor, SHORT, castlingRights);
     }
 
     if (move.enPassant.has_value()) {
@@ -77,7 +85,8 @@ void State::undoMove() {
         enPassantSquare = move.enPassant.value();
     }
 
-    // TODO: handle undoing capturing pieces
-    board[move.end.y][move.end.x] = EMPTY;
+    board[move.end.y][move.end.x] = move.endPiece;
     board[move.start.y][move.start.x] = pieceMoved;
+    castlingRights = castlingHistory.back();
+    castlingHistory.pop_back();
 }

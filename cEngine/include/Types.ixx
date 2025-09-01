@@ -56,15 +56,18 @@ export struct Move {
     // TODO: track captured
     BoardPosition start{};
     BoardPosition end{};
+    Piece endPiece;
+
+    // TODO: we'd need to store the enPassent square, and a bool to tell us if it's capturing enPassent
     std::optional<Piece> promotion = std::nullopt;
     std::optional<CastleType> castle = std::nullopt;
     std::optional<BoardPosition> enPassant = std::nullopt;
 
     bool operator==(const Move& other) const {
         return other.start == start && other.end == end
-            && promotion == other.promotion && castle == other.castle && enPassant == other.enPassant;
+            && promotion == other.promotion && castle == other.castle && enPassant == other.enPassant && endPiece == other.endPiece;
     }
 };
 export inline std::ostream& operator<<(std::ostream& os, const Move& m) {
-    return os << "(" << m.start <<" -> " << m.end;
+    return os << "(" << m.start <<" -> " << m.end << "[" << std::to_string(m.endPiece) << "]";
 }

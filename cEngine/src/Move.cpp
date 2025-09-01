@@ -14,8 +14,8 @@ import Board;
 
 using moveSet = std::vector<std::pair<int,int>>;
 
-Move createMove(const BoardPosition& start, const int newX, const int newY) {
-    return Move {start,BoardPosition{.x = newX, .y = newY}};
+Move createMove(const BoardPosition& start, const int newX, const int newY, const Piece endPiece) {
+    return Move {start,BoardPosition{.x = newX, .y = newY}, endPiece};
 }
 
 void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights, std::vector<Move> &moves) {
@@ -27,7 +27,7 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
         const int newX = x + dx;
         const int newY = y + dy;
         if (inBounds(newX, newY) && !sameColor(color, board[newY][newX])) {
-            moves.push_back(createMove(start, newX, newY));
+            moves.push_back(createMove(start, newX, newY, board[newY][newX]));
         }
     }
 
@@ -35,7 +35,7 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
     if (castleAllowed(color, SHORT, castleRights)) {
         constexpr int newX = 6;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY) {
-            Move newMove = createMove(start, newX, newY);
+            Move newMove = createMove(start, newX, newY, board[newY][newX]);
             newMove.castle = SHORT;
             moves.push_back(newMove);
         }
@@ -43,7 +43,7 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
     if (castleAllowed(color, LONG, castleRights)) {
         constexpr int newX = 2;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY && board[newY][newX+1] == EMPTY) {
-            Move newMove = createMove(start, newX, newY);
+            Move newMove = createMove(start, newX, newY, board[newY][newX]);
             newMove.castle = LONG;
             moves.push_back(newMove);
         }
@@ -58,7 +58,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
     };
     // standered move
     if (inBounds(x,newY) && board[newY][x] == EMPTY) {
-        moves.push_back(createMove(start, x, newY));
+        moves.push_back(createMove(start, x, newY, board[newY][x]));
     }
 
     // attacks
@@ -68,7 +68,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         newY = y + dy;
         if (inBounds(newX, newY)) {
             if (board[newY][newX] != EMPTY && !sameColor(color, board[newY][newX])) {
-                moves.push_back(createMove(start, newX, newY));
+                moves.push_back(createMove(start, newX, newY, board[newY][newX]));
             }
         }
     }
@@ -78,7 +78,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         const bool correctX = std::abs(enPassantSquare->x - x) == 1;
         const bool correctY = enPassantSquare->y == y + dir;
         if (correctX && correctY) {
-            moves.push_back(createMove(start, enPassantSquare->x, enPassantSquare->y));
+            moves.push_back(createMove(start, enPassantSquare->x, enPassantSquare->y, board[enPassantSquare->y][enPassantSquare->x]));
         }
     }
 
@@ -88,7 +88,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         newY = y + 2 * dir;
         if (inBounds(x, newY)) {
             if (board[newY][x] == EMPTY) {
-                Move m = createMove(start, x, newY);
+                Move m = createMove(start, x, newY, board[newY][x]);
                 const int enPassantSquareY = newY-dir;
                 m.enPassant = BoardPosition{x, enPassantSquareY};
                 moves.push_back(m);
@@ -107,7 +107,7 @@ void addKnightMoves(const BoardArray& board, const int x, const int y, const Col
         const int newY = y + off_y;
         if (inBounds(newX, newY)) {
             if (!sameColor(color, board[newY][newX])) {
-                moves.push_back(createMove(start, newX, newY));
+                moves.push_back(createMove(start, newX, newY, board[newY][newX]));
             }
         }
     }
@@ -147,7 +147,7 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
                 break;
             }
 
-            moves.push_back(createMove(start, newX, newY));
+            moves.push_back(createMove(start, newX, newY, board[newY][newX]));
             if (board[newY][newX] != EMPTY) {
                 break;
             }

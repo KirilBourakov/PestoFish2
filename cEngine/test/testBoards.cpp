@@ -39,7 +39,7 @@ BoardArray unBlockedCastle() {
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        WHITE_PAWN,  WHITE_PAWN, WHITE_PAWN,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        WHITE_PAWN,  WHITE_PAWN, WHITE_PAWN,   EMPTY,        EMPTY}},
         {{WHITE_ROOK,   EMPTY,        EMPTY,        EMPTY,       WHITE_KING, EMPTY,        EMPTY,        WHITE_ROOK}}
     }};
 }

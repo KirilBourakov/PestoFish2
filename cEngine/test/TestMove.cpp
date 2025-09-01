@@ -92,8 +92,8 @@ TEST(TestMove, GetMovesWhitePawnCaptureAndPush) {
 
     constexpr BoardPosition start{.x = 2, .y = 4};
     const std::vector<Move> expectedMoves = {
-        {start, BoardPosition{2, 3}},
-        {start, BoardPosition{1, 3}}
+        {start, BoardPosition{2, 3}, EMPTY},
+        {start, BoardPosition{1, 3}, BLACK_PAWN}
     };
 
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
@@ -112,18 +112,18 @@ TEST(TestMove, BlackPawnBlocked) {
 }
 
 // Knight Moves
-TEST(TestMove, smotheredMatePosition) {
+TEST(TestMove, smotheredMateKnight) {
     std::vector<Move> moves;
     addKnightMoves(smotheredMatePosition(), 4, 4, WHITE, moves);
 
     constexpr BoardPosition start{ 4, 4};
     const std::vector<Move> expectedMoves = {
-        {start, {5, 2}},
-        {start, {3, 2}},
+        {start, {5, 2}, EMPTY},
+        {start, {3, 2}, EMPTY},
 
-        {start, {6, 3}},
-        {start, {2, 5}},
-        {start, {2, 3}},
+        {start, {6, 3}, EMPTY},
+        {start, {2, 5}, EMPTY},
+        {start, {2, 3}, BLACK_ROOK},
     };
 
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
@@ -134,9 +134,9 @@ TEST(TestMove, cornerKnight) {
     addKnightMoves(smotheredMatePosition(), 0, 5, WHITE, moves);
     constexpr BoardPosition start{ 0, 5};
     const std::vector<Move> expectedMoves = {
-        {start, {1, 3}},
-        {start, {2, 4}},
-        {start, {1, 7}},
+        {start, {1, 3}, EMPTY},
+        {start, {2, 4}, EMPTY},
+        {start, {1, 7}, EMPTY},
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }
@@ -158,9 +158,9 @@ TEST(TestMove, StanderedKingMove) {
     addKingMoves(smotheredMatePosition(), 4, 7, WHITE, 0b1111, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
-        {start, {4,6}},
-        {start, {5, 7}},
-        {start, {6, 7}, std::nullopt, SHORT }
+        {start, {4, 6,}, EMPTY},
+        {start, {5, 7,}, EMPTY},
+        {start, {6, 7}, EMPTY,  std::nullopt, SHORT, std::nullopt},
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }
@@ -181,10 +181,10 @@ TEST(TestMove, CastleAllowed) {
     addKingMoves(unBlockedCastle(), 4, 7, WHITE, 0b1111, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
-        {start, {3, 7}},
-        {start, {5, 7}},
-        {start, {6, 7}, std::nullopt, SHORT},
-        {start, {2, 7}, std::nullopt, LONG}
+        {start, {3, 7}, EMPTY},
+        {start, {5, 7}, EMPTY},
+        {start, {6, 7}, EMPTY, std::nullopt, SHORT},
+        {start, {2, 7}, EMPTY, std::nullopt, LONG}
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 
@@ -192,14 +192,14 @@ TEST(TestMove, CastleAllowed) {
     addKingMoves(unBlockedCastle(), 4, 0, BLACK, 0b1111, moves);
     constexpr BoardPosition bStart{ 4, 0};
     const std::vector<Move> bExpectedMoves = {
-        {bStart, {3, 0}},
-        {bStart, {5, 0}},
-        {bStart, {4, 1}},
-        {bStart, {3, 1}},
-        {bStart, {5, 1}},
+        {bStart, {3, 0}, EMPTY},
+        {bStart, {5, 0}, EMPTY},
+        {bStart, {4, 1}, EMPTY},
+        {bStart, {3, 1}, EMPTY},
+        {bStart, {5, 1}, EMPTY},
 
-        {bStart, {6, 0}, std::nullopt, SHORT},
-        {bStart, {2, 0}, std::nullopt, LONG}
+        {bStart, {6, 0}, EMPTY, std::nullopt, SHORT},
+        {bStart, {2, 0}, EMPTY, std::nullopt, LONG}
     };
     EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
 }
@@ -218,13 +218,13 @@ TEST(TestMove, CastleDisAllowed) {
     addKingMoves(unBlockedCastle(), 4, 0, BLACK, 0b0010, moves);
     constexpr BoardPosition bStart{ 4, 0};
     const std::vector<Move> bExpectedMoves = {
-        {bStart, {3, 0}},
-        {bStart, {5, 0}},
-        {bStart, {4, 1}},
-        {bStart, {3, 1}},
-        {bStart, {5, 1}},
+        {bStart, {3, 0}, EMPTY},
+        {bStart, {5, 0}, EMPTY},
+        {bStart, {4, 1}, EMPTY},
+        {bStart, {3, 1}, EMPTY},
+        {bStart, {5, 1}, EMPTY},
 
-        {bStart, {6, 0}, std::nullopt, SHORT},
+        {bStart, {6, 0}, EMPTY, std::nullopt, SHORT},
     };
     EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
 }
@@ -236,16 +236,16 @@ TEST(TestMove, RookSlidingMoves) {
 
     constexpr BoardPosition start{ 7, 7};
     const std::vector<Move> expectedMoves = {
-        {start, {6, 7}},
-        {start, {5, 7}},
+        {start, {6, 7}, EMPTY},
+        {start, {5, 7}, EMPTY},
 
-        {start, {7, 6}},
-        {start, {7, 5}},
-        {start, {7, 4}},
-        {start, {7, 3}},
-        {start, {7, 2}},
-        {start, {7, 1}},
-        {start, {7, 0}}
+        {start, {7, 6}, EMPTY},
+        {start, {7, 5}, EMPTY},
+        {start, {7, 4}, EMPTY},
+        {start, {7, 3}, EMPTY},
+        {start, {7, 2}, EMPTY},
+        {start, {7, 1}, EMPTY},
+        {start, {7, 0}, BLACK_ROOK}
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }

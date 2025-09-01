@@ -28,4 +28,6 @@ private:
     BoardPosition whiteKingSquare;
     BoardPosition blackKingSquare;
     std::vector<Move> history;
+    std::vector<int> castlingHistory;
+    // TODO: consider enpassent history?
 };
