@@ -22,7 +22,7 @@ State::State() {
 void State::makeMove(Move move) {
     castlingHistory.push_back(castlingRights);
 
-    const Piece newPiece = move.promotion.value_or(board[move.start.y][move.start.x]);
+    const Piece newPiece = move.promotedTo.value_or(board[move.start.y][move.start.x]);
     if (!sameColor(activeColor, newPiece)) {
         throw std::invalid_argument("Moving piece from wrong side.");
     }
@@ -68,7 +68,7 @@ void State::undoMove() {
     activeColor = activeColor == WHITE ? BLACK : WHITE;
 
     const int color = activeColor == WHITE ? 1 : -1;
-    const Piece pieceMoved = move.promotion.has_value() ? static_cast<Piece>(color * WHITE_PAWN) : board[move.end.y][move.end.x];
+    const Piece pieceMoved = move.promotedTo.has_value() ? static_cast<Piece>(color * WHITE_PAWN) : board[move.end.y][move.end.x];
 
     if (move.castle == LONG) {
         board[move.end.y][0] = static_cast<Piece>(color * WHITE_ROOK);

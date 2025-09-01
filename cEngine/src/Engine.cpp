@@ -75,8 +75,8 @@ std::vector<Move> Engine::getMoves(
             Piece moved = board[move.start.y][move.start.x];
             Piece captured = board[move.end.y][move.end.x];
             std::optional<Piece> enPassantPiece = std::nullopt;
-            if (move.enPassant.has_value()) {
-                BoardPosition enPassantPosition = move.enPassant.value();
+            if (move.newEnPassantSquare.has_value()) {
+                BoardPosition enPassantPosition = move.newEnPassantSquare.value();
                 enPassantPiece = board[enPassantPosition.y][enPassantPosition.x];
             }
 
@@ -97,11 +97,11 @@ std::vector<Move> Engine::getMoves(
     return legalMoves;
 }
 void Engine::simulateMove(BoardArray& board, const Move &move) {
-    const Piece newPiece = move.promotion.value_or(board[move.start.y][move.start.x]);
+    const Piece newPiece = move.promotedTo.value_or(board[move.start.y][move.start.x]);
     board[move.end.y][move.end.x] = newPiece;
     board[move.start.y][move.start.x] = EMPTY;
-    if (move.enPassant.has_value()) {
-        BoardPosition enPassantPosition = move.enPassant.value();
+    if (move.newEnPassantSquare.has_value()) {
+        BoardPosition enPassantPosition = move.newEnPassantSquare.value();
         board[enPassantPosition.y][enPassantPosition.x] = EMPTY;
     }
 
@@ -120,11 +120,11 @@ void Engine::simulateMove(BoardArray& board, const Move &move) {
 void Engine::undoSimulateMove(BoardArray& board, const Move &move, const Piece moved, const Piece captured, std::optional<Piece> enPassantPiece) {
     board[move.start.y][move.start.x] = moved;
     board[move.end.y][move.end.x] = captured;
-    if (enPassantPiece.has_value() && move.enPassant.has_value()) {
-        BoardPosition enPassantPosition = move.enPassant.value();
+    if (enPassantPiece.has_value() && move.newEnPassantSquare.has_value()) {
+        BoardPosition enPassantPosition = move.newEnPassantSquare.value();
         board[enPassantPosition.y][enPassantPosition.x] = enPassantPiece.value();
     }
-    else if ((enPassantPiece.has_value() && !move.enPassant.has_value()) || (!enPassantPiece.has_value() && move.enPassant.has_value())) {
+    else if ((enPassantPiece.has_value() && !move.newEnPassantSquare.has_value()) || (!enPassantPiece.has_value() && move.newEnPassantSquare.has_value())) {
         throw std::invalid_argument("EnPassant value mismatch!");
     }
 
