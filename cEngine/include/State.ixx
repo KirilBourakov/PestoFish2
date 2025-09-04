@@ -14,6 +14,7 @@ public:
 
     void makeMove(Move move);
     void undoMove();
+    std::vector<Move> getMoves();
 
 private:
     struct HistoricalEntry {

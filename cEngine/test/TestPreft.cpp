@@ -3,13 +3,37 @@
 //
 
 #include <gtest/gtest.h>
-import Engine;
 import Types;
+import State;
 
-int preft(int depth) {
-    if (depth == 0) {
-        return 0;
+typedef unsigned long long u64;
+
+u64 Perft(State state, int depth)
+{
+    if (depth == 0)
+        return 1ULL;
+
+    u64 nodes = 0;
+
+    std::vector<Move> moves = state.getMoves();
+    for (Move move : moves) {
+        state.makeMove(move);
+        nodes += Perft(state, depth - 1);
+        state.undoMove();
     }
 
-    std::vector<Move> move = Engine::getMoves()
+    return nodes;
 }
+
+TEST(Preft, depth1) {
+    ASSERT_EQ(Perft(State{}, 15), 20);
+}
+// TEST(Preft, depth2) {
+//     ASSERT_EQ(Perft(State{}, 2), 400);
+// }
+// TEST(Preft, depth3) {
+//     ASSERT_EQ(Perft(State{}, 3),  8902);
+// }
+// TEST(Preft, depth4) {
+//     ASSERT_EQ(Perft(State{}, 4), 197281);
+// }

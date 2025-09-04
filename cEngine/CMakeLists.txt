@@ -8,6 +8,7 @@ find_package(pybind11 REQUIRED)
 
 set(ENGINE_SOURCES
         src/Engine.cpp
+        src/State.cpp
         src/Board.cpp
         src/Move.cpp
         src/Utils.cpp
@@ -15,6 +16,7 @@ set(ENGINE_SOURCES
 
 set(ENGINE_MODULES
         include/Engine.ixx
+        include/State.ixx
         include/Board.ixx
         include/Utils.ixx
         include/Types.ixx
@@ -36,9 +38,10 @@ add_subdirectory(extern/googletest)
 enable_testing()
 add_executable(runTests
         test/TestMove.cpp
+        test/TestPreft.cpp
+
         test/testBoards.cpp
         test/testBoard.ixx
-
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
 )

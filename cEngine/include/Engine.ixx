@@ -15,17 +15,6 @@ public:
     Engine();
     int add(int a, int b);
 
-    static std::vector<Move> getMoves(
-        BoardArray &board,
-        Color color,
-        int castleRights,
-        BoardPosition kingPosition,
-        const std::optional<BoardPosition> &enPassantSquare
-    ) ;
-
-    static void simulateMove(BoardArray& board, const Move &move);
-    static void undoSimulateMove(BoardArray& board, const Move &move, const Piece moved, const Piece captured, std::optional<Piece> enPassantPiece);
-
 private:
     BoardArray board;
 
