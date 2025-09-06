@@ -25,8 +25,22 @@ u64 Perft(State state, int depth)
     return nodes;
 }
 
+void PerftDivide(State state, int depth) {
+    auto moves = state.getMoves();
+    u64 total = 0;
+    for (auto move : moves) {
+        state.makeMove(move);
+        u64 count = Perft(state, depth - 1);
+        state.undoMove();
+        std::cout << move << ": " << count << "\n";
+        total += count;
+    }
+    std::cout << "Total: " << total << "\n";
+}
+
 TEST(Preft, depth1) {
-    ASSERT_EQ(Perft(State{}, 15), 20);
+    PerftDivide(State{}, 3);
+    ASSERT_EQ(Perft(State{}, 1), 20);
 }
 // TEST(Preft, depth2) {
 //     ASSERT_EQ(Perft(State{}, 2), 400);

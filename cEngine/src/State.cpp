@@ -23,10 +23,7 @@ State::State() {
 }
 
 std::vector<Move> State::getMoves() {
-    /// TODO: add perft testing for this (depth 6)? Refactor to board state struct (board state class?)
-
     std::vector<Move> moves;
-
     // get all pseudo legal moves
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
@@ -60,7 +57,7 @@ std::vector<Move> State::getMoves() {
     for (Move move : moves) {
         bool isValid = true;
         if (move.castle == LONG) {
-            isValid = !isAttacked(board, BoardPosition{.x=move.end.x+1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
+            isValid = !isAttacked(board, BoardPosition{.x=move.end.x+1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.end.x+2, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
         }
         else if (move.castle == SHORT) {
             isValid = !isAttacked(board, BoardPosition{.x=move.end.x-1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
