@@ -6,7 +6,20 @@ import State;
 import testBoard;
 import Types;
 
-TEST(Test, pawnTakesPawn) {
+TEST(getMoves, whiteCheckmated) {
+    State state{
+        whiteBackRanked(),
+        WHITE,
+        0b1111,
+        std::nullopt
+    };
+
+    std::vector<Move> moves = state.getMoves();
+    ASSERT_EQ(0, moves.size());
+}
+
+
+TEST(MakeUndo, pawnTakesPawn) {
     State state{
         foolsMatePosition(),
         WHITE,

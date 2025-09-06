@@ -16,3 +16,5 @@ export BoardArray diagCheck();
 export BoardArray pawnCheck();
 export BoardArray kingCheck();
 export BoardArray kingsFlankPawns();
+
+export BoardArray whiteBackRanked();

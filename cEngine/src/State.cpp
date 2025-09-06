@@ -2,6 +2,7 @@
 // Created by Kiril on 2025-08-31.
 //
 module;
+#include <iostream>
 #include <stdexcept>
 module State;
 import <array>;
@@ -86,8 +87,9 @@ std::vector<Move> State::getMoves() {
             isValid = !isAttacked(board, BoardPosition{.x=move.end.x-1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
         }
         if (isValid) {
+            Color preMoveColor = activeColor;
             makeMove(move);
-            isValid = !isAttacked(board, activeColor == WHITE ? whiteKingSquare : blackKingSquare);
+            isValid = !isAttacked(board, preMoveColor == WHITE ? whiteKingSquare : blackKingSquare);
             undoMove();
         }
         if (isValid) {

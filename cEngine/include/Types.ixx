@@ -49,7 +49,7 @@ export struct BoardPosition {
     }
 };
 export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
-    return os << "(" << static_cast<char>(pos.x + 97) << (abs(pos.y - 8)) << ")";
+    return os << static_cast<char>(pos.x + 97) << (abs(pos.y - 8)) << "(" << pos.x << "," << pos.y << ")";
 }
 
 export struct Move {
@@ -100,5 +100,5 @@ private:
     }
 };
 export inline std::ostream& operator<<(std::ostream& os, const Move& m) {
-    return os << "(" << m.start <<" -> " << m.end;
+    return os << m.start <<" -> " << m.end;
 }

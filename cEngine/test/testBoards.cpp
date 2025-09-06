@@ -135,44 +135,15 @@ BoardArray kingsFlankPawns() {
     }};
 }
 
-
-// UNUSED
-
-BoardArray whiteReadyToPromote() {
+BoardArray whiteBackRanked() {
     return BoardArray{{
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        BLACK_KING,   BLACK_PAWN,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
-    }};
-}
-
-BoardArray whiteEnpassent() {
-    return BoardArray{{
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        WHITE_PAWN,   BLACK_PAWN,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
-    }};
-}
-
-BoardArray blackEnpassent() {
-    return BoardArray{{
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        WHITE_PAWN,   BLACK_PAWN,  EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
-        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KING, EMPTY,        EMPTY,        EMPTY}}
+        {{WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        WHITE_KING,   EMPTY,        BLACK_ROOK,  EMPTY,      EMPTY,        EMPTY,        EMPTY}}
     }};
 }
