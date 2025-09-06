@@ -147,3 +147,16 @@ BoardArray whiteBackRanked() {
         {{EMPTY,        WHITE_KING,   EMPTY,        BLACK_ROOK,  EMPTY,      EMPTY,        EMPTY,        EMPTY}}
     }};
 }
+
+BoardArray whiteSavedByBishop() {
+    return BoardArray{{
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        BLACK_KING,   BLACK_PAWN,   EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   EMPTY,       WHITE_BISHOP,EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        WHITE_KING,   EMPTY,        BLACK_ROOK,  EMPTY,       EMPTY,        EMPTY,        EMPTY}}
+    }};
+}

@@ -18,3 +18,4 @@ export BoardArray kingCheck();
 export BoardArray kingsFlankPawns();
 
 export BoardArray whiteBackRanked();
+export BoardArray whiteSavedByBishop();
