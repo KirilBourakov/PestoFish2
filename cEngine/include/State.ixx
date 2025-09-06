@@ -11,10 +11,16 @@ import <vector>;
 export class State {
 public:
     State();
+    State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 
     void makeMove(Move move);
     void undoMove();
     std::vector<Move> getMoves();
+
+    int getCastlingRights() const {return castlingRights;}
+    [[nodiscard]] BoardArray getBoard() const {return board;}
+
+    friend bool operator==(const State& lhs, const State& rhs);
 
 private:
     struct HistoricalEntry {
@@ -26,6 +32,10 @@ private:
         int halfMoveClockBeforeMove;
         std::optional<BoardPosition> enPassantBeforeMove;
 
+        bool operator==(const HistoricalEntry& other) const {
+            return other.move == move && other.movedPiece == movedPiece && other.overwrittenPiece == overwrittenPiece
+                && castlingBeforeMove == other.castlingBeforeMove && halfMoveClockBeforeMove == other.halfMoveClockBeforeMove && enPassantBeforeMove == other.enPassantBeforeMove;
+        }
     };
 
     // FEN info

@@ -4,22 +4,45 @@
 module;
 #include <stdexcept>
 module State;
+import <array>;
 import Board;
 import Utils;
 import Move;
 
 
-State::State() {
-    board = get_start_board();
+State::State()
+    : board(get_start_board()),
+      activeColor(WHITE),
+      castlingRights(0b1111),
+      enPassantSquare(std::nullopt),
+      halfMoveClock(0),
+      fullMoveClock(0),
+      whiteKingSquare{4, 7},
+      blackKingSquare{4, 0}
+    {}
 
-    activeColor = WHITE;
-    castlingRights = 0b1111;
-    enPassantSquare = std::nullopt;
-    halfMoveClock = 0;
-    fullMoveClock = 0;
-
-    whiteKingSquare = {.x=4, .y=7};
-    blackKingSquare = {.x=4, .y=0};
+State::State(const BoardArray &board,
+             const Color activeColor,
+             const int castlingRights,
+             const std::optional<BoardPosition> enPassantSquare)
+    : board(board),
+      activeColor(activeColor),
+      castlingRights(castlingRights),
+      enPassantSquare(enPassantSquare),
+      halfMoveClock(activeColor == WHITE ? 0 : 1),
+      fullMoveClock(0)
+{
+    // find king squares
+    for (int y = 0; y < this->board.size(); ++y) {
+        for (int x = 0; x < this->board[y].size(); ++x) {
+            if (this->board[y][x] == BLACK_KING) {
+                blackKingSquare = {x, y};
+            }
+            else if (this->board[y][x] == WHITE_KING) {
+                whiteKingSquare = {x, y};
+            }
+        }
+    }
 }
 
 std::vector<Move> State::getMoves() {
@@ -190,4 +213,16 @@ void State::undoMove() {
     castlingRights = entry.castlingBeforeMove;
     enPassantSquare = entry.enPassantBeforeMove;
     halfMoveClock = entry.halfMoveClockBeforeMove;
+}
+
+bool operator==(const State& lhs, const State& rhs) {
+    return lhs.board == rhs.board &&
+           lhs.activeColor == rhs.activeColor &&
+           lhs.castlingRights == rhs.castlingRights &&
+           lhs.enPassantSquare == rhs.enPassantSquare &&
+           lhs.halfMoveClock == rhs.halfMoveClock &&
+           lhs.fullMoveClock == rhs.fullMoveClock &&
+           lhs.whiteKingSquare == rhs.whiteKingSquare &&
+           lhs.blackKingSquare == rhs.blackKingSquare &&
+           lhs.history == rhs.history;
 }

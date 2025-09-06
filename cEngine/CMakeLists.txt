@@ -39,6 +39,7 @@ enable_testing()
 add_executable(runTests
         test/TestMove.cpp
         test/TestPreft.cpp
+        test/TestState.cpp
 
         test/testBoards.cpp
         test/testBoard.ixx
