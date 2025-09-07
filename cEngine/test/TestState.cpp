@@ -37,12 +37,30 @@ TEST(getMoves, whiteMiddleGame) {
         std::nullopt
     };
     std::vector<Move> moves = state.getMoves();
-    for (Move move : moves) {
-        std::cout << move << std::endl;
-    }
     ASSERT_EQ(32, moves.size());
 }
 
+TEST(getMoves, blackMiddleGame) {
+    State state{
+        randomMiddleGame(),
+        BLACK,
+        0b1111,
+        std::nullopt
+    };
+    std::vector<Move> moves = state.getMoves();
+    ASSERT_EQ(44, moves.size());
+}
+
+TEST(getMoves, whiteCenterKnight) {
+    State state{
+        centralWhiteKnight(),
+        WHITE,
+        0b0000,
+        std::nullopt
+    };
+    std::vector<Move> moves = state.getMoves();
+    ASSERT_EQ(16, moves.size());
+}
 
 /// --- MAKE AND UNDO TESTS --- ///
 

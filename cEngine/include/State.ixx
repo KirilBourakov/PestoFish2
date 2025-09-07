@@ -17,7 +17,8 @@ public:
     void undoMove();
     std::vector<Move> getMoves();
 
-    int getCastlingRights() const {return castlingRights;}
+    [[nodiscard]] bool samePosition(const State& other) const;
+    [[nodiscard]] int getCastlingRights() const {return castlingRights;}
     [[nodiscard]] BoardArray getBoard() const {return board;}
 
     friend bool operator==(const State& lhs, const State& rhs);

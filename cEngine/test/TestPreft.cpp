@@ -38,11 +38,40 @@ void PerftDivide(State state, int depth) {
     std::cout << "Total: " << total << "\n";
 }
 
-TEST(Preft, depth1) {
-    PerftDivide(State{}, 3);
+u64 DebugPerft(State state, int depth)
+{
+    if (depth == 0)
+        return 1ULL;
+
+    u64 nodes = 0;
+    std::vector<Move> moves = state.getMoves();
+
+    for (Move move : moves) {
+        State before = state;
+
+        state.makeMove(move);
+        nodes += DebugPerft(state, depth - 1);
+        state.undoMove();
+
+        if (state != before) {
+            std::cerr << "Undo failed for move: " << move << "\n";
+            // std::cerr << "Before:\n" << before;
+            // std::cerr << "After undo:\n" << state;
+            throw std::runtime_error("Undo mismatch");
+        }
+    }
+
+    return nodes;
+}
+
+TEST(Perft, undoConsistency) {
+    EXPECT_NO_THROW(DebugPerft(State{}, 4));
+}
+
+TEST(Perft, depth1) {
     ASSERT_EQ(Perft(State{}, 1), 20);
 }
-TEST(Preft, depth2) {
+TEST(Perft, depth2) {
     ASSERT_EQ(Perft(State{}, 2), 400);
 }
 // TEST(Preft, depth3) {

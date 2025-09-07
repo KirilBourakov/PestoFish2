@@ -160,3 +160,16 @@ BoardArray whiteSavedByBishop() {
         {{EMPTY,        WHITE_KING,   EMPTY,        BLACK_ROOK,  EMPTY,       EMPTY,        EMPTY,        EMPTY}}
     }};
 }
+
+BoardArray centralWhiteKnight() {
+    return BoardArray{{
+        {{EMPTY,        BLACK_KING,   EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        WHITE_KING,   EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KNIGHT,EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,       EMPTY,        EMPTY,        EMPTY}}
+    }};
+}

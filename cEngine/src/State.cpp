@@ -217,6 +217,13 @@ void State::undoMove() {
     halfMoveClock = entry.halfMoveClockBeforeMove;
 }
 
+bool State::samePosition(const State& other) const {
+    return board == other.board &&
+           activeColor == other.activeColor &&
+           castlingRights == other.castlingRights &&
+           enPassantSquare == other.enPassantSquare;
+}
+
 bool operator==(const State& lhs, const State& rhs) {
     return lhs.board == rhs.board &&
            lhs.activeColor == rhs.activeColor &&
