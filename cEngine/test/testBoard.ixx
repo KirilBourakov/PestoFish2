@@ -20,3 +20,4 @@ export BoardArray kingsFlankPawns();
 export BoardArray whiteBackRanked();
 export BoardArray whiteSavedByBishop();
 export BoardArray centralWhiteKnight();
+export BoardArray knightMovedFromStart();

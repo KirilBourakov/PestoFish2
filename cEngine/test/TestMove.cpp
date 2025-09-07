@@ -6,6 +6,7 @@ using ::testing::UnorderedElementsAreArray;
 import Move;
 import Types;
 import testBoard;
+import Board;
 
 
 // KING IN CHECK
@@ -147,6 +148,29 @@ TEST(TestMove, cornerKnight) {
         Move::standardMove(start, {1, 3}),
         Move::standardMove(start, {2, 4}),
         Move::standardMove(start, {1, 7}),
+    };
+    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
+}
+
+TEST(TestMove, startKnight) {
+    std::vector<Move> moves;
+    addKnightMoves(getStartingBoard(), 1, 7, WHITE, moves);
+    constexpr BoardPosition start{1, 7};
+    const std::vector<Move> expectedMoves = {
+        Move::standardMove(start, {0, 5}),
+        Move::standardMove(start, {2, 5}),
+    };
+    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
+}
+
+TEST(TestMove, movedKnight) {
+    std::vector<Move> moves;
+    addKnightMoves(knightMovedFromStart(), 0, 5, WHITE, moves);
+    constexpr BoardPosition start{0, 5};
+    const std::vector<Move> expectedMoves = {
+        Move::standardMove(start, {1, 7}),
+        Move::standardMove(start, {1, 3}),
+        Move::standardMove(start, {2, 4}),
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }
