@@ -5,7 +5,7 @@ module testBoard;
 import Types;
 
 
-BoardArray foolsMatePosition() {
+BoardArray randomMiddleGame() {
     return BoardArray{{
         {{BLACK_ROOK,   BLACK_KNIGHT, BLACK_BISHOP, EMPTY,       BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
         {{BLACK_PAWN,   EMPTY,        BLACK_PAWN,   BLACK_PAWN,  EMPTY,      BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN}},

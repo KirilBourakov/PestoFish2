@@ -5,7 +5,7 @@
 export module testBoard;
 import Types;
 
-export BoardArray foolsMatePosition();
+export BoardArray randomMiddleGame();
 export BoardArray smotheredMatePosition();
 export BoardArray unBlockedCastle();
 export BoardArray simpleMiddleGame();

@@ -29,10 +29,26 @@ TEST(getMoves, whiteSavedByBishop) {
     ASSERT_EQ(1, moves.size());
 }
 
+TEST(getMoves, whiteMiddleGame) {
+    State state{
+        randomMiddleGame(),
+        WHITE,
+        0b1111,
+        std::nullopt
+    };
+    std::vector<Move> moves = state.getMoves();
+    for (Move move : moves) {
+        std::cout << move << std::endl;
+    }
+    ASSERT_EQ(32, moves.size());
+}
+
+
+/// --- MAKE AND UNDO TESTS --- ///
 
 TEST(MakeUndo, whitePawnTakesPawn) {
     State state{
-        foolsMatePosition(),
+        randomMiddleGame(),
         WHITE,
         0b1111,
         std::nullopt

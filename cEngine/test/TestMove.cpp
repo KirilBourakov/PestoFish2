@@ -10,12 +10,12 @@ import testBoard;
 
 // KING IN CHECK
 TEST(TestMove, NoCheck) {
-    EXPECT_FALSE(isAttacked(foolsMatePosition(), BoardPosition{4,7}));
-    EXPECT_FALSE(isAttacked(foolsMatePosition(), BoardPosition{4,0}));
+    EXPECT_FALSE(isAttacked(randomMiddleGame(), BoardPosition{4,7}));
+    EXPECT_FALSE(isAttacked(randomMiddleGame(), BoardPosition{4,0}));
 }
 
 TEST(TestMove, CheckBlockedByPawn) {
-    EXPECT_FALSE(isAttacked(foolsMatePosition(), BoardPosition{4,7}));
+    EXPECT_FALSE(isAttacked(randomMiddleGame(), BoardPosition{4,7}));
 }
 
 TEST(TestMove, KnightCheck) {
@@ -73,7 +73,7 @@ TEST(TestMove, Promotion) {
 
 TEST(TestMove, GetMovesFromStartWhitePawn) {
     std::vector<Move> moves;
-    addPawnMoves(foolsMatePosition(), 0, 6, WHITE, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 0, 6, WHITE, std::nullopt, moves);
     constexpr BoardPosition start{.x = 0, .y = 6};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {0, 5}),
@@ -84,7 +84,7 @@ TEST(TestMove, GetMovesFromStartWhitePawn) {
 
 TEST(TestMove, GetMovesFromStartBlackPawn) {
     std::vector<Move> moves;
-    addPawnMoves(foolsMatePosition(), 5, 1, BLACK, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 5, 1, BLACK, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 5, .y = 1};
     const std::vector<Move> expectedMoves = {
@@ -98,7 +98,7 @@ TEST(TestMove, GetMovesFromStartBlackPawn) {
 
 TEST(TestMove, GetMovesWhitePawnCaptureAndPush) {
     std::vector<Move> moves;
-    addPawnMoves(foolsMatePosition(), 2, 4, WHITE, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 2, 4, WHITE, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 2, .y = 4};
     const std::vector<Move> expectedMoves = {
@@ -111,7 +111,7 @@ TEST(TestMove, GetMovesWhitePawnCaptureAndPush) {
 
 TEST(TestMove, BlackPawnBlocked) {
     std::vector<Move> moves;
-    addPawnMoves(foolsMatePosition(), 7, 1, BLACK, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 7, 1, BLACK, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 7, .y = 1};
     const std::vector expectedMoves = {
