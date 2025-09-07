@@ -30,7 +30,7 @@ TEST(getMoves, whiteSavedByBishop) {
 }
 
 
-TEST(MakeUndo, pawnTakesPawn) {
+TEST(MakeUndo, whitePawnTakesPawn) {
     State state{
         foolsMatePosition(),
         WHITE,
@@ -63,4 +63,52 @@ TEST(MakeUndo, whiteSavedByBishop) {
     ASSERT_EQ(WHITE_BISHOP, state.getBoard()[7][3]);
     state.undoMove();
     ASSERT_EQ(stateCopy, state);
+}
+
+TEST(MakeUndo, whiteKnightCapture) {
+    State state{
+        smotheredMatePosition(),
+        WHITE,
+        0b1111,
+        std::nullopt
+    };
+    State stateCopy{state};
+
+    ASSERT_EQ(BLACK_ROOK, state.getBoard()[3][2]);
+    ASSERT_EQ(WHITE_KNIGHT, state.getBoard()[4][4]);
+
+    state.makeMove(Move::standardMove({4, 4}, {2,3}));
+    ASSERT_EQ(0b1111, state.getCastlingRights());
+    ASSERT_EQ(WHITE_KNIGHT, state.getBoard()[3][2]);
+    ASSERT_EQ(EMPTY, state.getBoard()[4][4]);
+
+    state.undoMove();
+    ASSERT_EQ(stateCopy, state);
+    ASSERT_EQ(BLACK_ROOK, state.getBoard()[3][2]);
+    ASSERT_EQ(WHITE_KNIGHT, state.getBoard()[4][4]);
+}
+
+TEST(MakeUndo, whiteKingSideCastle) {
+    State state{
+        unBlockedCastle(),
+        WHITE,
+        0b1111,
+        std::nullopt
+    };
+
+    State stateCopy{state};
+    state.makeMove(Move::castleMove({4, 7}, {6, 7}, SHORT));
+    ASSERT_EQ(0b0011, state.getCastlingRights());
+    ASSERT_EQ(WHITE_KING, state.getBoard()[7][6]);
+    ASSERT_EQ(EMPTY, state.getBoard()[7][4]);
+    ASSERT_EQ(WHITE_ROOK, state.getBoard()[7][5]);
+    ASSERT_EQ(EMPTY, state.getBoard()[7][7]);
+    state.undoMove();
+
+    ASSERT_EQ(stateCopy, state);
+    ASSERT_EQ(EMPTY, state.getBoard()[7][6]);
+    ASSERT_EQ(WHITE_KING, state.getBoard()[7][4]);
+    ASSERT_EQ(EMPTY, state.getBoard()[7][5]);
+    ASSERT_EQ(WHITE_ROOK, state.getBoard()[7][7]);
+    ASSERT_EQ(0b1111, state.getCastlingRights());
 }
