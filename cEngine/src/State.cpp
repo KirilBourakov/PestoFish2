@@ -12,7 +12,7 @@ import Move;
 
 
 State::State()
-    : board(get_start_board()),
+    : board(getStartingBoard()),
       activeColor(WHITE),
       castlingRights(0b1111),
       enPassantSquare(std::nullopt),

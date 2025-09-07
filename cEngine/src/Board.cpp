@@ -5,7 +5,7 @@
 module Board;
 import Types;
 
-BoardArray get_start_board() {
+BoardArray getStartingBoard() {
     return BoardArray{{
         {{BLACK_ROOK,   BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
         {{BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,  BLACK_PAWN, BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN}},

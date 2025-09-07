@@ -8,7 +8,7 @@ module Engine;
 import Move;
 
 Engine::Engine() {
-    board = get_start_board();
+    board = getStartingBoard();
 
     moveTurn = WHITE;
     castlingRights = 0b1111;

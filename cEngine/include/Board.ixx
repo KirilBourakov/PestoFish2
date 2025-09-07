@@ -8,6 +8,6 @@ import <cstdint>;
 
 export constexpr int BOARD_SIZE = 8;
 
-export BoardArray get_start_board();
+export BoardArray getStartingBoard();
 export bool inBounds(int x, int y);
 export bool sameColor(Color color, Piece piece);
