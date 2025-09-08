@@ -99,8 +99,8 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
     if (y == startY) {
         newY = y + 2 * dir;
         if (inBounds(x, newY)) {
-            if (board[newY][x] == EMPTY) {
-                const int enPassantSquareY = newY-dir;
+            const int enPassantSquareY = newY-dir;
+            if (board[newY][x] == EMPTY && board[enPassantSquareY][x] == EMPTY) {
                 moves.push_back(Move::doublePawnMove(start, {x, newY}, {x, enPassantSquareY}));
             }
         }

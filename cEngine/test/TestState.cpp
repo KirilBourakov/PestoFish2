@@ -3,6 +3,7 @@
 //
 #include "gtest/gtest.h"
 import State;
+import Board;
 import testBoard;
 import Types;
 
@@ -60,6 +61,15 @@ TEST(getMoves, whiteCenterKnight) {
     };
     std::vector<Move> moves = state.getMoves();
     ASSERT_EQ(16, moves.size());
+}
+
+TEST(getMoves, f3e5) {
+    State state{};
+    state.makeMove(Move::standardMove({6,7}, {5, 5}));
+    state.makeMove(Move::standardMove({4,1}, {4, 3}));
+
+    std::vector<Move> moves = state.getMoves();
+    ASSERT_EQ(22, moves.size());
 }
 
 /// --- MAKE AND UNDO TESTS --- ///

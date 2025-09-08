@@ -68,17 +68,21 @@ TEST(Perft, undoConsistency) {
     EXPECT_NO_THROW(DebugPerft(State{}, 4));
 }
 
-TEST(Perft, depth1) {
-    ASSERT_EQ(Perft(State{}, 1), 20);
-}
-TEST(Perft, depth2) {
-    ASSERT_EQ(Perft(State{}, 2), 400);
-}
+// TEST(Perft, depth1) {
+//     ASSERT_EQ(Perft(State{}, 1), 20);
+// }
+// TEST(Perft, depth2) {
+//     ASSERT_EQ(Perft(State{}, 2), 400);
+// }
 // TEST(Preft, depth3) {
-//     // knights are 20 over expected. Depth 1 is 20, so likely there is an extra knight move available
-//     PerftDivide(State{}, 3);
 //     ASSERT_EQ(Perft(State{}, 3),  8902);
 // }
 // TEST(Preft, depth4) {
 //     ASSERT_EQ(Perft(State{}, 4), 197281);
+// }
+TEST(Preft, depth5) {
+    ASSERT_EQ(Perft(State{}, 5), 4865609);
+}
+// TEST(Preft, depth6) {
+//     ASSERT_EQ(Perft(State{}, 6), 119060324);
 // }

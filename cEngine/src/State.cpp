@@ -87,7 +87,7 @@ std::vector<Move> State::getMoves() {
             isValid = !isAttacked(board, BoardPosition{.x=move.end.x-1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
         }
         if (isValid) {
-            Color preMoveColor = activeColor;
+            const Color preMoveColor = activeColor;
             makeMove(move);
             isValid = !isAttacked(board, preMoveColor == WHITE ? whiteKingSquare : blackKingSquare);
             undoMove();
@@ -101,7 +101,7 @@ std::vector<Move> State::getMoves() {
 }
 
 
-void State::makeMove(Move move) {
+void State::makeMove(const Move &move) {
     const HistoricalEntry entry = {
         move,
         board[move.start.y][move.start.x],

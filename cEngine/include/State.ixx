@@ -13,7 +13,7 @@ public:
     State();
     State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 
-    void makeMove(Move move);
+    void makeMove(const Move &move);
     void undoMove();
     std::vector<Move> getMoves();
 
