@@ -7,7 +7,7 @@ import <optional>;
 import <vector>;
 import Board;
 import Types;
-
+import State;
 
 
 export class Engine {
@@ -15,15 +15,11 @@ public:
     Engine();
     int add(int a, int b);
 
+    Move getBestMove();
+
 private:
-    BoardArray board;
+    double evalCurrState(int depth, double alpha, double beta);
+    bool isBetterEval(Color color, double currBest, double value);
 
-    Color moveTurn;
-    int castlingRights;
-    std::optional<BoardPosition> enPassantSquare;
-    int halfMoveClock;
-    int fullMoveCock;
-
-    BoardPosition whiteKingSquare;
-    BoardPosition blackKingSquare;
+    State state;
 };

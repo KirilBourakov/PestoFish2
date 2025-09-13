@@ -5,7 +5,7 @@
 export module Evaluator;
 import State;
 
-export class Evaluate{
+export class Evaluator{
 public:
     static double evaluate(const State &state);
 };

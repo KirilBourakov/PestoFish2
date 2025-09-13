@@ -4,6 +4,7 @@
 
 export module State;
 import Types;
+import Move;
 import <optional>;
 import <vector>;
 
@@ -20,6 +21,12 @@ public:
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
     [[nodiscard]] BoardArray getBoard() const {return board;}
+    [[nodiscard]] Color getActiveColor() const {return activeColor;}
+    [[nodiscard]] bool isHalfMoveTie() const {return halfMoveClock >= 50;}
+    [[nodiscard]] bool colorInCheck(Color color) const {
+        BoardPosition kingSquare = color == WHITE ? whiteKingSquare : blackKingSquare;
+        return isAttacked(board, kingSquare);
+    }
 
     friend bool operator==(const State& lhs, const State& rhs);
 
