@@ -12,6 +12,7 @@ set(ENGINE_SOURCES
         src/Board.cpp
         src/Move.cpp
         src/Utils.cpp
+        src/Evaluator.cpp
 )
 
 set(ENGINE_MODULES
@@ -21,6 +22,7 @@ set(ENGINE_MODULES
         include/Utils.ixx
         include/Types.ixx
         include/Move.ixx
+        include/Evaluator.ixx
 )
 
 # Build cEngine
