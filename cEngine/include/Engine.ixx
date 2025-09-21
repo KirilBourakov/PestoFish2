@@ -15,6 +15,8 @@ public:
     Engine();
     Move getBestMove();
 
+    State getState(){return state;}
+
 private:
     double evalCurrState(int depth, double alpha, double beta);
     bool isBetterEval(Color color, double currBest, double value);

@@ -11,6 +11,7 @@ import <cstdint>;
 import <optional>;
 import <string>;
 
+export constexpr int BOARD_SIZE = 8;
 
 export enum Piece {
     EMPTY = 0,
@@ -40,7 +41,7 @@ export enum CastleType {
     LONG = 1
 };
 
-export using BoardArray = std::array<std::array<Piece, 8>, 8>;
+export using BoardArray = std::array<std::array<Piece, BOARD_SIZE>, BOARD_SIZE>;
 
 export struct BoardPosition {
     int x, y;

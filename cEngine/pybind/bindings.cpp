@@ -4,6 +4,7 @@
 #include <pybind11/pybind11.h>
 import Engine;
 import Types;
+import State;
 namespace py = pybind11;
 
 Move makeMove(
@@ -32,7 +33,24 @@ Move makeMove(
 PYBIND11_MODULE(cEngine, m) {
     py::class_<Engine>(m, "Engine")
         .def(py::init<>())
-    .def("getBestMove", &Engine::getBestMove);
+    .def("getBestMove", &Engine::getBestMove)
+    .def("getState", &Engine::getState);
+
+    py::class_<State>(m, "State")
+        .def("makeMove", &State::makeMove)
+        .def("undoMove", &State::undoMove)
+        .def("getMoves", &State::getMoves)
+        .def("getBoard", &State::getBoard);
+
+    py::class_<BoardArray>(m, "BoardArray")
+        .def("__getitem__", [](const BoardArray &self, size_t i) {
+            if (i >= BOARD_SIZE) throw py::index_error();
+            return self[i];
+        })
+        .def("__setitem__", [](BoardArray &self, size_t i, const std::array<Piece, 8> &row) {
+            if (i >= BOARD_SIZE) throw py::index_error();
+            self[i] = row;
+        });
 
     py::class_<BoardPosition>(m, "BoardPosition")
         .def(py::init<int,int>(), py::arg("x"), py::arg("y"))
