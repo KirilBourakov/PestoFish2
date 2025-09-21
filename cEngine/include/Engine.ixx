@@ -13,8 +13,6 @@ import State;
 export class Engine {
 public:
     Engine();
-    int add(int a, int b);
-
     Move getBestMove();
 
 private:
