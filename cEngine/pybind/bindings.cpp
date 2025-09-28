@@ -2,9 +2,11 @@
 // Created by Kiril on 2025-08-23.
 //
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 import Engine;
 import Types;
 import State;
+import Board;
 namespace py = pybind11;
 
 Move makeMove(
@@ -31,6 +33,7 @@ Move makeMove(
 }
 
 PYBIND11_MODULE(cEngine, m) {
+    // CLASS
     py::class_<Engine>(m, "Engine")
         .def(py::init<>())
     .def("getBestMove", &Engine::getBestMove)
@@ -40,16 +43,21 @@ PYBIND11_MODULE(cEngine, m) {
         .def("makeMove", &State::makeMove)
         .def("undoMove", &State::undoMove)
         .def("getMoves", &State::getMoves)
-        .def("getBoard", &State::getBoard);
+        .def("getBoard", &State::getBoard)
+        .def("get_active_color", &State::getActiveColor);
 
     py::class_<BoardArray>(m, "BoardArray")
         .def("__getitem__", [](const BoardArray &self, size_t i) {
-            if (i >= BOARD_SIZE) throw py::index_error();
-            return self[i];
+            if (i >= BOARD_SIZE){ throw py::index_error();}
+            const auto &row = self[i];
+            return std::vector<Piece>(row.begin(), row.end());
         })
-        .def("__setitem__", [](BoardArray &self, size_t i, const std::array<Piece, 8> &row) {
-            if (i >= BOARD_SIZE) throw py::index_error();
-            self[i] = row;
+        .def("__setitem__", [](BoardArray &self, size_t i, const std::vector<Piece> &row) {
+            if (i >= BOARD_SIZE){ throw py::index_error();}
+            if (row.size() != 8){ throw std::runtime_error("Row must have exactly 8 elements");}
+            std::array<Piece, 8> arr{};
+            std::ranges::copy(row, arr.begin());
+            self[i] = arr;
         });
 
     py::class_<BoardPosition>(m, "BoardPosition")
@@ -62,6 +70,11 @@ PYBIND11_MODULE(cEngine, m) {
         .def_readwrite("end", &Move::end)
         .def_readwrite("promotedTo", &Move::promotedTo);
 
+    // FUNCTION
+    m.def("new_move", &makeMove);
+    m.def("same_color", &sameColor);
+
+    // ENUM
     py::enum_<Piece>(m, "Piece")
         .value("WHITE_PAWN", Piece::WHITE_PAWN)
         .value("WHITE_BISHOP", Piece::WHITE_BISHOP)
@@ -78,9 +91,11 @@ PYBIND11_MODULE(cEngine, m) {
         .value("BLACK_KING", Piece::BLACK_KING)
         .value("EMPTY", Piece::EMPTY);
 
+    py::enum_<Color>(m, "Color")
+        .value("WHITE", Color::WHITE)
+        .value("BLACK", Color::BLACK);
+
     py::enum_<CastleType>(m, "CastleType")
         .value("LONG", CastleType::LONG)
         .value("SHORT", CastleType::SHORT);
-
-    m.def("make_move", &makeMove);
 }

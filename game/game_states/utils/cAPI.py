@@ -8,6 +8,23 @@ class cAPI:
     engine = cEngine.Engine()
 
     @staticmethod
+    def get_curr_board() -> list:
+        return cAPI.engine.getState().getBoard()
+
+    @staticmethod
+    def active_color() -> cEngine.Color:
+        return cAPI.engine.getState().get_active_color()
+
+    @staticmethod
+    def same_color(color: cEngine.Color, piece: cEngine.Piece) -> bool:
+        return cEngine.same_color(color, piece)
+
+    @staticmethod
+    def getAt(gridx: int, gridy: int) -> cEngine.Piece:
+        return cAPI.engine.getState().getBoard()[gridy][gridx]
+
+
+    @staticmethod
     def get_surface(piece: cEngine.Piece) -> Surface | None:
         match piece:
             # ---- WHITE PIECES ----

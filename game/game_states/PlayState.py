@@ -10,6 +10,7 @@ from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
 from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
 from game.game_states.utils.EngineAPI import EngineAPI
+from game.game_states.utils.cAPI import cAPI
 # for testing
 
 # from engine.src.generator.generator import Generator
@@ -57,6 +58,8 @@ class PlayState(AbstractState):
         self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
         self.bottom_text = globals.WHITE_TO_MOVE
 
+        self.api = cAPI()
+
     @disable_on_engine_turn
     def handle_click(self, gridx, gridy):
         '''Handles user clicks. Disabled when it's the engine's turn.
@@ -67,6 +70,14 @@ class PlayState(AbstractState):
         '''
         if gridx >= 8 or gridy >= 8:
             return
+
+        if self.selected_square is None and (cAPI.same_color(cAPI.active_color(), cAPI.getAt(gridx, gridy))):
+            self.selected_square = (gridx, gridy)
+        else:
+            self.selected_square = None
+        return
+
+
         
         if self.promotion is not None:
             self.promotion.handle_click((gridx, gridy), self)
@@ -74,18 +85,58 @@ class PlayState(AbstractState):
 
         if self.selected_square == (gridx, gridy):
             return
-        if self.selected_square is None and (self.board[gridy][gridx] is not None and self.board[gridy][gridx].type != globals.EN_PASSANT_FLAG):
-            if self.move_counter % 2 == 0 and self.board[gridy][gridx].color == globals.Color.WHITE: 
-                self.selected_square = (gridx, gridy)
-            elif self.move_counter % 2 != 0 and self.board[gridy][gridx].color == globals.Color.BLACK:
-                self.selected_square = (gridx, gridy) 
-            return
+
         
         if self.selected_square is not None:
             self.make_legal_move((gridx, gridy))
             self.selected_square = None
             return
-        
+
+    @run_engine
+    def update(self):
+        c = 0
+        light_row = False
+        window = pygame.display.get_surface()
+        window.fill('black')
+        for y, row in enumerate(cAPI.get_curr_board()):
+            light_row = not light_row
+            for x, column in enumerate(row):
+
+                # leading with light
+                if light_row:
+                    if c % 2 == 0:
+                        window.blit(assets.light_square, (x * globals.grid_size, y * globals.grid_size))
+                    else:
+                        window.blit(assets.dark_square, (x * globals.grid_size, y * globals.grid_size))
+                else:
+                    if c % 2 == 0:
+                        window.blit(assets.dark_square, (x * globals.grid_size, y * globals.grid_size))
+                    else:
+                        window.blit(assets.light_square, (x * globals.grid_size, y * globals.grid_size))
+                c += 1
+
+                surface = cAPI.get_surface(column)
+                if surface is not None:
+                    window.blit(surface, (x*globals.grid_size+(globals.resize_num/2), y*globals.grid_size+(globals.resize_num/2)))
+
+        render = assets.text_large.render(self.bottom_text, False, "white")
+        window.blit(render, (10, (8 * globals.grid_size)))
+
+        if self.promotion is not None:
+            self.promotion.show()
+
+        if self.selected_square is not None:
+            pygame.draw.rect(
+                window, (255, 0, 0),
+                pygame.Rect(self.selected_square[0] * globals.grid_size, self.selected_square[1] * globals.grid_size,
+                            globals.grid_size, globals.grid_size),
+                width=1
+            )
+
+
+    # --------------
+    #   DEPRECATED
+    # --------------
     def get_king_pos(self, color):
         '''Returns the kings position
         
@@ -217,7 +268,6 @@ class PlayState(AbstractState):
             return (True, globals.CHECKMATE)
         return (True, globals.STALEMATE)
 
-    
     def is_draw(self):
         '''returns if the game is a draw'''
         for pos in self.past_board_states:
@@ -389,46 +439,6 @@ class PlayState(AbstractState):
         draw = self.is_draw()
         if (draw[0]):
             return ["end", draw[1]]
-
-    @run_engine
-    def update(self):
-        c = 0
-        light_row = False
-        window = pygame.display.get_surface() 
-        window.fill('black')
-        for y, row in enumerate(self.board):
-            light_row = not light_row
-            for x, column in enumerate(row):
-                
-
-                # leading with light
-                if light_row:
-                    if (c % 2 == 0):
-                        window.blit(assets.light_square, (x*globals.grid_size,y*globals.grid_size))  
-                    else:
-                        window.blit(assets.dark_square, (x*globals.grid_size,y*globals.grid_size))
-                else:
-                    if (c % 2 == 0):
-                        window.blit(assets.dark_square, (x*globals.grid_size,y*globals.grid_size))  
-                    else:
-                        window.blit(assets.light_square, (x*globals.grid_size,y*globals.grid_size))
-                c += 1
-
-                if column is not None:
-                    column.show(x,y)
-
-        render = assets.text_large.render(self.bottom_text, False, "white")
-        window.blit(render, (10, (8*globals.grid_size)))
-
-        if self.promotion is not None:
-            self.promotion.show()
-
-        if self.selected_square is not None:
-            pygame.draw.rect(
-                window, (255, 0, 0), 
-                pygame.Rect(self.selected_square[0]*globals.grid_size, self.selected_square[1]*globals.grid_size, globals.grid_size, globals.grid_size),
-                width=1
-            )
 
     def self_copy(self):
         return PlayState(self.board)

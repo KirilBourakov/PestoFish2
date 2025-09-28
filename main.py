@@ -18,7 +18,6 @@ if __name__ == "__main__":
     manager = StateManager()
 
     while is_running:
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 is_running = False
