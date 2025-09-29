@@ -15,7 +15,7 @@ public:
     Engine();
     Move getBestMove();
 
-    State getState(){return state;}
+    State& getState(){return state;};
 
 private:
     double evalCurrState(int depth, double alpha, double beta);

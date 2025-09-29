@@ -23,6 +23,21 @@ class cAPI:
     def getAt(gridx: int, gridy: int) -> cEngine.Piece:
         return cAPI.engine.getState().getBoard()[gridy][gridx]
 
+    @staticmethod
+    def is_legal_move(start: tuple[int, int], end: tuple[int, int]) -> bool:
+        start_pos = cEngine.BoardPosition(*start)
+        end_pos = cEngine.BoardPosition(*end)
+        return cAPI.engine.getState().is_legal_move(start_pos, end_pos)
+
+    @staticmethod
+    def make_move(start: tuple[int, int], end: tuple[int, int]):
+        start_pos = cEngine.BoardPosition(*start)
+        end_pos = cEngine.BoardPosition(*end)
+        return cAPI.engine.getState().translate_and_move(start_pos, end_pos)
+
+    @staticmethod
+    def get_half_move_clock():
+        return cAPI.engine.getState().get_half_move_clock()
 
     @staticmethod
     def get_surface(piece: cEngine.Piece) -> Surface | None:

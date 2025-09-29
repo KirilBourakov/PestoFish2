@@ -1,63 +1,34 @@
 //
 // Created by Kiril on 2025-08-23.
 //
+#include <iostream>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 import Engine;
 import Types;
 import State;
 import Board;
-namespace py = pybind11;
 
-Move makeMove(
-    const BoardPosition start,
-    const BoardPosition end,
-    const bool enPassantCapture,
-    const std::optional<Piece> promotedPiece,
-    const std::optional<CastleType> castleType,
-    const std::optional<BoardPosition> newEnPassantSquare
-) {
-    if (promotedPiece) {
-        return Move::promotionMove(start, end, promotedPiece.value());
-    }
-    if (castleType) {
-        return Move::castleMove(start, end, castleType.value());
-    }
-    if (newEnPassantSquare) {
-        return Move::doublePawnMove(start, end, newEnPassantSquare.value());
-    }
-    if (enPassantCapture) {
-        return Move::enPassantCaptureMove(start, end);
-    }
-    return Move::standardMove(start, end);
-}
+namespace py = pybind11;
 
 PYBIND11_MODULE(cEngine, m) {
     // CLASS
     py::class_<Engine>(m, "Engine")
         .def(py::init<>())
-    .def("getBestMove", &Engine::getBestMove)
-    .def("getState", &Engine::getState);
+        .def("getState", &Engine::getState, py::return_value_policy::reference_internal);
 
     py::class_<State>(m, "State")
-        .def("makeMove", &State::makeMove)
-        .def("undoMove", &State::undoMove)
-        .def("getMoves", &State::getMoves)
-        .def("getBoard", &State::getBoard)
-        .def("get_active_color", &State::getActiveColor);
+        .def("getBoard", &State::getBoard, py::return_value_policy::reference_internal)
+        .def("get_active_color", &State::getActiveColor)
+        .def("is_legal_move", &State::isLegalMove)
+        .def("translate_and_move", &State::translateAndMove)
+        .def("get_half_move_clock", &State::getHalfMoveClock);
 
     py::class_<BoardArray>(m, "BoardArray")
         .def("__getitem__", [](const BoardArray &self, size_t i) {
             if (i >= BOARD_SIZE){ throw py::index_error();}
             const auto &row = self[i];
             return std::vector<Piece>(row.begin(), row.end());
-        })
-        .def("__setitem__", [](BoardArray &self, size_t i, const std::vector<Piece> &row) {
-            if (i >= BOARD_SIZE){ throw py::index_error();}
-            if (row.size() != 8){ throw std::runtime_error("Row must have exactly 8 elements");}
-            std::array<Piece, 8> arr{};
-            std::ranges::copy(row, arr.begin());
-            self[i] = arr;
         });
 
     py::class_<BoardPosition>(m, "BoardPosition")
@@ -65,13 +36,7 @@ PYBIND11_MODULE(cEngine, m) {
         .def_readwrite("x", &BoardPosition::x)
         .def_readwrite("y", &BoardPosition::y);
 
-    py::class_<Move>(m, "Move")
-        .def_readwrite("start", &Move::start)
-        .def_readwrite("end", &Move::end)
-        .def_readwrite("promotedTo", &Move::promotedTo);
-
     // FUNCTION
-    m.def("new_move", &makeMove);
     m.def("same_color", &sameColor);
 
     // ENUM

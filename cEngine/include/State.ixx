@@ -17,10 +17,14 @@ public:
     void makeMove(const Move &move);
     void undoMove();
     std::vector<Move> getMoves();
+    bool isLegalMove(BoardPosition start, BoardPosition end);
+    void translateAndMove(BoardPosition start, BoardPosition end);
+    
 
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
-    [[nodiscard]] BoardArray getBoard() const {return board;}
+    [[nodiscard]] const BoardArray& getBoard() const {return board;}
+    [[nodiscard]] int getHalfMoveClock() const {return halfMoveClock;}
     [[nodiscard]] Color getActiveColor() const {return activeColor;}
     [[nodiscard]] bool isHalfMoveTie() const {return halfMoveClock >= 50;}
     [[nodiscard]] bool colorInCheck(Color color) const {
@@ -31,6 +35,9 @@ public:
     friend bool operator==(const State& lhs, const State& rhs);
 
 private:
+    std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);
+    void addMoves(int x, int y, std::vector<Move>& out) const;
+
     struct HistoricalEntry {
         Move move;
         Piece movedPiece; // piece moved by move

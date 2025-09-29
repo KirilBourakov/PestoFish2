@@ -9,7 +9,6 @@ import game.constants.move_sets as mv
 from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
 from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
-from game.game_states.utils.EngineAPI import EngineAPI
 from game.game_states.utils.cAPI import cAPI
 # for testing
 
@@ -17,7 +16,7 @@ from game.game_states.utils.cAPI import cAPI
 # from engine.src.helpers.board_analysis import sight_on_square
 
 class PlayState(AbstractState):
-    def __init__(self, board=None):
+    def __init__(self):
         '''The constructor.
         
         Keyword arguments:
@@ -25,42 +24,15 @@ class PlayState(AbstractState):
         '''
         self.enter()
 
-        if board is not None:
-            for i, col in enumerate(board):
-                self.board[i] = copy.copy(col)
-
     def enter(self, *args):
         '''Initialize all the instance variables to a starting state
 
         Keyword arguments:
         args -- a list of lists that contains the game type at index 0,0
         '''
-        self.board = np.array([
-            [bp.rook_unmoved, bp.knight, bp.bishop, bp.queen, bp.king, bp.bishop, bp.knight, bp.rook_unmoved],
-            [bp.pawn] * 8,
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None],
-            [wp.pawn] * 8,
-            [wp.rook_unmoved, wp.knight, wp.bishop, wp.queen, wp.king, wp.bishop, wp.knight, wp.rook_unmoved]
-        ])
-        self.move_counter = 0
-        self.fifty_move_rule_counter = 0
-        self.past_board_states = {
-            str(self.board): 1
-        }
-        self.selected_square = None
-        
-        self.promotion = None
-        self.game_over = None
-
-        self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
-        self.bottom_text = globals.WHITE_TO_MOVE
-
         self.api = cAPI()
 
-    @disable_on_engine_turn
+    #@disable_on_engine_turn
     def handle_click(self, gridx, gridy):
         '''Handles user clicks. Disabled when it's the engine's turn.
         
@@ -68,31 +40,23 @@ class PlayState(AbstractState):
         gridx -- the x position of the click location on the board
         gridy -- the y position of the click location on the board
         '''
+
         if gridx >= 8 or gridy >= 8:
             return
+
+        if self.selected_square is not None:
+            if cAPI.is_legal_move(self.selected_square, (gridx, gridy)):
+                cAPI.make_move(self.selected_square, (gridx, gridy))
 
         if self.selected_square is None and (cAPI.same_color(cAPI.active_color(), cAPI.getAt(gridx, gridy))):
             self.selected_square = (gridx, gridy)
         else:
             self.selected_square = None
+
+
         return
 
-
-        
-        if self.promotion is not None:
-            self.promotion.handle_click((gridx, gridy), self)
-            return
-
-        if self.selected_square == (gridx, gridy):
-            return
-
-        
-        if self.selected_square is not None:
-            self.make_legal_move((gridx, gridy))
-            self.selected_square = None
-            return
-
-    @run_engine
+    #@run_engine
     def update(self):
         c = 0
         light_row = False
@@ -101,7 +65,6 @@ class PlayState(AbstractState):
         for y, row in enumerate(cAPI.get_curr_board()):
             light_row = not light_row
             for x, column in enumerate(row):
-
                 # leading with light
                 if light_row:
                     if c % 2 == 0:
@@ -133,6 +96,26 @@ class PlayState(AbstractState):
                 width=1
             )
 
+    def handle_key_press(self, event):
+        pass
+
+    def ready_to_exit(self):
+        return self.game_over
+
+    def exit(self):
+        is_mate_or_stale_white = self.is_checkmate_or_stalemate(globals.Color.BLACK)
+        if (is_mate_or_stale_white[0]):
+            if is_mate_or_stale_white[1] == globals.STALEMATE:
+                return ['end', 'Stalemate']
+            return ['end', 'White has won']
+        is_mate_or_stale_black = self.is_checkmate_or_stalemate(globals.Color.WHITE)
+        if (is_mate_or_stale_black[0]):
+            if is_mate_or_stale_black[1] == globals.STALEMATE:
+                return ['end', 'Stalemate']
+            return ['end', "Black has won"]
+        draw = self.is_draw()
+        if (draw[0]):
+            return ["end", draw[1]]
 
     # --------------
     #   DEPRECATED
@@ -414,31 +397,6 @@ class PlayState(AbstractState):
             self.bottom_text = globals.WHITE_TO_MOVE
         else:
             self.bottom_text = globals.BLACK_TO_MOVE
-
-    def ready_to_exit(self):
-        return self.game_over
-    
-    def handle_key_press(self, event):
-        if event.unicode == 'w' and self.move_counter % 2 == 0:
-            EngineAPI.engine_make_move(self)
-        if event.unicode == 'b' and self.move_counter % 2 != 0:
-            EngineAPI.engine_make_move(self)
-        return
-
-    def exit(self):
-        is_mate_or_stale_white = self.is_checkmate_or_stalemate(globals.Color.BLACK)
-        if (is_mate_or_stale_white[0]):
-            if is_mate_or_stale_white[1] == globals.STALEMATE:
-                return ['end', 'Stalemate']
-            return ['end', 'White has won']
-        is_mate_or_stale_black = self.is_checkmate_or_stalemate(globals.Color.WHITE)
-        if (is_mate_or_stale_black[0]):
-            if is_mate_or_stale_black[1] == globals.STALEMATE:
-                return ['end', 'Stalemate']
-            return ['end', "Black has won"]
-        draw = self.is_draw()
-        if (draw[0]):
-            return ["end", draw[1]]
 
     def self_copy(self):
         return PlayState(self.board)

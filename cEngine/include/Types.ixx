@@ -41,6 +41,14 @@ export enum CastleType {
     LONG = 1
 };
 
+export enum gameState {
+    PLAY = 0,
+    WHITE_WIN = 1,
+    BLACK_WIN = -1,
+    STALEMATE = 2,
+    DRAW = 3
+};
+
 export using BoardArray = std::array<std::array<Piece, BOARD_SIZE>, BOARD_SIZE>;
 
 export struct BoardPosition {

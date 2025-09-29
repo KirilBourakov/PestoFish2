@@ -2,6 +2,7 @@
 // Created by Kiril on 2025-08-31.
 //
 module;
+#include <format>
 #include <iostream>
 #include <stdexcept>
 module State;
@@ -19,8 +20,7 @@ State::State()
       halfMoveClock(0),
       fullMoveClock(0),
       whiteKingSquare{4, 7},
-      blackKingSquare{4, 0}
-    {}
+      blackKingSquare{4, 0} {}
 
 State::State(const BoardArray &board,
              const Color activeColor,
@@ -52,33 +52,68 @@ std::vector<Move> State::getMoves() {
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
             if (sameColor(activeColor, board[y][x])) {
-                switch (std::abs(board[y][x])) {
-                    case WHITE_PAWN:
-                        addPawnMoves(board, x, y, activeColor, enPassantSquare, moves);
-                        break;
-                    case WHITE_KNIGHT:
-                        addKnightMoves(board, x, y, activeColor, moves);
-                        break;
-                    case WHITE_BISHOP:
-                        addSlidingMoves(board, x, y, activeColor, false, true, moves);
-                        break;
-                    case WHITE_ROOK:
-                        addSlidingMoves(board, x, y, activeColor, true, false, moves);
-                        break;
-                    case WHITE_QUEEN:
-                        addSlidingMoves(board, x, y, activeColor, true, true, moves);
-                        break;
-                    case WHITE_KING:
-                        addKingMoves(board, x, y, activeColor, castlingRights, moves);
-                        break;
-                    default: throw std::invalid_argument("Invalid piece");
-                }
+                addMoves(x, y, moves);
             }
         }
     }
 
+    return purgeIllegal(moves);
+}
+
+void State::translateAndMove(BoardPosition start, BoardPosition end) {
+    std::vector<Move> moves;
+    addMoves(start.x, start.y, moves);
+    moves = purgeIllegal(moves);
+    for (auto move : moves) {
+        if (move.start == start && move.end == end) {
+            makeMove(move);
+            return;
+        }
+    }
+    throw std::invalid_argument("Illegal move");
+}
+
+bool State::isLegalMove(BoardPosition start, BoardPosition end) {
+    std::vector<Move> moves;
+    addMoves(start.x, start.y, moves);
+    moves = purgeIllegal(moves);
+    for (auto move : moves) {
+        if (move.start == start && move.end == end) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void State::addMoves(int x, int y, std::vector<Move>& out) const {
+    switch (std::abs(board[y][x])) {
+        case WHITE_PAWN:
+            addPawnMoves(board, x, y, activeColor, enPassantSquare, out);
+            break;
+        case WHITE_KNIGHT:
+            addKnightMoves(board, x, y, activeColor, out);
+            break;
+        case WHITE_BISHOP:
+            addSlidingMoves(board, x, y, activeColor, false, true, out);
+            break;
+        case WHITE_ROOK:
+            addSlidingMoves(board, x, y, activeColor, true, false, out);
+            break;
+        case WHITE_QUEEN:
+            addSlidingMoves(board, x, y, activeColor, true, true, out);
+            break;
+        case WHITE_KING:
+            addKingMoves(board, x, y, activeColor, castlingRights, out);
+            break;
+        default: throw std::invalid_argument(
+            std::format("Invalid piece {} at ({}, {})", static_cast<int>(board[y][x]), x, y)
+        );
+    }
+}
+
+std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves) {
     std::vector<Move> legalMoves;
-    for (Move move : moves) {
+    for (Move move : pseudolegalMoves) {
         bool isValid = true;
         if (move.castle == LONG) {
             isValid = !isAttacked(board, BoardPosition{.x=move.end.x+1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.end.x+2, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
@@ -96,10 +131,8 @@ std::vector<Move> State::getMoves() {
             legalMoves.push_back(move);
         }
     }
-
     return legalMoves;
 }
-
 
 void State::makeMove(const Move &move) {
     const HistoricalEntry entry = {
