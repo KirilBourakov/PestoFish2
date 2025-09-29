@@ -41,8 +41,8 @@ export enum CastleType {
     LONG = 1
 };
 
-export enum gameState {
-    PLAY = 0,
+export enum GameState {
+    IN_PLAY = 0,
     WHITE_WIN = 1,
     BLACK_WIN = -1,
     STALEMATE = 2,

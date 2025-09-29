@@ -8,12 +8,8 @@ import game.constants.globals as globals
 import game.constants.move_sets as mv
 from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
-from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
 from game.game_states.utils.cAPI import cAPI
 # for testing
-
-# from engine.src.generator.generator import Generator
-# from engine.src.helpers.board_analysis import sight_on_square
 
 class PlayState(AbstractState):
     def __init__(self):
@@ -22,6 +18,10 @@ class PlayState(AbstractState):
         Keyword arguments:
         board -- takes in a board position, and returns a board with a shallow copy of it (default=None)
         '''
+        self.bottom_text = None
+        self.api = cAPI()
+        self.promotion = None
+        self.selected_square = None
         self.enter()
 
     def enter(self, *args):
@@ -30,7 +30,11 @@ class PlayState(AbstractState):
         Keyword arguments:
         args -- a list of lists that contains the game type at index 0,0
         '''
-        self.api = cAPI()
+
+        self.api.clear()
+        self.bottom_text = globals.WHITE_TO_MOVE
+        self.promotion = None
+        self.selected_square = None
 
     #@disable_on_engine_turn
     def handle_click(self, gridx, gridy):
@@ -46,6 +50,7 @@ class PlayState(AbstractState):
 
         if self.selected_square is not None:
             if cAPI.is_legal_move(self.selected_square, (gridx, gridy)):
+                # TODO: handle promotions.
                 cAPI.make_move(self.selected_square, (gridx, gridy))
 
         if self.selected_square is None and (cAPI.same_color(cAPI.active_color(), cAPI.getAt(gridx, gridy))):
@@ -100,316 +105,18 @@ class PlayState(AbstractState):
         pass
 
     def ready_to_exit(self):
-        return self.game_over
+        return not cAPI.game_in_play()
 
     def exit(self):
-        is_mate_or_stale_white = self.is_checkmate_or_stalemate(globals.Color.BLACK)
-        if (is_mate_or_stale_white[0]):
-            if is_mate_or_stale_white[1] == globals.STALEMATE:
-                return ['end', 'Stalemate']
-            return ['end', 'White has won']
-        is_mate_or_stale_black = self.is_checkmate_or_stalemate(globals.Color.WHITE)
-        if (is_mate_or_stale_black[0]):
-            if is_mate_or_stale_black[1] == globals.STALEMATE:
-                return ['end', 'Stalemate']
-            return ['end', "Black has won"]
-        draw = self.is_draw()
-        if (draw[0]):
-            return ["end", draw[1]]
+        return ['end', cAPI.get_state_message()]
+
+    def flip_bottom_text(self):
+        if self.bottom_text == globals.WHITE_TO_MOVE:
+            self.bottom_text = globals.BLACK_TO_MOVE
+        elif self.bottom_text == globals.BLACK_TO_MOVE:
+            self.bottom_text = globals.WHITE_TO_MOVE
 
     # --------------
     #   DEPRECATED
     # --------------
-    def get_king_pos(self, color):
-        '''Returns the kings position
-        
-        Keyword arguments:
-        color -- the color of the king you're looking for
-        '''
-        for y, colomn in enumerate(self.board):
-            for x, square in enumerate(colomn):
-                if square is not None and square.color == color and square.type == globals.Piece.KING:
-                    return (x,y)
-        raise Exception("King not found.") 
-    
-    def get_turn(self):
-        '''Returns which colors turn it is'''
-        if self.move_counter % 2 == 0:
-            return globals.Color.WHITE
-        return globals.Color.BLACK
-    
-    def inbound(self, pos):
-        '''returns if a position is within the bounds of the board
-        
-        Keyword arguments:
-        pos -- tuple that represents the position
-        '''
-        x,y = pos
-        return (x >= 0) and (y >= 0) and (x < 8) and (y < 8)
-        
-    def get_sight_on_square(self, square):
-        '''returns a list of all the pieces that attack a square
-        
-        Keyword arguments:
-        square -- the square
-        '''
-        x,y = square
-        found = []
-        
-        # gets any rooks or queens looking at the square
-        rook_directions = [(0,1), (0,-1), (1,0), (-1,0)]
-        for direction in rook_directions:
-            f = self.search(square, direction, [globals.Piece.ROOK, globals.Piece.QUEEN])
-            if f is not None:
-                found.append(f)
-
-        # gets any bishops or queens looking at the square
-        bishop_directions = [(1,1), (-1,-1), (-1,1), (1,-1)]
-        for direction in bishop_directions:
-            f = self.search(square, direction, [globals.Piece.BISHOP, globals.Piece.QUEEN])
-            if f is not None:
-                found.append(f)
-        
-        # gets any knights looking at the square
-        for move in mv.knight_moves:
-            newx, newy = x + move[0], y + move[1]
-            if self.inbound((newx, newy)):
-                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KNIGHT:
-                    found.append((newx,newy))
-
-        # gets any pawn or kings looking at the square
-        # white pawn
-        for move in [(1,-1), (-1,-1)]:
-            newx, newy = x + move[0], y + move[1]
-            if self.inbound((newx, newy)):
-                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KING
-                if occupied_by_king:
-                    found.append((newx,newy))
-                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.PAWN:
-                    found.append((newx,newy, globals.Color.WHITE))
-        # black pawn
-        for move in [(1,1), (-1,1)]:
-            newx, newy = x + move[0], y + move[1]
-            if self.inbound((newx, newy)):
-                occupied_by_king = self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KING
-                if occupied_by_king:
-                    found.append((newx,newy))
-                elif self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.PAWN:
-                    found.append((newx, newy, globals.Color.BLACK))
-        
-        # gets any kings looking at the square
-        for move in [(0,1), (0,-1), (1,0), (-1,0)]:
-            newx, newy = x + move[0], y + move[1]
-            if self.inbound((newx, newy)):
-                if self.board[newy][newx] is not None and self.board[newy][newx].type == globals.Piece.KING:
-                    found.append((newx,newy))
-
-        return found
-    
-    def get_sight_on_square_color(self, square, color):
-        '''returns a list of all the pieces that attack a square from a specific color
-        For example, all the black pieces that attack the square
-        
-        Keyword arguments:
-        square -- the square
-        color -- the color of the square
-        '''
-        sight = self.get_sight_on_square(square)
-        purged = []
-        
-        for s in sight:
-            if self.board[s[1]][s[0]].color == color:
-                if len(s) == 3:
-                    if (s[2] != color):
-                        purged.append(s)
-                else:
-                    purged.append(s)
-        return purged
-    
-    def in_check(self, color):
-        '''returns if a king is in check
-        
-        Keyword arguments:
-        color -- the color of the king
-        '''
-        if color == globals.Color.WHITE:
-            return len(self.get_sight_on_square_color(self.get_king_pos(globals.Color.WHITE), globals.Color.BLACK)) > 0
-        return len(self.get_sight_on_square_color(self.get_king_pos(globals.Color.BLACK), globals.Color.WHITE)) > 0
-    
-    def is_checkmate_or_stalemate(self, color):
-        '''returns if the current board state is checkmate or stalemate for a color
-        Keyword arguments:
-        color -- the color you're looking for
-        '''
-        for y, row in enumerate(self.board):
-            for x, grid_contents in enumerate(row):
-                grid_empty = grid_contents is not None and grid_contents.type != globals.EN_PASSANT_FLAG
-                if grid_empty and grid_contents.color == color:
-                    if len(self.board[y][x].get_legal_moves(self, (x,y))) > 0:
-                        return (False, "")
-        if (self.in_check(color)):
-            return (True, globals.CHECKMATE)
-        return (True, globals.STALEMATE)
-
-    def is_draw(self):
-        '''returns if the game is a draw'''
-        for pos in self.past_board_states:
-            if self.past_board_states[pos] >= 3:
-                return (True, "draw by threefold repition")
-
-        has_sufficant = False
-        tracker = {
-            globals.Color.WHITE: {
-                globals.Piece.KNIGHT: -1,
-                globals.Piece.BISHOP: 0,
-            },
-            globals.Color.BLACK: {
-                globals.Piece.KNIGHT: -1,
-                globals.Piece.BISHOP: 0,
-            }
-        }
-        for y, row in enumerate(self.board):
-            for x, square in enumerate(row):
-                if square is not None and square.type != globals.EN_PASSANT_FLAG and square.type != globals.Piece.KING:
-                    if square.type == globals.Piece.BISHOP or square.type == globals.Piece.KNIGHT:
-                        tracker[square.color][square.type] += 1
-                        knight_bishop = tracker[square.color][globals.Piece.BISHOP] + 1 + tracker[square.color][globals.Piece.KNIGHT]
-                        if tracker[square.color][square.type] >= 2 or knight_bishop >= 2:
-                            has_sufficant = True
-                            break
-                    else:
-                        has_sufficant = True
-                        break
-            if has_sufficant:
-                break
-        if has_sufficant:
-            return (self.fifty_move_rule_counter >= 100, "draw by 50 move rule")
-        return (True, "draw by insufficant material")
-    
-    def search(self, start, direction, type):
-        '''Search for a specific set of pieces in a direction
-        Used as a helper in get_sight_on_square
-        
-        Keyword arguments:
-        start -- the starting position
-        direction -- the vector of the search (eg, [0,-1] for up]
-        type -- the piece types you're looking for
-        '''
-        x,y = direction
-        factor = 1
-
-        newx, newy = start[0] + (x*factor), start[1] + (y*factor)
-        while self.inbound((newx, newy)):
-            if self.board[newy][newx] is not None and self.board[newy][newx].type != globals.EN_PASSANT_FLAG:
-                if self.board[newy][newx].type in type:
-                    return (newx, newy)
-                else:
-                    return None
-            factor += 1
-            newx, newy = start[0] + (x*factor), start[1] + (y*factor)
-
-        return None
-
-    def make_legal_move(self, newpos, piece_location=None): 
-        '''Makes a legal move, if the newpos argument is a legal move for the piece at piece_location
-
-            Keyword arguments:
-            newpos -- the target position of the piece
-            piece_location -- the location of the old piece (default=None). If default, uses the selected square.
-        '''
-        newx, newy = newpos
-
-        if piece_location is None:
-            piece_location = (self.selected_square[0], self.selected_square[1])
-        moves = self.board[piece_location[1]][piece_location[0]].get_legal_moves(self, pos=piece_location)
-        if (newx, newy) in moves:
-            self.move(piece_location, (newx, newy))
-        
-        # pawn moves
-        elif (newx, newy, globals.NORMAL_FLAG) in moves:
-            self.move(piece_location, (newx, newy))
-            self.fifty_move_rule_counter = 0
-        
-        elif (newx, newy, globals.SHORT_CASTLE_FLAG) in moves:
-            self.move(piece_location, (newx, newy))
-            self.move((7, newy), (newx-1, newy), turn=0)
-        
-        elif (newx, newy, globals.LONG_CASTLE_FLAG) in moves:
-            self.move(piece_location, (newx, newy))
-            self.move((0, newy), (newx+1, newy), turn=0)
-        
-        elif (newx, newy, globals.DOUBLE_MOVE_FLAG) in moves:
-            turn_color = globals.Color.WHITE if self.move_counter % 2 == 0 else globals.Color.BLACK
-            offset = 1 if turn_color == globals.Color.WHITE else -1 
-            self.move(piece_location, (newx, newy))
-            self.board[newy+offset][newx] = ep.EnPassent(self.move_counter,turn_color, newy)
-
-        elif (newx, newy, globals.PROMOTION_FLAG) in moves:
-            self.move(piece_location, (newx, newy))
-            self.promotion = Promotion((newx, newy))
-        
-        elif (newx, newy, globals.EN_PASSANT_FLAG) in moves:
-            offset = -1 if self.board[newy][newx].color == globals.Color.WHITE else 1
-            self.board[newy+offset][newx] = None
-            self.move(piece_location, (newx, newy))
-        return 
-
-    def move(self, piece_location, newpos, turn=1):
-        ''' Makes a move
-
-        Keyword arguments:
-        piece_location -- the location of the piece
-        newpos -- the new positon
-        turn -- the amount the turn counter should be increased (Default=1) 
-        '''
-        assets.sfx_takes.play()
-        piece = self.board[piece_location[1]][piece_location[0]]
-        newx, newy = newpos
-        # if it's a capture
-        if self.board[newx][newy] is not None and self.board[newx][newy].type != globals.EN_PASSANT_FLAG:
-            self.fifty_move_rule_counter = 0
-        self.board[newy][newx] = piece
-        self.board[piece_location[1]][piece_location[0]] = None
-        self.move_counter += turn
-        self.update_bottom_text()
-
-        if piece == bp.rook_unmoved:
-            self.board[newy][newx] = bp.rook_moved
-        elif piece == wp.rook_unmoved:
-            self.board[newy][newx] = wp.rook_moved
-        else:
-            piece.has_moved = True
-
-        if str(self.board) in self.past_board_states:
-            self.past_board_states[str(self.board)] += 1
-        else: 
-            self.past_board_states[str(self.board)] = 1
-
-        check_color = globals.Color.WHITE if piece.color == globals.Color.BLACK else globals.Color.BLACK
-        if (self.is_checkmate_or_stalemate(check_color)[0]):
-            self.game_over = True
-
-        if (self.is_draw()[0]):
-            self.game_over = True
-
-    def update_bottom_text(self):
-        if self.move_counter % 2 == 0:
-            self.bottom_text = globals.WHITE_TO_MOVE
-        else:
-            self.bottom_text = globals.BLACK_TO_MOVE
-
-    def self_copy(self):
-        return PlayState(self.board)
-    
-    def __str__(self):
-        final = ""
-
-        for row in self.board:
-            for square in row:
-                if square is None:
-                    final += "   "
-                else:
-                    final += square.color[0] + square.type[0] + " "
-            final += "\n"
-        return final
 

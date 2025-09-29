@@ -73,6 +73,28 @@ void State::translateAndMove(BoardPosition start, BoardPosition end) {
     throw std::invalid_argument("Illegal move");
 }
 
+GameState State::getGameState() {
+    if (isHalfMoveTie()) {
+        return DRAW;
+    }
+    // TODO: implement 3 move repetition
+    // TODO: link efficient version of this method to Engine evalCurrState
+
+    if (getMoves().empty()) {
+        // is the current color in check, other color wins
+        if (colorInCheck(activeColor)) {
+            if (activeColor == WHITE) {
+                return BLACK_WIN;
+            }
+            return WHITE_WIN;
+        }
+        // otherwise, stalemate
+        return STALEMATE;
+    }
+    return IN_PLAY;
+}
+
+
 bool State::isLegalMove(BoardPosition start, BoardPosition end) {
     std::vector<Move> moves;
     addMoves(start.x, start.y, moves);

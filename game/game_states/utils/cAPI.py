@@ -8,6 +8,10 @@ class cAPI:
     engine = cEngine.Engine()
 
     @staticmethod
+    def clear():
+        cAPI.engine = cEngine.Engine()
+
+    @staticmethod
     def get_curr_board() -> list:
         return cAPI.engine.getState().getBoard()
 
@@ -38,6 +42,25 @@ class cAPI:
     @staticmethod
     def get_half_move_clock():
         return cAPI.engine.getState().get_half_move_clock()
+
+    @staticmethod
+    def game_in_play():
+        return cAPI.engine.getState().get_game_state() == cEngine.GameState.IN_PLAY
+
+    @staticmethod
+    def get_state_message():
+        state = cAPI.engine.getState().get_game_state()
+        match state:
+            case cEngine.GameState.WHITE_WIN:
+                return 'White has won'
+            case cEngine.GameState.BLACK_WIN:
+                return 'Black has won'
+            case cEngine.GameState.STALEMATE:
+                return 'Stalemate'
+            case cEngine.GameState.DRAW:
+                return 'Draw'
+            case _:
+                raise RuntimeError("get_state_message() not supported for state {}".format(state))
 
     @staticmethod
     def get_surface(piece: cEngine.Piece) -> Surface | None:

@@ -22,7 +22,8 @@ PYBIND11_MODULE(cEngine, m) {
         .def("get_active_color", &State::getActiveColor)
         .def("is_legal_move", &State::isLegalMove)
         .def("translate_and_move", &State::translateAndMove)
-        .def("get_half_move_clock", &State::getHalfMoveClock);
+        .def("get_half_move_clock", &State::getHalfMoveClock)
+        .def("get_game_state", &State::getGameState);
 
     py::class_<BoardArray>(m, "BoardArray")
         .def("__getitem__", [](const BoardArray &self, size_t i) {
@@ -63,4 +64,11 @@ PYBIND11_MODULE(cEngine, m) {
     py::enum_<CastleType>(m, "CastleType")
         .value("LONG", CastleType::LONG)
         .value("SHORT", CastleType::SHORT);
+
+    py::enum_<GameState>(m, "GameState")
+        .value("IN_PLAY", GameState::IN_PLAY)
+        .value("WHITE_WIN", GameState::WHITE_WIN)
+        .value("BLACK_WIN", GameState::BLACK_WIN)
+        .value("STALEMATE", GameState::STALEMATE)
+        .value("DRAW", GameState::DRAW);
 }

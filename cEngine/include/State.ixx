@@ -19,7 +19,7 @@ public:
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
     void translateAndMove(BoardPosition start, BoardPosition end);
-    
+    GameState getGameState();
 
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
