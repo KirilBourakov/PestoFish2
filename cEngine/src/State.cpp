@@ -60,12 +60,12 @@ std::vector<Move> State::getMoves() {
     return purgeIllegal(moves);
 }
 
-void State::translateAndMove(BoardPosition start, BoardPosition end) {
+void State::translateAndMove(BoardPosition start, BoardPosition end, std::optional<Piece> promotedTo) {
     std::vector<Move> moves;
     addMoves(start.x, start.y, moves);
     moves = purgeIllegal(moves);
     for (auto move : moves) {
-        if (move.start == start && move.end == end) {
+        if (move.start == start && move.end == end && move.promotedTo == promotedTo) {
             makeMove(move);
             return;
         }

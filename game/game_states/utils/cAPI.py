@@ -1,8 +1,12 @@
+from typing import Optional
+
 from pygame import Surface
 
 import cEngine
 from game.assets import assets
+from game.constants.globals import Piece
 
+PIECE = cEngine.Piece
 
 class cAPI:
     engine = cEngine.Engine()
@@ -20,11 +24,11 @@ class cAPI:
         return cAPI.engine.getState().get_active_color()
 
     @staticmethod
-    def same_color(color: cEngine.Color, piece: cEngine.Piece) -> bool:
+    def same_color(color: cEngine.Color, piece: PIECE) -> bool:
         return cEngine.same_color(color, piece)
 
     @staticmethod
-    def getAt(gridx: int, gridy: int) -> cEngine.Piece:
+    def getAt(gridx: int, gridy: int) -> PIECE:
         return cAPI.engine.getState().getBoard()[gridy][gridx]
 
     @staticmethod
@@ -34,10 +38,10 @@ class cAPI:
         return cAPI.engine.getState().is_legal_move(start_pos, end_pos)
 
     @staticmethod
-    def make_move(start: tuple[int, int], end: tuple[int, int]):
+    def make_move(start: tuple[int, int], end: tuple[int, int], promotion: Optional[PIECE] = None):
         start_pos = cEngine.BoardPosition(*start)
         end_pos = cEngine.BoardPosition(*end)
-        return cAPI.engine.getState().translate_and_move(start_pos, end_pos)
+        cAPI.engine.getState().translate_and_move(start_pos, end_pos, promotion)
 
     @staticmethod
     def get_half_move_clock():
@@ -63,37 +67,37 @@ class cAPI:
                 raise RuntimeError("get_state_message() not supported for state {}".format(state))
 
     @staticmethod
-    def get_surface(piece: cEngine.Piece) -> Surface | None:
+    def get_surface(piece: PIECE) -> Surface | None:
         match piece:
             # ---- WHITE PIECES ----
-            case cEngine.Piece.WHITE_PAWN:
+            case PIECE.WHITE_PAWN:
                 return assets.w_pawn
-            case cEngine.Piece.WHITE_BISHOP:
+            case PIECE.WHITE_BISHOP:
                 return assets.w_bishop
-            case cEngine.Piece.WHITE_KNIGHT:
+            case PIECE.WHITE_KNIGHT:
                 return assets.w_knight
-            case cEngine.Piece.WHITE_ROOK:
+            case PIECE.WHITE_ROOK:
                 return assets.w_rook
-            case cEngine.Piece.WHITE_QUEEN:
+            case PIECE.WHITE_QUEEN:
                 return assets.w_queen
-            case cEngine.Piece.WHITE_KING:
+            case PIECE.WHITE_KING:
                 return assets.w_king
             # ---- BLACK PIECES ----
-            case cEngine.Piece.BLACK_PAWN:
+            case PIECE.BLACK_PAWN:
                 return assets.b_pawn
-            case cEngine.Piece.BLACK_BISHOP:
+            case PIECE.BLACK_BISHOP:
                 return assets.b_bishop
-            case cEngine.Piece.BLACK_KNIGHT:
+            case PIECE.BLACK_KNIGHT:
                 return assets.b_knight
-            case cEngine.Piece.BLACK_ROOK:
+            case PIECE.BLACK_ROOK:
                 return assets.b_rook
-            case cEngine.Piece.BLACK_QUEEN:
+            case PIECE.BLACK_QUEEN:
                 return assets.b_queen
-            case cEngine.Piece.BLACK_KING:
+            case PIECE.BLACK_KING:
                 return assets.b_king
 
             # ---- EMPTY ----
-            case cEngine.Piece.EMPTY:
+            case PIECE.EMPTY:
                 return None
 
             case _:

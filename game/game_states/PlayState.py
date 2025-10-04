@@ -8,7 +8,9 @@ import game.constants.globals as globals
 import game.constants.move_sets as mv
 from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
-from game.game_states.utils.cAPI import cAPI
+from game.game_states.utils.cAPI import cAPI, PIECE
+
+
 # for testing
 
 class PlayState(AbstractState):
@@ -37,7 +39,7 @@ class PlayState(AbstractState):
         self.selected_square = None
 
     #@disable_on_engine_turn
-    def handle_click(self, gridx, gridy):
+    def handle_click(self, gridx: int, gridy: int) -> None:
         '''Handles user clicks. Disabled when it's the engine's turn.
         
         Keyword arguments:
@@ -48,16 +50,25 @@ class PlayState(AbstractState):
         if gridx >= 8 or gridy >= 8:
             return
 
+        if self.promotion is not None:
+            promote_to = self.promotion.get_promotion_choice((gridx, gridy))
+            cAPI.make_move(self.promotion.old_pos, self.promotion.new_pos, promote_to)
+            self.promotion = None
+            return
+
         if self.selected_square is not None:
             if cAPI.is_legal_move(self.selected_square, (gridx, gridy)):
-                # TODO: handle promotions.
-                cAPI.make_move(self.selected_square, (gridx, gridy))
+                white_promotion = gridy == 0 and cAPI.getAt(*self.selected_square) == PIECE.WHITE_PAWN
+                black_promotion = gridy == 7 and cAPI.getAt(*self.selected_square) == PIECE.BLACK_PAWN
+                if white_promotion or black_promotion:
+                    self.promotion = Promotion(self.selected_square, (gridx, gridy))
+                else:
+                    cAPI.make_move(self.selected_square, (gridx, gridy), None)
 
         if self.selected_square is None and (cAPI.same_color(cAPI.active_color(), cAPI.getAt(gridx, gridy))):
             self.selected_square = (gridx, gridy)
         else:
             self.selected_square = None
-
 
         return
 
@@ -119,4 +130,3 @@ class PlayState(AbstractState):
     # --------------
     #   DEPRECATED
     # --------------
-

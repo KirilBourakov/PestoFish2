@@ -18,7 +18,7 @@ public:
     void undoMove();
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
-    void translateAndMove(BoardPosition start, BoardPosition end);
+    void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Piece> promotedTo);
     GameState getGameState();
 
     [[nodiscard]] bool samePosition(const State& other) const;
