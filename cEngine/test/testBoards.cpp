@@ -135,6 +135,19 @@ BoardArray kingsFlankPawns() {
     }};
 }
 
+BoardArray capturePromotion() {
+    return BoardArray{{
+        {{BLACK_ROOK,   BLACK_ROOK,   BLACK_ROOK,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        WHITE_PAWN,   EMPTY,        WHITE_KING,  EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        BLACK_KING,   BLACK_PAWN,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}}
+    }};
+}
+
 BoardArray whiteBackRanked() {
     return BoardArray{{
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},

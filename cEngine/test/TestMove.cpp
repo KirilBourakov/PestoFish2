@@ -58,6 +58,24 @@ TEST(TestMove, notPortected) {
 }
 
 // PAWN MOVES
+TEST(TestMove, CapturePromotion) {
+    std::vector<Move> moves;
+    addPawnMoves(capturePromotion(), 1, 1, WHITE, std::nullopt, moves);
+    constexpr BoardPosition start{.x = 1, .y = 1};
+    const std::vector<Move> expectedMoves = {
+        Move::promotionMove(start, {0,0}, WHITE_KNIGHT),
+        Move::promotionMove(start, {0,0}, WHITE_BISHOP),
+        Move::promotionMove(start, {0,0}, WHITE_ROOK),
+        Move::promotionMove(start, {0,0}, WHITE_QUEEN),
+
+        Move::promotionMove(start, {2,0}, WHITE_KNIGHT),
+        Move::promotionMove(start, {2,0}, WHITE_BISHOP),
+        Move::promotionMove(start, {2,0}, WHITE_ROOK),
+        Move::promotionMove(start, {2,0}, WHITE_QUEEN),
+    };
+    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
+}
+
 TEST(TestMove, Promotion) {
     std::vector<Move> moves;
     addPawnMoves(kingsFlankPawns(), 0, 1, WHITE, std::nullopt, moves);

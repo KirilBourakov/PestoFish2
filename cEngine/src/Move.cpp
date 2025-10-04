@@ -77,7 +77,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         if (inBounds(newX, newY)) {
             if (board[newY][newX] != EMPTY && !sameColor(color, board[newY][newX])) {
                 if (newY == 7 || newY == 0) {
-                    addPromotions(start, {x,newY}, board[newY][x], color, moves);
+                    addPromotions(start, {newX,newY}, board[newY][x], color, moves);
                 } else {
                     moves.push_back(Move::standardMove(start, {newX, newY}));
                 }
