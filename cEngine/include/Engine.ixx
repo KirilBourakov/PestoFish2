@@ -14,6 +14,7 @@ export class Engine {
 public:
     Engine();
     Move getBestMove();
+    void makeEngineMove();
 
     State& getState(){return state;};
     void setState(const State& state){this->state = state;};

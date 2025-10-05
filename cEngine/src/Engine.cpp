@@ -12,6 +12,10 @@ Engine::Engine() {
     state = State();
 }
 
+void Engine::makeEngineMove() {
+    state.makeMove(getBestMove());
+}
+
 Move Engine::getBestMove() {
     double alpha = -std::numeric_limits<double>::infinity();
     double beta = std::numeric_limits<double>::infinity();

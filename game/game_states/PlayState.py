@@ -9,6 +9,7 @@ import game.constants.move_sets as mv
 from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
 from game.game_states.utils.cAPI import cAPI, PIECE
+from game.game_states.utils.decorators import disable_on_engine_turn, run_engine
 
 
 # for testing
@@ -20,11 +21,11 @@ class PlayState(AbstractState):
         Keyword arguments:
         board -- takes in a board position, and returns a board with a shallow copy of it (default=None)
         '''
+        self.game_type = None
         self.bottom_text = None
         self.api = cAPI()
         self.promotion = None
         self.selected_square = None
-        self.enter()
 
     def enter(self, *args):
         '''Initialize all the instance variables to a starting state
@@ -32,13 +33,13 @@ class PlayState(AbstractState):
         Keyword arguments:
         args -- a list of lists that contains the game type at index 0,0
         '''
-
+        self.game_type = globals.GAME_TYPE_PVP if len(args) == 0 else args[0][0]
         self.api.clear()
         self.bottom_text = globals.WHITE_TO_MOVE
         self.promotion = None
         self.selected_square = None
 
-    #@disable_on_engine_turn
+    @disable_on_engine_turn
     def handle_click(self, gridx: int, gridy: int) -> None:
         '''Handles user clicks. Disabled when it's the engine's turn.
         
@@ -72,7 +73,7 @@ class PlayState(AbstractState):
 
         return
 
-    #@run_engine
+    @run_engine
     def update(self):
         c = 0
         light_row = False
@@ -126,7 +127,3 @@ class PlayState(AbstractState):
             self.bottom_text = globals.BLACK_TO_MOVE
         elif self.bottom_text == globals.BLACK_TO_MOVE:
             self.bottom_text = globals.WHITE_TO_MOVE
-
-    # --------------
-    #   DEPRECATED
-    # --------------

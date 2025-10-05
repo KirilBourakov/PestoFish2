@@ -7,6 +7,7 @@ from game.assets import assets
 from game.constants.globals import Piece
 
 PIECE = cEngine.Piece
+COLOR = cEngine.Color
 
 class cAPI:
     engine = cEngine.Engine()
@@ -20,11 +21,15 @@ class cAPI:
         return cAPI.engine.getState().getBoard()
 
     @staticmethod
-    def active_color() -> cEngine.Color:
+    def make_engine_move() -> None:
+        cAPI.engine.make_engine_move()
+
+    @staticmethod
+    def active_color() -> COLOR:
         return cAPI.engine.getState().get_active_color()
 
     @staticmethod
-    def same_color(color: cEngine.Color, piece: PIECE) -> bool:
+    def same_color(color: COLOR, piece: PIECE) -> bool:
         return cEngine.same_color(color, piece)
 
     @staticmethod
