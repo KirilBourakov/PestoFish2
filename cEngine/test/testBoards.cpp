@@ -21,7 +21,7 @@ BoardArray randomMiddleGame() {
 BoardArray smotheredMatePosition() {
     return BoardArray{{
         {{BLACK_ROOK,   EMPTY,        EMPTY,        BLACK_BISHOP,BLACK_KING, BLACK_KNIGHT, EMPTY,        BLACK_ROOK}},
-        {{BLACK_PAWN,   BLACK_PAWN,   EMPTY,        BLACK_ROOK,  BLACK_PAWN, BLACK_ROOK,   BLACK_PAWN,   BLACK_PAWN}},
+        {{BLACK_PAWN,   BLACK_PAWN,   EMPTY,        BLACK_PAWN,  BLACK_KNIGHT,BLACK_ROOK,   BLACK_PAWN,   BLACK_PAWN}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        BLACK_ROOK,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KNIGHT,EMPTY,       EMPTY,        EMPTY}},
@@ -197,5 +197,18 @@ BoardArray knightMovedFromStart() {
         {{WHITE_KNIGHT, EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
         {{WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,  WHITE_PAWN, WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN}},
         {{WHITE_ROOK,   EMPTY,        WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}}
+    }};
+}
+
+BoardArray simpleBest() {
+    return BoardArray{{
+        {{BLACK_ROOK,   EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        BLACK_ROOK}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{WHITE_PAWN,   EMPTY,        EMPTY,        WHITE_PAWN,  WHITE_PAWN, WHITE_PAWN,   EMPTY,        EMPTY}},
+        {{WHITE_ROOK,   EMPTY,        EMPTY,        EMPTY,       WHITE_KING, EMPTY,        EMPTY,        WHITE_ROOK}}
     }};
 }

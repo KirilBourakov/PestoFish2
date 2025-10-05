@@ -2,7 +2,6 @@
 // Created by Kiril on 2025-08-23.
 //
 module;
-#include <stdexcept>
 
 module Engine;
 import Move;
@@ -26,7 +25,7 @@ Move Engine::getBestMove() {
     std::vector<Move> possibleMoves = state.getMoves();
     for (Move move : possibleMoves) {
         state.makeMove(move);
-        double eval = evalCurrState(3, alpha, beta);
+        double eval = evalCurrState(1, alpha, beta);
         state.undoMove();
         if (!bestMove.has_value() || isBetterEval(rootColor, bestEval, eval)) {
             bestMove = move;
@@ -100,7 +99,6 @@ double Engine::evalCurrState(int depth, double alpha, double beta) {
 bool Engine::isBetterEval(Color color, double currBest, double value) {
     if (color == WHITE) {
         return value > currBest;
-    } else {
-        return value < currBest;
     }
+    return value < currBest;
 }

@@ -42,6 +42,7 @@ add_executable(runTests
         test/TestMove.cpp
         test/TestPreft.cpp
         test/TestState.cpp
+        test/TestEngine.cpp
 
         test/testBoards.cpp
         test/testBoard.ixx

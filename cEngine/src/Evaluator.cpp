@@ -1,10 +1,11 @@
 //
 // Created by Kiril on 2025-09-11.
 //
-
+#include <cmath>
 module Evaluator;
 import Board;
 import Types;
+
 
 double Evaluator::evaluate(const State &state) {
     double eval = 0;
@@ -12,7 +13,7 @@ double Evaluator::evaluate(const State &state) {
     ///TODO: replace with real eval
     for (int y = 0; y < BOARD_SIZE; y++) {
        for (int x = 0; x < BOARD_SIZE; x++) {
-           const int dir = sameColor(WHITE, state.getBoard()[y][x]) ? -1 : 1;
+           const int dir = sameColor(WHITE, state.getBoard()[y][x]) ? 1 : -1;
            double change;
 
            switch (std::abs((state.getBoard()[y][x]))) {

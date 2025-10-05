@@ -16,6 +16,7 @@ public:
     Move getBestMove();
 
     State& getState(){return state;};
+    void setState(const State& state){this->state = state;};
 
 private:
     double evalCurrState(int depth, double alpha, double beta);
