@@ -29,7 +29,7 @@ Move Engine::getBestMove() {
     std::vector<Move> possibleMoves = state.getMoves();
     for (Move move : possibleMoves) {
         state.makeMove(move);
-        double eval = evalCurrState(1, alpha, beta);
+        double eval = evalCurrState(4, alpha, beta);
         state.undoMove();
         if (!bestMove.has_value() || isBetterEval(rootColor, bestEval, eval)) {
             bestMove = move;

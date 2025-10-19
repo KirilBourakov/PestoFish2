@@ -31,25 +31,33 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State &state, bool& endgame) 
 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            auto currPiece = static_cast<Piece>(abs(state.getBoard()[y][x]));
-            if (currPiece != EMPTY) {
-                const int dir = sameColor(WHITE, state.getBoard()[y][x]) ? 1 : -1;
-
+            if (const Piece currPiece = state.getBoard()[y][x]; currPiece != EMPTY) {
+                const int dir = sameColor(WHITE, currPiece) ? 1 : -1;
+                const auto colorLessPiece = static_cast<Piece>(abs(currPiece));
                 // Raw material (which king does not have)
-                if (currPiece != WHITE_KING) {
-                    middleMaterialCount += middleGameScore.at(currPiece) * dir;
-                    endMaterialCount += endGameScore.at(currPiece) * dir;
+                if (colorLessPiece != WHITE_KING) {
+                    middleMaterialCount += middleGameScore.at(colorLessPiece) * dir;
+                    endMaterialCount += endGameScore.at(colorLessPiece) * dir;
                 }
 
                 // piece square
-                middleMaterialCount += mg_table.at(currPiece)[y][x] * dir;
-                endMaterialCount += eg_table.at(currPiece)[y][x] * dir;
+                middleMaterialCount += mg_table.at(colorLessPiece)[y][x] * dir;
+                endMaterialCount += eg_table.at(colorLessPiece)[y][x] * dir;
+
+                // mobility (for now, lets just say each possible move is worth 3 centipawns)
+                std::vector<Move> moves;
+                state.addMoves(x, y, moves);
+                middleMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
+                endMaterialCount +=  3 * static_cast<int>(moves.size()) * dir;
+
+                // POSSIBLE Evaluation methods:
+                // pieces on enemy half of the board
 
                 // tracking to determine if it is an end game
                 if (sameColor(WHITE, currPiece)) {
-                    whiteNormalCount += normalScore.contains(currPiece) ? normalScore.at(currPiece) * dir : 0;
+                    whiteNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
                 } else if (sameColor(BLACK, currPiece)) {
-                    blackNormalCount += normalScore.contains(currPiece) ? normalScore.at(currPiece) * dir : 0;
+                    blackNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
                 }
             }
         }

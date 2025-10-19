@@ -14,6 +14,7 @@ public:
     State();
     State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 
+    void addMoves(int x, int y, std::vector<Move>& out) const;
     void makeMove(const Move &move);
     void undoMove();
     std::vector<Move> getMoves();
@@ -36,7 +37,6 @@ public:
 
 private:
     std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);
-    void addMoves(int x, int y, std::vector<Move>& out) const;
 
     struct HistoricalEntry {
         Move move;
