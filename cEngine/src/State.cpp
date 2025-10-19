@@ -46,6 +46,22 @@ State::State(const BoardArray &board,
     }
 }
 
+State::State(
+    const BoardArray &board, const Color activeColor, const int castlingRights, const std::optional<BoardPosition> enPassantSquare,
+    const int halfMoveClock, const int fullMoveClock, const BoardPosition whiteKingSquare, const BoardPosition blackKingSquare,
+    const std::vector<HistoricalEntry> &history
+) :
+    board(board),
+    activeColor(activeColor),
+    castlingRights(castlingRights),
+    enPassantSquare(enPassantSquare),
+    halfMoveClock(halfMoveClock),
+    fullMoveClock(fullMoveClock),
+    whiteKingSquare(whiteKingSquare),
+    blackKingSquare(blackKingSquare),
+    history(history) {
+}
+
 std::vector<Move> State::getMoves() {
     std::vector<Move> moves;
     // get all pseudo legal moves
@@ -94,6 +110,11 @@ GameState State::getGameState() {
     return IN_PLAY;
 }
 
+State State::makeThreadCopy() {
+    BoardArray copyBoard = board;
+    std::vector<HistoricalEntry> historyCopy { history.at(history.size() - 1) };
+    return {copyBoard, activeColor, castlingRights, enPassantSquare, halfMoveClock, fullMoveClock, whiteKingSquare, blackKingSquare, historyCopy};
+}
 
 bool State::isLegalMove(BoardPosition start, BoardPosition end) {
     std::vector<Move> moves;

@@ -11,8 +11,25 @@ import <vector>;
 
 export class State {
 public:
+    struct HistoricalEntry {
+        Move move;
+        Piece movedPiece; // piece moved by move
+        Piece overwrittenPiece; // piece replaced by movedPiece
+
+        int castlingBeforeMove;
+        int halfMoveClockBeforeMove;
+        std::optional<BoardPosition> enPassantBeforeMove;
+
+        bool operator==(const HistoricalEntry& other) const {
+            return other.move == move && other.movedPiece == movedPiece && other.overwrittenPiece == overwrittenPiece
+                && castlingBeforeMove == other.castlingBeforeMove && halfMoveClockBeforeMove == other.halfMoveClockBeforeMove && enPassantBeforeMove == other.enPassantBeforeMove;
+        }
+    };
+
     State();
     State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+    State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+    int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare, const std::vector<HistoricalEntry> &history);
 
     void addMoves(int x, int y, std::vector<Move>& out) const;
     void makeMove(const Move &move);
@@ -22,6 +39,7 @@ public:
     void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Piece> promotedTo);
     GameState getGameState();
 
+    [[nodiscard]] State makeThreadCopy();
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
     [[nodiscard]] const BoardArray& getBoard() const {return board;}
@@ -37,21 +55,6 @@ public:
 
 private:
     std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);
-
-    struct HistoricalEntry {
-        Move move;
-        Piece movedPiece; // piece moved by move
-        Piece overwrittenPiece; // piece replaced by movedPiece
-
-        int castlingBeforeMove;
-        int halfMoveClockBeforeMove;
-        std::optional<BoardPosition> enPassantBeforeMove;
-
-        bool operator==(const HistoricalEntry& other) const {
-            return other.move == move && other.movedPiece == movedPiece && other.overwrittenPiece == overwrittenPiece
-                && castlingBeforeMove == other.castlingBeforeMove && halfMoveClockBeforeMove == other.halfMoveClockBeforeMove && enPassantBeforeMove == other.enPassantBeforeMove;
-        }
-    };
 
     // FEN info
     BoardArray board;

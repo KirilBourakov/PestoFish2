@@ -9,6 +9,9 @@ import Types;
 
 export class Evaluator{
 public:
+    static double evalCurrState(State &state, int depth, double alpha, double beta);
+    static bool isBetterEval(const Color color, const double currBest, const double value);
+
     static double evaluate(const State &state);
 
 private:

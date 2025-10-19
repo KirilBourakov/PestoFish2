@@ -20,8 +20,5 @@ public:
     void setState(const State& state){this->state = state;};
 
 private:
-    double evalCurrState(int depth, double alpha, double beta);
-    bool isBetterEval(Color color, double currBest, double value);
-
     State state;
 };

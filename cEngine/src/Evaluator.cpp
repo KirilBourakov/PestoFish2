@@ -9,6 +9,63 @@ import Board;
 import Types;
 import PieceSqTables;
 
+double Evaluator::evalCurrState(State &state, int depth, double alpha, double beta) {
+    if (depth == 0) {
+        return Evaluator::evaluate(state);
+    }
+
+    if (state.isHalfMoveTie()) {
+        return 0;
+    }
+    // TODO: implement 3 move repetition
+
+    const std::vector<Move> possibleMoves = state.getMoves();
+    if (possibleMoves.empty()) {
+        // is the current color in check, other color wins
+        if (state.colorInCheck(state.getActiveColor())) {
+            double returnVal = std::numeric_limits<double>::infinity();
+            if (state.getActiveColor() == WHITE) {
+                returnVal *= -1;
+            }
+            return returnVal;
+        }
+        // if not, tie
+        return 0;
+    }
+
+    double bestEval = (state.getActiveColor() == WHITE)
+                        ? -std::numeric_limits<double>::infinity()
+                        :  std::numeric_limits<double>::infinity();
+    for (Move move : possibleMoves) {
+        state.makeMove(move);
+        double eval = evalCurrState(state, depth-1, alpha, beta);
+        state.undoMove();
+
+        if (isBetterEval(state.getActiveColor(), bestEval, eval)) {
+            bestEval = eval;
+        }
+
+        // alpha beta pruning
+        if (state.getActiveColor() == WHITE) {
+            alpha = std::max(alpha, eval);
+        }
+        else {
+            beta = std::min(beta, eval);
+        }
+        if (beta <= alpha) {
+            break;
+        }
+    }
+    return bestEval;
+}
+
+bool Evaluator::isBetterEval(const Color color, const double currBest, const double value) {
+    if (color == WHITE) {
+        return value > currBest;
+    }
+    return value < currBest;
+}
+
 double Evaluator::evaluate(const State &state) {
     bool endgame = false;
     int eval = getSquareWiseEvalAndGamePhase(state, endgame);
