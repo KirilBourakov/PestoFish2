@@ -214,6 +214,18 @@ TEST(TestMove, StanderedKingMove) {
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }
 
+TEST(TestMove, SmotheredMateLongCastlePosition) {
+    std::vector<Move> moves;
+    addKingMoves(smotheredMateLongCastlePosition(), 4, 7, WHITE, 0b1111, moves);
+    constexpr BoardPosition start{ 4, 7};
+    const std::vector<Move> expectedMoves = {
+        Move::standardMove(start, {4, 6,}),
+        Move::standardMove(start, {3, 7,}),
+        Move::castleMove(start, {2, 7}, LONG)
+    };
+    EXPECT_THAT(moves, UnorderedElementsAreArray(expectedMoves));
+}
+
 TEST(TestMove, StanderedKingWithoutCastleRights) {
     std::vector<Move> moves;
     addKingMoves(smotheredMatePosition(), 4, 7, WHITE, 0b0111, moves);

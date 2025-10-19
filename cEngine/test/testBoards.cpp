@@ -31,6 +31,19 @@ BoardArray smotheredMatePosition() {
     }};
 }
 
+BoardArray smotheredMateLongCastlePosition() {
+    return BoardArray{{
+        {{BLACK_ROOK,   EMPTY,        EMPTY,        BLACK_BISHOP,BLACK_KING, BLACK_KNIGHT, EMPTY,        BLACK_ROOK}},
+        {{BLACK_PAWN,   BLACK_PAWN,   EMPTY,        BLACK_PAWN,  BLACK_KNIGHT,BLACK_ROOK,   BLACK_PAWN,   BLACK_PAWN}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        BLACK_ROOK,   EMPTY,       EMPTY,      EMPTY,        EMPTY,        EMPTY}},
+        {{EMPTY,        EMPTY,        EMPTY,        EMPTY,       WHITE_KNIGHT,EMPTY,       EMPTY,        EMPTY}},
+        {{WHITE_KNIGHT, EMPTY,        EMPTY,        EMPTY,       EMPTY,      EMPTY,        WHITE_PAWN,   EMPTY}},
+        {{WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,   WHITE_PAWN,  EMPTY,      WHITE_PAWN,   EMPTY,        WHITE_PAWN}},
+        {{WHITE_ROOK,   EMPTY,        EMPTY,        EMPTY,       WHITE_KING, WHITE_QUEEN,  WHITE_BISHOP, WHITE_ROOK}}
+    }};
+}
+
 BoardArray unBlockedCastle() {
     return BoardArray{{
         {{BLACK_ROOK,   EMPTY,        EMPTY,        EMPTY,       BLACK_KING, EMPTY,        EMPTY,        BLACK_ROOK}},

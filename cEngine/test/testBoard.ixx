@@ -7,6 +7,7 @@ import Types;
 
 export BoardArray randomMiddleGame();
 export BoardArray smotheredMatePosition();
+export BoardArray smotheredMateLongCastlePosition();
 export BoardArray unBlockedCastle();
 export BoardArray simpleMiddleGame();
 
