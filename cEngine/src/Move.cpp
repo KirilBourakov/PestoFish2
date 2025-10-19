@@ -165,13 +165,10 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
     }
 }
 
-
-bool isAttacked(const BoardArray &board, const BoardPosition position) {
+bool isAttacked(const BoardArray &board, const BoardPosition position, const Color color) {
     if (!inBounds(position.x, position.y)) {
         throw std::invalid_argument("Position is out of bounds");
     }
-
-    const Color color = board[position.y][position.x] > 0 ? WHITE : BLACK;
 
     static const moveSet straight_dir = {{0,1}, {0,-1}, {1,0}, {-1,0}};
     for (auto [dx, dy] : straight_dir) {
@@ -239,4 +236,15 @@ bool isAttacked(const BoardArray &board, const BoardPosition position) {
     }
 
     return false;
+}
+
+bool isAttacked(const BoardArray &board, const BoardPosition position) {
+    if (!inBounds(position.x, position.y)) {
+        throw std::invalid_argument("Position is out of bounds");
+    }
+    if (board[position.y][position.x] == EMPTY) {
+        throw std::invalid_argument("Cannot implicitly find color of empty square");
+    }
+    const Color color = board[position.y][position.x] > 0 ? WHITE : BLACK;
+    return isAttacked(board, position, color);
 }

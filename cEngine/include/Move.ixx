@@ -15,3 +15,4 @@ export void addKingMoves(const BoardArray& board, const int x, const int y, cons
 export void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move> &moves);
 export void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, const bool straight, const bool diag, std::vector<Move> &moves);
 export bool isAttacked(const BoardArray &board, const BoardPosition position);
+export bool isAttacked(const BoardArray &board, const BoardPosition position, const Color color);

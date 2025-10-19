@@ -53,8 +53,8 @@ TEST(TestMove, KingCheck) {
     EXPECT_TRUE(isAttacked(kingCheck(), BoardPosition{0,1}));
 }
 
-TEST(TestMove, notPortected) {
-    EXPECT_FALSE(isAttacked(pawnCheck(), BoardPosition{7,7}));
+TEST(TestMove, notProtected) {
+    EXPECT_FALSE(isAttacked(pawnCheck(), BoardPosition{7,7}, BLACK));
 }
 
 // PAWN MOVES

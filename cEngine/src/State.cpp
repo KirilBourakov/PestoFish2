@@ -99,7 +99,9 @@ bool State::isLegalMove(BoardPosition start, BoardPosition end) {
     std::vector<Move> moves;
     addMoves(start.x, start.y, moves);
     moves = purgeIllegal(moves);
+    std::cout << "MOVE: " << start << " -> " << end << std::endl;
     for (auto move : moves) {
+        std::cout << move << std::endl;
         if (move.start == start && move.end == end) {
             return true;
         }
@@ -137,11 +139,13 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
     std::vector<Move> legalMoves;
     for (Move move : pseudolegalMoves) {
         bool isValid = true;
+        const Color color = board[move.start.y][move.start.x] > 0 ? WHITE : BLACK;
         if (move.castle == LONG) {
-            isValid = !isAttacked(board, BoardPosition{.x=move.end.x+1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.end.x+2, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
+            isValid = !isAttacked(board, BoardPosition{.x=move.end.x+1, .y=move.end.y}, color) &&
+                !isAttacked(board, BoardPosition{.x=move.end.x+2, .y=move.end.y}, color) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y}, color);
         }
         else if (move.castle == SHORT) {
-            isValid = !isAttacked(board, BoardPosition{.x=move.end.x-1, .y=move.end.y}) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y});
+            isValid = !isAttacked(board, BoardPosition{.x=move.end.x-1, .y=move.end.y}, color) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y}, color);
         }
         if (isValid) {
             const Color preMoveColor = activeColor;
