@@ -23,6 +23,7 @@ set(ENGINE_MODULES
         include/Types.ixx
         include/Move.ixx
         include/Evaluator.ixx
+        include/PieceSqTables.ixx
 )
 
 # Build cEngine
