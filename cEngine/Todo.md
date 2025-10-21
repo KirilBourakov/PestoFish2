@@ -1,4 +1,5 @@
 1. Fully transition to int based scoring
+   - Shared SMP seems to be the way to go. Requires Hashing
 2. Multithreading
 3. Hashing, which allows for:
    1. 3-move rule
