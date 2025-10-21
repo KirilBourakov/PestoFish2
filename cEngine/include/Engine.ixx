@@ -14,6 +14,7 @@ export class Engine {
 public:
     Engine();
     Move getBestMove();
+    Move getBestMoveConcurrent();
     void makeEngineMove();
 
     State& getState(){return state;};
