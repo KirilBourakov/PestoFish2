@@ -11,15 +11,18 @@ set(ENGINE_SOURCES
         src/State.cpp
         src/Move.cpp
         src/Evaluator.cpp
+        src/ZobristHash.cpp
 )
 
 set(ENGINE_MODULES
         include/Engine.ixx
         include/State.ixx
-        include/ModuleOnly/Board.ixx
-        include/ModuleOnly/Enums.ixx
         include/Move.ixx
         include/Evaluator.ixx
+        include/ZobristHash.ixx
+
+        include/ModuleOnly/Board.ixx
+        include/ModuleOnly/Enums.ixx
         include/ModuleOnly/PieceSqTables.ixx
 )
 

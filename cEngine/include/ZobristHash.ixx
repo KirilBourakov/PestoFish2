@@ -1,0 +1,33 @@
+//
+// Created by Kiril on 2025-10-26.
+//
+module;
+#include <unordered_map>
+
+export module ZobristHash;
+import State;
+import Board;
+import Enum;
+import <array>;
+import <random>;
+
+using u64 = unsigned long long;
+
+export class ZobristHash {
+public:
+    ZobristHash(const State& state);
+private:
+    static unsigned long long seed;
+
+    void recalculate(const State& state);
+
+    u64 value;
+
+    // Generation aids
+    std::mt19937_64 rng;
+    std::uniform_int_distribution<unsigned long long> dis;
+    std::unordered_map<Piece, std::array<std::array<u64, BOARD_SIZE>, BOARD_SIZE>> pieceTable;
+    u64 blackToMove;
+    std::array<u64, 16> castleRights; // castling rights represented by int from ob1111 -> ob0000
+    std::array<u64, 8> enPassantSquare;
+};

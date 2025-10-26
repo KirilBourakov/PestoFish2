@@ -44,6 +44,7 @@ public:
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
     [[nodiscard]] const BoardArray& getBoard() const {return board;}
+    [[nodiscard]] std::optional<BoardPosition> getEnPassantSquare() const {return enPassantSquare;}
     [[nodiscard]] int getHalfMoveClock() const {return halfMoveClock;}
     [[nodiscard]] Color getActiveColor() const {return activeColor;}
     [[nodiscard]] bool isHalfMoveTie() const {return halfMoveClock >= 50;}
