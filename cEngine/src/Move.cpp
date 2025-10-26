@@ -9,8 +9,7 @@ module;
 module Move;
 import <optional>;
 import <vector>;
-import Types;
-import Utils;
+import Enum;
 import Board;
 
 using moveSet = std::vector<std::pair<int,int>>;

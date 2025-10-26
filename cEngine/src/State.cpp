@@ -8,7 +8,7 @@ module;
 module State;
 import <array>;
 import Board;
-import Utils;
+import Enum;
 import Move;
 
 

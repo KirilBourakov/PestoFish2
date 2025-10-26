@@ -5,7 +5,8 @@
 export module PieceSqTables;
 import <array>;
 import <unordered_map>;
-import Types;
+import Board;
+import Enum;
 
 export using PieceSqTable = std::array<std::array<int, BOARD_SIZE>, BOARD_SIZE>;
 

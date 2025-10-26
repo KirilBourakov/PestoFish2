@@ -6,9 +6,9 @@ export module Engine;
 import <optional>;
 import <vector>;
 import Board;
-import Types;
+import Enum;
 import State;
-
+import Move;
 
 export class Engine {
 public:

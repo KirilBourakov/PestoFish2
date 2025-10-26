@@ -5,7 +5,7 @@
 export module Evaluator;
 import State;
 import <unordered_map>;
-import Types;
+import Enum;
 
 export class Evaluator{
 public:

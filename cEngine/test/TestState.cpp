@@ -5,7 +5,8 @@
 import State;
 import Board;
 import testBoard;
-import Types;
+import Move;
+import Enum;
 
 TEST(getMoves, whiteCheckmated) {
     State state{

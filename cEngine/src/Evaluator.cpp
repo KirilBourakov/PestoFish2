@@ -6,7 +6,8 @@ module;
 
 module Evaluator;
 import Board;
-import Types;
+import Enum;
+import Move;
 import PieceSqTables;
 
 double Evaluator::evalCurrState(State &state, int depth, double alpha, double beta) {

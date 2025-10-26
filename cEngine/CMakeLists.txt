@@ -9,21 +9,18 @@ find_package(pybind11 REQUIRED)
 set(ENGINE_SOURCES
         src/Engine.cpp
         src/State.cpp
-        src/Board.cpp
         src/Move.cpp
-        src/Utils.cpp
         src/Evaluator.cpp
 )
 
 set(ENGINE_MODULES
         include/Engine.ixx
         include/State.ixx
-        include/Board.ixx
-        include/Utils.ixx
-        include/Types.ixx
+        include/ModuleOnly/Board.ixx
+        include/ModuleOnly/Enums.ixx
         include/Move.ixx
         include/Evaluator.ixx
-        include/PieceSqTables.ixx
+        include/ModuleOnly/PieceSqTables.ixx
 )
 
 # Build cEngine

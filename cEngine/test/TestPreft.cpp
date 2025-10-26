@@ -3,7 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-import Types;
+import Enum;
+import Move;
 import State;
 
 typedef unsigned long long u64;

@@ -3,8 +3,9 @@
 //
 
 export module State;
-import Types;
+import Enum;
 import Move;
+import Board;
 import <optional>;
 import <vector>;
 

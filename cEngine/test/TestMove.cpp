@@ -4,7 +4,7 @@ using ::testing::UnorderedElementsAreArray;
 
 
 import Move;
-import Types;
+import Enum;
 import testBoard;
 import Board;
 

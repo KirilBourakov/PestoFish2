@@ -7,7 +7,8 @@ import Engine;
 import testBoard;
 import State;
 import Move;
-import Types;
+import Enum;
+import Board;
 
 TEST(TestEngine, testSimpleGetBest) {
     Engine engine{};
