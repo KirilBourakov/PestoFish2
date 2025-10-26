@@ -5,7 +5,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 import Engine;
-import Enum;
+import Enums;
 import State;
 import Board;
 
@@ -30,7 +30,7 @@ PYBIND11_MODULE(cEngine, m) {
         .def("__getitem__", [](const BoardArray &self, size_t i) {
             if (i >= BOARD_SIZE){ throw py::index_error();}
             const auto &row = self[i];
-            return std::vector<Piece>(row.begin(), row.end());
+            return std::vector<Pieces::Piece>(row.begin(), row.end());
         });
 
     py::class_<BoardPosition>(m, "BoardPosition")
@@ -42,25 +42,25 @@ PYBIND11_MODULE(cEngine, m) {
     m.def("same_color", &sameColor);
 
     // ENUM
-    py::enum_<Piece>(m, "Piece")
-        .value("WHITE_PAWN", Piece::WHITE_PAWN)
-        .value("WHITE_BISHOP", Piece::WHITE_BISHOP)
-        .value("WHITE_KNIGHT", Piece::WHITE_KNIGHT)
-        .value("WHITE_ROOK", Piece::WHITE_ROOK)
-        .value("WHITE_QUEEN", Piece::WHITE_QUEEN)
-        .value("WHITE_KING", Piece::WHITE_KING)
+    py::module Piece = m.def_submodule("Piece", "Pieces");
+     Piece.attr("EMPTY") = Pieces::make_piece(Color::White, PieceType::None);
+     Piece.attr("WHITE_PAWN") = Pieces::make_piece(Color::White, PieceType::Pawn);
+     Piece.attr("WHITE_KNIGHT") = Pieces::make_piece(Color::White, PieceType::Knight);
+     Piece.attr("WHITE_BISHOP") = Pieces::make_piece(Color::White, PieceType::Bishop);
+     Piece.attr("WHITE_ROOK") = Pieces::make_piece(Color::White, PieceType::Rook);
+     Piece.attr("WHITE_QUEEN") = Pieces::make_piece(Color::White, PieceType::Queen);
+     Piece.attr("WHITE_KING") = Pieces::make_piece(Color::White, PieceType::King);
 
-        .value("BLACK_PAWN", Piece::BLACK_PAWN)
-        .value("BLACK_BISHOP", Piece::BLACK_BISHOP)
-        .value("BLACK_KNIGHT", Piece::BLACK_KNIGHT)
-        .value("BLACK_ROOK", Piece::BLACK_ROOK)
-        .value("BLACK_QUEEN", Piece::BLACK_QUEEN)
-        .value("BLACK_KING", Piece::BLACK_KING)
-        .value("EMPTY", Piece::EMPTY);
+     Piece.attr("BLACK_PAWN") = Pieces::make_piece(Color::Black, PieceType::Pawn);
+     Piece.attr("BLACK_KNIGHT") = Pieces::make_piece(Color::Black, PieceType::Knight);
+     Piece.attr("BLACK_BISHOP") = Pieces::make_piece(Color::Black, PieceType::Bishop);
+     Piece.attr("BLACK_ROOK") = Pieces::make_piece(Color::Black, PieceType::Rook);
+     Piece.attr("BLACK_QUEEN") = Pieces::make_piece(Color::Black, PieceType::Queen);
+     Piece.attr("BLACK_KING") = Pieces::make_piece(Color::Black, PieceType::King);
 
     py::enum_<Color>(m, "Color")
-        .value("WHITE", Color::WHITE)
-        .value("BLACK", Color::BLACK);
+        .value("WHITE", Color::White)
+        .value("BLACK", Color::Black);
 
     py::enum_<CastleType>(m, "CastleType")
         .value("LONG", CastleType::LONG)

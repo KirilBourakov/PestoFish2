@@ -7,13 +7,15 @@ import Engine;
 import testBoard;
 import State;
 import Move;
-import Enum;
+import Enums;
 import Board;
+
+using namespace Pieces;
 
 TEST(TestEngine, testSimpleGetBest) {
     Engine engine{};
     engine.setState(
-        State{simpleBest(), WHITE, 0b1111, std::nullopt}
+        State{simpleBest(), Color::White, 0b1111, std::nullopt}
     );
 
     const Move best = engine.getBestMove();
@@ -23,7 +25,7 @@ TEST(TestEngine, testSimpleGetBest) {
 TEST(TestEngine, testSmotherMateInOne) {
     Engine engine{};
     engine.setState(
-        State{smotheredMatePosition(), WHITE, 0b1111, std::nullopt}
+        State{smotheredMatePosition(), Color::White, 0b1111, std::nullopt}
     );
 
     const Move best = engine.getBestMove();

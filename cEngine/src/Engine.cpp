@@ -4,7 +4,9 @@
 module;
 #include <algorithm>
 #include <execution>
+#include <iostream>
 #include <mutex>
+#include <ostream>
 
 module Engine;
 import Move;
@@ -26,11 +28,12 @@ Move Engine::getBestMove() {
     Color rootColor = state.getActiveColor();
 
     std::optional<Move> bestMove = std::nullopt;
-    double bestEval = (rootColor == WHITE)
+    double bestEval = (rootColor == Color::White)
                         ? -std::numeric_limits<double>::infinity()
                         :  std::numeric_limits<double>::infinity();
 
     std::vector<Move> possibleMoves = state.getMoves();
+    std::cout << "Entering loop" << std::endl;
     for (Move move : possibleMoves) {
         state.makeMove(move);
         double eval = Evaluator::evalCurrState(state, 2, alpha, beta);
@@ -41,7 +44,7 @@ Move Engine::getBestMove() {
             bestEval = eval;
         }
 
-        if (rootColor == WHITE) {
+        if (rootColor == Color::White) {
             alpha = std::max(alpha, eval);
         }
         else {
@@ -61,7 +64,7 @@ Move Engine::getBestMoveConcurrent() {
     Color rootColor = state.getActiveColor();
 
     std::optional<Move> bestMove = std::nullopt;
-    double bestEval = (rootColor == WHITE)
+    double bestEval = (rootColor == Color::White)
                         ? -std::numeric_limits<double>::infinity()
                         :  std::numeric_limits<double>::infinity();
 

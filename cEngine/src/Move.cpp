@@ -9,12 +9,14 @@ module;
 module Move;
 import <optional>;
 import <vector>;
-import Enum;
+import Enums;
 import Board;
 
 using moveSet = std::vector<std::pair<int,int>>;
 
 void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights, std::vector<Move> &moves) {
+    using namespace Pieces;
+
     static const moveSet straight_diag = {{0,1}, {0,-1}, {1,0}, {-1,0}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
     const BoardPosition start {
         .x = x, .y = y
@@ -27,7 +29,7 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
         }
     }
 
-    const int newY = color == BLACK ? 0 : 7;
+    const int newY = color == Color::Black ? 0 : 7;
     if (castleAllowed(color, SHORT, castleRights)) {
         constexpr int newX = 6;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY) {
@@ -43,10 +45,12 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
 }
 
 //TODO: test
-void addPromotions(BoardPosition start, BoardPosition end, Piece piece, Color color, std::vector<Move> &moves) {
+void addPromotions(BoardPosition start, BoardPosition end, Pieces::Piece piece, Color color, std::vector<Move> &moves) {
+    using namespace Pieces;
+
     static constexpr std::array<Piece, 4> whitePieces = {WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN};
     static constexpr std::array<Piece, 4> blackPieces = {BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN};
-    const auto& usedPieces = (color == WHITE ? whitePieces : blackPieces);
+    const auto& usedPieces = (color == Color::White ? whitePieces : blackPieces);
 
     for (const Piece promoteTo : usedPieces) {
         moves.push_back(Move::promotionMove(start, end, promoteTo));
@@ -54,13 +58,13 @@ void addPromotions(BoardPosition start, BoardPosition end, Piece piece, Color co
 }
 
 void addPawnMoves(const BoardArray& board, const int x, const int y, const Color color, const std::optional<BoardPosition>& enPassantSquare, std::vector<Move> &moves) {
-    int dir = color == WHITE ? -1 : 1;
+    int dir = color == Color::White ? -1 : 1;
     int newY = y + dir;
     const BoardPosition start {
         .x = x, .y = y
     };
     // standard move
-    if (inBounds(x,newY) && board[newY][x] == EMPTY) {
+    if (inBounds(x,newY) && board[newY][x] == Pieces::EMPTY) {
         if (newY == 7 || newY == 0) {
             addPromotions(start, {x,newY}, board[newY][x], color, moves);
         } else {
@@ -74,7 +78,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         int newX = x + dx;
         newY = y + dy;
         if (inBounds(newX, newY)) {
-            if (board[newY][newX] != EMPTY && !sameColor(color, board[newY][newX])) {
+            if (board[newY][newX] != Pieces::EMPTY && !sameColor(color, board[newY][newX])) {
                 if (newY == 7 || newY == 0) {
                     addPromotions(start, {newX,newY}, board[newY][x], color, moves);
                 } else {
@@ -94,12 +98,12 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
     }
 
     // double move
-    int startY = color == WHITE ? 6 : 1;
+    int startY = color == Color::White ? 6 : 1;
     if (y == startY) {
         newY = y + 2 * dir;
         if (inBounds(x, newY)) {
             const int enPassantSquareY = newY-dir;
-            if (board[newY][x] == EMPTY && board[enPassantSquareY][x] == EMPTY) {
+            if (board[newY][x] == Pieces::EMPTY && board[enPassantSquareY][x] == Pieces::EMPTY) {
                 moves.push_back(Move::doublePawnMove(start, {x, newY}, {x, enPassantSquareY}));
             }
         }
@@ -157,7 +161,7 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
             }
 
             moves.push_back(Move::standardMove(start, {newX, newY}));
-            if (board[newY][newX] != EMPTY) {
+            if (board[newY][newX] != Pieces::EMPTY) {
                 break;
             }
         }
@@ -177,10 +181,10 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
             if (!inBounds(newX, newY) || sameColor(color, board[newY][newX])) {
                 break;
             }
-            if (std::abs(board[newY][newX]) == WHITE_ROOK || std::abs(board[newY][newX]) == WHITE_QUEEN) {
+            if (Pieces::piece_type(board[newY][newX]) == PieceType::Rook || Pieces::piece_type(board[newY][newX]) == PieceType::Queen){
                 return true;
             }
-            if (board[newY][newX] != EMPTY) {
+            if (board[newY][newX] != Pieces::EMPTY) {
                 break;
             }
         }
@@ -194,10 +198,10 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
             if (!inBounds(newX, newY) || sameColor(color, board[newY][newX])) {
                 break;
             }
-            if (std::abs(board[newY][newX]) == WHITE_BISHOP || std::abs(board[newY][newX]) == WHITE_QUEEN) {
+            if (Pieces::piece_type(board[newY][newX]) == PieceType::Bishop || Pieces::piece_type(board[newY][newX]) == PieceType::Queen) {
                 return true;
             }
-            if (board[newY][newX] != EMPTY) {
+            if (board[newY][newX] != Pieces::EMPTY) {
                 break;
             }
         }
@@ -207,17 +211,17 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
     for (auto [dx, dy] : knightHops) {
         const int newY = position.y + dy;
         const int newX = position.x + dx;
-        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && std::abs(board[newY][newX]) == WHITE_KNIGHT) {
+        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::Knight) {
             return true;
         }
     }
     // check pawn
-    int dir = color == WHITE ? -1 : 1;
+    int dir = color == Color::White ? -1 : 1;
     moveSet pawnAttacks = {{+1, dir}, {-1,dir}};
     for (auto [dx, dy] : pawnAttacks) {
         const int newY = position.y + dy;
         const int newX = position.x + dx;
-        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && std::abs(board[newY][newX]) == WHITE_PAWN) {
+        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::Pawn) {
             return true;
         }
     }
@@ -228,7 +232,7 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
             if (dx == 0 && dy == 0) continue;
             int newX = position.x + dx;
             int newY = position.y + dy;
-            if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) &&std::abs(board[newY][newX]) == WHITE_KING) {
+            if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::King) {
                 return true;
             }
         }
@@ -241,9 +245,9 @@ bool isAttacked(const BoardArray &board, const BoardPosition position) {
     if (!inBounds(position.x, position.y)) {
         throw std::invalid_argument("Position is out of bounds");
     }
-    if (board[position.y][position.x] == EMPTY) {
+    if (board[position.y][position.x] == Pieces::EMPTY) {
         throw std::invalid_argument("Cannot implicitly find color of empty square");
     }
-    const Color color = board[position.y][position.x] > 0 ? WHITE : BLACK;
+    const Color color = Pieces::piece_color(board[position.y][position.x]);
     return isAttacked(board, position, color);
 }

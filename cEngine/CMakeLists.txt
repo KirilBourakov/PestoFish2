@@ -45,7 +45,6 @@ add_executable(runTests
         test/TestState.cpp
         test/TestEngine.cpp
 
-        test/testBoards.cpp
         test/testBoard.ixx
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}

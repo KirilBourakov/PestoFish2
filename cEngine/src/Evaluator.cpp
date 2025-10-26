@@ -3,10 +3,11 @@
 //
 module;
 #include <cmath>
+#include <iostream>
 
 module Evaluator;
 import Board;
-import Enum;
+import Enums;
 import Move;
 import PieceSqTables;
 
@@ -25,7 +26,7 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
         // is the current color in check, other color wins
         if (state.colorInCheck(state.getActiveColor())) {
             double returnVal = std::numeric_limits<double>::infinity();
-            if (state.getActiveColor() == WHITE) {
+            if (state.getActiveColor() == Color::White) {
                 returnVal *= -1;
             }
             return returnVal;
@@ -34,7 +35,7 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
         return 0;
     }
 
-    double bestEval = (state.getActiveColor() == WHITE)
+    double bestEval = (state.getActiveColor() == Color::White)
                         ? -std::numeric_limits<double>::infinity()
                         :  std::numeric_limits<double>::infinity();
     for (Move move : possibleMoves) {
@@ -47,7 +48,7 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
         }
 
         // alpha beta pruning
-        if (state.getActiveColor() == WHITE) {
+        if (state.getActiveColor() == Color::White) {
             alpha = std::max(alpha, eval);
         }
         else {
@@ -61,7 +62,7 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
 }
 
 bool Evaluator::isBetterEval(const Color color, const double currBest, const double value) {
-    if (color == WHITE) {
+    if (color == Color::White) {
         return value > currBest;
     }
     return value < currBest;
@@ -89,11 +90,11 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State &state, bool& endgame) 
 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (const Piece currPiece = state.getBoard()[y][x]; currPiece != EMPTY) {
-                const int dir = sameColor(WHITE, currPiece) ? 1 : -1;
-                const auto colorLessPiece = static_cast<Piece>(abs(currPiece));
+            if (const Pieces::Piece currPiece = state.getBoard()[y][x]; currPiece != Pieces::EMPTY) {
+                const int dir = sameColor(Color::White, currPiece) ? 1 : -1;
+                const auto colorLessPiece = Pieces::piece_type(currPiece);
                 // Raw material (which king does not have)
-                if (colorLessPiece != WHITE_KING) {
+                if (colorLessPiece != PieceType::King) {
                     middleMaterialCount += middleGameScore.at(colorLessPiece) * dir;
                     endMaterialCount += endGameScore.at(colorLessPiece) * dir;
                 }
@@ -112,9 +113,9 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State &state, bool& endgame) 
                 // pieces on enemy half of the board
 
                 // tracking to determine if it is an end game
-                if (sameColor(WHITE, currPiece)) {
+                if (sameColor(Color::White, currPiece)) {
                     whiteNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
-                } else if (sameColor(BLACK, currPiece)) {
+                } else if (sameColor(Color::Black, currPiece)) {
                     blackNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
                 }
             }

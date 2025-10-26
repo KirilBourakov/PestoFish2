@@ -7,7 +7,7 @@ module;
 export module ZobristHash;
 import State;
 import Board;
-import Enum;
+import Enums;
 import <array>;
 import <random>;
 
@@ -26,7 +26,7 @@ private:
     // Generation aids
     std::mt19937_64 rng;
     std::uniform_int_distribution<unsigned long long> dis;
-    std::unordered_map<Piece, std::array<std::array<u64, BOARD_SIZE>, BOARD_SIZE>> pieceTable;
+    std::unordered_map<Pieces::Piece, std::array<std::array<u64, BOARD_SIZE>, BOARD_SIZE>> pieceTable;
     u64 blackToMove;
     std::array<u64, 16> castleRights; // castling rights represented by int from ob1111 -> ob0000
     std::array<u64, 8> enPassantSquare;

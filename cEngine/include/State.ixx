@@ -3,7 +3,7 @@
 //
 
 export module State;
-import Enum;
+import Enums;
 import Move;
 import Board;
 import <optional>;
@@ -14,8 +14,8 @@ export class State {
 public:
     struct HistoricalEntry {
         Move move;
-        Piece movedPiece; // piece moved by move
-        Piece overwrittenPiece; // piece replaced by movedPiece
+        Pieces::Piece movedPiece; // piece moved by move
+        Pieces::Piece overwrittenPiece; // piece replaced by movedPiece
 
         int castlingBeforeMove;
         int halfMoveClockBeforeMove;
@@ -37,7 +37,7 @@ public:
     void undoMove();
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
-    void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Piece> promotedTo);
+    void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo);
     GameState getGameState();
 
     [[nodiscard]] State makeThreadCopy();
@@ -49,7 +49,7 @@ public:
     [[nodiscard]] Color getActiveColor() const {return activeColor;}
     [[nodiscard]] bool isHalfMoveTie() const {return halfMoveClock >= 50;}
     [[nodiscard]] bool colorInCheck(Color color) const {
-        BoardPosition kingSquare = color == WHITE ? whiteKingSquare : blackKingSquare;
+        BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
         return isAttacked(board, kingSquare);
     }
 

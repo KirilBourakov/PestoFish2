@@ -4,10 +4,11 @@ using ::testing::UnorderedElementsAreArray;
 
 
 import Move;
-import Enum;
+import Enums;
 import testBoard;
 import Board;
 
+using namespace Pieces;
 
 // KING IN CHECK
 TEST(TestMove, NoCheck) {
@@ -54,13 +55,13 @@ TEST(TestMove, KingCheck) {
 }
 
 TEST(TestMove, notProtected) {
-    EXPECT_FALSE(isAttacked(pawnCheck(), BoardPosition{7,7}, BLACK));
+    EXPECT_FALSE(isAttacked(pawnCheck(), BoardPosition{7,7}, Color::Black));
 }
 
 // PAWN MOVES
 TEST(TestMove, CapturePromotion) {
     std::vector<Move> moves;
-    addPawnMoves(capturePromotion(), 1, 1, WHITE, std::nullopt, moves);
+    addPawnMoves(capturePromotion(), 1, 1, Color::White, std::nullopt, moves);
     constexpr BoardPosition start{.x = 1, .y = 1};
     const std::vector<Move> expectedMoves = {
         Move::promotionMove(start, {0,0}, WHITE_KNIGHT),
@@ -78,7 +79,7 @@ TEST(TestMove, CapturePromotion) {
 
 TEST(TestMove, Promotion) {
     std::vector<Move> moves;
-    addPawnMoves(kingsFlankPawns(), 0, 1, WHITE, std::nullopt, moves);
+    addPawnMoves(kingsFlankPawns(), 0, 1, Color::White, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 0, .y = 1};
     const std::vector<Move> expectedMoves = {
@@ -92,7 +93,7 @@ TEST(TestMove, Promotion) {
 
 TEST(TestMove, GetMovesFromStartWhitePawn) {
     std::vector<Move> moves;
-    addPawnMoves(randomMiddleGame(), 0, 6, WHITE, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 0, 6, Color::White, std::nullopt, moves);
     constexpr BoardPosition start{.x = 0, .y = 6};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {0, 5}),
@@ -103,7 +104,7 @@ TEST(TestMove, GetMovesFromStartWhitePawn) {
 
 TEST(TestMove, GetMovesFromStartBlackPawn) {
     std::vector<Move> moves;
-    addPawnMoves(randomMiddleGame(), 5, 1, BLACK, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 5, 1, Color::Black, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 5, .y = 1};
     const std::vector<Move> expectedMoves = {
@@ -117,7 +118,7 @@ TEST(TestMove, GetMovesFromStartBlackPawn) {
 
 TEST(TestMove, GetMovesWhitePawnCaptureAndPush) {
     std::vector<Move> moves;
-    addPawnMoves(randomMiddleGame(), 2, 4, WHITE, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 2, 4, Color::White, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 2, .y = 4};
     const std::vector<Move> expectedMoves = {
@@ -130,7 +131,7 @@ TEST(TestMove, GetMovesWhitePawnCaptureAndPush) {
 
 TEST(TestMove, BlackPawnBlocked) {
     std::vector<Move> moves;
-    addPawnMoves(randomMiddleGame(), 7, 1, BLACK, std::nullopt, moves);
+    addPawnMoves(randomMiddleGame(), 7, 1, Color::Black, std::nullopt, moves);
 
     constexpr BoardPosition start{.x = 7, .y = 1};
     const std::vector expectedMoves = {
@@ -143,7 +144,7 @@ TEST(TestMove, BlackPawnBlocked) {
 // Knight Moves
 TEST(TestMove, smotheredMateKnight) {
     std::vector<Move> moves;
-    addKnightMoves(smotheredMatePosition(), 4, 4, WHITE, moves);
+    addKnightMoves(smotheredMatePosition(), 4, 4, Color::White, moves);
 
     constexpr BoardPosition start{ 4, 4};
     const std::vector<Move> expectedMoves = {
@@ -155,12 +156,12 @@ TEST(TestMove, smotheredMateKnight) {
         Move::standardMove(start, {2, 3}),
     };
 
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
+    EXPECT_THAT(moves, UnorderedElementsAreArray(expectedMoves));
 }
 
 TEST(TestMove, cornerKnight) {
     std::vector<Move> moves;
-    addKnightMoves(smotheredMatePosition(), 0, 5, WHITE, moves);
+    addKnightMoves(smotheredMatePosition(), 0, 5, Color::White, moves);
     constexpr BoardPosition start{ 0, 5};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {1, 3}),
@@ -172,7 +173,7 @@ TEST(TestMove, cornerKnight) {
 
 TEST(TestMove, startKnight) {
     std::vector<Move> moves;
-    addKnightMoves(getStartingBoard(), 1, 7, WHITE, moves);
+    addKnightMoves(getStartingBoard(), 1, 7, Color::White, moves);
     constexpr BoardPosition start{1, 7};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {0, 5}),
@@ -183,7 +184,7 @@ TEST(TestMove, startKnight) {
 
 TEST(TestMove, movedKnight) {
     std::vector<Move> moves;
-    addKnightMoves(knightMovedFromStart(), 0, 5, WHITE, moves);
+    addKnightMoves(knightMovedFromStart(), 0, 5, Color::White, moves);
     constexpr BoardPosition start{0, 5};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {1, 7}),
@@ -196,7 +197,7 @@ TEST(TestMove, movedKnight) {
 // King Moves
 TEST(TestMove, stuckKing) {
     std::vector<Move> moves;
-    addKingMoves(smotheredMatePosition(), 4, 0, BLACK, 0b1111, moves);
+    addKingMoves(smotheredMatePosition(), 4, 0, Color::Black, 0b1111, moves);
     const std::vector<Move> expectedMoves = {};
 
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
@@ -204,7 +205,7 @@ TEST(TestMove, stuckKing) {
 
 TEST(TestMove, StanderedKingMove) {
     std::vector<Move> moves;
-    addKingMoves(smotheredMatePosition(), 4, 7, WHITE, 0b1111, moves);
+    addKingMoves(smotheredMatePosition(), 4, 7, Color::White, 0b1111, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {4, 6,}),
@@ -216,7 +217,7 @@ TEST(TestMove, StanderedKingMove) {
 
 TEST(TestMove, SmotheredMateLongCastlePosition) {
     std::vector<Move> moves;
-    addKingMoves(smotheredMateLongCastlePosition(), 4, 7, WHITE, 0b1111, moves);
+    addKingMoves(smotheredMateLongCastlePosition(), 4, 7, Color::White, 0b1111, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {4, 6,}),
@@ -228,7 +229,7 @@ TEST(TestMove, SmotheredMateLongCastlePosition) {
 
 TEST(TestMove, StanderedKingWithoutCastleRights) {
     std::vector<Move> moves;
-    addKingMoves(smotheredMatePosition(), 4, 7, WHITE, 0b0111, moves);
+    addKingMoves(smotheredMatePosition(), 4, 7, Color::White, 0b0111, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {4,6}),
@@ -239,7 +240,7 @@ TEST(TestMove, StanderedKingWithoutCastleRights) {
 
 TEST(TestMove, CastleAllowed) {
     std::vector<Move> moves;
-    addKingMoves(unBlockedCastle(), 4, 7, WHITE, 0b1111, moves);
+    addKingMoves(unBlockedCastle(), 4, 7, Color::White, 0b1111, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {3, 7}),
@@ -250,7 +251,7 @@ TEST(TestMove, CastleAllowed) {
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 
     moves = {};
-    addKingMoves(unBlockedCastle(), 4, 0, BLACK, 0b1111, moves);
+    addKingMoves(unBlockedCastle(), 4, 0, Color::Black, 0b1111, moves);
     constexpr BoardPosition bStart{ 4, 0};
     const std::vector<Move> bExpectedMoves = {
         Move::standardMove(bStart, {3, 0}),
@@ -267,7 +268,7 @@ TEST(TestMove, CastleAllowed) {
 
 TEST(TestMove, CastleDisAllowed) {
     std::vector<Move> moves;
-    addKingMoves(unBlockedCastle(), 4, 7, WHITE, 0b0000, moves);
+    addKingMoves(unBlockedCastle(), 4, 7, Color::White, 0b0000, moves);
     constexpr BoardPosition start{ 4, 7};
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {3, 7}),
@@ -276,7 +277,7 @@ TEST(TestMove, CastleDisAllowed) {
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 
     moves = {};
-    addKingMoves(unBlockedCastle(), 4, 0, BLACK, 0b0010, moves);
+    addKingMoves(unBlockedCastle(), 4, 0, Color::Black, 0b0010, moves);
     constexpr BoardPosition bStart{ 4, 0};
     const std::vector<Move> bExpectedMoves = {
         Move::standardMove(bStart, {3, 0}),
@@ -293,7 +294,7 @@ TEST(TestMove, CastleDisAllowed) {
 // Sliding Moves
 TEST(TestMove, RookSlidingMoves) {
     std::vector<Move> moves;
-    addSlidingMoves(unBlockedCastle(), 7, 7, WHITE, true, false, moves);
+    addSlidingMoves(unBlockedCastle(), 7, 7, Color::White, true, false, moves);
 
     constexpr BoardPosition start{ 7, 7};
     const std::vector<Move> expectedMoves = {
@@ -313,7 +314,7 @@ TEST(TestMove, RookSlidingMoves) {
 
 TEST(TestMove, BishopSlidingMoves) {
     std::vector<Move> moves;
-    addSlidingMoves(smotheredMatePosition(), 3, 0, BLACK, false, true, moves);
+    addSlidingMoves(smotheredMatePosition(), 3, 0, Color::Black, false, true, moves);
 
     constexpr BoardPosition start{ 3, 0};
     const std::vector<Move> expectedMoves = {

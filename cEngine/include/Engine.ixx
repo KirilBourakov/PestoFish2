@@ -6,7 +6,7 @@ export module Engine;
 import <optional>;
 import <vector>;
 import Board;
-import Enum;
+import Enums;
 import State;
 import Move;
 

@@ -16,6 +16,8 @@ dis(
     std::numeric_limits<unsigned long long>::max()
 )
 {
+    using namespace Pieces;
+
     static std::array<Piece, 12> pieces{
         WHITE_PAWN, WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN, WHITE_KING,
         BLACK_PAWN, BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN, BLACK_KING
@@ -44,12 +46,12 @@ void ZobristHash::recalculate(const State& state) {
     value = 0;
     for (int i = 0; i < state.getBoard().size(); i++) {
         for (int j = 0; j < state.getBoard()[i].size(); j++) {
-            if (Piece piece = state.getBoard()[i][j]; piece != EMPTY){
+            if (Pieces::Piece piece = state.getBoard()[i][j]; piece != Pieces::EMPTY){
                 value ^= pieceTable[piece][i][j];
             }
         }
     }
-    if (state.getActiveColor() == BLACK) {
+    if (state.getActiveColor() == Color::Black) {
         value ^= blackToMove;
     }
     value ^= castleRights.at(state.getCastlingRights());

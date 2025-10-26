@@ -3,9 +3,11 @@
 //
 
 #include <gtest/gtest.h>
-import Enum;
+import Enums;
 import Move;
 import State;
+
+using namespace Pieces;
 
 typedef unsigned long long u64;
 

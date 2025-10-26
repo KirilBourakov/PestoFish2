@@ -5,13 +5,13 @@ module;
 #include <iostream>
 
 export module Board;
-import Enum;
+import Enums;
 import <cstdint>;
 import <array>;
 
 export constexpr int BOARD_SIZE = 8;
 
-export using BoardArray = std::array<std::array<Piece, BOARD_SIZE>, BOARD_SIZE>;
+export using BoardArray = std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE>;
 export struct BoardPosition {
     int x, y;
     bool operator==(const BoardPosition &other) const {
@@ -23,6 +23,7 @@ export inline std::ostream& operator<<(std::ostream& os, const BoardPosition& po
 }
 
 export BoardArray getStartingBoard() {
+    using namespace Pieces;
     return BoardArray{{
         {{BLACK_ROOK,   BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
         {{BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,  BLACK_PAWN, BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN}},
@@ -42,17 +43,20 @@ export bool inBounds(const int x, const int y) {
     return inBounds(x) && inBounds(y);
 }
 
-export bool sameColor(const Color color, const Piece piece) {
-    return (color == WHITE && piece > 0) || (color == BLACK && piece < 0);
+export bool sameColor(const Color color, const Pieces::Piece piece) {
+    if (piece == Pieces::EMPTY) {
+        return false;
+    }
+    return Pieces::piece_color(piece) == color;
 }
 
 export bool castleAllowed(const Color color, const CastleType type, const int castleRights) {
     int bit;
-    if (type == SHORT && color == WHITE) {
+    if (type == SHORT && color == Color::White) {
         bit = 3;
-    } else if (type == LONG && color == WHITE) {
+    } else if (type == LONG && color == Color::White) {
         bit = 2;
-    } else if (type == SHORT && color == BLACK) {
+    } else if (type == SHORT && color == Color::Black) {
         bit = 1;
     } else {
         bit = 0;
@@ -61,11 +65,11 @@ export bool castleAllowed(const Color color, const CastleType type, const int ca
 }
 export void disAllowCastle(const Color color, const CastleType type, int& castleRights) {
     int bit;
-    if (type == SHORT && color == WHITE) {
+    if (type == SHORT && color == Color::White) {
         bit = 3;
-    } else if (type == LONG && color == WHITE) {
+    } else if (type == LONG && color == Color::White) {
         bit = 2;
-    } else if (type == SHORT && color == BLACK) {
+    } else if (type == SHORT && color == Color::Black) {
         bit = 1;
     } else {
         bit = 0;
@@ -74,11 +78,11 @@ export void disAllowCastle(const Color color, const CastleType type, int& castle
 }
 export void allowCastle(const Color color, const CastleType type, int& castleRights) {
     int bit;
-    if (type == SHORT && color == WHITE) {
+    if (type == SHORT && color == Color::White) {
         bit = 3;
-    } else if (type == LONG && color == WHITE) {
+    } else if (type == LONG && color == Color::White) {
         bit = 2;
-    } else if (type == SHORT && color == BLACK) {
+    } else if (type == SHORT && color == Color::Black) {
         bit = 1;
     } else {
         bit = 0;

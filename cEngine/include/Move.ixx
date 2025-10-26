@@ -9,7 +9,7 @@ import <optional>;
 import <vector>;
 import <string>;
 
-import Enum;
+import Enums;
 import Board;
 
 
@@ -18,14 +18,14 @@ export struct Move {
     BoardPosition end{}; // end square
 
     bool enPassantCapture = false;
-    std::optional<Piece> promotedTo = std::nullopt; // piece being promoted to
+    std::optional<Pieces::Piece> promotedTo = std::nullopt; // piece being promoted to
     std::optional<CastleType> castle = std::nullopt; // castle type
     std::optional<BoardPosition> newEnPassantSquare = std::nullopt; // location where en passant square now is
 
     static Move standardMove(BoardPosition start, BoardPosition end) {
         return {start, end};
     }
-    static Move promotionMove(BoardPosition start, BoardPosition end, Piece promotedTo) {
+    static Move promotionMove(BoardPosition start, BoardPosition end, Pieces::Piece promotedTo) {
         return {start, end, promotedTo};
     }
     static Move castleMove(BoardPosition start, BoardPosition end, CastleType castle) {
@@ -50,7 +50,7 @@ private:
         this->start = start;
         this->end = end;
     }
-    Move(BoardPosition start, BoardPosition end, Piece promotedTo) : Move(start, end) {
+    Move(BoardPosition start, BoardPosition end, Pieces::Piece promotedTo) : Move(start, end) {
         this->promotedTo = promotedTo;
     }
     Move(BoardPosition start, BoardPosition end, CastleType castle) : Move(start, end) {

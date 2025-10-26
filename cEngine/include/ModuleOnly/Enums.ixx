@@ -1,35 +1,11 @@
 //
-// Created by Kiril on 2025-08-27.
+// Created by Kiril on 2025-10-26.
 //
-export module Enum;
+module;
+#include <cstdint>
+#include <stdexcept>
 
-import <array>;
-import <cstdint>;
-import <optional>;
-import <string>;
-
-export enum Piece {
-    EMPTY = 0,
-
-    WHITE_PAWN = 1,
-    WHITE_KNIGHT = 2,
-    WHITE_BISHOP = 3,
-    WHITE_ROOK = 4,
-    WHITE_QUEEN = 5,
-    WHITE_KING = 6,
-
-    BLACK_PAWN = -1,
-    BLACK_KNIGHT = -2,
-    BLACK_BISHOP = -3,
-    BLACK_ROOK = -4,
-    BLACK_QUEEN = -5,
-    BLACK_KING = -6
-};
-
-export enum Color {
-    BLACK = -1,
-    WHITE = 1,
-};
+export module Enums;
 
 export enum CastleType {
     SHORT = 0,
@@ -43,3 +19,57 @@ export enum GameState {
     STALEMATE = 2,
     DRAW = 3
 };
+
+
+export enum class Color : uint8_t {
+    White = 0,
+    Black = 1,
+
+    NoColor = 5
+};
+
+export enum class PieceType : uint8_t {
+    None = 0,
+    Pawn,
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+    King
+};
+
+export namespace Pieces {
+    using Piece = uint8_t;
+
+    constexpr Piece make_piece(Color c, PieceType t) noexcept {
+        return (static_cast<uint8_t>(c) << 3) | static_cast<uint8_t>(t);
+    }
+
+    constexpr Color piece_color(const Piece p) {
+        const auto color = static_cast<Color>(p >> 3);
+        if (color == Color::NoColor) {
+            throw std::invalid_argument("Getting Color of empty square");
+        }
+        return color;
+    }
+
+    constexpr PieceType piece_type(const Piece p) noexcept {
+        return static_cast<PieceType>(p & 0b111);
+    }
+
+    constexpr Piece EMPTY = make_piece(Color::NoColor, PieceType::None);
+    constexpr Piece WHITE_PAWN = make_piece(Color::White, PieceType::Pawn);
+    constexpr Piece WHITE_KNIGHT = make_piece(Color::White, PieceType::Knight);
+    constexpr Piece WHITE_BISHOP = make_piece(Color::White, PieceType::Bishop);
+    constexpr Piece WHITE_ROOK = make_piece(Color::White, PieceType::Rook);
+    constexpr Piece WHITE_QUEEN = make_piece(Color::White, PieceType::Queen);
+    constexpr Piece WHITE_KING = make_piece(Color::White, PieceType::King);
+
+    constexpr Piece BLACK_PAWN = make_piece(Color::Black, PieceType::Pawn);
+    constexpr Piece BLACK_KNIGHT = make_piece(Color::Black, PieceType::Knight);
+    constexpr Piece BLACK_BISHOP = make_piece(Color::Black, PieceType::Bishop);
+    constexpr Piece BLACK_ROOK = make_piece(Color::Black, PieceType::Rook);
+    constexpr Piece BLACK_QUEEN = make_piece(Color::Black, PieceType::Queen);
+    constexpr Piece BLACK_KING = make_piece(Color::Black, PieceType::King);
+}
+

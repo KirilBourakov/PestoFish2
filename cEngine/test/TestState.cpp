@@ -6,12 +6,14 @@ import State;
 import Board;
 import testBoard;
 import Move;
-import Enum;
+import Enums;
+
+using namespace Pieces;
 
 TEST(getMoves, whiteCheckmated) {
     State state{
         whiteBackRanked(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };
@@ -23,7 +25,7 @@ TEST(getMoves, whiteCheckmated) {
 TEST(getMoves, whiteSavedByBishop) {
     State state{
         whiteSavedByBishop(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };
@@ -34,7 +36,7 @@ TEST(getMoves, whiteSavedByBishop) {
 TEST(getMoves, whiteMiddleGame) {
     State state{
         randomMiddleGame(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };
@@ -45,7 +47,7 @@ TEST(getMoves, whiteMiddleGame) {
 TEST(getMoves, blackMiddleGame) {
     State state{
         randomMiddleGame(),
-        BLACK,
+        Color::Black,
         0b1111,
         std::nullopt
     };
@@ -56,7 +58,7 @@ TEST(getMoves, blackMiddleGame) {
 TEST(getMoves, whiteCenterKnight) {
     State state{
         centralWhiteKnight(),
-        WHITE,
+        Color::White,
         0b0000,
         std::nullopt
     };
@@ -78,7 +80,7 @@ TEST(getMoves, f3e5) {
 TEST(MakeUndo, whitePawnTakesPawn) {
     State state{
         randomMiddleGame(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };
@@ -96,7 +98,7 @@ TEST(MakeUndo, whitePawnTakesPawn) {
 TEST(MakeUndo, whiteSavedByBishop) {
     State state{
         whiteSavedByBishop(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };
@@ -113,7 +115,7 @@ TEST(MakeUndo, whiteSavedByBishop) {
 TEST(MakeUndo, whiteKnightCapture) {
     State state{
         smotheredMatePosition(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };
@@ -136,7 +138,7 @@ TEST(MakeUndo, whiteKnightCapture) {
 TEST(MakeUndo, whiteKingSideCastle) {
     State state{
         unBlockedCastle(),
-        WHITE,
+        Color::White,
         0b1111,
         std::nullopt
     };

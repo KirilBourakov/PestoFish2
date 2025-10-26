@@ -6,7 +6,7 @@ export module PieceSqTables;
 import <array>;
 import <unordered_map>;
 import Board;
-import Enum;
+import Enums;
 
 export using PieceSqTable = std::array<std::array<int, BOARD_SIZE>, BOARD_SIZE>;
 
@@ -168,43 +168,43 @@ constexpr PieceSqTable eg_king_table = {
     }
 };
 
-export const std::unordered_map<Piece, PieceSqTable> mg_table{
-    {WHITE_PAWN, mg_pawn_table},
-    {WHITE_KNIGHT, mg_knight_table},
-    {WHITE_BISHOP, mg_bishop_table},
-    {WHITE_ROOK, mg_rook_table},
-    {WHITE_QUEEN, mg_queen_table},
-    {WHITE_KING, mg_king_table}
+export const std::unordered_map<PieceType, PieceSqTable> mg_table{
+    {PieceType::Pawn, mg_pawn_table},
+    {PieceType::Knight, mg_knight_table},
+    {PieceType::Bishop, mg_bishop_table},
+    {PieceType::Rook, mg_rook_table},
+    {PieceType::Queen, mg_queen_table},
+    {PieceType::King, mg_king_table}
 };
 
-export const std::unordered_map<Piece, PieceSqTable> eg_table{
-    {WHITE_PAWN, eg_pawn_table},
-    {WHITE_KNIGHT, eg_knight_table},
-    {WHITE_BISHOP, eg_bishop_table},
-    {WHITE_ROOK, eg_rook_table},
-    {WHITE_QUEEN, eg_queen_table},
-    {WHITE_KING, eg_king_table}
+export const std::unordered_map<PieceType, PieceSqTable> eg_table{
+    {PieceType::Pawn, eg_pawn_table},
+    {PieceType::Knight, eg_knight_table},
+    {PieceType::Bishop, eg_bishop_table},
+    {PieceType::Rook, eg_rook_table},
+    {PieceType::Queen, eg_queen_table},
+    {PieceType::King, eg_king_table}
 };
 
 // TODO: consider replacing these values with different ones
-export const std::unordered_map<Piece, int> middleGameScore {
-    {WHITE_PAWN,   84},
-    {WHITE_KNIGHT, 333},
-    {WHITE_BISHOP, 346},
-    {WHITE_ROOK,   441},
-    {WHITE_QUEEN,  921},
+export const std::unordered_map<PieceType, int> middleGameScore {
+    {PieceType::Pawn,   84},
+    {PieceType::Knight, 333},
+    {PieceType::Bishop, 346},
+    {PieceType::Rook,   441},
+    {PieceType::Queen,  921},
 };
-export const std::unordered_map<Piece, int> endGameScore {
-    {WHITE_PAWN,   106},
-    {WHITE_KNIGHT, 244},
-    {WHITE_BISHOP, 268},
-    {WHITE_ROOK,   478},
-    {WHITE_QUEEN,  886},
+export const std::unordered_map<PieceType, int> endGameScore {
+    {PieceType::Pawn,   106},
+    {PieceType::Knight, 244},
+    {PieceType::Bishop, 268},
+    {PieceType::Rook,   478},
+    {PieceType::Queen,  886},
 };
-export const std::unordered_map<Piece, int> normalScore {
-    {WHITE_PAWN,   1},
-    {WHITE_KNIGHT, 3},
-    {WHITE_BISHOP, 3},
-    {WHITE_ROOK,   5},
-    {WHITE_QUEEN,  9},
+export const std::unordered_map<PieceType, int> normalScore {
+    {PieceType::Pawn,   1},
+    {PieceType::Knight, 3},
+    {PieceType::Bishop, 3},
+    {PieceType::Rook,   5},
+    {PieceType::Queen,  9},
 };

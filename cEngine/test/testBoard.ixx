@@ -4,7 +4,9 @@
 
 export module testBoard;
 import Board;
-import Enum;
+import Enums;
+
+using namespace Pieces;
 
 export BoardArray randomMiddleGame() {
     return BoardArray{{
