@@ -43,13 +43,6 @@ export bool inBounds(const int x, const int y) {
     return inBounds(x) && inBounds(y);
 }
 
-export bool sameColor(const Color color, const Pieces::Piece piece) {
-    if (piece == Pieces::EMPTY) {
-        return false;
-    }
-    return Pieces::piece_color(piece) == color;
-}
-
 export bool castleAllowed(const Color color, const CastleType type, const int castleRights) {
     int bit;
     if (type == CastleType::SHORT && color == Color::White) {

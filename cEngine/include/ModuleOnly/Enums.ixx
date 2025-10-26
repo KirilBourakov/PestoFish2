@@ -69,5 +69,12 @@ export namespace Pieces {
     constexpr PieceType piece_type(const Piece p) noexcept {
         return static_cast<PieceType>(p & 0b111);
     }
+
+    bool sameColor(const Color color, const Pieces::Piece piece) {
+        if (piece == Pieces::EMPTY) {
+            return false;
+        }
+        return Pieces::piece_color(piece) == color;
+    }
 }
 

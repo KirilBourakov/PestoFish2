@@ -91,7 +91,7 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State &state, bool& endgame) 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
             if (const Pieces::Piece currPiece = state.getBoard()[y][x]; currPiece != Pieces::EMPTY) {
-                const int dir = sameColor(Color::White, currPiece) ? 1 : -1;
+                const int dir = Pieces::sameColor(Color::White, currPiece) ? 1 : -1;
                 const auto colorLessPiece = Pieces::piece_type(currPiece);
                 // Raw material (which king does not have)
                 if (colorLessPiece != PieceType::King) {
@@ -113,9 +113,9 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State &state, bool& endgame) 
                 // pieces on enemy half of the board
 
                 // tracking to determine if it is an end game
-                if (sameColor(Color::White, currPiece)) {
+                if (Pieces::sameColor(Color::White, currPiece)) {
                     whiteNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
-                } else if (sameColor(Color::Black, currPiece)) {
+                } else if (Pieces::sameColor(Color::Black, currPiece)) {
                     blackNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
                 }
             }

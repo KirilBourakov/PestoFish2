@@ -67,7 +67,7 @@ std::vector<Move> State::getMoves() {
     // get all pseudo legal moves
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (sameColor(activeColor, board[y][x])) {
+            if (Pieces::sameColor(activeColor, board[y][x])) {
                 addMoves(x, y, moves);
             }
         }
@@ -202,7 +202,7 @@ void State::makeMove(const Move &move) {
     }
 
     const Pieces::Piece newPiece = move.promotedTo.value_or(movingPiece);
-    if (!sameColor(activeColor, newPiece)) {
+    if (!Pieces::sameColor(activeColor, newPiece)) {
         std::cout << move.start << "->" << move.end << " moving " << newPiece << std::endl;
         throw std::invalid_argument("Moving piece from wrong side.");
     }

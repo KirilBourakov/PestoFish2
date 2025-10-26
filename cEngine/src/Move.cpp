@@ -78,7 +78,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
         int newX = x + dx;
         newY = y + dy;
         if (inBounds(newX, newY)) {
-            if (board[newY][newX] != Pieces::EMPTY && !sameColor(color, board[newY][newX])) {
+            if (board[newY][newX] != Pieces::EMPTY && !Pieces::sameColor(color, board[newY][newX])) {
                 if (newY == 7 || newY == 0) {
                     addPromotions(start, {newX,newY}, board[newY][x], color, moves);
                 } else {
@@ -119,7 +119,7 @@ void addKnightMoves(const BoardArray& board, const int x, const int y, const Col
         const int newX = x + off_x;
         const int newY = y + off_y;
         if (inBounds(newX, newY)) {
-            if (!sameColor(color, board[newY][newX])) {
+            if (!Pieces::sameColor(color, board[newY][newX])) {
                 moves.push_back(Move::standardMove(start, {newX, newY}));
             }
         }
@@ -156,7 +156,7 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
                 break;
             }
 
-            if (sameColor(color, board[newY][newX])) {
+            if (Pieces::sameColor(color, board[newY][newX])) {
                 break;
             }
 
@@ -178,7 +178,7 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
         for (int i = 1; i < BOARD_SIZE; i++) {
             const int newY = position.y + i*dy;
             const int newX = position.x + i*dx;
-            if (!inBounds(newX, newY) || sameColor(color, board[newY][newX])) {
+            if (!inBounds(newX, newY) || Pieces::sameColor(color, board[newY][newX])) {
                 break;
             }
             if (Pieces::piece_type(board[newY][newX]) == PieceType::Rook || Pieces::piece_type(board[newY][newX]) == PieceType::Queen){
@@ -195,7 +195,7 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
         for (int i = 1; i < BOARD_SIZE; i++) {
             const int newY = position.y + i*dy;
             const int newX = position.x + i*dx;
-            if (!inBounds(newX, newY) || sameColor(color, board[newY][newX])) {
+            if (!inBounds(newX, newY) || Pieces::sameColor(color, board[newY][newX])) {
                 break;
             }
             if (Pieces::piece_type(board[newY][newX]) == PieceType::Bishop || Pieces::piece_type(board[newY][newX]) == PieceType::Queen) {
@@ -211,7 +211,7 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
     for (auto [dx, dy] : knightHops) {
         const int newY = position.y + dy;
         const int newX = position.x + dx;
-        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::Knight) {
+        if (inBounds(newX, newY) && !Pieces::sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::Knight) {
             return true;
         }
     }
@@ -221,7 +221,7 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
     for (auto [dx, dy] : pawnAttacks) {
         const int newY = position.y + dy;
         const int newX = position.x + dx;
-        if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::Pawn) {
+        if (inBounds(newX, newY) && !Pieces::sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::Pawn) {
             return true;
         }
     }
@@ -232,7 +232,7 @@ bool isAttacked(const BoardArray &board, const BoardPosition position, const Col
             if (dx == 0 && dy == 0) continue;
             int newX = position.x + dx;
             int newY = position.y + dy;
-            if (inBounds(newX, newY) && !sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::King) {
+            if (inBounds(newX, newY) && !Pieces::sameColor(color, board[newY][newX]) && Pieces::piece_type(board[newY][newX]) == PieceType::King) {
                 return true;
             }
         }

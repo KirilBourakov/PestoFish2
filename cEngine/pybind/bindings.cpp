@@ -39,7 +39,7 @@ PYBIND11_MODULE(cEngine, m) {
         .def_readwrite("y", &BoardPosition::y);
 
     // FUNCTION
-    m.def("same_color", &sameColor);
+    m.def("same_color", &Pieces::sameColor);
 
     // ENUM
     py::module Piece = m.def_submodule("Piece", "Pieces");
