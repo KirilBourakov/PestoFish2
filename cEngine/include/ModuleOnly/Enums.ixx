@@ -7,12 +7,12 @@ module;
 
 export module Enums;
 
-export enum CastleType {
+export enum class CastleType {
     SHORT = 0,
     LONG = 1
 };
 
-export enum GameState {
+export enum class GameState {
     IN_PLAY = 0,
     WHITE_WIN = 1,
     BLACK_WIN = -1,
@@ -24,8 +24,6 @@ export enum GameState {
 export enum class Color : uint8_t {
     White = 0,
     Black = 1,
-
-    NoColor = 5
 };
 
 export enum class PieceType : uint8_t {
@@ -45,19 +43,7 @@ export namespace Pieces {
         return (static_cast<uint8_t>(c) << 3) | static_cast<uint8_t>(t);
     }
 
-    constexpr Color piece_color(const Piece p) {
-        const auto color = static_cast<Color>(p >> 3);
-        if (color == Color::NoColor) {
-            throw std::invalid_argument("Getting Color of empty square");
-        }
-        return color;
-    }
-
-    constexpr PieceType piece_type(const Piece p) noexcept {
-        return static_cast<PieceType>(p & 0b111);
-    }
-
-    constexpr Piece EMPTY = make_piece(Color::NoColor, PieceType::None);
+    constexpr Piece EMPTY = make_piece(Color::White, PieceType::None);
     constexpr Piece WHITE_PAWN = make_piece(Color::White, PieceType::Pawn);
     constexpr Piece WHITE_KNIGHT = make_piece(Color::White, PieceType::Knight);
     constexpr Piece WHITE_BISHOP = make_piece(Color::White, PieceType::Bishop);
@@ -71,5 +57,17 @@ export namespace Pieces {
     constexpr Piece BLACK_ROOK = make_piece(Color::Black, PieceType::Rook);
     constexpr Piece BLACK_QUEEN = make_piece(Color::Black, PieceType::Queen);
     constexpr Piece BLACK_KING = make_piece(Color::Black, PieceType::King);
+
+    constexpr Color piece_color(const Piece p) {
+        if (p == EMPTY) {
+            throw std::invalid_argument("Getting Color of empty square");
+        }
+        const auto color = static_cast<Color>(p >> 3);
+        return color;
+    }
+
+    constexpr PieceType piece_type(const Piece p) noexcept {
+        return static_cast<PieceType>(p & 0b111);
+    }
 }
 

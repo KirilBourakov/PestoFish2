@@ -91,7 +91,7 @@ void State::translateAndMove(BoardPosition start, BoardPosition end, std::option
 
 GameState State::getGameState() {
     if (isHalfMoveTie()) {
-        return DRAW;
+        return GameState::DRAW;
     }
     // TODO: implement 3 move repetition
     // TODO: link efficient version of this method to Engine evalCurrState
@@ -100,14 +100,14 @@ GameState State::getGameState() {
         // is the current color in check, other color wins
         if (colorInCheck(activeColor)) {
             if (activeColor == Color::White) {
-                return BLACK_WIN;
+                return GameState::BLACK_WIN;
             }
-            return WHITE_WIN;
+            return GameState::WHITE_WIN;
         }
         // otherwise, stalemate
-        return STALEMATE;
+        return GameState::STALEMATE;
     }
-    return IN_PLAY;
+    return GameState::IN_PLAY;
 }
 
 State State::makeThreadCopy() {
@@ -161,11 +161,11 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
     for (Move move : pseudolegalMoves) {
         bool isValid = true;
         const Color color = Pieces::piece_color(board[move.start.y][move.start.x]);
-        if (move.castle == LONG) {
+        if (move.castle == CastleType::LONG) {
             isValid = !isAttacked(board, BoardPosition{.x=move.end.x+1, .y=move.end.y}, color) &&
                 !isAttacked(board, BoardPosition{.x=move.end.x+2, .y=move.end.y}, color) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y}, color);
         }
-        else if (move.castle == SHORT) {
+        else if (move.castle == CastleType::SHORT) {
             isValid = !isAttacked(board, BoardPosition{.x=move.end.x-1, .y=move.end.y}, color) && !isAttacked(board, BoardPosition{.x=move.start.x, .y=move.start.y}, color);
         }
         if (isValid) {
@@ -211,11 +211,11 @@ void State::makeMove(const Move &move) {
     board[move.start.y][move.start.x] = Pieces::EMPTY;
     if (move.enPassantCapture) {
         board[move.start.y][move.end.x] = Pieces::EMPTY;
-    } else if (move.castle == LONG) {
+    } else if (move.castle == CastleType::LONG) {
         const Pieces::Piece rook = board[move.start.y][0];
         board[move.start.y][0] = Pieces::EMPTY;
         board[move.start.y][move.end.x + 1] = rook;
-    } else if (move.castle == SHORT) {
+    } else if (move.castle == CastleType::SHORT) {
         const Pieces::Piece rook = board[move.start.y][7];
         board[move.start.y][7] = Pieces::EMPTY;
         board[move.start.y][move.end.x - 1] = rook;
@@ -233,24 +233,24 @@ void State::makeMove(const Move &move) {
     const int backRow = activeColor == Color::White ? 7 : 0;
     const bool movingKing = std::abs(newPiece) == Pieces::WHITE_KING;
     const bool movingQueenSideRook = backRow == move.start.y && move.start.x == 0;
-    if ((movingQueenSideRook || movingKing) && castleAllowed(activeColor, LONG, castlingRights)) {
-        disAllowCastle(activeColor, LONG, castlingRights);
+    if ((movingQueenSideRook || movingKing) && castleAllowed(activeColor, CastleType::LONG, castlingRights)) {
+        disAllowCastle(activeColor, CastleType::LONG, castlingRights);
     }
     const bool movingKingSideRook = backRow == move.start.y && move.start.x == 7;
-    if ((movingKingSideRook || movingKing) && castleAllowed(activeColor, SHORT, castlingRights)) {
-        disAllowCastle(activeColor, SHORT, castlingRights);
+    if ((movingKingSideRook || movingKing) && castleAllowed(activeColor, CastleType::SHORT, castlingRights)) {
+        disAllowCastle(activeColor, CastleType::SHORT, castlingRights);
     }
 
     // taking an enemy rook
     const int enemyBackRow = activeColor == Color::White ? 0 : 7;
     const Color enemyColor = activeColor == Color::White ? Color::Black : Color::White;
     const bool capturingQueenSideRook = enemyBackRow == move.end.y && move.end.x == 0;
-    if (capturingQueenSideRook && castleAllowed(enemyColor, LONG, castlingRights)) {
-        disAllowCastle(enemyColor, LONG, castlingRights);
+    if (capturingQueenSideRook && castleAllowed(enemyColor, CastleType::LONG, castlingRights)) {
+        disAllowCastle(enemyColor, CastleType::LONG, castlingRights);
     }
     const bool capturingKingSideRook = enemyBackRow == move.end.y && move.end.x == 7;
-    if (capturingKingSideRook && castleAllowed(enemyColor, SHORT, castlingRights)) {
-        disAllowCastle(enemyColor, SHORT, castlingRights);
+    if (capturingKingSideRook && castleAllowed(enemyColor, CastleType::SHORT, castlingRights)) {
+        disAllowCastle(enemyColor, CastleType::SHORT, castlingRights);
     }
 
     history.push_back(entry);
@@ -274,11 +274,11 @@ void State::undoMove() {
     if (move.enPassantCapture) {
         board[move.start.y][move.end.x] = (activeColor == Color::White) ? BLACK_PAWN : WHITE_PAWN;
     }
-    else if (move.castle == LONG) {
+    else if (move.castle == CastleType::LONG) {
         const Piece rook = board[move.start.y][move.end.x + 1];
         board[move.start.y][move.end.x + 1] = EMPTY;
         board[move.start.y][0] = rook;
-    } else if (move.castle == SHORT) {
+    } else if (move.castle == CastleType::SHORT) {
         const Piece rook = board[move.start.y][move.end.x - 1];
         board[move.start.y][move.end.x - 1] = EMPTY;
         board[move.start.y][7] = rook;

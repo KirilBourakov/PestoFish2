@@ -52,11 +52,11 @@ export bool sameColor(const Color color, const Pieces::Piece piece) {
 
 export bool castleAllowed(const Color color, const CastleType type, const int castleRights) {
     int bit;
-    if (type == SHORT && color == Color::White) {
+    if (type == CastleType::SHORT && color == Color::White) {
         bit = 3;
-    } else if (type == LONG && color == Color::White) {
+    } else if (type == CastleType::LONG && color == Color::White) {
         bit = 2;
-    } else if (type == SHORT && color == Color::Black) {
+    } else if (type == CastleType::SHORT && color == Color::Black) {
         bit = 1;
     } else {
         bit = 0;
@@ -65,11 +65,11 @@ export bool castleAllowed(const Color color, const CastleType type, const int ca
 }
 export void disAllowCastle(const Color color, const CastleType type, int& castleRights) {
     int bit;
-    if (type == SHORT && color == Color::White) {
+    if (type == CastleType::SHORT && color == Color::White) {
         bit = 3;
-    } else if (type == LONG && color == Color::White) {
+    } else if (type == CastleType::LONG && color == Color::White) {
         bit = 2;
-    } else if (type == SHORT && color == Color::Black) {
+    } else if (type == CastleType::SHORT && color == Color::Black) {
         bit = 1;
     } else {
         bit = 0;
@@ -78,11 +78,11 @@ export void disAllowCastle(const Color color, const CastleType type, int& castle
 }
 export void allowCastle(const Color color, const CastleType type, int& castleRights) {
     int bit;
-    if (type == SHORT && color == Color::White) {
+    if (type == CastleType::SHORT && color == Color::White) {
         bit = 3;
-    } else if (type == LONG && color == Color::White) {
+    } else if (type == CastleType::LONG && color == Color::White) {
         bit = 2;
-    } else if (type == SHORT && color == Color::Black) {
+    } else if (type == CastleType::SHORT && color == Color::Black) {
         bit = 1;
     } else {
         bit = 0;

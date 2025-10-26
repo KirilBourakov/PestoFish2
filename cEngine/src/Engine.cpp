@@ -33,7 +33,6 @@ Move Engine::getBestMove() {
                         :  std::numeric_limits<double>::infinity();
 
     std::vector<Move> possibleMoves = state.getMoves();
-    std::cout << "Entering loop" << std::endl;
     for (Move move : possibleMoves) {
         state.makeMove(move);
         double eval = Evaluator::evalCurrState(state, 2, alpha, beta);

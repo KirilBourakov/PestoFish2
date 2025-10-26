@@ -210,7 +210,7 @@ TEST(TestMove, StanderedKingMove) {
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {4, 6,}),
         Move::standardMove(start, {5, 7,}),
-        Move::castleMove(start, {6, 7}, SHORT)
+        Move::castleMove(start, {6, 7}, CastleType::SHORT)
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 }
@@ -222,7 +222,7 @@ TEST(TestMove, SmotheredMateLongCastlePosition) {
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {4, 6,}),
         Move::standardMove(start, {3, 7,}),
-        Move::castleMove(start, {2, 7}, LONG)
+        Move::castleMove(start, {2, 7}, CastleType::LONG)
     };
     EXPECT_THAT(moves, UnorderedElementsAreArray(expectedMoves));
 }
@@ -245,8 +245,8 @@ TEST(TestMove, CastleAllowed) {
     const std::vector<Move> expectedMoves = {
         Move::standardMove(start, {3, 7}),
         Move::standardMove(start, {5, 7}),
-        Move::castleMove(start, {6, 7}, SHORT),
-        Move::castleMove(start, {2, 7}, LONG)
+        Move::castleMove(start, {6, 7}, CastleType::SHORT),
+        Move::castleMove(start, {2, 7}, CastleType::LONG)
     };
     EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
 
@@ -260,8 +260,8 @@ TEST(TestMove, CastleAllowed) {
         Move::standardMove(bStart, {3, 1}),
         Move::standardMove(bStart, {5, 1}),
 
-        Move::castleMove(bStart, {6, 0}, SHORT),
-        Move::castleMove(bStart, {2, 0}, LONG)
+        Move::castleMove(bStart, {6, 0}, CastleType::SHORT),
+        Move::castleMove(bStart, {2, 0}, CastleType::LONG)
     };
     EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
 }
@@ -286,7 +286,7 @@ TEST(TestMove, CastleDisAllowed) {
         Move::standardMove(bStart, {3, 1}),
         Move::standardMove(bStart, {5, 1}),
 
-        Move::castleMove(bStart, {6, 0}, SHORT),
+        Move::castleMove(bStart, {6, 0}, CastleType::SHORT),
     };
     EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
 }

@@ -144,7 +144,7 @@ TEST(MakeUndo, whiteKingSideCastle) {
     };
 
     State stateCopy{state};
-    state.makeMove(Move::castleMove({4, 7}, {6, 7}, SHORT));
+    state.makeMove(Move::castleMove({4, 7}, {6, 7}, CastleType::SHORT));
     ASSERT_EQ(0b0011, state.getCastlingRights());
     ASSERT_EQ(WHITE_KING, state.getBoard()[7][6]);
     ASSERT_EQ(EMPTY, state.getBoard()[7][4]);

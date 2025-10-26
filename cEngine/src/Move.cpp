@@ -30,16 +30,16 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
     }
 
     const int newY = color == Color::Black ? 0 : 7;
-    if (castleAllowed(color, SHORT, castleRights)) {
+    if (castleAllowed(color, CastleType::SHORT, castleRights)) {
         constexpr int newX = 6;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY) {
-            moves.push_back(Move::castleMove(start, {newX, newY}, SHORT));
+            moves.push_back(Move::castleMove(start, {newX, newY}, CastleType::SHORT));
         }
     }
-    if (castleAllowed(color, LONG, castleRights)) {
+    if (castleAllowed(color, CastleType::LONG, castleRights)) {
         constexpr int newX = 2;
         if (board[newY][newX-1] == EMPTY && board[newY][newX] == EMPTY && board[newY][newX+1] == EMPTY) {
-            moves.push_back(Move::castleMove(start, {newX, newY}, LONG));
+            moves.push_back(Move::castleMove(start, {newX, newY}, CastleType::LONG));
         }
     }
 }
