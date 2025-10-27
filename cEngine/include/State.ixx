@@ -21,10 +21,15 @@ public:
         int castlingBeforeMove;
         int halfMoveClockBeforeMove;
         std::optional<BoardPosition> enPassantBeforeMove;
+        u64 hashValue;
 
         bool operator==(const HistoricalEntry& other) const {
             return other.move == move && other.movedPiece == movedPiece && other.overwrittenPiece == overwrittenPiece
-                && castlingBeforeMove == other.castlingBeforeMove && halfMoveClockBeforeMove == other.halfMoveClockBeforeMove && enPassantBeforeMove == other.enPassantBeforeMove;
+                && castlingBeforeMove == other.castlingBeforeMove && halfMoveClockBeforeMove == other.halfMoveClockBeforeMove
+                && enPassantBeforeMove == other.enPassantBeforeMove && hashValue == other.hashValue;
+        }
+        bool operator!=(const HistoricalEntry& other) const {
+            return !(*this == other);
         }
     };
 
@@ -55,6 +60,9 @@ public:
     }
 
     friend bool operator==(const State& lhs, const State& rhs);
+    bool operator!=(const State& other) const {
+        return !(*this == other);
+    }
 
 private:
     std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);

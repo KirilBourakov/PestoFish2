@@ -12,29 +12,31 @@ import Enums;
 import Move;
 
 
-State::State()
-    : board(getStartingBoard()),
-      activeColor(Color::White),
-      castlingRights(0b1111),
-      enPassantSquare(std::nullopt),
-      halfMoveClock(0),
-      fullMoveClock(0),
-      whiteKingSquare{4, 7},
-      blackKingSquare{4, 0},
-      hash(board, activeColor, castlingRights, enPassantSquare)
+State::State():
+    board(getStartingBoard()),
+    activeColor(Color::White),
+    castlingRights(0b1111),
+    enPassantSquare(std::nullopt),
+    halfMoveClock(0),
+    fullMoveClock(0),
+    whiteKingSquare{4, 7},
+    blackKingSquare{4, 0},
+    hash(board, activeColor, castlingRights, enPassantSquare)
 {}
 
-State::State(const BoardArray &board,
-             const Color activeColor,
-             const int castlingRights,
-             const std::optional<BoardPosition> enPassantSquare)
-    : board(board),
-      activeColor(activeColor),
-      castlingRights(castlingRights),
-      enPassantSquare(enPassantSquare),
-      halfMoveClock(activeColor == Color::White ? 0 : 1),
-      fullMoveClock(0),
-      hash(board, activeColor, castlingRights, enPassantSquare)
+State::State(
+    const BoardArray &board,
+    const Color activeColor,
+    const int castlingRights,
+    const std::optional<BoardPosition> enPassantSquare
+):
+    board(board),
+    activeColor(activeColor),
+    castlingRights(castlingRights),
+    enPassantSquare(enPassantSquare),
+    halfMoveClock(activeColor == Color::White ? 0 : 1),
+    fullMoveClock(0),
+    hash(board, activeColor, castlingRights, enPassantSquare)
 {
     // find king squares
     for (int y = 0; y < this->board.size(); ++y) {
@@ -194,7 +196,8 @@ void State::makeMove(const Move &move) {
         board[move.end.y][move.end.x],
         castlingRights,
         halfMoveClock,
-        enPassantSquare
+        enPassantSquare,
+        hash.getValue()
     };
 
     const Pieces::Piece movingPiece = entry.movedPiece;
@@ -213,7 +216,8 @@ void State::makeMove(const Move &move) {
         throw std::invalid_argument("Moving piece from wrong side.");
     }
 
-    // Move piece
+    // MOVE PIECE
+    hash.makeMove(move, board[move.start.y][move.start.x], board[move.end.y][move.end.x]);
     board[move.end.y][move.end.x] = newPiece;
     board[move.start.y][move.start.x] = Pieces::EMPTY;
     if (move.enPassantCapture) {
@@ -228,7 +232,13 @@ void State::makeMove(const Move &move) {
         board[move.start.y][move.end.x - 1] = rook;
     }
 
+    // UPDATE EN PASSENT
+    if (enPassantSquare != move.newEnPassantSquare) {
+        hash.changeEnPassantSquare(enPassantSquare, move.newEnPassantSquare);
+    }
     enPassantSquare = move.newEnPassantSquare;
+
+    // UPDATE KING POS
     if (newPiece == Pieces::WHITE_KING) {
         whiteKingSquare = move.end;
     }
@@ -240,12 +250,16 @@ void State::makeMove(const Move &move) {
     const int backRow = activeColor == Color::White ? 7 : 0;
     const bool movingKing = std::abs(newPiece) == Pieces::WHITE_KING;
     const bool movingQueenSideRook = backRow == move.start.y && move.start.x == 0;
+    int oldRights = castlingRights;
+    bool updated = false;
     if ((movingQueenSideRook || movingKing) && castleAllowed(activeColor, CastleType::LONG, castlingRights)) {
         disAllowCastle(activeColor, CastleType::LONG, castlingRights);
+        updated = true;
     }
     const bool movingKingSideRook = backRow == move.start.y && move.start.x == 7;
     if ((movingKingSideRook || movingKing) && castleAllowed(activeColor, CastleType::SHORT, castlingRights)) {
         disAllowCastle(activeColor, CastleType::SHORT, castlingRights);
+        updated = true;
     }
 
     // taking an enemy rook
@@ -254,14 +268,20 @@ void State::makeMove(const Move &move) {
     const bool capturingQueenSideRook = enemyBackRow == move.end.y && move.end.x == 0;
     if (capturingQueenSideRook && castleAllowed(enemyColor, CastleType::LONG, castlingRights)) {
         disAllowCastle(enemyColor, CastleType::LONG, castlingRights);
+        updated = true;
     }
     const bool capturingKingSideRook = enemyBackRow == move.end.y && move.end.x == 7;
     if (capturingKingSideRook && castleAllowed(enemyColor, CastleType::SHORT, castlingRights)) {
         disAllowCastle(enemyColor, CastleType::SHORT, castlingRights);
+        updated = true;
+    }
+    if (updated) {
+        hash.changeCastling(oldRights, castlingRights);
     }
 
     history.push_back(entry);
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
+    hash.flipActiveColor();
 }
 
 void State::undoMove() {
@@ -304,6 +324,7 @@ void State::undoMove() {
     castlingRights = entry.castlingBeforeMove;
     enPassantSquare = entry.enPassantBeforeMove;
     halfMoveClock = entry.halfMoveClockBeforeMove;
+    hash.setValue(entry.hashValue);
 }
 
 bool State::samePosition(const State& other) const {
@@ -322,5 +343,6 @@ bool operator==(const State& lhs, const State& rhs) {
            lhs.fullMoveClock == rhs.fullMoveClock &&
            lhs.whiteKingSquare == rhs.whiteKingSquare &&
            lhs.blackKingSquare == rhs.blackKingSquare &&
-           lhs.history == rhs.history;
+           lhs.history == rhs.history &&
+           lhs.hash == rhs.hash;
 }

@@ -12,7 +12,7 @@ import Move;
 import <array>;
 import <random>;
 
-using u64 = unsigned long long;
+export using u64 = unsigned long long;
 
 export class ZobristHash {
 public:
@@ -23,7 +23,15 @@ public:
     void changeEnPassantSquare(std::optional<BoardPosition> prevEnPassantSquare, std::optional<BoardPosition> newEnPassantSquare);
     void makeMove(Move move, Pieces::Piece movedFrom, Pieces::Piece movedTo);
 
-    [[nodiscard]] unsigned long long getValue() const {return value;}
+    [[nodiscard]] u64 getValue() const {return value;}
+    void setValue(const u64 newValue) {value = newValue;}
+
+    bool operator==(const ZobristHash& other) const {
+        return value == other.value;
+    }
+    bool operator!=(const ZobristHash& other) const {
+        return value != other.value;
+    }
 
 private:
     static unsigned long long seed;
