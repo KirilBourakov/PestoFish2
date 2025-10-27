@@ -11,7 +11,7 @@ using namespace Pieces;
 
 typedef unsigned long long u64;
 
-u64 Perft(State state, int depth)
+u64 Perft(State& state, int depth)
 {
     if (depth == 0)
         return 1ULL;
@@ -41,7 +41,7 @@ void PerftDivide(State state, int depth) {
     std::cout << "Total: " << total << "\n";
 }
 
-u64 DebugPerft(State state, int depth)
+u64 DebugPerft(State& state, int depth)
 {
     if (depth == 0)
         return 1ULL;
@@ -68,7 +68,8 @@ u64 DebugPerft(State state, int depth)
 }
 
 TEST(Perft, undoConsistency) {
-    EXPECT_NO_THROW(DebugPerft(State{}, 4));
+    State state;
+    EXPECT_NO_THROW(DebugPerft(state, 4));
 }
 
 // TEST(Perft, depth1) {
@@ -84,7 +85,8 @@ TEST(Perft, undoConsistency) {
 //     ASSERT_EQ(Perft(State{}, 4), 197281);
 // }
 TEST(Preft, depth5) {
-    ASSERT_EQ(Perft(State{}, 5), 4865609);
+    State state;
+    ASSERT_EQ(Perft(state, 5), 4865609);
 }
 // TEST(Preft, depth6) {
 //     ASSERT_EQ(Perft(State{}, 6), 119060324);

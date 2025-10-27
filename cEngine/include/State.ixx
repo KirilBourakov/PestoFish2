@@ -6,6 +6,7 @@ export module State;
 import Enums;
 import Move;
 import Board;
+import ZobristHash;
 import <optional>;
 import <vector>;
 
@@ -71,4 +72,6 @@ private:
     BoardPosition blackKingSquare;
 
     std::vector<HistoricalEntry> history;
+
+    ZobristHash hash;
 };

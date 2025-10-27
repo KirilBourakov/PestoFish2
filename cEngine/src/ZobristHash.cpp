@@ -1,21 +1,26 @@
 //
 // Created by Kiril on 2025-10-26.
 //
+module;
+#include <chrono>
+#include <iostream>
 
 module ZobristHash;
 import State;
 import <random>;
 import <array>;
 
+
 unsigned long long ZobristHash::seed = 90827521673ULL;
 
-ZobristHash::ZobristHash(const State& state):
+ZobristHash::ZobristHash(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantLocation):
 rng(seed),
 dis(
     std::numeric_limits<unsigned long long>::min(),
     std::numeric_limits<unsigned long long>::max()
 )
 {
+    auto start = std::chrono::high_resolution_clock::now();
     using namespace Pieces;
 
     static std::array<Piece, 12> pieces{
@@ -39,23 +44,23 @@ dis(
         enPassantSquare[i] = dis(rng);
     }
 
-    recalculate(state);
+    recalculate(board, activeColor, castlingRights, enPassantLocation);
 }
 
-void ZobristHash::recalculate(const State& state) {
+void ZobristHash::recalculate(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantLocation) {
     value = 0;
-    for (int i = 0; i < state.getBoard().size(); i++) {
-        for (int j = 0; j < state.getBoard()[i].size(); j++) {
-            if (Pieces::Piece piece = state.getBoard()[i][j]; piece != Pieces::EMPTY){
+    for (int i = 0; i < board.size(); i++) {
+        for (int j = 0; j < board[i].size(); j++) {
+            if (Pieces::Piece piece = board[i][j]; piece != Pieces::EMPTY){
                 value ^= pieceTable[piece][i][j];
             }
         }
     }
-    if (state.getActiveColor() == Color::Black) {
+    if (activeColor == Color::Black) {
         value ^= blackToMove;
     }
-    value ^= castleRights.at(state.getCastlingRights());
-    if (state.getEnPassantSquare().has_value()) {
-        value ^= enPassantSquare.at(state.getEnPassantSquare().value().x);
+    value ^= castleRights.at(castlingRights);
+    if (enPassantLocation.has_value()) {
+        value ^= enPassantSquare.at(enPassantLocation.value().x);
     }
 }

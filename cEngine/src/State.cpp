@@ -20,7 +20,9 @@ State::State()
       halfMoveClock(0),
       fullMoveClock(0),
       whiteKingSquare{4, 7},
-      blackKingSquare{4, 0} {}
+      blackKingSquare{4, 0},
+      hash(board, activeColor, castlingRights, enPassantSquare)
+{}
 
 State::State(const BoardArray &board,
              const Color activeColor,
@@ -31,7 +33,8 @@ State::State(const BoardArray &board,
       castlingRights(castlingRights),
       enPassantSquare(enPassantSquare),
       halfMoveClock(activeColor == Color::White ? 0 : 1),
-      fullMoveClock(0)
+      fullMoveClock(0),
+      hash(board, activeColor, castlingRights, enPassantSquare)
 {
     // find king squares
     for (int y = 0; y < this->board.size(); ++y) {
@@ -59,7 +62,9 @@ State::State(
     fullMoveClock(fullMoveClock),
     whiteKingSquare(whiteKingSquare),
     blackKingSquare(blackKingSquare),
-    history(history) {
+    history(history),
+    hash(board, activeColor, castlingRights, enPassantSquare)
+{
 }
 
 std::vector<Move> State::getMoves() {
@@ -181,6 +186,7 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
     return legalMoves;
 }
 
+// Updated peicewise within State
 void State::makeMove(const Move &move) {
     const HistoricalEntry entry = {
         move,
