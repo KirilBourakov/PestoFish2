@@ -8,6 +8,7 @@ module;
 export module ZobristHash;
 import Board;
 import Enums;
+import Move;
 import <array>;
 import <random>;
 
@@ -16,6 +17,11 @@ using u64 = unsigned long long;
 export class ZobristHash {
 public:
     ZobristHash(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+
+    void flipActiveColor();
+    void changeCastling(int prevCastlingRights, int newCastlingRights);
+    void changeEnPassantSquare(std::optional<BoardPosition> prevEnPassantSquare, std::optional<BoardPosition> newEnPassantSquare);
+    void makeMove(Move move, Pieces::Piece movedFrom, Pieces::Piece movedTo);
 
     [[nodiscard]] unsigned long long getValue() const {return value;}
 

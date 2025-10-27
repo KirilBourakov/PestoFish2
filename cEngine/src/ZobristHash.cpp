@@ -64,3 +64,30 @@ void ZobristHash::recalculate(const BoardArray &board, Color activeColor, int ca
         value ^= enPassantSquare.at(enPassantLocation.value().x);
     }
 }
+
+void ZobristHash::flipActiveColor() {
+    value ^= blackToMove;
+}
+
+void ZobristHash::changeCastling(const int prevCastlingRights, const int newCastlingRights) {
+    value ^= castleRights.at(prevCastlingRights);
+    value ^= castleRights.at(newCastlingRights);
+}
+
+void ZobristHash::changeEnPassantSquare(std::optional<BoardPosition> prevEnPassantSquare, std::optional<BoardPosition> newEnPassantSquare) {
+    if (prevEnPassantSquare.has_value()) {
+        value ^= enPassantSquare.at(prevEnPassantSquare.value().x);
+    }
+    if (newEnPassantSquare.has_value()) {
+        value ^= enPassantSquare.at(newEnPassantSquare.value().x);
+    }
+}
+
+void ZobristHash::makeMove(Move move, Pieces::Piece moved, Pieces::Piece movedTo) {
+    if (movedTo != Pieces::EMPTY) {
+        value ^= pieceTable[movedTo][move.end.y][move.end.x];
+    }
+
+    value ^= pieceTable[moved][move.start.y][move.start.x];
+    value ^= pieceTable[moved][move.end.y][move.end.x];
+}
