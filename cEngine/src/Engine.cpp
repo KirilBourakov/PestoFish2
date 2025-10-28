@@ -22,20 +22,19 @@ void Engine::makeEngineMove() {
     state.makeMove(getBestMove());
 }
 
+// TODO: implement ply so earlier mates are more prioritized
 Move Engine::getBestMove() {
-    double alpha = -std::numeric_limits<double>::infinity();
-    double beta = std::numeric_limits<double>::infinity();
+    int alpha = -INF;
+    int beta = INF;
     Color rootColor = state.getActiveColor();
 
     std::optional<Move> bestMove = std::nullopt;
-    double bestEval = (rootColor == Color::White)
-                        ? -std::numeric_limits<double>::infinity()
-                        :  std::numeric_limits<double>::infinity();
+    int bestEval = (rootColor == Color::White) ? -INF : INF;
 
     std::vector<Move> possibleMoves = state.getMoves();
     for (Move move : possibleMoves) {
         state.makeMove(move);
-        double eval = Evaluator::evalCurrState(state, 2, alpha, beta);
+        int eval = Evaluator::evalCurrState(state, 2, alpha, beta);
         state.undoMove();
 
         if (!bestMove.has_value() || Evaluator::isBetterEval(rootColor, bestEval, eval)) {
@@ -58,14 +57,12 @@ Move Engine::getBestMove() {
 }
 
 Move Engine::getBestMoveConcurrent() {
-    double alpha = -std::numeric_limits<double>::infinity();
-    double beta = std::numeric_limits<double>::infinity();
+    int alpha = -INF;
+    int beta = INF;
     Color rootColor = state.getActiveColor();
 
     std::optional<Move> bestMove = std::nullopt;
-    double bestEval = (rootColor == Color::White)
-                        ? -std::numeric_limits<double>::infinity()
-                        :  std::numeric_limits<double>::infinity();
+    int bestEval = (rootColor == Color::White) ? -INF : INF;
 
     std::vector<Move> possibleMoves = state.getMoves();
 
@@ -75,7 +72,7 @@ Move Engine::getBestMoveConcurrent() {
     [&](const Move& move) {
         State localState = state.makeThreadCopy();
         localState.makeMove(move);
-        double eval = Evaluator::evalCurrState(localState, 4, -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
+        const int eval = Evaluator::evalCurrState(localState, 4, -INF, INF);
 
         std::lock_guard<std::mutex> lock(mtx);
         if (!bestMove.has_value() || Evaluator::isBetterEval(rootColor, bestEval, eval)) {

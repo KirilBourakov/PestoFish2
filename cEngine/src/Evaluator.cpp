@@ -11,7 +11,7 @@ import Enums;
 import Move;
 import PieceSqTables;
 
-double Evaluator::evalCurrState(State &state, int depth, double alpha, double beta) {
+int Evaluator::evalCurrState(State &state, int depth, int alpha, int beta) {
     if (depth == 0) {
         return Evaluator::evaluate(state);
     }
@@ -25,7 +25,7 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
     if (possibleMoves.empty()) {
         // is the current color in check, other color wins
         if (state.colorInCheck(state.getActiveColor())) {
-            double returnVal = std::numeric_limits<double>::infinity();
+            int returnVal = MATE_SCORE;
             if (state.getActiveColor() == Color::White) {
                 returnVal *= -1;
             }
@@ -35,12 +35,10 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
         return 0;
     }
 
-    double bestEval = (state.getActiveColor() == Color::White)
-                        ? -std::numeric_limits<double>::infinity()
-                        :  std::numeric_limits<double>::infinity();
+    int bestEval = (state.getActiveColor() == Color::White) ? -INF : INF;
     for (Move move : possibleMoves) {
         state.makeMove(move);
-        double eval = evalCurrState(state, depth-1, alpha, beta);
+        int eval = evalCurrState(state, depth-1, alpha, beta);
         state.undoMove();
 
         if (isBetterEval(state.getActiveColor(), bestEval, eval)) {
@@ -61,14 +59,14 @@ double Evaluator::evalCurrState(State &state, int depth, double alpha, double be
     return bestEval;
 }
 
-bool Evaluator::isBetterEval(const Color color, const double currBest, const double value) {
+bool Evaluator::isBetterEval(const Color color, const int currBest, const int value) {
     if (color == Color::White) {
         return value > currBest;
     }
     return value < currBest;
 }
 
-double Evaluator::evaluate(const State &state) {
+int Evaluator::evaluate(const State &state) {
     bool endgame = false;
     int eval = getSquareWiseEvalAndGamePhase(state, endgame);
 

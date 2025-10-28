@@ -7,12 +7,16 @@ import State;
 import <unordered_map>;
 import Enums;
 
+export constexpr int INF = 32000;
+export constexpr int MATE_SCORE = 31000;
+export constexpr int MATE_THRESHOLD = 30000;
+
 export class Evaluator{
 public:
-    static double evalCurrState(State &state, int depth, double alpha, double beta);
-    static bool isBetterEval(const Color color, const double currBest, const double value);
+    static int evalCurrState(State &state, int depth, int alpha, int beta);
+    static bool isBetterEval(const Color color, const int currBest, const int value);
 
-    static double evaluate(const State &state);
+    static int evaluate(const State &state);
 
 private:
     static int getSquareWiseEvalAndGamePhase(const State &state, bool& endgame);
