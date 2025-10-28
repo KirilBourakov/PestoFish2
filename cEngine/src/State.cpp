@@ -54,7 +54,7 @@ State::State(
 State::State(
     const BoardArray &board, const Color activeColor, const int castlingRights, const std::optional<BoardPosition> enPassantSquare,
     const int halfMoveClock, const int fullMoveClock, const BoardPosition whiteKingSquare, const BoardPosition blackKingSquare,
-    const std::vector<HistoricalEntry> &history
+    const std::vector<HistoricalEntry> &history, const std::vector<u64> &hashHistory
 ) :
     board(board),
     activeColor(activeColor),
@@ -65,6 +65,7 @@ State::State(
     whiteKingSquare(whiteKingSquare),
     blackKingSquare(blackKingSquare),
     history(history),
+    hashHistory(hashHistory),
     hash(board, activeColor, castlingRights, enPassantSquare)
 {
 }
@@ -119,8 +120,9 @@ GameState State::getGameState() {
 
 State State::makeThreadCopy() {
     BoardArray copyBoard = board;
-    std::vector<HistoricalEntry> historyCopy { history.at(history.size() - 1) };
-    return {copyBoard, activeColor, castlingRights, enPassantSquare, halfMoveClock, fullMoveClock, whiteKingSquare, blackKingSquare, historyCopy};
+    std::vector<HistoricalEntry> historyCopy {};
+    std::vector<u64> hashCopy = hashHistory;
+    return {copyBoard, activeColor, castlingRights, enPassantSquare, halfMoveClock, fullMoveClock, whiteKingSquare, blackKingSquare, historyCopy, hashCopy};
 }
 
 bool State::isLegalMove(BoardPosition start, BoardPosition end) {
@@ -197,8 +199,8 @@ void State::makeMove(const Move &move) {
         castlingRights,
         halfMoveClock,
         enPassantSquare,
-        hash.getValue()
     };
+    const u64 preMoveHash = hash.getValue();
 
     const Pieces::Piece movingPiece = entry.movedPiece;
     if (Pieces::piece_type(movingPiece) == PieceType::Pawn || entry.overwrittenPiece != Pieces::EMPTY) {
@@ -279,17 +281,24 @@ void State::makeMove(const Move &move) {
         hash.changeCastling(oldRights, castlingRights);
     }
 
-    history.push_back(entry);
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
     hash.flipActiveColor();
+
+    history.push_back(entry);
+    hashHistory.push_back(preMoveHash);
+
 }
 
 void State::undoMove() {
     using namespace Pieces;
 
     HistoricalEntry entry = history.back();
-    Move move = entry.move;
+    u64 historicalHash = hashHistory.back();
     history.pop_back();
+    hashHistory.pop_back();
+
+
+    Move move = entry.move;
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
 
     if (activeColor == Color::Black) {
@@ -324,7 +333,7 @@ void State::undoMove() {
     castlingRights = entry.castlingBeforeMove;
     enPassantSquare = entry.enPassantBeforeMove;
     halfMoveClock = entry.halfMoveClockBeforeMove;
-    hash.setValue(entry.hashValue);
+    hash.setValue(historicalHash);
 }
 
 bool State::samePosition(const State& other) const {
@@ -344,5 +353,6 @@ bool operator==(const State& lhs, const State& rhs) {
            lhs.whiteKingSquare == rhs.whiteKingSquare &&
            lhs.blackKingSquare == rhs.blackKingSquare &&
            lhs.history == rhs.history &&
-           lhs.hash == rhs.hash;
+           lhs.hash == rhs.hash &&
+           lhs.hashHistory == rhs.hashHistory;
 }

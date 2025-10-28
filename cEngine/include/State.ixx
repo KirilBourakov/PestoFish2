@@ -21,12 +21,11 @@ public:
         int castlingBeforeMove;
         int halfMoveClockBeforeMove;
         std::optional<BoardPosition> enPassantBeforeMove;
-        u64 hashValue;
 
         bool operator==(const HistoricalEntry& other) const {
             return other.move == move && other.movedPiece == movedPiece && other.overwrittenPiece == overwrittenPiece
                 && castlingBeforeMove == other.castlingBeforeMove && halfMoveClockBeforeMove == other.halfMoveClockBeforeMove
-                && enPassantBeforeMove == other.enPassantBeforeMove && hashValue == other.hashValue;
+                && enPassantBeforeMove == other.enPassantBeforeMove;
         }
         bool operator!=(const HistoricalEntry& other) const {
             return !(*this == other);
@@ -35,8 +34,11 @@ public:
 
     State();
     State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
-    State(const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
-    int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare, const std::vector<HistoricalEntry> &history);
+    State(
+        const BoardArray &board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+        int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare,
+        const std::vector<HistoricalEntry> &history, const std::vector<u64> &hashHistory
+    );
 
     void addMoves(int x, int y, std::vector<Move>& out) const;
     void makeMove(const Move &move);
@@ -80,6 +82,7 @@ private:
     BoardPosition blackKingSquare;
 
     std::vector<HistoricalEntry> history;
+    std::vector<u64> hashHistory;
 
     ZobristHash hash;
 };
