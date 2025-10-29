@@ -16,23 +16,17 @@ int Evaluator::evalCurrState(State &state, int depth, int alpha, int beta) {
         return Evaluator::evaluate(state);
     }
 
-    if (state.isHalfMoveTie()) {
+    const std::vector<Move> possibleMoves = state.getMoves();
+    GameState currGameState = state.getGameState(possibleMoves);
+
+    if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
         return 0;
     }
-    // TODO: implement 3 move repetition
-
-    const std::vector<Move> possibleMoves = state.getMoves();
-    if (possibleMoves.empty()) {
-        // is the current color in check, other color wins
-        if (state.colorInCheck(state.getActiveColor())) {
-            int returnVal = MATE_SCORE;
-            if (state.getActiveColor() == Color::White) {
-                returnVal *= -1;
-            }
-            return returnVal;
-        }
-        // if not, tie
-        return 0;
+    if (currGameState == GameState::BLACK_WIN) {
+        return -MATE_SCORE;
+    }
+    if (currGameState == GameState::WHITE_WIN) {
+        return MATE_SCORE;
     }
 
     int bestEval = (state.getActiveColor() == Color::White) ? -INF : INF;

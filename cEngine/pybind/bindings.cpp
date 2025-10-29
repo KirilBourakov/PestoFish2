@@ -24,7 +24,7 @@ PYBIND11_MODULE(cEngine, m) {
         .def("is_legal_move", &State::isLegalMove)
         .def("translate_and_move", &State::translateAndMove)
         .def("get_half_move_clock", &State::getHalfMoveClock)
-        .def("get_game_state", &State::getGameState);
+        .def("get_game_state", py::overload_cast<>(&State::getGameState));
 
     py::class_<BoardArray>(m, "BoardArray")
         .def("__getitem__", [](const BoardArray &self, size_t i) {

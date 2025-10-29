@@ -97,14 +97,22 @@ void State::translateAndMove(BoardPosition start, BoardPosition end, std::option
     throw std::invalid_argument("Illegal move");
 }
 
-GameState State::getGameState() {
+GameState State::getGameState(const std::vector<Move>& possibleMoves) {
     if (isHalfMoveTie()) {
         return GameState::DRAW;
     }
-    // TODO: implement 3 move repetition
-    // TODO: link efficient version of this method to Engine evalCurrState
 
-    if (getMoves().empty()) {
+    int count = 1;
+    for (int i = hashHistory.size() - 1; i >= 0; i--) {
+        if (hashHistory.at(i) == hash.getValue()) {
+            count++;
+            if (count == 3) {
+                return GameState::DRAW;
+            }
+        }
+    }
+
+    if (possibleMoves.empty()) {
         // is the current color in check, other color wins
         if (colorInCheck(activeColor)) {
             if (activeColor == Color::White) {
@@ -115,7 +123,12 @@ GameState State::getGameState() {
         // otherwise, stalemate
         return GameState::STALEMATE;
     }
+
     return GameState::IN_PLAY;
+}
+
+GameState State::getGameState() {
+    return getGameState(getMoves());
 }
 
 State State::makeThreadCopy() {

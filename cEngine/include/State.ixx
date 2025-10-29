@@ -46,6 +46,7 @@ public:
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
     void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo);
+    GameState getGameState(const std::vector<Move>& possibleMoves);
     GameState getGameState();
 
     [[nodiscard]] State makeThreadCopy();
