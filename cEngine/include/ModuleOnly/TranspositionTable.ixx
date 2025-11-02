@@ -10,7 +10,6 @@ export module TranspositionTable;
 import Move;
 import ZobristHash;
 
-// TODO: thread safety, allocate tables on the heap.
 export namespace Transposition {
     enum class CutoffType : unsigned short {
         UPPER_BOUND = 0,
@@ -19,19 +18,23 @@ export namespace Transposition {
     };
 
     struct alignas(64) Entry {
-        unsigned short key;
+        unsigned short key = 0;
         Move bestMove;
-        unsigned short depth;
-        int score;
+        unsigned short depth = 0;
+        int score = 0;
         CutoffType cutoffType;
-        unsigned short age;
+        unsigned short age = 0;
+
+        bool has_value() const {
+            return !(age == 0 && depth == 0 && key == 0);
+        }
     };
 
     constexpr int tableSizeMb = 128;
     constexpr unsigned long long rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
     constexpr unsigned long long tableSizeEntries = std::bit_ceil(rawEntries);
 
-    using table = std::array<std::optional<Entry>, tableSizeEntries>;
+    using table = std::array<Entry, tableSizeEntries>;
     class TranspositionTable {
     public:
         bool lookup(const u64 key, int& score, Move& moveOut, CutoffType& cutoffOut) {
@@ -40,13 +43,13 @@ export namespace Transposition {
 
             std::optional<Entry> entry = std::nullopt;
             if ((*depthPreferred)[index].has_value()) {
-                if ((*depthPreferred)[index].value().key == upperBits) {
-                    entry = (*depthPreferred)[index].value();
+                if ((*depthPreferred)[index].key == upperBits) {
+                    entry = (*depthPreferred)[index];
                 }
             }
             if (!entry.has_value() && (*alwaysReplace)[index].has_value()) {
-                if ((*alwaysReplace)[index].value().key == upperBits) {
-                    entry = (*alwaysReplace)[index].value();
+                if ((*alwaysReplace)[index].key == upperBits) {
+                    entry = (*alwaysReplace)[index];
                 }
             }
 
@@ -68,7 +71,11 @@ export namespace Transposition {
 
             Entry newEntry = {upperBits, bestMove, depth, score, cutoffType, age};
 
-            if (!(*depthPreferred)[index].has_value() || (*depthPreferred)[index].value().depth < newEntry.depth) {
+            if (
+                !(*depthPreferred)[index].has_value() ||
+                (*depthPreferred)[index].depth < newEntry.depth ||
+                (*depthPreferred)[index].age - newEntry.age >= ageOverride
+            ) {
                 (*depthPreferred)[index] = newEntry;
                 return;
             }
@@ -78,5 +85,6 @@ export namespace Transposition {
     private:
         std::unique_ptr<table> depthPreferred;
         std::unique_ptr<table> alwaysReplace;
+        int ageOverride = 4;
     };
 }
