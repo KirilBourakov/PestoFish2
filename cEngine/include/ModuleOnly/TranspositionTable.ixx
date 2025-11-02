@@ -4,12 +4,13 @@
 module;
 #include <concurrent_vector.h>
 #include <optional>
+#include <bit>
 
 export module TranspositionTable;
 import Move;
 import ZobristHash;
 
-// TODO: thread safety, allocate tables on the heap. tableSizeEntries must be a power of two, or switch to modules to get index. Start using age to replace also
+// TODO: thread safety, allocate tables on the heap.
 export namespace Transposition {
     enum class CutoffType : unsigned short {
         UPPER_BOUND = 0,
@@ -27,8 +28,10 @@ export namespace Transposition {
     };
 
     constexpr int tableSizeMb = 128;
-    constexpr unsigned long long tableSizeEntries = tableSizeMb * 1e6 / sizeof(Entry);
+    constexpr unsigned long long rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
+    constexpr unsigned long long tableSizeEntries = std::bit_ceil(rawEntries);
 
+    using table = std::array<std::optional<Entry>, tableSizeEntries>;
     class TranspositionTable {
     public:
         bool lookup(const u64 key, int& score, Move& moveOut, CutoffType& cutoffOut) {
@@ -36,14 +39,14 @@ export namespace Transposition {
             auto upperBits = static_cast<unsigned short>(key >> 16);
 
             std::optional<Entry> entry = std::nullopt;
-            if (depthPreferred.at(index).has_value()) {
-                if (depthPreferred.at(index).value().key == upperBits) {
-                    entry = depthPreferred.at(index).value();
+            if ((*depthPreferred)[index].has_value()) {
+                if ((*depthPreferred)[index].value().key == upperBits) {
+                    entry = (*depthPreferred)[index].value();
                 }
             }
-            if (!entry.has_value() && alwaysReplace.at(index).has_value()) {
-                if (alwaysReplace.at(index).value().key == upperBits) {
-                    entry = alwaysReplace.at(index).value();
+            if (!entry.has_value() && (*alwaysReplace)[index].has_value()) {
+                if ((*alwaysReplace)[index].value().key == upperBits) {
+                    entry = (*alwaysReplace)[index].value();
                 }
             }
 
@@ -59,22 +62,21 @@ export namespace Transposition {
         void insert(
             const u64 key, const Move &bestMove, const unsigned short depth,
             const int score, const CutoffType cutoffType, const unsigned short age
-        ) {
+        ) const {
             const unsigned long long index = key & (tableSizeEntries - 1);
             const auto upperBits = static_cast<unsigned short>(key >> 16);
 
             Entry newEntry = {upperBits, bestMove, depth, score, cutoffType, age};
 
-            if (!depthPreferred.at(index).has_value() || depthPreferred.at(index).value().depth < newEntry.depth) {
-                depthPreferred[index] = newEntry;
+            if (!(*depthPreferred)[index].has_value() || (*depthPreferred)[index].value().depth < newEntry.depth) {
+                (*depthPreferred)[index] = newEntry;
                 return;
             }
-            alwaysReplace[index] = newEntry;
+            (*alwaysReplace)[index] = newEntry;
         }
 
     private:
-        std::array<std::optional<Entry>, tableSizeEntries> depthPreferred;
-        std::array<std::optional<Entry>, tableSizeEntries> alwaysReplace;
-
+        std::unique_ptr<table> depthPreferred;
+        std::unique_ptr<table> alwaysReplace;
     };
 }
