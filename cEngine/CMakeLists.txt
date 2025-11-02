@@ -24,6 +24,7 @@ set(ENGINE_MODULES
         include/ModuleOnly/Board.ixx
         include/ModuleOnly/Enums.ixx
         include/ModuleOnly/PieceSqTables.ixx
+        include/ModuleOnly/TranspositionTable.ixx
 )
 
 # Build cEngine
