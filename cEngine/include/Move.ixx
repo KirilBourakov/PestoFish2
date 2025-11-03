@@ -42,46 +42,6 @@ export struct Move {
         return m;
     }
 
-    // /**
-    //  * @brief This function converts a move into a 16 bit representation of the move.
-    //  *
-    //  * It uses the following convention: \n
-    //  * 3 bit | startx \n
-    //  * 3 bit | starty \n
-    //  * 3 bit | endx \n
-    //  * 3 bit | endy \n
-    //  * 1 bit | isEnpassentCapture \n
-    //  * 2 bit | special info type \n
-    //  * 3 bit | special info \n
-    //  *
-    //  *
-    //  * @return
-    //  */
-    // uint32_t pack() {
-    //     // 6 bits for start
-    //     // 6 bits for end
-    //     // 1 bit for enpassent capture
-    //     // 2 bits for optional information
-    //     // 3 bits for optional information- piece promoted to type (color to be deduced from end), castle type, or newEnPassantSquare x (y determined from end)
-    //     uint16_t packed = 0;
-    //     packed <<= start.x << start.y << end.x << end.y << enPassantCapture;
-    //     int type = 0;
-    //     int value = 0;
-    //     if (promotedTo.has_value()) {
-    //         type = 1;
-    //         value = static_cast<uint8_t>(Pieces::piece_type( promotedTo.value())) - 1;
-    //     } else if (castle.has_value()) {
-    //         type = 2;
-    //         value = static_cast<uint8_t>(castle.value());
-    //     } else if (newEnPassantSquare.has_value()) {
-    //         type = 3;
-    //         value = newEnPassantSquare.value().x;
-    //     }
-    //     packed <<= type;
-    //     packed <<= value;
-    //     return packed;
-    // }
-
     bool operator==(const Move& other) const {
         return other.start == start && other.end == end
             && promotedTo == other.promotedTo && castle == other.castle && newEnPassantSquare == other.newEnPassantSquare;
