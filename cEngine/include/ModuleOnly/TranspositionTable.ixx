@@ -12,6 +12,7 @@ import <array>;
 import Move;
 import ZobristHash;
 
+// TODO: rewrite using atomics, storing a packed Move in u16/u32 instead of a Move
 export namespace Transposition {
     enum class CutoffType : unsigned short {
         UPPER_BOUND = 0,
@@ -37,8 +38,9 @@ export namespace Transposition {
     };
 
     constexpr int tableSizeMb = 128;
-    constexpr unsigned long long rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
-    constexpr unsigned long long tableSizeEntries = std::bit_ceil(rawEntries);
+    constexpr size_t rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
+    constexpr size_t tableSizeEntries = std::bit_ceil(rawEntries);
+    constexpr size_t numLocks = std::max<size_t>(64, tableSizeEntries / 4096);
 
     using table = std::array<Entry, tableSizeEntries>;
     class TranspositionTable {
@@ -52,9 +54,7 @@ export namespace Transposition {
             const unsigned long long index = key & (tableSizeEntries - 1);
             const auto verificationKey = static_cast<unsigned int>(key >> 32);
 
-            Entry entry{};
-
-            std::shared_lock<std::shared_mutex> lock(mLocks[index % numClusters].m);
+            std::shared_lock<std::shared_mutex> lock(mLocks[index % numLocks].m);
 
             Entry& depthEntry = (*depthPreferred)[index];
             if (depthEntry.key == verificationKey && depthEntry.has_value()) {
@@ -84,7 +84,7 @@ export namespace Transposition {
 
             Entry newEntry = {verificationKey, bestMove, depth, static_cast<short>(score), cutoffType, age};
 
-            std::unique_lock<std::shared_mutex> lock(mLocks[index % numClusters].m);
+            std::unique_lock<std::shared_mutex> lock(mLocks[index % numLocks].m);
             Entry& oldEntry = (*depthPreferred)[index];
             if (!oldEntry.has_value() || oldEntry.depth < newEntry.depth || newEntry.age - oldEntry.age >= ageOverride) {
                 (*depthPreferred)[index] = newEntry;
@@ -94,13 +94,10 @@ export namespace Transposition {
         }
 
     private:
-        // TODO: replace with calculated value based on table size
-        static constexpr size_t numClusters = 256;
-
         std::unique_ptr<table> depthPreferred;
         std::unique_ptr<table> alwaysReplace;
         int ageOverride = 4;
 
-        std::array<PaddedMutex, numClusters> mLocks;
+        std::array<PaddedMutex, numLocks> mLocks;
     };
 }
