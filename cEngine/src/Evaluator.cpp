@@ -11,48 +11,6 @@ import Enums;
 import Move;
 import PieceSqTables;
 
-int Evaluator::evalCurrState(State &state, int depth, int alpha, int beta) {
-    if (depth == 0) {
-        return Evaluator::evaluate(state);
-    }
-
-    const std::vector<Move> possibleMoves = state.getMoves();
-    GameState currGameState = state.getGameState(possibleMoves);
-
-    if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
-        return 0;
-    }
-    if (currGameState == GameState::BLACK_WIN) {
-        return -MATE_SCORE;
-    }
-    if (currGameState == GameState::WHITE_WIN) {
-        return MATE_SCORE;
-    }
-
-    int bestEval = (state.getActiveColor() == Color::White) ? -INF : INF;
-    for (Move move : possibleMoves) {
-        state.makeMove(move);
-        int eval = evalCurrState(state, depth-1, alpha, beta);
-        state.undoMove();
-
-        if (isBetterEval(state.getActiveColor(), bestEval, eval)) {
-            bestEval = eval;
-        }
-
-        // alpha beta pruning
-        if (state.getActiveColor() == Color::White) {
-            alpha = std::max(alpha, eval);
-        }
-        else {
-            beta = std::min(beta, eval);
-        }
-        if (beta <= alpha) {
-            break;
-        }
-    }
-    return bestEval;
-}
-
 bool Evaluator::isBetterEval(const Color color, const int currBest, const int value) {
     if (color == Color::White) {
         return value > currBest;

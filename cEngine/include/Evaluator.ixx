@@ -13,7 +13,6 @@ export constexpr int MATE_THRESHOLD = 30000;
 
 export class Evaluator{
 public:
-    static int evalCurrState(State &state, int depth, int alpha, int beta);
     static bool isBetterEval(const Color color, const int currBest, const int value);
 
     static int evaluate(const State &state);

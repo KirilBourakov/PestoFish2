@@ -22,7 +22,13 @@ export namespace Transposition {
     };
 
     struct Entry {
-        Entry() : key(), bestMove(), depth(), score(), cutoffType(CutoffType::INVALID), age() {}
+        Entry() : key(0), depth(0), score(0), cutoffType(CutoffType::INVALID), age(0) {}
+        Entry (
+            unsigned int key, Move bestMove, unsigned short depth,
+            short score, CutoffType cutoffType, unsigned short age
+        ) :
+            key(key), bestMove(bestMove), depth(depth), score(score), cutoffType(cutoffType), age(age)
+        {}
 
         unsigned int key;
         Move bestMove;
@@ -85,7 +91,14 @@ export namespace Transposition {
             const unsigned long long index = key & (tableSizeEntries - 1);
             const auto verificationKey = static_cast<unsigned int>(key >> 32);
 
-            Entry newEntry = {verificationKey, bestMove, depth, static_cast<short>(score), cutoffType, age};
+            Entry newEntry = {
+                verificationKey,
+                bestMove,
+                depth,
+                static_cast<short>(score),
+                cutoffType,
+                age
+            };
 
             std::unique_lock<std::shared_mutex> lock(mLocks[index % numLocks].m);
             Entry& oldEntry = (*depthPreferred)[index];

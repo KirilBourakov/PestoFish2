@@ -22,4 +22,6 @@ public:
 
 private:
     State state;
+
+    static int minimax(State &state, int depth, int alpha, int beta);
 };
