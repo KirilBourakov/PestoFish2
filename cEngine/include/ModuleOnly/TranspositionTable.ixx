@@ -14,22 +14,25 @@ import ZobristHash;
 
 // TODO: rewrite using atomics, storing a packed Move in u16/u32 instead of a Move
 export namespace Transposition {
-    enum class CutoffType : unsigned short {
+    enum class CutoffType : char {
         UPPER_BOUND = 0,
         LOWER_BOUND = 1,
         EXACT = 2,
+        INVALID = 3
     };
 
     struct Entry {
-        unsigned int key = 0;
-        Move bestMove;
-        unsigned short depth = 0;
-        short score = 0;
-        CutoffType cutoffType;
-        unsigned char age = 0;
+        Entry() : key(), bestMove(), depth(), score(), cutoffType(CutoffType::INVALID), age() {}
 
-        bool has_value() const {
-            return !(age == 0 && depth == 0 && key == 0);
+        unsigned int key;
+        Move bestMove;
+        unsigned short depth;
+        short score;
+        CutoffType cutoffType;
+        unsigned char age;
+
+        [[nodiscard]] bool has_value() const {
+            return cutoffType != CutoffType::INVALID;
         }
     };
 
