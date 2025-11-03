@@ -2,9 +2,10 @@
 // Created by Kiril on 2025-11-02.
 //
 module;
-#include <concurrent_vector.h>
 #include <bit>
-#include <atomic>
+#include <memory>
+#include <mutex>
+#include <shared_mutex>
 
 export module TranspositionTable;
 import Move;
@@ -17,17 +18,21 @@ export namespace Transposition {
         EXACT = 2,
     };
 
-    struct alignas(64) Entry {
-        unsigned short key = 0;
+    struct Entry {
+        unsigned int key = 0;
         Move bestMove;
         unsigned short depth = 0;
-        int score = 0;
+        short score = 0;
         CutoffType cutoffType;
-        unsigned short age = 0;
+        unsigned char age = 0;
 
         bool has_value() const {
             return !(age == 0 && depth == 0 && key == 0);
         }
+    };
+
+    struct PaddedMutex {
+        alignas(64) std::shared_mutex m;
     };
 
     constexpr int tableSizeMb = 128;
@@ -37,45 +42,50 @@ export namespace Transposition {
     using table = std::array<Entry, tableSizeEntries>;
     class TranspositionTable {
     public:
+        TranspositionTable() :
+            depthPreferred(std::unique_ptr<table>()),
+            alwaysReplace(std::unique_ptr<table>())
+        {}
+
         bool lookup(const u64 key, int& score, Move& moveOut, CutoffType& cutoffOut) {
             const unsigned long long index = key & (tableSizeEntries - 1);
-            auto upperBits = static_cast<unsigned short>(key >> 16);
+            const auto verificationKey = static_cast<unsigned int>(key >> 32);
 
             Entry entry{};
-            if ((*depthPreferred)[index].has_value()) {
-                if ((*depthPreferred)[index].key == upperBits) {
-                    entry = (*depthPreferred)[index];
-                }
-            }
-            if (!entry.has_value() && (*alwaysReplace)[index].has_value()) {
-                if ((*alwaysReplace)[index].key == upperBits) {
-                    entry = (*alwaysReplace)[index];
-                }
-            }
 
-            if (entry.has_value()) {
-                score = entry.score;
-                moveOut = entry.bestMove;
-                cutoffOut = entry.cutoffType;
+            std::shared_lock<std::shared_mutex> lock(mLocks[index % numClusters].m);
+
+            Entry& depthEntry = (*depthPreferred)[index];
+            if (depthEntry.key == verificationKey && depthEntry.has_value()) {
+                score = depthEntry.score;
+                moveOut = depthEntry.bestMove;
+                cutoffOut = depthEntry.cutoffType;
                 return true;
             }
+
+            Entry& alwaysEntry = (*alwaysReplace)[index];
+            if (alwaysEntry.key == verificationKey && alwaysEntry.has_value()) {
+                score = alwaysEntry.score;
+                moveOut = alwaysEntry.bestMove;
+                cutoffOut = alwaysEntry.cutoffType;
+                return true;
+            }
+
             return false;
         }
 
         void insert(
             const u64 key, const Move &bestMove, const unsigned short depth,
-            const int score, const CutoffType cutoffType, const unsigned short age
-        ) const {
+            const int score, const CutoffType cutoffType, const unsigned char age
+        ) {
             const unsigned long long index = key & (tableSizeEntries - 1);
-            const auto upperBits = static_cast<unsigned short>(key >> 16);
+            const auto verificationKey = static_cast<unsigned int>(key >> 32);
 
-            Entry newEntry = {upperBits, bestMove, depth, score, cutoffType, age};
+            Entry newEntry = {verificationKey, bestMove, depth, static_cast<short>(score), cutoffType, age};
 
-            if (
-                !(*depthPreferred)[index].has_value() ||
-                (*depthPreferred)[index].depth < newEntry.depth ||
-                (*depthPreferred)[index].age - newEntry.age >= ageOverride
-            ) {
+            std::unique_lock<std::shared_mutex> lock(mLocks[index % numClusters].m);
+            Entry& oldEntry = (*depthPreferred)[index];
+            if (!oldEntry.has_value() || oldEntry.depth < newEntry.depth || newEntry.age - oldEntry.age >= ageOverride) {
                 (*depthPreferred)[index] = newEntry;
                 return;
             }
@@ -83,8 +93,12 @@ export namespace Transposition {
         }
 
     private:
+        static constexpr size_t numClusters = 256;
+
         std::unique_ptr<table> depthPreferred;
         std::unique_ptr<table> alwaysReplace;
         int ageOverride = 4;
+
+        std::array<PaddedMutex, numClusters> mLocks;
     };
 }
