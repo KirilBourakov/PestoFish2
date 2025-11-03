@@ -14,6 +14,8 @@ import Board;
 
 
 export struct Move {
+    Move() = default;
+
     BoardPosition start{}; // starting square
     BoardPosition end{}; // end square
 
@@ -45,7 +47,6 @@ export struct Move {
             && promotedTo == other.promotedTo && castle == other.castle && newEnPassantSquare == other.newEnPassantSquare;
     }
 private:
-    Move() = default;
     Move(BoardPosition start, BoardPosition end) {
         this->start = start;
         this->end = end;

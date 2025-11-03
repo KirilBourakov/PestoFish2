@@ -8,6 +8,7 @@ module;
 #include <shared_mutex>
 
 export module TranspositionTable;
+import <array>;
 import Move;
 import ZobristHash;
 
@@ -43,8 +44,8 @@ export namespace Transposition {
     class TranspositionTable {
     public:
         TranspositionTable() :
-            depthPreferred(std::unique_ptr<table>()),
-            alwaysReplace(std::unique_ptr<table>())
+            depthPreferred(std::make_unique<table>()),
+            alwaysReplace(std::make_unique<table>())
         {}
 
         bool lookup(const u64 key, int& score, Move& moveOut, CutoffType& cutoffOut) {
@@ -93,6 +94,7 @@ export namespace Transposition {
         }
 
     private:
+        // TODO: replace with calculated value based on table size
         static constexpr size_t numClusters = 256;
 
         std::unique_ptr<table> depthPreferred;
