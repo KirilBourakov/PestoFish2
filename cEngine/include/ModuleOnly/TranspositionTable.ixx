@@ -3,8 +3,8 @@
 //
 module;
 #include <concurrent_vector.h>
-#include <optional>
 #include <bit>
+#include <atomic>
 
 export module TranspositionTable;
 import Move;
@@ -41,7 +41,7 @@ export namespace Transposition {
             const unsigned long long index = key & (tableSizeEntries - 1);
             auto upperBits = static_cast<unsigned short>(key >> 16);
 
-            std::optional<Entry> entry = std::nullopt;
+            Entry entry{};
             if ((*depthPreferred)[index].has_value()) {
                 if ((*depthPreferred)[index].key == upperBits) {
                     entry = (*depthPreferred)[index];
@@ -54,9 +54,9 @@ export namespace Transposition {
             }
 
             if (entry.has_value()) {
-                score = entry->score;
-                moveOut = entry->bestMove;
-                cutoffOut = entry->cutoffType;
+                score = entry.score;
+                moveOut = entry.bestMove;
+                cutoffOut = entry.cutoffType;
                 return true;
             }
             return false;
