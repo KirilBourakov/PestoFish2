@@ -8,7 +8,7 @@ module;
 #include <shared_mutex>
 
 export module Transposition;
-import <array>;
+import <vector>;
 import Move;
 import ZobristHash;
 
@@ -52,13 +52,14 @@ export namespace Transposition {
     constexpr size_t tableSizeEntries = std::bit_ceil(rawEntries);
     constexpr size_t numLocks = std::max<size_t>(64, tableSizeEntries / 4096);
 
-    using table = std::array<Entry, tableSizeEntries>;
+    using table = std::vector<Entry>;
 
     class TranspositionTable {
     public:
         TranspositionTable() :
-            depthPreferred(std::make_unique<table>()),
-            alwaysReplace(std::make_unique<table>())
+            depthPreferred(std::make_unique<table>(tableSizeEntries)),
+            alwaysReplace(std::make_unique<table>(tableSizeEntries)),
+            mLocks(numLocks)
         {}
 
         bool lookup(const u64 key, int& score, Move& moveOut, CutoffType& cutoffOut) {
@@ -116,6 +117,6 @@ export namespace Transposition {
         std::unique_ptr<table> alwaysReplace;
         int ageOverride = 4;
 
-        std::array<PaddedMutex, numLocks> mLocks;
+        std::vector<PaddedMutex> mLocks;
     };
 }

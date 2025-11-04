@@ -13,7 +13,7 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(cEngine, m) {
     // CLASS
-    py::class_<Engine>(m, "Engine")
+    py::class_<Engine, std::unique_ptr<Engine>>(m, "Engine")
         .def(py::init<>())
         .def("getState", &Engine::getState, py::return_value_policy::reference_internal)
         .def("make_engine_move", &Engine::makeEngineMove);

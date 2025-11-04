@@ -11,6 +11,7 @@ import State;
 import Move;
 import Transposition;
 
+
 export class Engine {
 public:
     Move getBestMove();
@@ -21,8 +22,8 @@ public:
     void setState(const State& state){this->state = state;};
 
 private:
-    State state;
-    Transposition::TranspositionTable transPosTable;
+    State state{};
+    Transposition::TranspositionTable transPosTable{};
 
     int minimax(State &state, int depth, int alpha, int beta, const Move& playedMove);
 };
