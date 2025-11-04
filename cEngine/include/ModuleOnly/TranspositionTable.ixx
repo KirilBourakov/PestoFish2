@@ -7,7 +7,7 @@ module;
 #include <mutex>
 #include <shared_mutex>
 
-export module TranspositionTable;
+export module Transposition;
 import <array>;
 import Move;
 import ZobristHash;
@@ -46,12 +46,14 @@ export namespace Transposition {
         alignas(64) std::shared_mutex m;
     };
 
+
     constexpr int tableSizeMb = 128;
     constexpr size_t rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
     constexpr size_t tableSizeEntries = std::bit_ceil(rawEntries);
     constexpr size_t numLocks = std::max<size_t>(64, tableSizeEntries / 4096);
 
     using table = std::array<Entry, tableSizeEntries>;
+
     class TranspositionTable {
     public:
         TranspositionTable() :

@@ -51,16 +51,19 @@ public:
 
     [[nodiscard]] State makeThreadCopy();
     [[nodiscard]] bool samePosition(const State& other) const;
+    [[nodiscard]] bool isHalfMoveTie() const {return halfMoveClock >= 50;}
+    [[nodiscard]] bool colorInCheck(const Color color) const {
+        const BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
+        return isAttacked(board, kingSquare);
+    }
+
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
+    [[nodiscard]] int getZobrist() const {return hash.getValue();}
     [[nodiscard]] const BoardArray& getBoard() const {return board;}
     [[nodiscard]] std::optional<BoardPosition> getEnPassantSquare() const {return enPassantSquare;}
     [[nodiscard]] int getHalfMoveClock() const {return halfMoveClock;}
+    [[nodiscard]] int getFullMoveClock() const {return fullMoveClock;}
     [[nodiscard]] Color getActiveColor() const {return activeColor;}
-    [[nodiscard]] bool isHalfMoveTie() const {return halfMoveClock >= 50;}
-    [[nodiscard]] bool colorInCheck(Color color) const {
-        BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
-        return isAttacked(board, kingSquare);
-    }
 
     friend bool operator==(const State& lhs, const State& rhs);
     bool operator!=(const State& other) const {

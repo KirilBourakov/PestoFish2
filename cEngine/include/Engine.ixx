@@ -9,10 +9,10 @@ import Board;
 import Enums;
 import State;
 import Move;
+import Transposition;
 
 export class Engine {
 public:
-    Engine();
     Move getBestMove();
     Move getBestMoveConcurrent();
     void makeEngineMove();
@@ -22,6 +22,7 @@ public:
 
 private:
     State state;
+    Transposition::TranspositionTable transPosTable;
 
-    static int minimax(State &state, int depth, int alpha, int beta);
+    int minimax(State &state, int depth, int alpha, int beta, const Move& playedMove);
 };
