@@ -60,6 +60,8 @@ public:
     [[nodiscard]] int getCastlingRights() const {return castlingRights;}
     [[nodiscard]] int getZobrist() const {return hash.getValue();}
     [[nodiscard]] const BoardArray& getBoard() const {return board;}
+    [[nodiscard]] const Pieces::Piece getAt(const BoardPosition inp) const { return board[inp.y][inp.x]; }
+
     [[nodiscard]] std::optional<BoardPosition> getEnPassantSquare() const {return enPassantSquare;}
     [[nodiscard]] int getHalfMoveClock() const {return halfMoveClock;}
     [[nodiscard]] int getFullMoveClock() const {return fullMoveClock;}

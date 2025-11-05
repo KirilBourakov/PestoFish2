@@ -41,6 +41,9 @@ export struct Move {
         m.enPassantCapture = true;
         return m;
     }
+    static Move invalid() {
+        return {{-1, -1}, {-1, -1}};
+    }
 
     bool operator==(const Move& other) const {
         return other.start == start && other.end == end
