@@ -1,4 +1,6 @@
-1. Killer moves
+1. Tapered Eval
+2. Quiescence search
+2. Killer moves
 2. Iterative Deepening
 3. Multithreading
    - Shared SMP seems to be the way to go.
