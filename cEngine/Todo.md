@@ -1,5 +1,6 @@
 1. Tapered Eval
 2. Quiescence search
+3. Time limit based searching, not depth limit
 2. Killer moves
 2. Iterative Deepening
 3. Multithreading
