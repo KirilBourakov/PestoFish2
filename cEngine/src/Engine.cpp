@@ -28,13 +28,12 @@ Move Engine::getBestMove() {
     int bestEval = (rootColor == Color::White) ? -INF : INF;
 
 
-    int _; Transposition::CutoffType __;
-    Move move_out = Move::invalid();
-    transPosTable.lookup(state.getZobrist(), _, move_out, __);
+    Transposition::Entry entry_out;
+    transPosTable.lookup(state.getZobrist(), entry_out);
 
     std::vector<Move> possibleMoves = state.getMoves();
-    std::ranges::sort(possibleMoves,[this, move_out](const Move &a, const Move &b) {
-        return get_move_score(a, this->state, move_out, this->globalHistory) > get_move_score(b, this->state, move_out, this->globalHistory);
+    std::ranges::sort(possibleMoves,[this, &entry_out](const Move &a, const Move &b) {
+        return get_move_score(a, this->state, entry_out.bestMove, this->globalHistory) > get_move_score(b, this->state, entry_out.bestMove, this->globalHistory);
     });
 
 
@@ -66,24 +65,21 @@ int Engine::minimax(State &state, int curr_depth, int max_depth, int alpha, int 
     // --- Probe Transpose Table ---
     const uint64_t zobrist = state.getZobrist();
 
-    int ttEval;
-    Move move_out = Move::invalid();
-    Transposition::CutoffType cutoffType;
-
-    if (transPosTable.lookup(zobrist, ttEval, move_out, cutoffType)) {
-        switch (cutoffType) {
+    Transposition::Entry entry_out;
+    if (transPosTable.lookup(zobrist, entry_out)) {
+        switch (entry_out.cutoffType) {
             case Transposition::CutoffType::EXACT:
-                return ttEval;
+                return entry_out.score;
             case Transposition::CutoffType::LOWER_BOUND:
-                alpha = std::max(alpha, ttEval);
+                alpha = std::max(alpha, static_cast<int>(entry_out.score));
                 break;
             case Transposition::CutoffType::UPPER_BOUND:
-                beta = std::min(beta, ttEval);
+                beta = std::min(beta, static_cast<int>(entry_out.score));
                 break;
             default:
                 throw std::invalid_argument("Invalid cutoff type");
         }
-        if (alpha >= beta) return ttEval;
+        if (alpha >= beta) return entry_out.score;
     }
 
     // --- Check we should stop ---
@@ -103,8 +99,8 @@ int Engine::minimax(State &state, int curr_depth, int max_depth, int alpha, int 
         return MATE_SCORE;
     }
 
-    std::ranges::sort(possibleMoves,[state, move_out, &history](const Move &a, const Move &b) {
-        return get_move_score(a, state, move_out, history) > get_move_score(b, state, move_out, history);
+    std::ranges::sort(possibleMoves,[state, &entry_out, &history](const Move &a, const Move &b) {
+        return get_move_score(a, state, entry_out.bestMove, history) > get_move_score(b, state, entry_out.bestMove, history);
     });
 
     // --- Run a layer of minimax ---
@@ -137,6 +133,7 @@ int Engine::minimax(State &state, int curr_depth, int max_depth, int alpha, int 
     }
 
     // minimizing has a way to get beta, and this is greater then that, so they cut
+    Transposition::CutoffType cutoffType;
     if (cutoffOccurred) {
         history[bestMove] = (max_depth - curr_depth) * (max_depth - curr_depth);
         cutoffType = Transposition::CutoffType::LOWER_BOUND;

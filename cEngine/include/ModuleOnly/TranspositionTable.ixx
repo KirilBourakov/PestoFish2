@@ -62,7 +62,7 @@ export namespace Transposition {
             mLocks(numLocks)
         {}
 
-        bool lookup(const u64 key, int& score, Move& moveOut, CutoffType& cutoffOut) {
+        bool lookup(const u64 key, Entry& entry_out) {
             const unsigned long long index = key & (tableSizeEntries - 1);
             const auto verificationKey = static_cast<unsigned int>(key >> 32);
 
@@ -70,17 +70,13 @@ export namespace Transposition {
 
             Entry& depthEntry = (*depthPreferred)[index];
             if (depthEntry.key == verificationKey && depthEntry.has_value()) {
-                score = depthEntry.score;
-                moveOut = depthEntry.bestMove;
-                cutoffOut = depthEntry.cutoffType;
+                entry_out = depthEntry;
                 return true;
             }
 
             Entry& alwaysEntry = (*alwaysReplace)[index];
             if (alwaysEntry.key == verificationKey && alwaysEntry.has_value()) {
-                score = alwaysEntry.score;
-                moveOut = alwaysEntry.bestMove;
-                cutoffOut = alwaysEntry.cutoffType;
+                entry_out = alwaysEntry;
                 return true;
             }
 
