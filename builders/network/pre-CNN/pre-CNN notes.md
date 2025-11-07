@@ -66,7 +66,7 @@
     epoch 10
 **result**
     note: .5 split
-    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 123s 605us/step - MAPE: 1154506.8750 - loss: 1154506.8750 - mae: 300.5866  
+    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 123s 605us/step - MAPE: 1154506.8750 - loss: 1154506.8750 - mae: 300.5866
 
 ## 6th run
 **pre-compile**
@@ -96,7 +96,7 @@
 **fit**
     epoch 10
 **result**
-    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 117s 579us/step - MAPE: 34125.0234 - loss: 34125.0234 - mae: 300.1754 
+    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 117s 579us/step - MAPE: 34125.0234 - loss: 34125.0234 - mae: 300.1754
 
 
 ## 8th run (uses rev2 transformer & rev2 map)
@@ -126,7 +126,7 @@ Notes: loss nearly identical at epoch 1 as at epoch 10
 **fit**
     epoch 10
 **result**
-    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 9419s 47ms/step - loss: 635993.0625 - mae: 318.6691 - mse: 635993.0625 
+    202470/202470 ━━━━━━━━━━━━━━━━━━━━ 9419s 47ms/step - loss: 635993.0625 - mae: 318.6691 - mse: 635993.0625
 
 ## 10th run (uses rev3 transformer & rev2 map)
 **pre-compile**

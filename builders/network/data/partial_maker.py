@@ -1,6 +1,7 @@
 import sys
-reader = open(sys.argv[1], 'r')
-writer = open(sys.argv[2], 'a')
+
+reader = open(sys.argv[1], "r")
+writer = open(sys.argv[2], "a")
 
 c = 0
 for x in reader:

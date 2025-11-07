@@ -11,65 +11,70 @@ using namespace Pieces;
 
 typedef unsigned long long u64;
 
-u64 Perft(State& state, int depth)
+u64
+Perft(State& state, int depth)
 {
-    if (depth == 0)
-        return 1ULL;
+  if (depth == 0)
+    return 1ULL;
 
-    u64 nodes = 0;
+  u64 nodes = 0;
 
-    std::vector<Move> moves = state.getMoves();
-    for (Move move : moves) {
-        state.makeMove(move);
-        nodes += Perft(state, depth - 1);
-        state.undoMove();
-    }
+  std::vector<Move> moves = state.getMoves();
+  for (const Move move : moves) {
+    state.makeMove(move);
+    nodes += Perft(state, depth - 1);
+    state.undoMove();
+  }
 
-    return nodes;
+  return nodes;
 }
 
-void PerftDivide(State state, int depth) {
-    auto moves = state.getMoves();
-    u64 total = 0;
-    for (auto move : moves) {
-        state.makeMove(move);
-        u64 count = Perft(state, depth - 1);
-        state.undoMove();
-        std::cout << move << ": " << count << "\n";
-        total += count;
-    }
-    std::cout << "Total: " << total << "\n";
-}
-
-u64 DebugPerft(State& state, int depth)
+void
+PerftDivide(State state, int depth)
 {
-    if (depth == 0)
-        return 1ULL;
-
-    u64 nodes = 0;
-    std::vector<Move> moves = state.getMoves();
-
-    for (Move move : moves) {
-        State before = state;
-
-        state.makeMove(move);
-        nodes += DebugPerft(state, depth - 1);
-        state.undoMove();
-
-        if (state != before) {
-            std::cerr << "Undo failed for move: " << move << "\n";
-            // std::cerr << "Before:\n" << before;
-            // std::cerr << "After undo:\n" << state;
-            throw std::runtime_error("Undo mismatch");
-        }
-    }
-
-    return nodes;
+  auto moves = state.getMoves();
+  u64 total = 0;
+  for (auto move : moves) {
+    state.makeMove(move);
+    u64 count = Perft(state, depth - 1);
+    state.undoMove();
+    std::cout << move << ": " << count << "\n";
+    total += count;
+  }
+  std::cout << "Total: " << total << "\n";
 }
 
-TEST(Perft, undoConsistency) {
-    State state;
-    EXPECT_NO_THROW(DebugPerft(state, 4));
+u64
+DebugPerft(State& state, int depth)
+{
+  if (depth == 0)
+    return 1ULL;
+
+  u64 nodes = 0;
+  std::vector<Move> moves = state.getMoves();
+
+  for (const Move move : moves) {
+    State before = state;
+
+    state.makeMove(move);
+    nodes += DebugPerft(state, depth - 1);
+    state.undoMove();
+
+    if (state != before) {
+      std::cerr << "Undo failed for move: " << move << "\n";
+      // std::cerr << "Before:\n" << before;
+      // std::cerr << "After undo:\n" << state;
+      throw std::runtime_error("Undo mismatch");
+    }
+  }
+
+  return nodes;
+}
+
+TEST(Perft, undoConsistency)
+{
+  State state;
+  EXPECT_NO_THROW(DebugPerft(state, 4));
 }
 
 // TEST(Perft, depth1) {
@@ -84,9 +89,10 @@ TEST(Perft, undoConsistency) {
 // TEST(Preft, depth4) {
 //     ASSERT_EQ(Perft(State{}, 4), 197281);
 // }
-TEST(Preft, depth5) {
-    State state;
-    ASSERT_EQ(Perft(state, 5), 4865609);
+TEST(Preft, depth5)
+{
+  State state;
+  ASSERT_EQ(Perft(state, 5), 4865609);
 }
 // TEST(Preft, depth6) {
 //     ASSERT_EQ(Perft(State{}, 6), 119060324);

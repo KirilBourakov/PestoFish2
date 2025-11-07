@@ -9,6 +9,7 @@ from game.constants.globals import Piece
 PIECE = cEngine.Piece
 COLOR = cEngine.Color
 
+
 class cAPI:
     engine = cEngine.Engine()
 
@@ -43,7 +44,9 @@ class cAPI:
         return cAPI.engine.getState().is_legal_move(start_pos, end_pos)
 
     @staticmethod
-    def make_move(start: tuple[int, int], end: tuple[int, int], promotion: Optional[PIECE] = None):
+    def make_move(
+        start: tuple[int, int], end: tuple[int, int], promotion: Optional[PIECE] = None
+    ):
         start_pos = cEngine.BoardPosition(*start)
         end_pos = cEngine.BoardPosition(*end)
         cAPI.engine.getState().translate_and_move(start_pos, end_pos, promotion)
@@ -61,15 +64,17 @@ class cAPI:
         state = cAPI.engine.getState().get_game_state()
         match state:
             case cEngine.GameState.WHITE_WIN:
-                return 'White has won'
+                return "White has won"
             case cEngine.GameState.BLACK_WIN:
-                return 'Black has won'
+                return "Black has won"
             case cEngine.GameState.STALEMATE:
-                return 'Stalemate'
+                return "Stalemate"
             case cEngine.GameState.DRAW:
-                return 'Draw'
+                return "Draw"
             case _:
-                raise RuntimeError("get_state_message() not supported for state {}".format(state))
+                raise RuntimeError(
+                    "get_state_message() not supported for state {}".format(state)
+                )
 
     @staticmethod
     def get_surface(piece: PIECE) -> Surface | None:
