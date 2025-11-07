@@ -9,36 +9,20 @@ export module Enums;
 
 export enum class CastleType { SHORT = 0, LONG = 1 };
 
-export enum class GameState {
-  IN_PLAY = 0,
-  WHITE_WIN = 1,
-  BLACK_WIN = -1,
-  STALEMATE = 2,
-  DRAW = 3
-};
+export enum class GameState { IN_PLAY = 0, WHITE_WIN = 1, BLACK_WIN = -1, STALEMATE = 2, DRAW = 3 };
 
 export enum class Color : uint8_t {
-  White = 0,
-  Black = 1,
+    White = 0,
+    Black = 1,
 };
 
-export enum class PieceType : uint8_t {
-  None = 0,
-  Pawn,
-  Knight,
-  Bishop,
-  Rook,
-  Queen,
-  King
-};
+export enum class PieceType : uint8_t { None = 0, Pawn, Knight, Bishop, Rook, Queen, King };
 
 export namespace Pieces {
 using Piece = uint8_t;
 
-constexpr Piece
-make_piece(Color c, PieceType t) noexcept
-{
-  return (static_cast<uint8_t>(c) << 3) | static_cast<uint8_t>(t);
+constexpr Piece make_piece(Color c, PieceType t) noexcept {
+    return (static_cast<uint8_t>(c) << 3) | static_cast<uint8_t>(t);
 }
 
 constexpr Piece EMPTY = make_piece(Color::White, PieceType::None);
@@ -56,28 +40,22 @@ constexpr Piece BLACK_ROOK = make_piece(Color::Black, PieceType::Rook);
 constexpr Piece BLACK_QUEEN = make_piece(Color::Black, PieceType::Queen);
 constexpr Piece BLACK_KING = make_piece(Color::Black, PieceType::King);
 
-constexpr Color
-piece_color(const Piece p)
-{
-  if (p == EMPTY) {
-    throw std::invalid_argument("Getting Color of empty square");
-  }
-  const auto color = static_cast<Color>(p >> 3);
-  return color;
+constexpr Color piece_color(const Piece p) {
+    if (p == EMPTY) {
+        throw std::invalid_argument("Getting Color of empty square");
+    }
+    const auto color = static_cast<Color>(p >> 3);
+    return color;
 }
 
-constexpr PieceType
-piece_type(const Piece p) noexcept
-{
-  return static_cast<PieceType>(p & 0b111);
+constexpr PieceType piece_type(const Piece p) noexcept {
+    return static_cast<PieceType>(p & 0b111);
 }
 
-bool
-sameColor(const Color color, const Pieces::Piece piece)
-{
-  if (piece == Pieces::EMPTY) {
-    return false;
-  }
-  return Pieces::piece_color(piece) == color;
+bool sameColor(const Color color, const Pieces::Piece piece) {
+    if (piece == Pieces::EMPTY) {
+        return false;
+    }
+    return Pieces::piece_color(piece) == color;
 }
 } // namespace Pieces
