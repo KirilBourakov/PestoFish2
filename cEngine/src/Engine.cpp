@@ -42,25 +42,27 @@ Engine::getBestMove()
                b, this->state, entry_out.bestMove, this->globalHistory);
     });
 
-  for (Move move : possibleMoves) {
-    state.makeMove(move);
-    int eval = minimax(state, 0, 3, alpha, beta, globalHistory);
-    state.undoMove();
+  for (int max_depth = 1; max_depth <= 3; max_depth++) {
+    for (Move move : possibleMoves) {
+      state.makeMove(move);
+      int eval = minimax(state, 0, max_depth, alpha, beta, globalHistory);
+      state.undoMove();
 
-    if (!bestMove.has_value() ||
-        Evaluator::isBetterEval(rootColor, bestEval, eval)) {
-      bestMove = move;
-      bestEval = eval;
-    }
+      if (!bestMove.has_value() ||
+          Evaluator::isBetterEval(rootColor, bestEval, eval)) {
+        bestMove = move;
+        bestEval = eval;
+      }
 
-    if (rootColor == Color::White) {
-      alpha = std::max(alpha, eval);
-    } else {
-      beta = std::min(beta, eval);
-    }
+      if (rootColor == Color::White) {
+        alpha = std::max(alpha, eval);
+      } else {
+        beta = std::min(beta, eval);
+      }
 
-    if (beta <= alpha) {
-      break;
+      if (beta <= alpha) {
+        break;
+      }
     }
   }
   return bestMove.value();
@@ -79,20 +81,23 @@ Engine::minimax(State& state,
 
   Transposition::Entry entry_out;
   if (transPosTable.lookup(zobrist, entry_out)) {
-    switch (entry_out.cutoffType) {
-      case Transposition::CutoffType::EXACT:
+    if (entry_out.depth == max_depth) {
+      switch (entry_out.cutoffType) {
+        case Transposition::CutoffType::EXACT:
+          return entry_out.score;
+        case Transposition::CutoffType::LOWER_BOUND:
+          alpha = std::max(alpha, static_cast<int>(entry_out.score));
+          break;
+        case Transposition::CutoffType::UPPER_BOUND:
+          beta = std::min(beta, static_cast<int>(entry_out.score));
+          break;
+        default:
+          throw std::invalid_argument("Invalid cutoff type");
+      }
+      if (alpha >= beta) {
         return entry_out.score;
-      case Transposition::CutoffType::LOWER_BOUND:
-        alpha = std::max(alpha, static_cast<int>(entry_out.score));
-        break;
-      case Transposition::CutoffType::UPPER_BOUND:
-        beta = std::min(beta, static_cast<int>(entry_out.score));
-        break;
-      default:
-        throw std::invalid_argument("Invalid cutoff type");
+      }
     }
-    if (alpha >= beta)
-      return entry_out.score;
   }
 
   // --- Check we should stop ---
