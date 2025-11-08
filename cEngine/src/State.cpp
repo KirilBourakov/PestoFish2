@@ -122,7 +122,7 @@ GameState State::getGameState() {
 
 State State::makeThreadCopy() {
     BoardArray copyBoard = board;
-    std::vector<HistoricalEntry> historyCopy{};
+    std::vector<HistoricalEntry> historyCopy{}; // threads don't need game history
     std::vector<u64> hashCopy = hashHistory;
     return {copyBoard,     activeColor,     castlingRights,  enPassantSquare, halfMoveClock,
             fullMoveClock, whiteKingSquare, blackKingSquare, historyCopy,     hashCopy};
