@@ -19,13 +19,6 @@ void Engine::makeEngineMove() {
 
 // TODO: implement ply so earlier mates are more prioritized
 Move Engine::getBestMove() {
-    int alpha = -INF;
-    int beta = INF;
-    Color rootColor = state.getActiveColor();
-
-    std::optional<Move> bestMove = std::nullopt;
-    int bestEval = (rootColor == Color::White) ? -INF : INF;
-
     Transposition::Entry entry_out;
     transPosTable.lookup(state.getZobrist(), entry_out);
 
@@ -35,28 +28,57 @@ Move Engine::getBestMove() {
                get_move_score(b, this->state, entry_out.bestMove, this->globalHistory);
     });
 
+    int alpha = -INF;
+    int beta = INF;
+    Move bestMove;
     for (int max_depth = 1; max_depth <= 3; max_depth++) {
-        for (Move move : possibleMoves) {
-            state.makeMove(move);
-            int eval = minimax(state, 0, max_depth, alpha, beta, globalHistory);
-            state.undoMove();
+        bestMove = root(possibleMoves, max_depth, alpha, beta, globalHistory);
+    }
 
-            if (!bestMove.has_value() || Evaluator::isBetterEval(rootColor, bestEval, eval)) {
-                bestMove = move;
-                bestEval = eval;
-            }
+    return bestMove;
+}
 
-            if (rootColor == Color::White) {
-                alpha = std::max(alpha, eval);
-            } else {
-                beta = std::min(beta, eval);
-            }
+Move Engine::root(const std::vector<Move>& rootMoves, const int maxDepth, int& alpha, int& beta, HistoryTable& history) {
+    std::optional<Move> bestMove = std::nullopt;
+    const Color rootColor = state.getActiveColor();
+    int bestEval = (rootColor == Color::White) ? -INF : INF;
 
-            if (beta <= alpha) {
-                break;
-            }
+    const int alphaOrig = alpha;
+    bool cutoffOccurred = false;
+    for (Move move : rootMoves) {
+        state.makeMove(move);
+        int eval = minimax(state, 0, maxDepth, alpha, beta, history);
+        state.undoMove();
+
+        if (!bestMove.has_value() || Evaluator::isBetterEval(rootColor, bestEval, eval)) {
+            bestMove = move;
+            bestEval = eval;
+        }
+
+        if (rootColor == Color::White) {
+            alpha = std::max(alpha, eval);
+        } else {
+            beta = std::min(beta, eval);
+        }
+
+        if (beta <= alpha) {
+            cutoffOccurred = true;
+            break;
         }
     }
+
+    Transposition::CutoffType cutoffType;
+    if (cutoffOccurred) {
+        history[bestMove.value()] += maxDepth * maxDepth;
+        cutoffType = Transposition::CutoffType::LOWER_BOUND;
+    } else if (bestEval <= alphaOrig) {
+        cutoffType = Transposition::CutoffType::UPPER_BOUND;
+    } else {
+        cutoffType = Transposition::CutoffType::EXACT;
+    }
+
+    transPosTable.insert(state.getZobrist(), bestMove.value(), maxDepth, bestEval, cutoffType, state.getFullMoveClock());
+
     return bestMove.value();
 }
 
@@ -86,7 +108,7 @@ int Engine::minimax(State& state, int curr_depth, int max_depth, int alpha, int 
     }
 
     // --- Check we should stop ---
-    if (curr_depth == max_depth) {
+    if (curr_depth >= max_depth) {
         return Evaluator::evaluate(state);
     }
 
@@ -138,7 +160,7 @@ int Engine::minimax(State& state, int curr_depth, int max_depth, int alpha, int 
     // cut
     Transposition::CutoffType cutoffType;
     if (cutoffOccurred) {
-        history[bestMove] = (max_depth - curr_depth) * (max_depth - curr_depth);
+        history[bestMove] += (max_depth - curr_depth) * (max_depth - curr_depth);
         cutoffType = Transposition::CutoffType::LOWER_BOUND;
     }
     // maximizing has a way to get alphaOrig, and this path is worse then that,
