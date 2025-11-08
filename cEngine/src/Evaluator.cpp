@@ -1,15 +1,15 @@
 //
 // Created by Kiril on 2025-09-11.
 //
-module;
 #include <cmath>
 #include <iostream>
 
-module Evaluator;
-import Board;
-import Enums;
-import Move;
-import PieceSqTables;
+#include "Evaluator.hpp"
+
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "ModuleOnly/PieceSqTables.hpp"
+#include "Move.hpp"
 
 bool Evaluator::isBetterEval(const Color color, const int currBest, const int value) {
     if (color == Color::White) {

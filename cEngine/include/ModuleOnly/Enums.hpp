@@ -1,24 +1,22 @@
 //
 // Created by Kiril on 2025-10-26.
 //
-module;
+#pragma once
 #include <cstdint>
 #include <stdexcept>
 
-export module Enums;
+enum class CastleType { SHORT = 0, LONG = 1 };
 
-export enum class CastleType { SHORT = 0, LONG = 1 };
+enum class GameState { IN_PLAY = 0, WHITE_WIN = 1, BLACK_WIN = -1, STALEMATE = 2, DRAW = 3 };
 
-export enum class GameState { IN_PLAY = 0, WHITE_WIN = 1, BLACK_WIN = -1, STALEMATE = 2, DRAW = 3 };
-
-export enum class Color : uint8_t {
+enum class Color : uint8_t {
     White = 0,
     Black = 1,
 };
 
-export enum class PieceType : uint8_t { None = 0, Pawn, Knight, Bishop, Rook, Queen, King };
+enum class PieceType : uint8_t { None = 0, Pawn, Knight, Bishop, Rook, Queen, King };
 
-export namespace Pieces {
+namespace Pieces {
 using Piece = uint8_t;
 
 constexpr Piece make_piece(Color c, PieceType t) noexcept {
@@ -52,7 +50,7 @@ constexpr PieceType piece_type(const Piece p) noexcept {
     return static_cast<PieceType>(p & 0b111);
 }
 
-bool sameColor(const Color color, const Pieces::Piece piece) {
+inline bool sameColor(const Color color, const Pieces::Piece piece) {
     if (piece == Pieces::EMPTY) {
         return false;
     }

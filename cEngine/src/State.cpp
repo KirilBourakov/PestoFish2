@@ -1,15 +1,15 @@
 //
 // Created by Kiril on 2025-08-31.
 //
-module;
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "Move.hpp"
+#include <array>
 #include <format>
 #include <iostream>
 #include <stdexcept>
-module State;
-import <array>;
-import Board;
-import Enums;
-import Move;
+
+#include "State.hpp"
 
 State::State()
     : board(getStartingBoard())

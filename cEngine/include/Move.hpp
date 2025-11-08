@@ -1,18 +1,16 @@
 //
 // Created by Kiril on 2025-08-27.
 //
-module;
+#pragma once
 #include <iostream>
+#include <optional>
+#include <string>
+#include <vector>
 
-export module Move;
-import <optional>;
-import <vector>;
-import <string>;
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
 
-import Enums;
-import Board;
-
-export struct Move {
+struct Move {
     Move() = default;
 
     BoardPosition start{}; // starting square
@@ -67,16 +65,16 @@ private:
         this->newEnPassantSquare = enPassant;
     }
 };
-export inline std::ostream& operator<<(std::ostream& os, const Move& m) {
+inline std::ostream& operator<<(std::ostream& os, const Move& m) {
     return os << m.start << " -> " << m.end;
 }
 
-export void addPawnMoves(const BoardArray& board, const int x, const int y, const Color color,
-                         const std::optional<BoardPosition>& enPassantSquare, std::vector<Move>& moves);
-export void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights,
-                         std::vector<Move>& moves);
-export void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move>& moves);
-export void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, const bool straight, const bool diag,
-                            std::vector<Move>& moves);
-export bool isAttacked(const BoardArray& board, const BoardPosition position);
-export bool isAttacked(const BoardArray& board, const BoardPosition position, const Color color);
+void addPawnMoves(const BoardArray& board, const int x, const int y, const Color color,
+                  const std::optional<BoardPosition>& enPassantSquare, std::vector<Move>& moves);
+void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights,
+                  std::vector<Move>& moves);
+void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move>& moves);
+void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, const bool straight, const bool diag,
+                     std::vector<Move>& moves);
+bool isAttacked(const BoardArray& board, const BoardPosition position);
+bool isAttacked(const BoardArray& board, const BoardPosition position, const Color color);

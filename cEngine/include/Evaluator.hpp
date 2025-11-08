@@ -1,17 +1,16 @@
 //
 // Created by Kiril on 2025-09-11.
 //
+#pragma once
+#include "ModuleOnly/Enums.hpp"
+#include "State.hpp"
+#include <unordered_map>
 
-export module Evaluator;
-import State;
-import <unordered_map>;
-import Enums;
+constexpr int INF = 32000;
+constexpr int MATE_SCORE = 31000;
+constexpr int MATE_THRESHOLD = 30000;
 
-export constexpr int INF = 32000;
-export constexpr int MATE_SCORE = 31000;
-export constexpr int MATE_THRESHOLD = 30000;
-
-export class Evaluator {
+class Evaluator {
 public:
     static bool isBetterEval(const Color color, const int currBest, const int value);
 

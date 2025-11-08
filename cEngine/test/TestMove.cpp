@@ -1,12 +1,13 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include "testBoard.hpp"
+
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "Move.hpp"
+
 using ::testing::UnorderedElementsAreArray;
-
-import Move;
-import Enums;
-import testBoard;
-import Board;
-
 using namespace Pieces;
 
 // KING IN CHECK

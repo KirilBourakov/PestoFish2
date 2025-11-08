@@ -1,17 +1,16 @@
 //
 // Created by Kiril on 2025-08-23.
 //
-module;
+#include "Engine.hpp"
+
 #include <algorithm>
 #include <execution>
 #include <iostream>
 #include <mutex>
 #include <ostream>
 
-module Engine;
-import Move;
-import State;
-import Evaluator;
+#include "Evaluator.hpp"
+#include "Move.hpp"
 
 void Engine::makeEngineMove() {
     state.makeMove(getBestMove());
@@ -38,6 +37,7 @@ Move Engine::getBestMove() {
     int window = 75;
 
     // std::array<std::thread, 4> helpers;
+    // TODO: locate making move from wrong side bug
     for (int max_depth = 2; max_depth <= 3; max_depth++) {
         alpha = expected - window;
         beta = expected + window;

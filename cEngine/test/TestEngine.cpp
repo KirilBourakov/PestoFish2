@@ -1,14 +1,13 @@
 //
 // Created by Kiril on 2025-10-04.
 //
+#include "Engine.hpp"
 #include "gtest/gtest.h"
 
-import Engine;
-import testBoard;
-import State;
-import Move;
-import Enums;
-import Board;
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "Move.hpp"
+#include "testBoard.hpp"
 
 using namespace Pieces;
 

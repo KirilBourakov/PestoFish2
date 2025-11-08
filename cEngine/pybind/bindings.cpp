@@ -4,11 +4,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "Engine.hpp"
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "State.hpp"
 #include <iostream>
-import Engine;
-import Enums;
-import State;
-import Board;
 
 namespace py = pybind11;
 

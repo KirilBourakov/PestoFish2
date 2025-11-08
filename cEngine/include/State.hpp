@@ -1,16 +1,16 @@
 //
 // Created by Kiril on 2025-08-31.
 //
+#pragma once
+#include <optional>
+#include <vector>
 
-export module State;
-import Enums;
-import Move;
-import Board;
-import ZobristHash;
-import <optional>;
-import <vector>;
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "Move.hpp"
+#include "ZobristHash.hpp"
 
-export class State {
+class State {
 public:
     struct HistoricalEntry {
         Move move;

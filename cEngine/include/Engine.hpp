@@ -1,19 +1,17 @@
 //
 // Created by Kiril on 2025-08-27.
-//
-module;
+#pragma once
 #include <atomic>
 #include <unordered_map>
 
-export module Engine;
-import <optional>;
-import <vector>;
-import <array>;
-import Board;
-import Enums;
-import State;
-import Move;
-import Transposition;
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "ModuleOnly/TranspositionTable.hpp"
+#include "Move.hpp"
+#include "State.hpp"
+#include <array>
+#include <optional>
+#include <vector>
 
 class HistoryTable {
 public:
@@ -25,7 +23,7 @@ private:
     std::array<std::array<int, BOARD_SIZE * BOARD_SIZE>, BOARD_SIZE * BOARD_SIZE> history{};
 };
 
-export class Engine {
+class Engine {
 public:
     Move getBestMove();
     void makeEngineMove();

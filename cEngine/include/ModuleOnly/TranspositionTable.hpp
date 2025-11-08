@@ -1,20 +1,19 @@
 //
 // Created by Kiril on 2025-11-02.
 //
-module;
+#pragma once
 #include <bit>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
 
-export module Transposition;
-import <vector>;
-import Move;
-import ZobristHash;
+#include "Move.hpp"
+#include "ZobristHash.hpp"
+#include <vector>
 
 // TODO: rewrite using atomics, storing a packed Move in u16/u32 instead of a
 // Move
-export namespace Transposition {
+namespace Transposition {
 enum class CutoffType : char { UPPER_BOUND = 0, LOWER_BOUND = 1, EXACT = 2, INVALID = 3 };
 
 struct Entry {

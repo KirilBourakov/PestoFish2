@@ -1,14 +1,13 @@
 //
 // Created by Kiril on 2025-08-27.
 //
-
-export module testBoard;
-import Board;
-import Enums;
+#pragma once
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
 
 using namespace Pieces;
 
-export BoardArray randomMiddleGame() {
+inline BoardArray randomMiddleGame() {
     return BoardArray{{{{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, EMPTY, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
                        {{BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_QUEEN, EMPTY, EMPTY, EMPTY}},
@@ -19,7 +18,7 @@ export BoardArray randomMiddleGame() {
                        {{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}}}};
 }
 
-export BoardArray smotheredMatePosition() {
+inline BoardArray smotheredMatePosition() {
     return BoardArray{{{{BLACK_ROOK, EMPTY, EMPTY, BLACK_BISHOP, BLACK_KING, BLACK_KNIGHT, EMPTY, BLACK_ROOK}},
                        {{BLACK_PAWN, BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, BLACK_PAWN}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -30,7 +29,7 @@ export BoardArray smotheredMatePosition() {
                        {{WHITE_ROOK, EMPTY, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}}};
 }
 
-export BoardArray smotheredMateLongCastlePosition() {
+inline BoardArray smotheredMateLongCastlePosition() {
     return BoardArray{{{{BLACK_ROOK, EMPTY, EMPTY, BLACK_BISHOP, BLACK_KING, BLACK_KNIGHT, EMPTY, BLACK_ROOK}},
                        {{BLACK_PAWN, BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, BLACK_PAWN}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -41,7 +40,7 @@ export BoardArray smotheredMateLongCastlePosition() {
                        {{WHITE_ROOK, EMPTY, EMPTY, EMPTY, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, WHITE_ROOK}}}};
 }
 
-export BoardArray unBlockedCastle() {
+inline BoardArray unBlockedCastle() {
     return BoardArray{{{{BLACK_ROOK, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, BLACK_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -52,7 +51,7 @@ export BoardArray unBlockedCastle() {
                        {{WHITE_ROOK, EMPTY, EMPTY, EMPTY, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}}};
 }
 
-export BoardArray simpleMiddleGame() {
+inline BoardArray simpleMiddleGame() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_QUEEN, EMPTY, EMPTY, EMPTY}},
@@ -63,7 +62,7 @@ export BoardArray simpleMiddleGame() {
                        {{EMPTY, EMPTY, EMPTY, WHITE_QUEEN, WHITE_KING, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray knightCheck() {
+inline BoardArray knightCheck() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_QUEEN, WHITE_KNIGHT, EMPTY, EMPTY}},
@@ -74,7 +73,7 @@ export BoardArray knightCheck() {
                        {{EMPTY, EMPTY, EMPTY, WHITE_QUEEN, WHITE_KING, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray straightCheck() {
+inline BoardArray straightCheck() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, WHITE_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_QUEEN, EMPTY, EMPTY, EMPTY}},
@@ -85,7 +84,7 @@ export BoardArray straightCheck() {
                        {{EMPTY, EMPTY, BLACK_QUEEN, EMPTY, WHITE_KING, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray diagCheck() {
+inline BoardArray diagCheck() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_QUEEN, EMPTY, EMPTY, EMPTY}},
@@ -96,7 +95,7 @@ export BoardArray diagCheck() {
                        {{EMPTY, EMPTY, EMPTY, WHITE_KING, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray pawnCheck() {
+inline BoardArray pawnCheck() {
     return BoardArray{{{{EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{WHITE_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, BLACK_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -107,7 +106,7 @@ export BoardArray pawnCheck() {
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray kingCheck() {
+inline BoardArray kingCheck() {
     return BoardArray{{{{EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{WHITE_KING, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -118,7 +117,7 @@ export BoardArray kingCheck() {
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray kingsFlankPawns() {
+inline BoardArray kingsFlankPawns() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{WHITE_PAWN, EMPTY, EMPTY, WHITE_KING, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, BLACK_KING, BLACK_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -129,7 +128,7 @@ export BoardArray kingsFlankPawns() {
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray capturePromotion() {
+inline BoardArray capturePromotion() {
     return BoardArray{{{{BLACK_ROOK, BLACK_ROOK, BLACK_ROOK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, WHITE_PAWN, EMPTY, WHITE_KING, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, BLACK_KING, BLACK_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -140,7 +139,7 @@ export BoardArray capturePromotion() {
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray whiteBackRanked() {
+inline BoardArray whiteBackRanked() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{WHITE_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, BLACK_KING, BLACK_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -151,7 +150,7 @@ export BoardArray whiteBackRanked() {
                        {{EMPTY, WHITE_KING, EMPTY, BLACK_ROOK, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray whiteSavedByBishop() {
+inline BoardArray whiteSavedByBishop() {
     return BoardArray{{{{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{WHITE_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, BLACK_KING, BLACK_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -162,7 +161,7 @@ export BoardArray whiteSavedByBishop() {
                        {{EMPTY, WHITE_KING, EMPTY, BLACK_ROOK, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray centralWhiteKnight() {
+inline BoardArray centralWhiteKnight() {
     return BoardArray{{{{EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -173,7 +172,7 @@ export BoardArray centralWhiteKnight() {
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}};
 }
 
-export BoardArray knightMovedFromStart() {
+inline BoardArray knightMovedFromStart() {
     return BoardArray{{{{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
                        {{BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -184,7 +183,7 @@ export BoardArray knightMovedFromStart() {
                        {{WHITE_ROOK, EMPTY, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}}}};
 }
 
-export BoardArray simpleBest() {
+inline BoardArray simpleBest() {
     return BoardArray{{{{BLACK_ROOK, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, BLACK_ROOK}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                        {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},

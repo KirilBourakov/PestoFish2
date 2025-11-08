@@ -15,16 +15,16 @@ set(ENGINE_SOURCES
 )
 
 set(ENGINE_MODULES
-        include/Engine.ixx
-        include/State.ixx
-        include/Move.ixx
-        include/Evaluator.ixx
-        include/ZobristHash.ixx
+        include/Engine.hpp
+        include/State.hpp
+        include/Move.hpp
+        include/Evaluator.hpp
+        include/ZobristHash.hpp
 
-        include/ModuleOnly/Board.ixx
-        include/ModuleOnly/Enums.ixx
-        include/ModuleOnly/PieceSqTables.ixx
-        include/ModuleOnly/TranspositionTable.ixx
+        include/ModuleOnly/Board.hpp
+        include/ModuleOnly/Enums.hpp
+        include/ModuleOnly/PieceSqTables.hpp
+        include/ModuleOnly/TranspositionTable.hpp
 )
 
 # Build cEngine
@@ -46,7 +46,7 @@ add_executable(runTests
         test/TestState.cpp
         test/TestEngine.cpp
 
-        test/testBoard.ixx
+        test/testBoard.hpp
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
 )

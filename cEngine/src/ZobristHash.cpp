@@ -1,14 +1,13 @@
 //
 // Created by Kiril on 2025-10-26.
 //
-module;
+#include "ZobristHash.hpp"
+#include <array>
 #include <chrono>
 #include <iostream>
+#include <random>
 
-module ZobristHash;
-import State;
-import <random>;
-import <array>;
+#include "ModuleOnly/Board.hpp"
 
 unsigned long long ZobristHash::seed = 90827521673ULL;
 

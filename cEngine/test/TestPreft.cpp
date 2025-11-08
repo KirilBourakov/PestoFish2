@@ -2,10 +2,10 @@
 // Created by Kiril on 2025-08-31.
 //
 
+#include "ModuleOnly/Enums.hpp"
+#include "Move.hpp"
+#include "State.hpp"
 #include <gtest/gtest.h>
-import Enums;
-import Move;
-import State;
 
 using namespace Pieces;
 

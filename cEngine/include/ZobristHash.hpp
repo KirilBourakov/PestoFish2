@@ -1,20 +1,19 @@
 //
 // Created by Kiril on 2025-10-26.
 //
-module;
+#pragma once
+
+#include <array>
 #include <optional>
+#include <random>
 #include <unordered_map>
 
-export module ZobristHash;
-import Board;
-import Enums;
-import Move;
-import <array>;
-import <random>;
+#include "ModuleOnly/Board.hpp"
+#include "Move.hpp"
 
-export using u64 = unsigned long long;
+using u64 = unsigned long long;
 
-export class ZobristHash {
+class ZobristHash {
 public:
     ZobristHash(const BoardArray& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 

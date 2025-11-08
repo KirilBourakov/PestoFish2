@@ -1,16 +1,15 @@
 //
 // Created by Kiril on 2025-08-23.
 //
-module;
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
-module Move;
-import <optional>;
-import <vector>;
-import Enums;
-import Board;
+#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/Enums.hpp"
+#include "Move.hpp"
+#include <optional>
+#include <vector>
 
 using moveSet = std::vector<std::pair<int, int>>;
 
