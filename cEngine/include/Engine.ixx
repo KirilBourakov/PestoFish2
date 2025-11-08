@@ -45,8 +45,8 @@ private:
 
     Move root(State& currState, const std::vector<Move>& rootMoves, const int depth, int& alpha, int& beta, HistoryTable& history,
               int& scoreOut);
-    int minimax(State& state, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history);
-    static int get_move_score(const Move& move, const State& state, const std::optional<Move>& tt_move, HistoryTable& history);
+    int minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history);
+    static int get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history);
 };
 
 const std::unordered_map<PieceType, int> orderingValue{

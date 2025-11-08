@@ -139,9 +139,9 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
     return bestMove.value();
 }
 
-int Engine::minimax(State& state, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history) {
+int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history) {
     // --- Probe Transpose Table ---
-    const uint64_t zobrist = state.getZobrist();
+    const uint64_t zobrist = currState.getZobrist();
 
     Transposition::Entry entry_out;
     if (transPosTable.lookup(zobrist, entry_out)) {
@@ -164,8 +164,8 @@ int Engine::minimax(State& state, int curr_depth, int max_depth, int alpha, int 
         }
     }
 
-    std::vector<Move> possibleMoves = state.getMoves();
-    GameState currGameState = state.getGameState(possibleMoves);
+    std::vector<Move> possibleMoves = currState.getMoves();
+    GameState currGameState = currState.getGameState(possibleMoves);
     if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
         return 0;
     }
@@ -178,31 +178,31 @@ int Engine::minimax(State& state, int curr_depth, int max_depth, int alpha, int 
 
     // --- Check we should stop ---
     if (curr_depth >= max_depth || stop.load(std::memory_order_relaxed)) {
-        return Evaluator::evaluate(state);
+        return Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(possibleMoves, [state, &entry_out, &history](const Move& a, const Move& b) {
-        return get_move_score(a, state, entry_out.bestMove, history) > get_move_score(b, state, entry_out.bestMove, history);
+    std::ranges::sort(possibleMoves, [currState, &entry_out, &history](const Move& a, const Move& b) {
+        return get_move_score(a, currState, entry_out.bestMove, history) > get_move_score(b, currState, entry_out.bestMove, history);
     });
 
     // --- Run a layer of minimax ---
-    int bestEval = (state.getActiveColor() == Color::White) ? -INF : INF;
+    int bestEval = (currState.getActiveColor() == Color::White) ? -INF : INF;
     Move bestMove;
 
     bool cutoffOccurred = false;
     const int alphaOrig = alpha;
     for (const Move move : possibleMoves) {
-        state.makeMove(move);
-        int eval = minimax(state, curr_depth + 1, max_depth, alpha, beta, history);
-        state.undoMove();
+        currState.makeMove(move);
+        int eval = minimax(currState, curr_depth + 1, max_depth, alpha, beta, history);
+        currState.undoMove();
 
-        if (Evaluator::isBetterEval(state.getActiveColor(), bestEval, eval)) {
+        if (Evaluator::isBetterEval(currState.getActiveColor(), bestEval, eval)) {
             bestEval = eval;
             bestMove = move;
         }
 
         // alpha beta pruning
-        if (state.getActiveColor() == Color::White) {
+        if (currState.getActiveColor() == Color::White) {
             alpha = std::max(alpha, eval);
         } else {
             beta = std::min(beta, eval);
@@ -232,17 +232,17 @@ int Engine::minimax(State& state, int curr_depth, int max_depth, int alpha, int 
     }
 
     // using full move clock for age
-    transPosTable.insert(state.getZobrist(), bestMove, max_depth - curr_depth, bestEval, cutoffType, state.getFullMoveClock());
+    transPosTable.insert(currState.getZobrist(), bestMove, max_depth - curr_depth, bestEval, cutoffType, currState.getFullMoveClock());
     return bestEval;
 }
 
-int Engine::get_move_score(const Move& move, const State& state, const std::optional<Move>& tt_move, HistoryTable& history) {
+int Engine::get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history) {
     if (tt_move.has_value() && move == tt_move.value()) {
         return 1000000;
     }
-    if (state.getAt(move.end) != Pieces::EMPTY) {
-        const int victim_value = orderingValue.at(Pieces::piece_type(state.getAt(move.end)));
-        const int attacker_value = orderingValue.at(Pieces::piece_type(state.getAt(move.start)));
+    if (currState.getAt(move.end) != Pieces::EMPTY) {
+        const int victim_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.end)));
+        const int attacker_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.start)));
         return 500000 + victim_value * 10 - attacker_value;
     }
     if (move.enPassantCapture) {
