@@ -212,7 +212,7 @@ void State::makeMove(const Move& move) {
 
     const Pieces::Piece newPiece = move.promotedTo.value_or(movingPiece);
     if (!Pieces::sameColor(activeColor, newPiece)) {
-        std::cout << move.start << "->" << move.end << " moving " << newPiece << std::endl;
+        std::cout << "Illegal move: " << move.start << "->" << move.end << " moving " << newPiece << std::endl;
         throw std::invalid_argument("Moving piece from wrong side.");
     }
 

@@ -2,6 +2,7 @@
 // Created by Kiril on 2025-08-27.
 //
 module;
+#include <atomic>
 #include <unordered_map>
 
 export module Engine;
@@ -40,8 +41,10 @@ private:
     State state{};
     Transposition::TranspositionTable transPosTable{};
     HistoryTable globalHistory{};
+    std::atomic<bool> stop = false;
 
-    Move root(const std::vector<Move>& rootMoves, const int depth, int& alpha, int& beta, HistoryTable& history);
+    Move root(State& currState, const std::vector<Move>& rootMoves, const int depth, int& alpha, int& beta, HistoryTable& history,
+              int& scoreOut);
     int minimax(State& state, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history);
     static int get_move_score(const Move& move, const State& state, const std::optional<Move>& tt_move, HistoryTable& history);
 };
