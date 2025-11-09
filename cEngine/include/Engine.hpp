@@ -42,9 +42,11 @@ private:
     std::atomic<bool> stop = false;
 
     Move root(State& currState, const std::vector<Move>& rootMoves, const int depth, int& alpha, int& beta, HistoryTable& history,
-              int& scoreOut);
-    int minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history);
-    static int get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history);
+              int& scoreOut, int seed);
+    int minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history, std::mt19937& rng,
+                std::uniform_int_distribution<int>& dist);
+    static int get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history,
+                              std::mt19937& rng, std::uniform_int_distribution<int>& dist);
 };
 
 const std::unordered_map<PieceType, int> orderingValue{

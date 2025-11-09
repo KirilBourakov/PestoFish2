@@ -23,16 +23,21 @@ Move Engine::getBestMove() {
     transPosTable.lookup(state.getZobrist(), entry_out);
 
     std::vector<Move> possibleMoves = state.getMoves();
-    std::ranges::sort(possibleMoves, [this, &entry_out](const Move& a, const Move& b) {
-        return get_move_score(a, this->state, entry_out.bestMove, this->globalHistory) >
-               get_move_score(b, this->state, entry_out.bestMove, this->globalHistory);
+
+    int stateSeed = 1;
+    std::mt19937 rng(stateSeed);
+    std::uniform_int_distribution<int> dist(0, 10);
+
+    std::ranges::sort(possibleMoves, [this, &entry_out, &rng, &dist](const Move& a, const Move& b) {
+        return get_move_score(a, this->state, entry_out.bestMove, this->globalHistory, rng, dist) >
+               get_move_score(b, this->state, entry_out.bestMove, this->globalHistory, rng, dist);
     });
 
     // single threaded depth 1
     int score = 0;
     int alpha = -INF;
     int beta = INF;
-    Move bestMove = root(state, possibleMoves, 1, alpha, beta, globalHistory, score);
+    Move bestMove = root(state, possibleMoves, 1, alpha, beta, globalHistory, score, 1);
 
     int expected = score;
     int window = 75;
@@ -57,11 +62,12 @@ Move Engine::getBestMove() {
 
                 int real_depth = (i % 2 == 0) ? max_depth + 1 : max_depth;
 
-                helpers[i] = std::thread([this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut]() mutable {
-                    this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut);
-                });
+                helpers[i] =
+                    std::thread([this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i]() mutable {
+                        this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1);
+                    });
             }
-            bestMove = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score);
+            bestMove = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score, 0);
 
             stop.store(true, std::memory_order_relaxed);
             // when true root and minimax break out as soon as possible
@@ -89,16 +95,19 @@ Move Engine::getBestMove() {
 }
 
 Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const int maxDepth, int& alpha, int& beta,
-                  HistoryTable& history, int& scoreOut) {
+                  HistoryTable& history, int& scoreOut, int seed) {
     std::optional<Move> bestMove = std::nullopt;
     const Color rootColor = currState.getActiveColor();
     int bestEval = (rootColor == Color::White) ? -INF : INF;
+
+    std::mt19937 rng(seed);
+    std::uniform_int_distribution<int> dist(0, 10);
 
     const int alphaOrig = alpha;
     bool cutoffOccurred = false;
     for (Move move : rootMoves) {
         currState.makeMove(move);
-        int eval = minimax(currState, 0, maxDepth, alpha, beta, history);
+        int eval = minimax(currState, 0, maxDepth, alpha, beta, history, rng, dist);
         currState.undoMove();
 
         if (!bestMove.has_value() || Evaluator::isBetterEval(rootColor, bestEval, eval)) {
@@ -137,7 +146,8 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
     return bestMove.value();
 }
 
-int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history) {
+int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history, std::mt19937& rng,
+                    std::uniform_int_distribution<int>& dist) {
     // --- Probe Transpose Table ---
     const uint64_t zobrist = currState.getZobrist();
 
@@ -179,8 +189,9 @@ int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, 
         return Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(possibleMoves, [currState, &entry_out, &history](const Move& a, const Move& b) {
-        return get_move_score(a, currState, entry_out.bestMove, history) > get_move_score(b, currState, entry_out.bestMove, history);
+    std::ranges::sort(possibleMoves, [currState, &entry_out, &history, &rng, &dist](const Move& a, const Move& b) {
+        return get_move_score(a, currState, entry_out.bestMove, history, rng, dist) >
+               get_move_score(b, currState, entry_out.bestMove, history, rng, dist);
     });
 
     // --- Run a layer of minimax ---
@@ -191,7 +202,7 @@ int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, 
     const int alphaOrig = alpha;
     for (const Move move : possibleMoves) {
         currState.makeMove(move);
-        int eval = minimax(currState, curr_depth + 1, max_depth, alpha, beta, history);
+        int eval = minimax(currState, curr_depth + 1, max_depth, alpha, beta, history, rng, dist);
         currState.undoMove();
 
         if (Evaluator::isBetterEval(currState.getActiveColor(), bestEval, eval)) {
@@ -234,7 +245,8 @@ int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, 
     return bestEval;
 }
 
-int Engine::get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history) {
+int Engine::get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history,
+                           std::mt19937& rng, std::uniform_int_distribution<int>& dist) {
     if (tt_move.has_value() && move == tt_move.value()) {
         return 1000000;
     }
@@ -246,5 +258,5 @@ int Engine::get_move_score(const Move& move, const State& currState, const std::
     if (move.enPassantCapture) {
         return 500000;
     }
-    return history[move];
+    return history[move] + dist(rng);
 }
