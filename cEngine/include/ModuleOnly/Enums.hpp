@@ -2,6 +2,7 @@
 // Created by Kiril on 2025-10-26.
 //
 #pragma once
+#include <cctype>
 #include <cstdint>
 #include <stdexcept>
 
@@ -48,6 +49,39 @@ constexpr Color piece_color(const Piece p) {
 
 constexpr PieceType piece_type(const Piece p) noexcept {
     return static_cast<PieceType>(p & 0b111);
+}
+
+inline char piece_char(const Piece& p) {
+    if (piece_type(p) == PieceType::None)
+        return '.';
+
+    char c;
+    switch (piece_type(p)) {
+    case PieceType::Pawn:
+        c = 'P';
+        break;
+    case PieceType::Knight:
+        c = 'N';
+        break;
+    case PieceType::Bishop:
+        c = 'B';
+        break;
+    case PieceType::Rook:
+        c = 'R';
+        break;
+    case PieceType::Queen:
+        c = 'Q';
+        break;
+    case PieceType::King:
+        c = 'K';
+        break;
+    default:
+        c = '?';
+        break;
+    }
+
+    // Lowercase for black pieces
+    return (piece_color(p) == Color::Black) ? std::tolower(c) : c;
 }
 
 inline bool sameColor(const Color color, const Pieces::Piece piece) {

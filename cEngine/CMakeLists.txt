@@ -37,6 +37,19 @@ target_include_directories(cEngine
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
 
+# Build benchmarks
+add_executable(benchmark
+        test/testBoard.hpp
+        benchmark/manual.cpp
+
+        ${ENGINE_SOURCES}
+        ${ENGINE_MODULES}
+)
+target_include_directories(benchmark
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/test/
+)
+
 # Build Tests
 add_subdirectory(extern/googletest)
 enable_testing()

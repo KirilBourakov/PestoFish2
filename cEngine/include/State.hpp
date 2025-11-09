@@ -46,6 +46,15 @@ public:
     GameState getGameState(const std::vector<Move>& possibleMoves);
     GameState getGameState();
 
+    void printState() {
+        print_board(board);
+        if (enPassantSquare.has_value()) {
+            std::cout << "en passent " << enPassantSquare.value() << std::endl;
+        }
+        std::cout << "Active Color " << static_cast<int>(activeColor) << std::endl;
+        std::cout << "Castle Rights " << castlingRights << std::endl;
+    }
+
     [[nodiscard]] State makeThreadCopy();
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] bool isHalfMoveTie() const {

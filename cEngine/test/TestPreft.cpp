@@ -7,6 +7,8 @@
 #include "State.hpp"
 #include <gtest/gtest.h>
 
+#include "testBoard.hpp"
+
 using namespace Pieces;
 
 typedef unsigned long long u64;
@@ -67,6 +69,11 @@ u64 DebugPerft(State& state, int depth) {
 
 TEST(Perft, undoConsistency) {
     State state;
+    EXPECT_NO_THROW(DebugPerft(state, 4));
+}
+
+TEST(Perft, undoInMiddleGame) {
+    State state{problemMiddleGame(), Color::Black, 0b0000, std::nullopt};
     EXPECT_NO_THROW(DebugPerft(state, 4));
 }
 

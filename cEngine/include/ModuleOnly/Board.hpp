@@ -11,6 +11,20 @@
 constexpr int BOARD_SIZE = 8;
 
 using BoardArray = std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE>;
+
+inline void print_board(const BoardArray& board) {
+    std::cout << "  +-----------------+" << std::endl;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        std::cout << i + 1 << " | ";
+        for (size_t j = 0; j < BOARD_SIZE; j++) {
+            std::cout << Pieces::piece_char(board[i][j]) << ' ';
+        }
+        std::cout << '|' << std::endl;
+    }
+    std::cout << "  +-----------------+" << std::endl;
+    std::cout << "    a b c d e f g h" << std::endl;
+}
+
 struct BoardPosition {
     int x, y;
     bool operator==(const BoardPosition& other) const {
