@@ -54,8 +54,10 @@ Move Engine::getBestMove() {
                 int scoreOut;
                 State state_copy = this->state.makeThreadCopy();
 
-                helpers[i] = std::thread([this, state_copy, &possibleMoves, max_depth, alpha, beta, &history, &scoreOut]() mutable {
-                    this->root(state_copy, possibleMoves, max_depth, alpha, beta, history, scoreOut);
+                int real_depth = (i % 2 == 0) ? max_depth + 1 : max_depth;
+
+                helpers[i] = std::thread([this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut]() mutable {
+                    this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut);
                 });
             }
             bestMove = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score);
