@@ -8,6 +8,7 @@
 #include <iostream>
 #include <mutex>
 #include <ostream>
+#include <thread>
 
 #include "Evaluator.hpp"
 #include "Move.hpp"
@@ -36,7 +37,7 @@ Move Engine::getBestMove() {
     int expected = score;
     int window = 75;
 
-    // std::array<std::thread, 4> helpers;
+    std::array<std::thread, 4> helpers;
     // TODO: locate making move from wrong side bug
     for (int max_depth = 2; max_depth <= 3; max_depth++) {
         alpha = expected - window;
@@ -46,31 +47,25 @@ Move Engine::getBestMove() {
             const int original_alpha = alpha;
             const int original_beta = beta;
 
-            // for (int i = 0; i < helpers.size(); i++) {
-            //     HistoryTable history = globalHistory;
-            //     int real_max = max_depth + (i % 2 == 1 ? 1 : 0);
-            //
-            //     std::vector<Move>& movesToView = possibleMoves;
-            //     if (i == 0 && movesToView.size() >= 2) {
-            //         std::vector<Move> view = possibleMoves;
-            //         std::swap(view[0], view[1]);
-            //         movesToView = view;
-            //     }
-            //     int scoreOut;
-            //     helpers[i] = std::thread([this, &movesToView, real_max, alpha, beta, &history, &scoreOut]() mutable {
-            //         State state = this->state.makeThreadCopy();
-            //         this->root(state, movesToView, real_max, alpha, beta, history, scoreOut);
-            //     });
-            // }
+            // TODO: break sync of threads
+            for (int i = 0; i < helpers.size(); i++) {
+                HistoryTable history = globalHistory;
 
+                int scoreOut;
+                State state_copy = this->state.makeThreadCopy();
+
+                helpers[i] = std::thread([this, state_copy, &possibleMoves, max_depth, alpha, beta, &history, &scoreOut]() mutable {
+                    this->root(state_copy, possibleMoves, max_depth, alpha, beta, history, scoreOut);
+                });
+            }
             bestMove = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score);
 
-            // stop.store(true, std::memory_order_relaxed);
-            // // when true root and minimax break out as soon as possible
-            // for (auto & helper : helpers) {
-            //     helper.join();
-            // }
-            // stop.store(false, std::memory_order_release);
+            stop.store(true, std::memory_order_relaxed);
+            // when true root and minimax break out as soon as possible
+            for (auto& helper : helpers) {
+                helper.join();
+            }
+            stop.store(false, std::memory_order_release);
 
             if (score <= original_alpha) { // fail low
                 alpha = original_alpha - window * 2;
