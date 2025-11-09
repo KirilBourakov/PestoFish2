@@ -248,7 +248,7 @@ void State::makeMove(const Move& move) {
 
     // HANDLE CASTLING
     const int backRow = activeColor == Color::White ? 7 : 0;
-    const bool movingKing = std::abs(newPiece) == Pieces::WHITE_KING;
+    const bool movingKing = Pieces::piece_type(newPiece) == PieceType::King;
     const bool movingQueenSideRook = backRow == move.start.y && move.start.x == 0;
     int oldRights = castlingRights;
     bool updated = false;
