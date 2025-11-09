@@ -40,7 +40,7 @@ Move Engine::getBestMove() {
     Move bestMove = root(state, possibleMoves, 1, alpha, beta, globalHistory, score, 1);
 
     int expected = score;
-    int window = 75;
+    int window = 40;
 
     constexpr int NUM_THREADS = 6;
     std::array<std::thread, NUM_THREADS> helpers;
@@ -67,7 +67,7 @@ Move Engine::getBestMove() {
                         this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1);
                     });
             }
-            bestMove = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score, 0);
+            Move candidate = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score, 0);
 
             stop.store(true, std::memory_order_relaxed);
             // when true root and minimax break out as soon as possible
@@ -77,15 +77,13 @@ Move Engine::getBestMove() {
             stop.store(false, std::memory_order_release);
 
             if (score <= original_alpha) { // fail low
-                alpha = original_alpha - window * 2;
-                beta = original_beta;
+                alpha = -INF;
             } else if (score >= original_beta) { // fail high
-                alpha = original_alpha;
-                beta = original_beta + window * 2;
+                beta = INF;
             } else {
+                bestMove = candidate;
                 break; // inside window
             }
-            window *= 2;
         }
 
         expected = score;
