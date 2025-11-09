@@ -37,7 +37,8 @@ Move Engine::getBestMove() {
     int expected = score;
     int window = 75;
 
-    std::array<std::thread, 4> helpers;
+    constexpr int NUM_THREADS = 6;
+    std::array<std::thread, NUM_THREADS> helpers;
     // TODO: locate making move from wrong side bug
     for (int max_depth = 2; max_depth <= 3; max_depth++) {
         alpha = expected - window;
