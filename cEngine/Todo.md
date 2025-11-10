@@ -1,9 +1,12 @@
-1. Tapered Eval
-2. Quiescence search
-3. Time limit based searching, not depth limit
-3. Killer moves
-4. Multithreading
-   - Desync
-   - Move history needs to be copied per thread, then recombined. Also, regularized
-5. Possible capture bug? (black Knight captured white pawn, but pawn was still there. When pawn captured, it became a black knight)
-6. Crash on victory
+1. Quiescence search
+2. UCI Protocol
+3. PVS
+4. LMR
+5. Bitboard move gen
+5. Time limit based searching, not depth limit
+6. Crash Bugs
+8. Killer moves
+9. LazySMP improvements
+   - Voting
+   - History combine
+9. Tapered Eval
