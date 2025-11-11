@@ -34,8 +34,35 @@ Move Engine::getBestMove() {
     });
 
     int scoreOut;
-    const Move out = root(state, possibleMoves, 3, -INF, INF, globalHistory, scoreOut, 1);
-    std::cout << scoreOut << std::endl;
+    Move out = root(state, possibleMoves, 1, -INF, INF, globalHistory, scoreOut, 1);
+
+    int expected = scoreOut;
+    int window = 40;
+    for (int depth = 2; depth <= 3; depth++) {
+        int alpha = expected - window;
+        int beta = expected + window;
+        while (true) {
+            int newScore;
+            Move candidate = root(state, possibleMoves, depth, alpha, beta, globalHistory, newScore, 0);
+
+            // stop.store(true, std::memory_order_relaxed);
+            //  when true root and minimax break out as soon as possible
+            // stop.store(false, std::memory_order_release);
+
+            if (newScore <= alpha) { // fail low
+                alpha = -INF;
+            } else if (newScore >= beta) { // fail high
+                beta = INF;
+            } else {
+                out = candidate;
+                expected = newScore;
+                break;
+            }
+        }
+    }
+
+    std::cout << "Score: " << scoreOut << std::endl;
+
     return out;
 
     // Move bestMove = root(state, possibleMoves, 3, alpha, beta, globalHistory, score, 1);
@@ -152,8 +179,8 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
     }
 
     if (depth == 0) {
-        // return quiescence(currState, 3, alpha, beta);
-        return colorRep * Evaluator::evaluate(currState);
+        return colorRep * quiescence(currState, 15, alpha, beta);
+        // return colorRep * Evaluator::evaluate(currState);
     }
 
     std::ranges::sort(possibleMoves, [&currState, &entry_out, &history, &rng, &dist](const Move& a, const Move& b) {
@@ -188,6 +215,41 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
 
     // using full move clock for age
     transPosTable.insert(currState.getZobrist(), bestMove, depth, bestValue, cutoffType, currState.getFullMoveClock());
+    return bestValue;
+}
+
+int Engine::quiescence(State& state, const int depth, int alpha, int beta) {
+    int staticEval = Evaluator::evaluate(state); // - eval means position good for black, else good for white
+
+    int bestValue = staticEval;
+    if (depth == 0) {
+        return bestValue;
+    }
+    if (bestValue >= beta) {
+        return beta;
+    }
+    if (bestValue > alpha) {
+        alpha = bestValue;
+    }
+
+    std::vector<Move> possibleMoves = state.getMoves();
+    for (auto& move : possibleMoves) {
+        if (state.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
+            state.makeMove(move);
+            const int score = -quiescence(state, depth - 1, -beta, -alpha);
+            state.undoMove();
+
+            if (score >= beta) {
+                return score;
+            }
+            if (score > bestValue) {
+                bestValue = score;
+            }
+            if (score > alpha) {
+                alpha = score;
+            }
+        }
+    }
     return bestValue;
 }
 
@@ -294,42 +356,6 @@ int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, 
     // using full move clock for age
     transPosTable.insert(currState.getZobrist(), bestMove, max_depth - curr_depth, bestEval, cutoffType, currState.getFullMoveClock());
     return bestEval;
-}
-
-int Engine::quiescence(State& state, const int depth, int alpha, int beta) {
-    int standPat = Evaluator::evaluate(state); // - eval means position good for black, else good for white
-    if (depth == 0) {
-        return standPat;
-    }
-    if (standPat >= beta) {
-        return beta;
-    }
-    if (standPat > alpha) {
-        alpha = standPat;
-    }
-
-    std::vector<Move> possibleMoves = state.getMoves();
-    for (auto& move : possibleMoves) {
-        if (state.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
-            state.makeMove(move);
-            const int score = quiescence(state, depth - 1, alpha, beta);
-            state.undoMove();
-
-            if (state.getActiveColor() == Color::White) {
-                alpha = std::max(alpha, score);
-            } else {
-                beta = std::min(beta, score);
-            }
-
-            if (score >= beta) {
-                return beta;
-            }
-            if (score > alpha) {
-                alpha = score;
-            }
-        }
-    }
-    return alpha;
 }
 
 int Engine::get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history,
