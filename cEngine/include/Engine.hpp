@@ -41,7 +41,7 @@ private:
     HistoryTable globalHistory{};
     std::atomic<bool> stop = false;
 
-    Move root(State& currState, const std::vector<Move>& rootMoves, const int depth, int& alpha, int& beta, HistoryTable& history,
+    Move root(State& currState, const std::vector<Move>& rootMoves, int depth, int alpha, int beta, HistoryTable& history,
               int& scoreOut, int seed);
     int minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history, std::mt19937& rng,
                 std::uniform_int_distribution<int>& dist);
