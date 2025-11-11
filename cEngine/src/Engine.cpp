@@ -137,6 +137,9 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
             bestMove = move;
         }
         alpha = std::max(alpha, bestEval);
+        if (stop.load(std::memory_order_relaxed)) {
+            break;
+        }
     }
     scoreOut = bestEval;
     return bestMove.value();
@@ -222,7 +225,7 @@ int Engine::quiescence(State& state, const int depth, int alpha, int beta) {
     int staticEval = Evaluator::evaluate(state); // - eval means position good for black, else good for white
 
     int bestValue = staticEval;
-    if (depth == 0) {
+    if (depth == 0 || stop.load(std::memory_order_relaxed)) {
         return bestValue;
     }
     if (bestValue >= beta) {
