@@ -43,11 +43,9 @@ private:
 
     Move root(State& currState, const std::vector<Move>& rootMoves, int depth, int alpha, int beta, HistoryTable& history,
               int& scoreOut, int seed);
-    int minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history, std::mt19937& rng,
-                std::uniform_int_distribution<int>& dist);
     int negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
                 std::uniform_int_distribution<int>& dist);
-    int quiescence(State& state, int depth, int alpha, int beta);
+    int quiescence(State& state, int colorRep, int depth, int alpha, int beta);
     static int get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history,
                               std::mt19937& rng, std::uniform_int_distribution<int>& dist);
 };
