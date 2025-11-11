@@ -144,6 +144,77 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
     return bestMove.value();
 }
 
+int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
+                    std::uniform_int_distribution<int>& dist) {
+    int alphaOrig = alpha;
+
+    Transposition::Entry entry_out;
+    if (transPosTable.lookup(currState.getZobrist(), entry_out)) {
+        if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
+            return entry_out.score;
+        }
+        if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= beta) {
+            return entry_out.score;
+        }
+        if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= alpha) {
+            return entry_out.score;
+        }
+    }
+
+    std::vector<Move> possibleMoves = currState.getMoves();
+    GameState currGameState = currState.getGameState(possibleMoves);
+    if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
+        return 0;
+    }
+    if (currGameState == GameState::WHITE_WIN || currGameState == GameState::BLACK_WIN) {
+        return colorRep * MATE_SCORE;
+    }
+
+    // --- Check we should stop ---
+    if (stop.load(std::memory_order_relaxed)) {
+        return colorRep * Evaluator::evaluate(currState);
+    }
+
+    if (depth == 0) {
+        // return quiescence(currState, 3, alpha, beta);
+        return colorRep * Evaluator::evaluate(currState);
+    }
+
+    std::ranges::sort(possibleMoves, [currState, &entry_out, &history, &rng, &dist](const Move& a, const Move& b) {
+        return get_move_score(a, currState, entry_out.bestMove, history, rng, dist) >
+               get_move_score(b, currState, entry_out.bestMove, history, rng, dist);
+    });
+
+    int bestValue = -INF;
+    Move bestMove;
+    for (const Move& move : possibleMoves) {
+        currState.makeMove(move);
+        int currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist);
+        currState.undoMove();
+        if (currValue > bestValue) {
+            bestValue = currValue;
+            bestMove = move;
+        }
+        alpha = std::max(alpha, bestValue);
+        if (alpha >= beta) {
+            break;
+        }
+    }
+
+    Transposition::CutoffType cutoffType;
+    if (bestValue <= alphaOrig) {
+        cutoffType = Transposition::CutoffType::UPPER_BOUND;
+    } else if (bestValue >= beta) {
+        cutoffType = Transposition::CutoffType::LOWER_BOUND;
+    } else {
+        cutoffType = Transposition::CutoffType::EXACT;
+    }
+
+    // using full move clock for age
+    transPosTable.insert(currState.getZobrist(), bestMove, depth, bestValue, cutoffType, currState.getFullMoveClock());
+    return bestValue;
+}
+
 int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history, std::mt19937& rng,
                     std::uniform_int_distribution<int>& dist) {
     // --- Probe Transpose Table ---
