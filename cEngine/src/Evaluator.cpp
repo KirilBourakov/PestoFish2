@@ -9,7 +9,6 @@
 #include "ModuleOnly/Board.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/PieceSqTables.hpp"
-#include "Move.hpp"
 
 bool Evaluator::isBetterEval(const Color color, const int currBest, const int value) {
     if (color == Color::White) {
@@ -52,8 +51,13 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State& state, bool& endgame) 
                 }
 
                 // piece square
-                middleMaterialCount += mg_table.at(colorLessPiece)[y][x] * dir;
-                endMaterialCount += eg_table.at(colorLessPiece)[y][x] * dir;
+                if (Pieces::sameColor(Color::Black, currPiece)) {
+                    middleMaterialCount += -mg_table.at(colorLessPiece)[7 - y][x];
+                    endMaterialCount += -eg_table.at(colorLessPiece)[7 - y][x];
+                } else {
+                    middleMaterialCount += mg_table.at(colorLessPiece)[y][x];
+                    endMaterialCount += eg_table.at(colorLessPiece)[y][x];
+                }
 
                 // mobility (for now, lets just say each possible move is worth 3
                 // centipawns)
