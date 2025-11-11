@@ -52,15 +52,15 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State& state, bool& endgame) 
                 }
 
                 // piece square
-                middleMaterialCount += mg_table.at(colorLessPiece)[y][x] * dir;
-                endMaterialCount += eg_table.at(colorLessPiece)[y][x] * dir;
+                // middleMaterialCount += mg_table.at(colorLessPiece)[y][x] * dir;
+                // endMaterialCount += eg_table.at(colorLessPiece)[y][x] * dir;
 
                 // mobility (for now, lets just say each possible move is worth 3
                 // centipawns)
-                std::vector<Move> moves;
-                state.addMoves(x, y, moves);
-                middleMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
-                endMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
+                // std::vector<Move> moves;
+                // state.addMoves(x, y, moves);
+                // middleMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
+                // endMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
 
                 // POSSIBLE Evaluation methods:
                 // pieces on enemy half of the board

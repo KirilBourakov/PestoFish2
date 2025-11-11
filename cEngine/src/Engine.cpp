@@ -35,61 +35,154 @@ Move Engine::getBestMove() {
 
     // single threaded depth 1
     int score = 0;
+
+    Move bestMove;
+    int bestEval = -INF;
+    int colorRep = state.getActiveColor() == Color::White ? 1 : -1;
     int alpha = -INF;
     int beta = INF;
-    Move bestMove = root(state, possibleMoves, 1, alpha, beta, globalHistory, score, 1);
+    for (Move move : possibleMoves) {
 
-    int expected = score;
-    int window = 40;
+        state.makeMove(move);
+        int eval = -negamax(state, 3, -beta, -alpha, -colorRep, globalHistory, rng, dist);
+        state.undoMove();
+        if (eval > bestEval) {
+            bestEval = eval;
+            bestMove = move;
+        }
+        alpha = std::max(alpha, bestEval);
+    }
+    return bestMove;
 
-    constexpr int NUM_THREADS = 6;
-    std::array<std::thread, NUM_THREADS> helpers;
-    // TODO: locate making move from wrong side bug
-    for (int max_depth = 2; max_depth <= 3; max_depth++) {
-        alpha = expected - window;
-        beta = expected + window;
+    // Move bestMove = root(state, possibleMoves, 3, alpha, beta, globalHistory, score, 1);
 
-        while (true) {
-            const int original_alpha = alpha;
-            const int original_beta = beta;
+    // int expected = score;
+    // int window = 40;
+    //
+    // constexpr int NUM_THREADS = 6;
+    // std::array<std::thread, NUM_THREADS> helpers;
+    // // TODO: locate making move from wrong side bug
+    // for (int max_depth = 2; max_depth <= 3; max_depth++) {
+    //     alpha = expected - window;
+    //     beta = expected + window;
+    //
+    //     while (true) {
+    //         const int original_alpha = alpha;
+    //         const int original_beta = beta;
+    //
+    //         // TODO: break sync of threads
+    //         for (int i = 0; i < helpers.size(); i++) {
+    //             HistoryTable history = globalHistory;
+    //
+    //             int scoreOut;
+    //             State state_copy = this->state.makeThreadCopy();
+    //
+    //             int real_depth = (i % 2 == 0) ? max_depth + 1 : max_depth;
+    //
+    //             helpers[i] =
+    //                 std::thread([this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i]() mutable {
+    //                     this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1);
+    //                 });
+    //         }
+    //         Move candidate = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score, 0);
+    //
+    //         stop.store(true, std::memory_order_relaxed);
+    //         // when true root and minimax break out as soon as possible
+    //         for (auto& helper : helpers) {
+    //             helper.join();
+    //         }
+    //         stop.store(false, std::memory_order_release);
+    //
+    //         if (score <= original_alpha) { // fail low
+    //             alpha = -INF;
+    //         } else if (score >= original_beta) { // fail high
+    //             beta = INF;
+    //         } else {
+    //             bestMove = candidate;
+    //             break; // inside window
+    //         }
+    //     }
+    //
+    //     expected = score;
+    // }
 
-            // TODO: break sync of threads
-            for (int i = 0; i < helpers.size(); i++) {
-                HistoryTable history = globalHistory;
+    // return bestMove;
+}
 
-                int scoreOut;
-                State state_copy = this->state.makeThreadCopy();
+int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
+                    std::uniform_int_distribution<int>& dist) {
+    int alphaOrig = alpha;
 
-                int real_depth = (i % 2 == 0) ? max_depth + 1 : max_depth;
-
-                helpers[i] =
-                    std::thread([this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i]() mutable {
-                        this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1);
-                    });
+    Transposition::Entry entry_out;
+    if (transPosTable.lookup(currState.getZobrist(), entry_out)) {
+        if (entry_out.depth >= depth) {
+            if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
+                return entry_out.score;
             }
-            Move candidate = root(state, possibleMoves, max_depth, alpha, beta, globalHistory, score, 0);
-
-            stop.store(true, std::memory_order_relaxed);
-            // when true root and minimax break out as soon as possible
-            for (auto& helper : helpers) {
-                helper.join();
+            if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= beta) {
+                return entry_out.score;
             }
-            stop.store(false, std::memory_order_release);
-
-            if (score <= original_alpha) { // fail low
-                alpha = -INF;
-            } else if (score >= original_beta) { // fail high
-                beta = INF;
-            } else {
-                bestMove = candidate;
-                break; // inside window
+            if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= alpha) {
+                return entry_out.score;
             }
         }
-
-        expected = score;
     }
 
-    return bestMove;
+    std::vector<Move> possibleMoves = currState.getMoves();
+    GameState currGameState = currState.getGameState(possibleMoves);
+    if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
+        return 0;
+    }
+    if (currGameState == GameState::WHITE_WIN) {
+        return colorRep * +MATE_SCORE;
+    }
+    if (currGameState == GameState::BLACK_WIN) {
+        return colorRep * -MATE_SCORE;
+    }
+
+    // --- Check we should stop ---
+    if (stop.load(std::memory_order_relaxed)) {
+        return colorRep * Evaluator::evaluate(currState);
+    }
+
+    if (depth == 0) {
+        // return quiescence(currState, 3, alpha, beta);
+        return colorRep * Evaluator::evaluate(currState);
+    }
+
+    std::ranges::sort(possibleMoves, [&currState, &entry_out, &history, &rng, &dist](const Move& a, const Move& b) {
+        return get_move_score(a, currState, entry_out.bestMove, history, rng, dist) >
+               get_move_score(b, currState, entry_out.bestMove, history, rng, dist);
+    });
+
+    int bestValue = -INF;
+    Move bestMove;
+    for (const Move& move : possibleMoves) {
+        currState.makeMove(move);
+        int currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist);
+        currState.undoMove();
+        if (currValue > bestValue) {
+            bestValue = currValue;
+            bestMove = move;
+        }
+        alpha = std::max(alpha, bestValue);
+        if (alpha >= beta) {
+            break;
+        }
+    }
+
+    Transposition::CutoffType cutoffType;
+    if (bestValue <= alphaOrig) {
+        cutoffType = Transposition::CutoffType::UPPER_BOUND;
+    } else if (bestValue >= beta) {
+        cutoffType = Transposition::CutoffType::LOWER_BOUND;
+    } else {
+        cutoffType = Transposition::CutoffType::EXACT;
+    }
+
+    // using full move clock for age
+    transPosTable.insert(currState.getZobrist(), bestMove, depth, bestValue, cutoffType, currState.getFullMoveClock());
+    return bestValue;
 }
 
 Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const int maxDepth, int& alpha, int& beta,
@@ -103,8 +196,10 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
 
     const int alphaOrig = alpha;
     bool cutoffOccurred = false;
+    int colorRep = 1;
     for (Move move : rootMoves) {
         currState.makeMove(move);
+        // int eval = colorRep * negamax(currState, maxDepth, alpha, beta, colorRep, history, rng, dist);
         int eval = minimax(currState, 0, maxDepth, alpha, beta, history, rng, dist);
         currState.undoMove();
 
@@ -142,77 +237,6 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
 
     scoreOut = bestEval;
     return bestMove.value();
-}
-
-int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                    std::uniform_int_distribution<int>& dist) {
-    int alphaOrig = alpha;
-
-    Transposition::Entry entry_out;
-    if (transPosTable.lookup(currState.getZobrist(), entry_out)) {
-        if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
-            return entry_out.score;
-        }
-        if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= beta) {
-            return entry_out.score;
-        }
-        if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= alpha) {
-            return entry_out.score;
-        }
-    }
-
-    std::vector<Move> possibleMoves = currState.getMoves();
-    GameState currGameState = currState.getGameState(possibleMoves);
-    if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
-        return 0;
-    }
-    if (currGameState == GameState::WHITE_WIN || currGameState == GameState::BLACK_WIN) {
-        return colorRep * MATE_SCORE;
-    }
-
-    // --- Check we should stop ---
-    if (stop.load(std::memory_order_relaxed)) {
-        return colorRep * Evaluator::evaluate(currState);
-    }
-
-    if (depth == 0) {
-        // return quiescence(currState, 3, alpha, beta);
-        return colorRep * Evaluator::evaluate(currState);
-    }
-
-    std::ranges::sort(possibleMoves, [currState, &entry_out, &history, &rng, &dist](const Move& a, const Move& b) {
-        return get_move_score(a, currState, entry_out.bestMove, history, rng, dist) >
-               get_move_score(b, currState, entry_out.bestMove, history, rng, dist);
-    });
-
-    int bestValue = -INF;
-    Move bestMove;
-    for (const Move& move : possibleMoves) {
-        currState.makeMove(move);
-        int currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist);
-        currState.undoMove();
-        if (currValue > bestValue) {
-            bestValue = currValue;
-            bestMove = move;
-        }
-        alpha = std::max(alpha, bestValue);
-        if (alpha >= beta) {
-            break;
-        }
-    }
-
-    Transposition::CutoffType cutoffType;
-    if (bestValue <= alphaOrig) {
-        cutoffType = Transposition::CutoffType::UPPER_BOUND;
-    } else if (bestValue >= beta) {
-        cutoffType = Transposition::CutoffType::LOWER_BOUND;
-    } else {
-        cutoffType = Transposition::CutoffType::EXACT;
-    }
-
-    // using full move clock for age
-    transPosTable.insert(currState.getZobrist(), bestMove, depth, bestValue, cutoffType, currState.getFullMoveClock());
-    return bestValue;
 }
 
 int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, int beta, HistoryTable& history, std::mt19937& rng,
@@ -277,12 +301,13 @@ int Engine::minimax(State& currState, int curr_depth, int max_depth, int alpha, 
     for (const Move move : possibleMoves) {
         currState.makeMove(move);
         int eval = minimax(currState, curr_depth + 1, max_depth, alpha, beta, history, rng, dist);
-        currState.undoMove();
 
         if (Evaluator::isBetterEval(currState.getActiveColor(), bestEval, eval)) {
             bestEval = eval;
             bestMove = move;
         }
+
+        currState.undoMove();
 
         // alpha beta pruning
         if (currState.getActiveColor() == Color::White) {
