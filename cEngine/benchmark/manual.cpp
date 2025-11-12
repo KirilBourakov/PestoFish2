@@ -10,9 +10,9 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
     Engine engine{};
-    engine.setState(State{smotheredMatePosition(), Color::White, 0b1111, std::nullopt});
-
-    const Move best = engine.getBestMove();
+    for (int i = 0; i < 5; i++) {
+        engine.makeEngineMove();
+    }
 
     auto end = std::chrono::high_resolution_clock::now();
 

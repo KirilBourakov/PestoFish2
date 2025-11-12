@@ -1,10 +1,10 @@
-1. UCI Protocol
+1. Add Killer moves
 2. PVS
-3. LMR
-4. Bitboard move gen
-5. Time limit based searching, not depth limit
-6. Crash Bugs
-7. Killer moves
+3. UCI Protocol
+4. LMR
+5. Bitboard move gen
+6. Time limit based searching, not depth limit
+7. Crash Bugs
 8. Draw detection
 9. LazySMP improvements
    - Voting
