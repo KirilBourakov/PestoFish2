@@ -1,12 +1,10 @@
-1. Add Killer moves
-2. PVS
-3. UCI Protocol
-4. LMR
-5. Bitboard move gen
-6. Time limit based searching, not depth limit
-7. Crash Bugs
-8. Draw detection
-9. LazySMP improvements
+1. UCI Protocol
+2. LMR
+3. Bitboard move gen
+4. Time limit based searching, not depth limit
+5. Crash Bugs
+6. Draw detection
+7. LazySMP improvements
    - Voting
    - History combine
-10. Tapered Eval
+8. Tapered Eval

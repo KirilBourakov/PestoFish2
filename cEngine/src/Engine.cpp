@@ -41,7 +41,7 @@ Move Engine::getBestMove() {
 
     constexpr int NUM_THREADS = 4;
     std::array<std::thread, NUM_THREADS> helpers;
-    for (int depth = 2; depth <= 7; depth++) {
+    for (int depth = 2; depth <= 5; depth++) {
         int alpha = expected - window;
         int beta = expected + window;
         while (true) {
@@ -165,15 +165,14 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         Move& move = possibleMoves[i];
         currState.makeMove(move);
         int currValue;
-        // TODO: uncomment
-        // if (i == 0) {
-        currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
-        // } else {
-        //     currValue = -negamax(currState, depth - 1, -alpha-1, -alpha, -colorRep, history, rng, dist);
-        //     if (currValue > alpha && currValue < beta) {
-        //         currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist);
-        //     }
-        // }
+        if (i == 0) {
+            currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
+        } else {
+            currValue = -negamax(currState, depth - 1, -alpha - 1, -alpha, -colorRep, history, rng, dist, killerMoves);
+            if (currValue > alpha && currValue < beta) {
+                currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
+            }
+        }
         currState.undoMove();
         if (currValue > bestValue) {
             bestValue = currValue;
