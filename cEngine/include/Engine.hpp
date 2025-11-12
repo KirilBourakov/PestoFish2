@@ -23,6 +23,37 @@ private:
     std::array<std::array<int, BOARD_SIZE * BOARD_SIZE>, BOARD_SIZE * BOARD_SIZE> history{};
 };
 
+class KillerMoves {
+public:
+    explicit KillerMoves(const int depth)
+        : moves(depth)
+        , real(depth) {}
+
+    void insert(const int depth, const Move& move) {
+        moves[depth][1] = moves[depth][0];
+        real[depth][1] = real[depth][0];
+
+        moves[depth][0] = move;
+        real[depth][0] = true;
+    }
+    std::optional<Move> getFirst(const int depth) {
+        if (real[depth][0]) {
+            return moves[depth][0];
+        }
+        return std::nullopt;
+    }
+    std::optional<Move> getSecond(const int depth) {
+        if (real[depth][1]) {
+            return moves[depth][1];
+        }
+        return std::nullopt;
+    }
+
+private:
+    std::vector<std::array<Move, 2>> moves;
+    std::vector<std::array<bool, 2>> real;
+};
+
 class Engine {
 public:
     Move getBestMove();
@@ -44,10 +75,11 @@ private:
     Move root(State& currState, const std::vector<Move>& rootMoves, int depth, int alpha, int beta, HistoryTable& history,
               int& scoreOut, int seed);
     int negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                std::uniform_int_distribution<int>& dist);
+                std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves);
     int quiescence(State& state, int colorRep, int depth, int alpha, int beta);
-    static int get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history,
-                              std::mt19937& rng, std::uniform_int_distribution<int>& dist);
+    static int get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,
+                              const State& currState, const std::optional<Move>& tt_move, HistoryTable& history, std::mt19937& rng,
+                              std::uniform_int_distribution<int>& dist);
 };
 
 const std::unordered_map<PieceType, int> orderingValue{

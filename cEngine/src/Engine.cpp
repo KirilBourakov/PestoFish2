@@ -29,8 +29,8 @@ Move Engine::getBestMove() {
     std::uniform_int_distribution<int> dist(0, 10);
 
     std::ranges::sort(possibleMoves, [this, &entry_out, &rng, &dist](const Move& a, const Move& b) {
-        return get_move_score(a, this->state, entry_out.bestMove, this->globalHistory, rng, dist) >
-               get_move_score(b, this->state, entry_out.bestMove, this->globalHistory, rng, dist);
+        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rng, dist) >
+               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rng, dist);
     });
 
     int scoreOut;
@@ -85,17 +85,18 @@ Move Engine::getBestMove() {
     return out;
 }
 
-Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const int depth, int alpha, int beta, HistoryTable& history,
-                  int& scoreOut, const int seed) {
+Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const int depth, int alpha, const int beta,
+                  HistoryTable& history, int& scoreOut, const int seed) {
     std::mt19937 rng(seed);
     std::uniform_int_distribution<int> dist(0, 10);
 
+    KillerMoves killerMoves(depth);
     std::optional<Move> bestMove = std::nullopt;
     int bestEval = -INF;
     const int colorRep = currState.getActiveColor() == Color::White ? 1 : -1;
     for (Move move : rootMoves) {
         currState.makeMove(move);
-        int eval = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist);
+        int eval = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
         currState.undoMove();
         if (eval > bestEval) {
             bestEval = eval;
@@ -111,7 +112,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
 }
 
 int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                    std::uniform_int_distribution<int>& dist) {
+                    std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves) {
     int alphaOrig = alpha;
 
     Transposition::Entry entry_out;
@@ -151,10 +152,12 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         // return colorRep * Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(possibleMoves, [&currState, &entry_out, &history, &rng, &dist](const Move& a, const Move& b) {
-        return get_move_score(a, currState, entry_out.bestMove, history, rng, dist) >
-               get_move_score(b, currState, entry_out.bestMove, history, rng, dist);
-    });
+    std::ranges::sort(
+        possibleMoves, [&currState, &entry_out, &killerMoves, &depth, &history, &rng, &dist](const Move& a, const Move& b) {
+            return get_move_score(a, killerMoves.getFirst(depth), killerMoves.getSecond(depth), currState, entry_out.bestMove, history,
+                                  rng, dist) > get_move_score(b, killerMoves.getFirst(depth), killerMoves.getSecond(depth), currState,
+                                                              entry_out.bestMove, history, rng, dist);
+        });
 
     int bestValue = -INF;
     Move bestMove;
@@ -164,7 +167,7 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         int currValue;
         // TODO: uncomment
         // if (i == 0) {
-        currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist);
+        currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
         // } else {
         //     currValue = -negamax(currState, depth - 1, -alpha-1, -alpha, -colorRep, history, rng, dist);
         //     if (currValue > alpha && currValue < beta) {
@@ -178,6 +181,9 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         }
         alpha = std::max(alpha, bestValue);
         if (alpha >= beta) {
+            if (bestMove.enPassantCapture || currState.getAt(move.end) != Pieces::EMPTY) {
+                killerMoves.insert(depth, bestMove);
+            }
             break;
         }
     }
@@ -232,10 +238,14 @@ int Engine::quiescence(State& state, const int colorRep, const int depth, int al
     return bestValue;
 }
 
-int Engine::get_move_score(const Move& move, const State& currState, const std::optional<Move>& tt_move, HistoryTable& history,
-                           std::mt19937& rng, std::uniform_int_distribution<int>& dist) {
+int Engine::get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,
+                           const State& currState, const std::optional<Move>& tt_move, HistoryTable& history, std::mt19937& rng,
+                           std::uniform_int_distribution<int>& dist) {
     if (tt_move.has_value() && move == tt_move.value()) {
         return 1000000;
+    }
+    if ((killer1.has_value() && move == killer1.value()) || (killer2.has_value() && move == killer2.value())) {
+        return 900000;
     }
     if (currState.getAt(move.end) != Pieces::EMPTY) {
         const int victim_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.end)));
