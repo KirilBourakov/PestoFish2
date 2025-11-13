@@ -1,10 +1,9 @@
 1. UCI Protocol
-2. LMR
-3. Bitboard move gen
-4. Time limit based searching, not depth limit
-5. Crash Bugs
-6. Draw detection
-7. LazySMP improvements
+2. Bitboard move gen
+3. Time limit based searching, not depth limit
+4. Crash Bugs
+5. Draw detection
+6. LazySMP improvements
    - Voting
    - History combine
-8. Tapered Eval
+7. Tapered Eval

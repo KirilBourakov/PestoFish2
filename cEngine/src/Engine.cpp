@@ -165,10 +165,19 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         Move& move = possibleMoves[i];
         currState.makeMove(move);
         int currValue;
+
+        // LMR
+        int newDepth = depth - 1;
+        if (depth >= 3 && i > 2 && !bestMove.enPassantCapture && currState.getAt(move.end) != Pieces::EMPTY) {
+            const int reduction = static_cast<int>(.99 + std::log(depth) * std::log(i) / 3.14); // TODO: consider changing formula
+            newDepth = depth - reduction;
+        }
+
         if (i == 0) {
-            currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
+            currValue = -negamax(currState, newDepth, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
         } else {
-            currValue = -negamax(currState, depth - 1, -alpha - 1, -alpha, -colorRep, history, rng, dist, killerMoves);
+            // principle variation search
+            currValue = -negamax(currState, newDepth, -alpha - 1, -alpha, -colorRep, history, rng, dist, killerMoves);
             if (currValue > alpha && currValue < beta) {
                 currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
             }
@@ -234,6 +243,7 @@ int Engine::quiescence(State& state, const int colorRep, const int depth, int al
             }
         }
     }
+    // TODO: consider inserting into transpose table here.
     return bestValue;
 }
 
