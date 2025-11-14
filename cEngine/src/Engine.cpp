@@ -19,6 +19,11 @@ void Engine::makeEngineMove() {
 
 // TODO: implement ply so earlier mates are more prioritized
 Move Engine::getBestMove() {
+    int timeLimit = 1000;
+    auto start = steadyClock::now();
+    auto deadline = start + std::chrono::milliseconds(timeLimit);
+    timeOut.store(false, std::memory_order_seq_cst);
+
     Transposition::Entry entry_out;
     transPosTable.lookup(state.getZobrist(), entry_out);
 
@@ -34,38 +39,43 @@ Move Engine::getBestMove() {
     });
 
     int scoreOut;
-    Move out = root(state, possibleMoves, 1, -INF, INF, globalHistory, scoreOut, 1);
+    Move out = root(state, possibleMoves, 1, -INF, INF, globalHistory, scoreOut, 1, deadline);
 
     int expected = scoreOut;
     int window = 40;
 
-    constexpr int NUM_THREADS = 4;
+    constexpr int NUM_THREADS = 0; // turn shared SMP back on when threads are properly used (create once, use allways)
     std::array<std::thread, NUM_THREADS> helpers;
-    for (int depth = 2; depth <= 5; depth++) {
+    for (int depth = 2; depth <= 20 && steadyClock::now() < deadline; depth++) {
         int alpha = expected - window;
         int beta = expected + window;
         while (true) {
-            for (int i = 0; i < helpers.size(); i++) {
-                HistoryTable history = globalHistory;
-
-                int scoreOut;
-                State state_copy = this->state.makeThreadCopy();
-
-                int real_depth = (i % 2 == 0) ? depth + 1 : depth;
-
-                helpers[i] =
-                    std::thread([this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i]() mutable {
-                        this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1);
-                    });
+            if (steadyClock::now() >= deadline) {
+                stop.store(true, std::memory_order_relaxed);
+                break;
             }
+
+            // for (int i = 0; i < helpers.size(); i++) {
+            //     HistoryTable history = globalHistory;
+            //
+            //     int scoreOut;
+            //     State state_copy = this->state.makeThreadCopy();
+            //
+            //     int real_depth = (i % 2 == 0) ? depth + 1 : depth;
+            //
+            //     helpers[i] = std::thread(
+            //         [this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i, &deadline]() mutable {
+            //             this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1, deadline);
+            //         });
+            // }
 
             int newScore;
-            Move candidate = root(state, possibleMoves, depth, alpha, beta, globalHistory, newScore, 0);
+            Move candidate = root(state, possibleMoves, depth, alpha, beta, globalHistory, newScore, 0, deadline);
 
             stop.store(true, std::memory_order_seq_cst);
-            for (auto& helper : helpers) {
-                helper.join();
-            }
+            // for (auto& helper : helpers) {
+            //     helper.join();
+            // }
             stop.store(false, std::memory_order_seq_cst);
 
             if (newScore <= alpha) { // fail low
@@ -86,33 +96,39 @@ Move Engine::getBestMove() {
 }
 
 Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const int depth, int alpha, const int beta,
-                  HistoryTable& history, int& scoreOut, const int seed) {
+                  HistoryTable& history, int& scoreOut, const int seed, const steadyClock::time_point& deadline) {
     std::mt19937 rng(seed);
     std::uniform_int_distribution<int> dist(0, 10);
 
     KillerMoves killerMoves(depth);
-    std::optional<Move> bestMove = std::nullopt;
+    Move bestMove;
     int bestEval = -INF;
     const int colorRep = currState.getActiveColor() == Color::White ? 1 : -1;
     for (Move move : rootMoves) {
+        if (steadyClock::now() >= deadline) {
+            stop.store(true, std::memory_order_relaxed);
+            break;
+        }
+
         currState.makeMove(move);
-        int eval = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
+        int eval = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
         currState.undoMove();
         if (eval > bestEval) {
             bestEval = eval;
             bestMove = move;
         }
         alpha = std::max(alpha, bestEval);
-        if (stop.load(std::memory_order_seq_cst)) {
+
+        if (endSearch()) {
             break;
         }
     }
     scoreOut = bestEval;
-    return bestMove.value();
+    return bestMove;
 }
 
 int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                    std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves) {
+                    std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves, const steadyClock::time_point& deadline) {
     int alphaOrig = alpha;
 
     Transposition::Entry entry_out;
@@ -143,12 +159,12 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
     }
 
     // --- Check we should stop ---
-    if (stop.load(std::memory_order_seq_cst)) {
+    if (endSearch()) {
         return colorRep * Evaluator::evaluate(currState);
     }
 
     if (depth == 0) {
-        return quiescence(currState, colorRep, 15, alpha, beta);
+        return quiescence(currState, colorRep, 15, alpha, beta, deadline);
         // return colorRep * Evaluator::evaluate(currState);
     }
 
@@ -162,24 +178,27 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
     int bestValue = -INF;
     Move bestMove;
     for (int i = 0; i < possibleMoves.size(); ++i) {
+        if (steadyClock::now() >= deadline) {
+            stop.store(true, std::memory_order_relaxed);
+            break;
+        }
+
         Move& move = possibleMoves[i];
         currState.makeMove(move);
         int currValue;
-
         // LMR
         int newDepth = depth - 1;
         if (depth >= 3 && i > 2 && !bestMove.enPassantCapture && currState.getAt(move.end) != Pieces::EMPTY) {
             const int reduction = static_cast<int>(.99 + std::log(depth) * std::log(i) / 3.14); // TODO: consider changing formula
             newDepth = depth - reduction;
         }
-
         if (i == 0) {
-            currValue = -negamax(currState, newDepth, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
+            currValue = -negamax(currState, newDepth, -beta, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
         } else {
             // principle variation search
-            currValue = -negamax(currState, newDepth, -alpha - 1, -alpha, -colorRep, history, rng, dist, killerMoves);
+            currValue = -negamax(currState, newDepth, -alpha - 1, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
             if (currValue > alpha && currValue < beta) {
-                currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves);
+                currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
             }
         }
         currState.undoMove();
@@ -192,6 +211,10 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
             if (bestMove.enPassantCapture || currState.getAt(move.end) != Pieces::EMPTY) {
                 killerMoves.insert(depth, bestMove);
             }
+            break;
+        }
+
+        if (endSearch()) {
             break;
         }
     }
@@ -210,12 +233,13 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
     return bestValue;
 }
 
-int Engine::quiescence(State& state, const int colorRep, const int depth, int alpha, int beta) {
+int Engine::quiescence(State& state, const int colorRep, const int depth, int alpha, int beta,
+                       const steadyClock::time_point& deadline) {
     // TODO: add color rep int
     int staticEval = colorRep * Evaluator::evaluate(state); // - eval means position good for black, else good for white
 
     int bestValue = staticEval;
-    if (depth == 0 || stop.load(std::memory_order_seq_cst)) {
+    if (depth == 0 || endSearch()) {
         return bestValue;
     }
     if (bestValue >= beta) {
@@ -228,8 +252,13 @@ int Engine::quiescence(State& state, const int colorRep, const int depth, int al
     std::vector<Move> possibleMoves = state.getMoves(); // TODO: limit to captures, and checks
     for (auto& move : possibleMoves) {
         if (state.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
+            if (steadyClock::now() >= deadline) {
+                stop.store(true, std::memory_order_relaxed);
+                break;
+            }
+
             state.makeMove(move);
-            const int score = -quiescence(state, -colorRep, depth - 1, -beta, -alpha);
+            const int score = -quiescence(state, -colorRep, depth - 1, -beta, -alpha, deadline);
             state.undoMove();
 
             if (score >= beta) {
@@ -240,6 +269,10 @@ int Engine::quiescence(State& state, const int colorRep, const int depth, int al
             }
             if (score > alpha) {
                 alpha = score;
+            }
+
+            if (endSearch()) {
+                break;
             }
         }
     }

@@ -7,17 +7,17 @@
 #include "testBoard.hpp"
 
 int main() {
-    auto start = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms{0};
 
     Engine engine{};
     engine.setState(State{problemMiddleGame(), Color::White, 0b0000, std::nullopt});
     for (int i = 0; i < 5; i++) {
+        auto start = std::chrono::high_resolution_clock::now();
         engine.makeEngineMove();
+        auto end = std::chrono::high_resolution_clock::now();
+        ms += end - start;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double, std::milli> duration_ms = end - start;
-    std::cout << "Execution time: " << duration_ms.count() << " ms" << std::endl;
+    std::cout << "Execution time: " << ms.count() << " ms" << std::endl;
     return 0;
 }

@@ -43,20 +43,20 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State& state, bool& endgame) 
         for (int x = 0; x < BOARD_SIZE; x++) {
             if (const Pieces::Piece currPiece = state.getBoard()[y][x]; currPiece != Pieces::EMPTY) {
                 const int dir = Pieces::sameColor(Color::White, currPiece) ? 1 : -1;
-                const auto colorLessPiece = Pieces::piece_type(currPiece);
+                const auto pieceType = Pieces::piece_type(currPiece);
                 // Raw material (which king does not have)
-                if (colorLessPiece != PieceType::King) {
-                    middleMaterialCount += middleGameScore.at(colorLessPiece) * dir;
-                    endMaterialCount += endGameScore.at(colorLessPiece) * dir;
+                if (pieceType != PieceType::King) {
+                    middleMaterialCount += middleGameScore.at(pieceType) * dir;
+                    endMaterialCount += endGameScore.at(pieceType) * dir;
                 }
 
                 // piece square
                 if (Pieces::sameColor(Color::Black, currPiece)) {
-                    middleMaterialCount += -mg_table.at(colorLessPiece)[7 - y][x];
-                    endMaterialCount += -eg_table.at(colorLessPiece)[7 - y][x];
+                    middleMaterialCount += -mg_table.at(pieceType)[7 - y][x];
+                    endMaterialCount += -eg_table.at(pieceType)[7 - y][x];
                 } else {
-                    middleMaterialCount += mg_table.at(colorLessPiece)[y][x];
-                    endMaterialCount += eg_table.at(colorLessPiece)[y][x];
+                    middleMaterialCount += mg_table.at(pieceType)[y][x];
+                    endMaterialCount += eg_table.at(pieceType)[y][x];
                 }
 
                 // mobility (for now, lets just say each possible move is worth 3
@@ -72,9 +72,9 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State& state, bool& endgame) 
 
                 // tracking to determine if it is an end game
                 if (Pieces::sameColor(Color::White, currPiece)) {
-                    whiteNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
+                    whiteNormalCount += normalScore.contains(pieceType) ? normalScore.at(pieceType) * dir : 0;
                 } else if (Pieces::sameColor(Color::Black, currPiece)) {
-                    blackNormalCount += normalScore.contains(colorLessPiece) ? normalScore.at(colorLessPiece) * dir : 0;
+                    blackNormalCount += normalScore.contains(pieceType) ? normalScore.at(pieceType) * dir : 0;
                 }
             }
         }

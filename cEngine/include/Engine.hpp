@@ -54,6 +54,7 @@ private:
     std::vector<std::array<bool, 2>> real;
 };
 
+using steadyClock = std::chrono::steady_clock;
 class Engine {
 public:
     Move getBestMove();
@@ -71,15 +72,20 @@ private:
     Transposition::TranspositionTable transPosTable{};
     HistoryTable globalHistory{};
     std::atomic<bool> stop = false;
+    std::atomic<bool> timeOut = false;
 
     Move root(State& currState, const std::vector<Move>& rootMoves, int depth, int alpha, int beta, HistoryTable& history,
-              int& scoreOut, int seed);
+              int& scoreOut, int seed, const steadyClock::time_point& deadline);
     int negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves);
-    int quiescence(State& state, int colorRep, int depth, int alpha, int beta);
+                std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves, const steadyClock::time_point& deadline);
+    int quiescence(State& state, int colorRep, int depth, int alpha, int beta, const steadyClock::time_point& deadline);
     static int get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,
                               const State& currState, const std::optional<Move>& tt_move, HistoryTable& history, std::mt19937& rng,
                               std::uniform_int_distribution<int>& dist);
+
+    [[nodiscard]] bool endSearch() const {
+        return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst);
+    }
 };
 
 const std::unordered_map<PieceType, int> orderingValue{
