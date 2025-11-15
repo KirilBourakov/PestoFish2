@@ -95,8 +95,6 @@ Move Engine::getBestMove() {
         }
     }
 
-    std::cout << "Search Completed. Depth: " << depth << std::endl;
-
     return out;
 }
 

@@ -37,6 +37,16 @@ target_include_directories(cEngine
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
 
+# Build UCI exposure
+add_executable(uci
+        src/uci.cpp
+        ${ENGINE_SOURCES}
+        ${ENGINE_MODULES}
+)
+target_include_directories(uci
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
+)
+
 # Build benchmarks
 add_executable(benchmark
         test/testBoard.hpp

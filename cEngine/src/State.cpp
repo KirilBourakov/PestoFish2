@@ -207,9 +207,7 @@ bool State::isLegalMove(BoardPosition start, BoardPosition end) {
     std::vector<Move> moves;
     board.addMoves(start.x, start.y, activeColor, enPassantSquare, castlingRights, moves);
     moves = purgeIllegal(moves);
-    std::cout << "MOVE: " << start << " -> " << end << std::endl;
     for (auto move : moves) {
-        std::cout << move << std::endl;
         if (move.start == start && move.end == end) {
             return true;
         }

@@ -126,6 +126,9 @@ public:
     void setState(const State& state) {
         this->state = state;
     };
+    void forceTimeout() {
+        timeOut.store(true, std::memory_order_seq_cst);
+    }
 
 private:
     State state{};
