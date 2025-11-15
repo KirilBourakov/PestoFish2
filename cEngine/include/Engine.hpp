@@ -99,6 +99,22 @@ struct OrderingInfo {
     KillerMoves& killer;
 };
 
+struct RngInfo {
+    int seed;
+    std::mt19937 rng;
+    std::uniform_int_distribution<int> dist;
+
+    int random() {
+        return dist(rng);
+    }
+
+    static RngInfo fromSeed(const int seed) {
+        const std::mt19937 rng(seed);
+        const std::uniform_int_distribution<int> dist(0, 10);
+        return {seed, rng, dist};
+    }
+};
+
 class Engine {
 public:
     Move getBestMove();
@@ -119,14 +135,12 @@ private:
     std::atomic<bool> timeOut = false;
 
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, int& scoreOut,
-              int seed);
-    int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, std::mt19937& rng,
-                std::uniform_int_distribution<int>& dist);
+              RngInfo& rng);
+    int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng);
     int quiescence(State& state, SearchLimits search);
 
     static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
-                              const OptionalMove& tt_move, HistoryTable& history, std::mt19937& rng,
-                              std::uniform_int_distribution<int>& dist);
+                              const OptionalMove& tt_move, HistoryTable& history, RngInfo& rng);
 
     [[nodiscard]] bool endSearch() const {
         return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst);

@@ -30,19 +30,18 @@ Move Engine::getBestMove() {
     std::vector<Move> possibleMoves = state.getMoves();
 
     int stateSeed = 1;
-    std::mt19937 rng(stateSeed);
-    std::uniform_int_distribution<int> dist(0, 10);
 
-    std::ranges::sort(possibleMoves, [this, &entry_out, &rng, &dist](const Move& a, const Move& b) {
-        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rng, dist) >
-               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rng, dist);
+    RngInfo rootRng = RngInfo::fromSeed(stateSeed);
+    std::ranges::sort(possibleMoves, [this, &entry_out, &rootRng](const Move& a, const Move& b) {
+        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rootRng) >
+               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rootRng);
     });
 
     int scoreOut;
     SearchLimits searchD1 = {0, 1, -INF, INF, 0, deadline};
     KillerMoves killer{};
     OrderingInfo orderingInfo = {globalHistory, killer};
-    Move out = root(state, possibleMoves, searchD1, orderingInfo, scoreOut, 1);
+    Move out = root(state, possibleMoves, searchD1, orderingInfo, scoreOut, rootRng);
 
     int expected = scoreOut;
     int window = 40;
@@ -76,7 +75,7 @@ Move Engine::getBestMove() {
 
             int newScore;
             SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-            Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, 0);
+            Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, rootRng);
 
             stop.store(true, std::memory_order_seq_cst);
             // for (auto& helper : helpers) {
@@ -102,10 +101,7 @@ Move Engine::getBestMove() {
 }
 
 Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, int& scoreOut,
-                  int seed) {
-    std::mt19937 rng(seed);
-    std::uniform_int_distribution<int> dist(0, 10);
-
+                  RngInfo& rng) {
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;
@@ -116,7 +112,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
         }
 
         currState.makeMove(move);
-        int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng, dist);
+        int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng);
         currState.undoMove();
         if (eval > bestEval) {
             bestEval = eval;
@@ -132,8 +128,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
     return bestMove;
 }
 
-int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, std::mt19937& rng,
-                    std::uniform_int_distribution<int>& dist) {
+int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng) {
     int alphaOrig = search.alpha;
 
     Transposition::Entry entry_out;
@@ -174,11 +169,11 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         // return colorRep * Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(possibleMoves, [&currState, &entry_out, &orderingInfo, &search, &rng, &dist](const Move& a, const Move& b) {
+    std::ranges::sort(possibleMoves, [&currState, &entry_out, &orderingInfo, &search, &rng](const Move& a, const Move& b) {
         return get_move_score(a, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply), currState,
-                              entry_out.bestMove, orderingInfo.history, rng, dist) >
+                              entry_out.bestMove, orderingInfo.history, rng) >
                get_move_score(b, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply), currState,
-                              entry_out.bestMove, orderingInfo.history, rng, dist);
+                              entry_out.bestMove, orderingInfo.history, rng);
     });
 
     int bestValue = -INF;
@@ -200,12 +195,12 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
             newDepth = search.depth - reduction;
         }
         if (i == 0) {
-            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng, dist);
+            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng);
         } else {
             // principle variation search
-            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng, dist);
+            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng);
             if (currValue > search.alpha && currValue < search.beta) {
-                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng, dist);
+                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng);
             }
         }
         currState.undoMove();
@@ -288,8 +283,7 @@ int Engine::quiescence(State& state, SearchLimits search) {
 }
 
 int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
-                           const OptionalMove& tt_move, HistoryTable& history, std::mt19937& rng,
-                           std::uniform_int_distribution<int>& dist) {
+                           const OptionalMove& tt_move, HistoryTable& history, RngInfo& rng) {
     if (tt_move.has_value() && move == tt_move.value()) {
         return 1000000;
     }
@@ -304,5 +298,5 @@ int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const 
     if (move.enPassantCapture) {
         return 500000;
     }
-    return history[move] + dist(rng);
+    return history[move] + rng.random();
 }
