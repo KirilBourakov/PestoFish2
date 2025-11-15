@@ -102,7 +102,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
     std::mt19937 rng(seed);
     std::uniform_int_distribution<int> dist(0, 10);
 
-    OrderingInfo orderingInfo = OrderingInfo::create(history, search.depth);
+    OrderingInfo orderingInfo = OrderingInfo::create(history);
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;
@@ -172,9 +172,9 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     }
 
     std::ranges::sort(possibleMoves, [&currState, &entry_out, &orderingInfo, &search, &rng, &dist](const Move& a, const Move& b) {
-        return get_move_score(a, orderingInfo.killer.getFirst(search.depth), orderingInfo.killer.getSecond(search.depth), currState,
+        return get_move_score(a, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply), currState,
                               entry_out.bestMove, orderingInfo.history, rng, dist) >
-               get_move_score(b, orderingInfo.killer.getFirst(search.depth), orderingInfo.killer.getSecond(search.depth), currState,
+               get_move_score(b, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply), currState,
                               entry_out.bestMove, orderingInfo.history, rng, dist);
     });
 
@@ -213,7 +213,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         search.alpha = std::max(search.alpha, bestValue);
         if (search.alpha >= search.beta) {
             if (!move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
-                orderingInfo.killer.insert(search.depth, move);
+                orderingInfo.killer.insert(search.ply, move);
             }
             orderingInfo.history[move] = search.depth * search.depth;
             break;

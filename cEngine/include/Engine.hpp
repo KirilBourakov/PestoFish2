@@ -23,35 +23,32 @@ private:
     std::array<std::array<int, BOARD_SIZE * BOARD_SIZE>, BOARD_SIZE * BOARD_SIZE> history{};
 };
 
+constexpr int maxPly = 128;
 class KillerMoves {
 public:
-    explicit KillerMoves(const int depth)
-        : moves(depth)
-        , real(depth) {}
+    void insert(const int ply, const Move& move) {
+        moves[ply][1] = moves[ply][0];
+        real[ply][1] = real[ply][0];
 
-    void insert(const int depth, const Move& move) {
-        moves[depth][1] = moves[depth][0];
-        real[depth][1] = real[depth][0];
-
-        moves[depth][0] = move;
-        real[depth][0] = true;
+        moves[ply][0] = move;
+        real[ply][0] = true;
     }
-    OptionalMove getFirst(const int depth) {
-        if (real[depth][0]) {
-            return moves[depth][0];
+    OptionalMove getFirst(const int ply) {
+        if (real[ply][0]) {
+            return moves[ply][0];
         }
         return std::nullopt;
     }
-    OptionalMove getSecond(const int depth) {
-        if (real[depth][1]) {
-            return moves[depth][1];
+    OptionalMove getSecond(const int ply) {
+        if (real[ply][1]) {
+            return moves[ply][1];
         }
         return std::nullopt;
     }
 
 private:
-    std::vector<std::array<Move, 2>> moves;
-    std::vector<std::array<bool, 2>> real;
+    std::array<std::array<Move, 2>, maxPly> moves{};
+    std::array<std::array<bool, 2>, maxPly> real{};
 };
 
 using steadyClock = std::chrono::steady_clock;
@@ -81,8 +78,8 @@ struct OrderingInfo {
     HistoryTable& history;
     KillerMoves killer;
 
-    static OrderingInfo create(HistoryTable& history, const int depth) {
-        return {history, KillerMoves{depth}};
+    static OrderingInfo create(HistoryTable& history) {
+        return {history, {}};
     }
 };
 
