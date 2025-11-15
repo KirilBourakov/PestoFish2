@@ -213,8 +213,8 @@ int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history
         }
         search.alpha = std::max(search.alpha, bestValue);
         if (search.alpha >= search.beta) {
-            if (bestMove.enPassantCapture || currState.getAt(move.end) != Pieces::EMPTY) {
-                killerMoves.insert(search.depth, bestMove);
+            if (!move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
+                killerMoves.insert(search.depth, move);
             }
             break;
         }
