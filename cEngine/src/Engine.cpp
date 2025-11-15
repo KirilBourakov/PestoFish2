@@ -39,7 +39,7 @@ Move Engine::getBestMove() {
     });
 
     int scoreOut;
-    SearchLimits searchD1 = {0, 1, -INF, INF, deadline};
+    SearchLimits searchD1 = {0, 1, -INF, INF, 0, deadline};
     Move out = root(state, possibleMoves, searchD1, globalHistory, scoreOut, 1);
 
     int expected = scoreOut;
@@ -71,7 +71,7 @@ Move Engine::getBestMove() {
             // }
 
             int newScore;
-            SearchLimits search = {0, depth, alpha, beta, deadline};
+            SearchLimits search = {0, depth, alpha, beta, 0, deadline};
             Move candidate = root(state, possibleMoves, search, globalHistory, newScore, 0);
 
             stop.store(true, std::memory_order_seq_cst);

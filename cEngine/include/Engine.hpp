@@ -61,18 +61,19 @@ struct SearchLimits {
     int depth;
     int alpha;
     int beta;
+    int ply;
 
     const steadyClock::time_point& deadline;
 
     [[nodiscard]] SearchLimits nextLimit() const {
-        return {-color, depth - 1, -beta, -alpha, deadline};
+        return {-color, depth - 1, -beta, -alpha, ply + 1, deadline};
     }
 
     [[nodiscard]] SearchLimits nextLimit(const int searchDepth) const {
-        return {-color, searchDepth, -beta, -alpha, deadline};
+        return {-color, searchDepth, -beta, -alpha, ply + 1, deadline};
     }
     [[nodiscard]] SearchLimits nextPVS(const int searchDepth) const {
-        return {-color, searchDepth, -alpha - 1, -alpha, deadline};
+        return {-color, searchDepth, -alpha - 1, -alpha, ply + 1, deadline};
     }
 };
 
