@@ -51,6 +51,35 @@ constexpr PieceType piece_type(const Piece p) noexcept {
     return static_cast<PieceType>(p & 0b111);
 }
 
+inline Piece from_char(const char ch) {
+    const char lowered = tolower(ch);
+
+    PieceType piece_type;
+    switch (lowered) {
+    case 'p':
+        piece_type = PieceType::Pawn;
+        break;
+    case 'n':
+        piece_type = PieceType::Knight;
+        break;
+    case 'b':
+        piece_type = PieceType::Bishop;
+        break;
+    case 'r':
+        piece_type = PieceType::Rook;
+        break;
+    case 'q':
+        piece_type = PieceType::Queen;
+        break;
+    case 'k':
+        piece_type = PieceType::King;
+        break;
+    default:
+        throw std::invalid_argument("Invalid piece type");
+    }
+    return make_piece(lowered == ch ? Color::Black : Color::White, piece_type);
+}
+
 inline char piece_char(const Piece& p) {
     if (piece_type(p) == PieceType::None)
         return '.';

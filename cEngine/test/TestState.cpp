@@ -11,6 +11,17 @@
 
 using namespace Pieces;
 
+TEST(fromFEN, initial) {
+    State state;
+    State from = State::fromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    ASSERT_EQ(state, from);
+}
+
+TEST(fromFen, unBlockedCastle) {
+    State state = {NewBoard(unBlockedCastle()), Color::Black, 0, std::nullopt, 5, 25};
+    State from = State::fromFen("r3k2r/8/8/8/8/8/3PPP2/R3K2R b - - 5 25");
+}
+
 TEST(getMoves, whiteCheckmated) {
     State state{whiteBackRanked(), Color::White, 0b1111, std::nullopt};
 

@@ -9,6 +9,15 @@
 
 struct BoardPosition {
     int x, y;
+
+    static BoardPosition fromSquare(const std::string& square) {
+        const int file = square[0] - 'a';
+        const int rank = square[1] - '0';
+        ;
+
+        return {file, 8 - rank}; // a8 is 0,0
+    }
+
     bool operator==(const BoardPosition& other) const {
         return x == other.x && y == other.y;
     }

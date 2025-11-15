@@ -37,6 +37,10 @@ public:
     State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare,
           const std::vector<HistoricalEntry>& history, const std::vector<u64>& hashHistory);
+    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+          int halfMoveClock, int fullMoveClock);
+
+    static State fromFen(const std::string& fen);
 
     void makeMove(const Move& move);
     void undoMove();
