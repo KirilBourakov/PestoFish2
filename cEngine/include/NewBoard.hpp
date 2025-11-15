@@ -7,7 +7,7 @@
 #include <format>
 #include <vector>
 
-#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
 

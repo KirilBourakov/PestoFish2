@@ -5,7 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "Engine.hpp"
-#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "State.hpp"
 #include <iostream>

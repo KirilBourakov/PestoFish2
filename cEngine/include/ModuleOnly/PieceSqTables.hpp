@@ -5,7 +5,7 @@
 #include <array>
 #include <unordered_map>
 
-#include "Board.hpp"
+#include "CastleUtils.hpp"
 #include "Enums.hpp"
 
 using PieceSqTable = std::array<std::array<int, BOARD_SIZE>, BOARD_SIZE>;

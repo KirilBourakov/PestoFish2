@@ -9,7 +9,7 @@ find_package(pybind11 REQUIRED)
 set(ENGINE_SOURCES
         src/Engine.cpp
         src/State.cpp
-        src/Move.cpp
+        src/NewBoard.cpp
         src/Evaluator.cpp
         src/ZobristHash.cpp
 )
@@ -21,7 +21,7 @@ set(ENGINE_MODULES
         include/Evaluator.hpp
         include/ZobristHash.hpp
 
-        include/ModuleOnly/Board.hpp
+        include/ModuleOnly/CastleUtils.hpp
         include/ModuleOnly/Enums.hpp
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp

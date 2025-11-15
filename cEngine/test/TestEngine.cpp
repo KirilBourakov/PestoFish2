@@ -4,7 +4,7 @@
 #include "Engine.hpp"
 #include "gtest/gtest.h"
 
-#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
 #include "testBoard.hpp"

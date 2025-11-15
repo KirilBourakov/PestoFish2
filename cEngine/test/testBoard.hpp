@@ -2,7 +2,7 @@
 // Created by Kiril on 2025-08-27.
 //
 #pragma once
-#include "ModuleOnly/Board.hpp"
+#include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 
 using namespace Pieces;

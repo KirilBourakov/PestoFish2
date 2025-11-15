@@ -4,10 +4,18 @@
 #pragma once
 #include <iostream>
 #include <optional>
-#include <string>
 
-#include "Board.hpp"
 #include "Enums.hpp"
+
+struct BoardPosition {
+    int x, y;
+    bool operator==(const BoardPosition& other) const {
+        return x == other.x && y == other.y;
+    }
+};
+inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
+    return os << static_cast<char>(pos.x + 97) << (abs(pos.y - 8)) << "(" << pos.x << "," << pos.y << ")";
+}
 
 struct Move {
     Move() = default;
