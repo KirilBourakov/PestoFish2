@@ -76,6 +76,15 @@ struct SearchLimits {
     }
 };
 
+struct OrderingInfo {
+    HistoryTable& history;
+    KillerMoves killer;
+
+    static OrderingInfo create(HistoryTable& history, const int depth) {
+        return {history, KillerMoves{depth}};
+    }
+};
+
 class Engine {
 public:
     Move getBestMove();
@@ -97,8 +106,8 @@ private:
 
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, HistoryTable& history, int& scoreOut,
               int seed);
-    int negamax(State& currState, SearchLimits search, HistoryTable& history, std::mt19937& rng,
-                std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves);
+    int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, std::mt19937& rng,
+                std::uniform_int_distribution<int>& dist);
     int quiescence(State& state, SearchLimits search);
 
     static int get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,

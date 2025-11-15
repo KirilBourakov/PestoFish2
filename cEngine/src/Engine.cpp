@@ -102,7 +102,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
     std::mt19937 rng(seed);
     std::uniform_int_distribution<int> dist(0, 10);
 
-    KillerMoves killerMoves(search.depth);
+    OrderingInfo orderingInfo = OrderingInfo::create(history, search.depth);
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;
@@ -113,7 +113,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
         }
 
         currState.makeMove(move);
-        int eval = -negamax(currState, search.nextLimit(), history, rng, dist, killerMoves);
+        int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng, dist);
         currState.undoMove();
         if (eval > bestEval) {
             bestEval = eval;
@@ -129,8 +129,8 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
     return bestMove;
 }
 
-int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history, std::mt19937& rng,
-                    std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves) {
+int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, std::mt19937& rng,
+                    std::uniform_int_distribution<int>& dist) {
     int alphaOrig = search.alpha;
 
     Transposition::Entry entry_out;
@@ -171,13 +171,12 @@ int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history
         // return colorRep * Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(possibleMoves,
-                      [&currState, &entry_out, &killerMoves, &search, &history, &rng, &dist](const Move& a, const Move& b) {
-                          return get_move_score(a, killerMoves.getFirst(search.depth), killerMoves.getSecond(search.depth), currState,
-                                                entry_out.bestMove, history, rng, dist) >
-                                 get_move_score(b, killerMoves.getFirst(search.depth), killerMoves.getSecond(search.depth), currState,
-                                                entry_out.bestMove, history, rng, dist);
-                      });
+    std::ranges::sort(possibleMoves, [&currState, &entry_out, &orderingInfo, &search, &rng, &dist](const Move& a, const Move& b) {
+        return get_move_score(a, orderingInfo.killer.getFirst(search.depth), orderingInfo.killer.getSecond(search.depth), currState,
+                              entry_out.bestMove, orderingInfo.history, rng, dist) >
+               get_move_score(b, orderingInfo.killer.getFirst(search.depth), orderingInfo.killer.getSecond(search.depth), currState,
+                              entry_out.bestMove, orderingInfo.history, rng, dist);
+    });
 
     int bestValue = -INF;
     Move bestMove;
@@ -198,12 +197,12 @@ int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history
             newDepth = search.depth - reduction;
         }
         if (i == 0) {
-            currValue = -negamax(currState, search.nextLimit(newDepth), history, rng, dist, killerMoves);
+            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng, dist);
         } else {
             // principle variation search
-            currValue = -negamax(currState, search.nextPVS(newDepth), history, rng, dist, killerMoves);
+            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng, dist);
             if (currValue > search.alpha && currValue < search.beta) {
-                currValue = -negamax(currState, search.nextLimit(), history, rng, dist, killerMoves);
+                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng, dist);
             }
         }
         currState.undoMove();
@@ -214,9 +213,9 @@ int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history
         search.alpha = std::max(search.alpha, bestValue);
         if (search.alpha >= search.beta) {
             if (!move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
-                killerMoves.insert(search.depth, move);
+                orderingInfo.killer.insert(search.depth, move);
             }
-            history[move] = search.depth * search.depth;
+            orderingInfo.history[move] = search.depth * search.depth;
             break;
         }
 
