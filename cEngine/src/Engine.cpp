@@ -39,7 +39,8 @@ Move Engine::getBestMove() {
     });
 
     int scoreOut;
-    Move out = root(state, possibleMoves, 1, -INF, INF, globalHistory, scoreOut, 1, deadline);
+    SearchLimits searchD1 = {0, 1, -INF, INF, deadline};
+    Move out = root(state, possibleMoves, searchD1, globalHistory, scoreOut, 1);
 
     int expected = scoreOut;
     int window = 40;
@@ -70,7 +71,8 @@ Move Engine::getBestMove() {
             // }
 
             int newScore;
-            Move candidate = root(state, possibleMoves, depth, alpha, beta, globalHistory, newScore, 0, deadline);
+            SearchLimits search = {0, depth, alpha, beta, deadline};
+            Move candidate = root(state, possibleMoves, search, globalHistory, newScore, 0);
 
             stop.store(true, std::memory_order_seq_cst);
             // for (auto& helper : helpers) {
@@ -95,29 +97,29 @@ Move Engine::getBestMove() {
     return out;
 }
 
-Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const int depth, int alpha, const int beta,
-                  HistoryTable& history, int& scoreOut, const int seed, const steadyClock::time_point& deadline) {
+Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, HistoryTable& history, int& scoreOut,
+                  int seed) {
     std::mt19937 rng(seed);
     std::uniform_int_distribution<int> dist(0, 10);
 
-    KillerMoves killerMoves(depth);
+    KillerMoves killerMoves(search.depth);
     Move bestMove;
     int bestEval = -INF;
-    const int colorRep = currState.getActiveColor() == Color::White ? 1 : -1;
+    search.color = currState.getActiveColor() == Color::White ? 1 : -1;
     for (Move move : rootMoves) {
-        if (steadyClock::now() >= deadline) {
+        if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
             break;
         }
 
         currState.makeMove(move);
-        int eval = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
+        int eval = -negamax(currState, search.nextLimit(), history, rng, dist, killerMoves);
         currState.undoMove();
         if (eval > bestEval) {
             bestEval = eval;
             bestMove = move;
         }
-        alpha = std::max(alpha, bestEval);
+        search.alpha = std::max(search.alpha, bestEval);
 
         if (endSearch()) {
             break;
@@ -127,20 +129,20 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, const in
     return bestMove;
 }
 
-int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                    std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves, const steadyClock::time_point& deadline) {
-    int alphaOrig = alpha;
+int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history, std::mt19937& rng,
+                    std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves) {
+    int alphaOrig = search.alpha;
 
     Transposition::Entry entry_out;
     if (transPosTable.lookup(currState.getZobrist(), entry_out)) {
-        if (entry_out.depth >= depth) {
+        if (entry_out.depth >= search.depth) {
             if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
                 return entry_out.score;
             }
-            if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= beta) {
+            if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= search.beta) {
                 return entry_out.score;
             }
-            if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= alpha) {
+            if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= search.alpha) {
                 return entry_out.score;
             }
         }
@@ -152,33 +154,35 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         return 0;
     }
     if (currGameState == GameState::WHITE_WIN) {
-        return colorRep * +MATE_SCORE;
+        return search.color * +MATE_SCORE;
     }
     if (currGameState == GameState::BLACK_WIN) {
-        return colorRep * -MATE_SCORE;
+        return search.color * -MATE_SCORE;
     }
 
     // --- Check we should stop ---
     if (endSearch()) {
-        return colorRep * Evaluator::evaluate(currState);
+        return search.color * Evaluator::evaluate(currState);
     }
 
-    if (depth == 0) {
-        return quiescence(currState, colorRep, 15, alpha, beta, deadline);
+    if (search.depth == 0) {
+        search.depth = 15;
+        return quiescence(currState, search);
         // return colorRep * Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(
-        possibleMoves, [&currState, &entry_out, &killerMoves, &depth, &history, &rng, &dist](const Move& a, const Move& b) {
-            return get_move_score(a, killerMoves.getFirst(depth), killerMoves.getSecond(depth), currState, entry_out.bestMove, history,
-                                  rng, dist) > get_move_score(b, killerMoves.getFirst(depth), killerMoves.getSecond(depth), currState,
-                                                              entry_out.bestMove, history, rng, dist);
-        });
+    std::ranges::sort(possibleMoves,
+                      [&currState, &entry_out, &killerMoves, &search, &history, &rng, &dist](const Move& a, const Move& b) {
+                          return get_move_score(a, killerMoves.getFirst(search.depth), killerMoves.getSecond(search.depth), currState,
+                                                entry_out.bestMove, history, rng, dist) >
+                                 get_move_score(b, killerMoves.getFirst(search.depth), killerMoves.getSecond(search.depth), currState,
+                                                entry_out.bestMove, history, rng, dist);
+                      });
 
     int bestValue = -INF;
     Move bestMove;
     for (int i = 0; i < possibleMoves.size(); ++i) {
-        if (steadyClock::now() >= deadline) {
+        if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
             break;
         }
@@ -187,18 +191,19 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
         currState.makeMove(move);
         int currValue;
         // LMR
-        int newDepth = depth - 1;
-        if (depth >= 3 && i > 2 && !bestMove.enPassantCapture && currState.getAt(move.end) != Pieces::EMPTY) {
-            const int reduction = static_cast<int>(.99 + std::log(depth) * std::log(i) / 3.14); // TODO: consider changing formula
-            newDepth = depth - reduction;
+        int newDepth = search.depth - 1;
+        if (search.depth >= 3 && i > 2 && !bestMove.enPassantCapture && currState.getAt(move.end) != Pieces::EMPTY) {
+            const int reduction =
+                static_cast<int>(.99 + std::log(search.depth) * std::log(i) / 3.14); // TODO: consider changing formula
+            newDepth = search.depth - reduction;
         }
         if (i == 0) {
-            currValue = -negamax(currState, newDepth, -beta, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
+            currValue = -negamax(currState, search.nextLimit(newDepth), history, rng, dist, killerMoves);
         } else {
             // principle variation search
-            currValue = -negamax(currState, newDepth, -alpha - 1, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
-            if (currValue > alpha && currValue < beta) {
-                currValue = -negamax(currState, depth - 1, -beta, -alpha, -colorRep, history, rng, dist, killerMoves, deadline);
+            currValue = -negamax(currState, search.nextPVS(newDepth), history, rng, dist, killerMoves);
+            if (currValue > search.alpha && currValue < search.beta) {
+                currValue = -negamax(currState, search.nextLimit(), history, rng, dist, killerMoves);
             }
         }
         currState.undoMove();
@@ -206,10 +211,10 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
             bestValue = currValue;
             bestMove = move;
         }
-        alpha = std::max(alpha, bestValue);
-        if (alpha >= beta) {
+        search.alpha = std::max(search.alpha, bestValue);
+        if (search.alpha >= search.beta) {
             if (bestMove.enPassantCapture || currState.getAt(move.end) != Pieces::EMPTY) {
-                killerMoves.insert(depth, bestMove);
+                killerMoves.insert(search.depth, bestMove);
             }
             break;
         }
@@ -222,53 +227,52 @@ int Engine::negamax(State& currState, int depth, int alpha, int beta, int colorR
     Transposition::CutoffType cutoffType;
     if (bestValue <= alphaOrig) {
         cutoffType = Transposition::CutoffType::UPPER_BOUND;
-    } else if (bestValue >= beta) {
+    } else if (bestValue >= search.beta) {
         cutoffType = Transposition::CutoffType::LOWER_BOUND;
     } else {
         cutoffType = Transposition::CutoffType::EXACT;
     }
 
     // using full move clock for age
-    transPosTable.insert(currState.getZobrist(), bestMove, depth, bestValue, cutoffType, currState.getFullMoveClock());
+    transPosTable.insert(currState.getZobrist(), bestMove, search.depth, bestValue, cutoffType, currState.getFullMoveClock());
     return bestValue;
 }
 
-int Engine::quiescence(State& state, const int colorRep, const int depth, int alpha, int beta,
-                       const steadyClock::time_point& deadline) {
+int Engine::quiescence(State& state, SearchLimits search) {
     // TODO: add color rep int
-    int staticEval = colorRep * Evaluator::evaluate(state); // - eval means position good for black, else good for white
+    int staticEval = search.color * Evaluator::evaluate(state); // - eval means position good for black, else good for white
 
     int bestValue = staticEval;
-    if (depth == 0 || endSearch()) {
+    if (search.depth == 0 || endSearch()) {
         return bestValue;
     }
-    if (bestValue >= beta) {
+    if (bestValue >= search.beta) {
         return bestValue;
     }
-    if (bestValue > alpha) {
-        alpha = bestValue;
+    if (bestValue > search.alpha) {
+        search.alpha = bestValue;
     }
 
     std::vector<Move> possibleMoves = state.getMoves(); // TODO: limit to captures, and checks
     for (auto& move : possibleMoves) {
         if (state.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
-            if (steadyClock::now() >= deadline) {
+            if (steadyClock::now() >= search.deadline) {
                 stop.store(true, std::memory_order_relaxed);
                 break;
             }
 
             state.makeMove(move);
-            const int score = -quiescence(state, -colorRep, depth - 1, -beta, -alpha, deadline);
+            const int score = -quiescence(state, search.nextLimit());
             state.undoMove();
 
-            if (score >= beta) {
+            if (score >= search.beta) {
                 return score;
             }
             if (score > bestValue) {
                 bestValue = score;
             }
-            if (score > alpha) {
-                alpha = score;
+            if (score > search.alpha) {
+                search.alpha = score;
             }
 
             if (endSearch()) {

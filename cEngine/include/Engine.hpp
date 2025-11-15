@@ -55,6 +55,27 @@ private:
 };
 
 using steadyClock = std::chrono::steady_clock;
+
+struct SearchLimits {
+    int color;
+    int depth;
+    int alpha;
+    int beta;
+
+    const steadyClock::time_point& deadline;
+
+    [[nodiscard]] SearchLimits nextLimit() const {
+        return {-color, depth - 1, -beta, -alpha, deadline};
+    }
+
+    [[nodiscard]] SearchLimits nextLimit(const int searchDepth) const {
+        return {-color, searchDepth, -beta, -alpha, deadline};
+    }
+    [[nodiscard]] SearchLimits nextPVS(const int searchDepth) const {
+        return {-color, searchDepth, -alpha - 1, -alpha, deadline};
+    }
+};
+
 class Engine {
 public:
     Move getBestMove();
@@ -74,11 +95,12 @@ private:
     std::atomic<bool> stop = false;
     std::atomic<bool> timeOut = false;
 
-    Move root(State& currState, const std::vector<Move>& rootMoves, int depth, int alpha, int beta, HistoryTable& history,
-              int& scoreOut, int seed, const steadyClock::time_point& deadline);
-    int negamax(State& currState, int depth, int alpha, int beta, int colorRep, HistoryTable& history, std::mt19937& rng,
-                std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves, const steadyClock::time_point& deadline);
-    int quiescence(State& state, int colorRep, int depth, int alpha, int beta, const steadyClock::time_point& deadline);
+    Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, HistoryTable& history, int& scoreOut,
+              int seed);
+    int negamax(State& currState, SearchLimits search, HistoryTable& history, std::mt19937& rng,
+                std::uniform_int_distribution<int>& dist, KillerMoves& killerMoves);
+    int quiescence(State& state, SearchLimits search);
+
     static int get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,
                               const State& currState, const std::optional<Move>& tt_move, HistoryTable& history, std::mt19937& rng,
                               std::uniform_int_distribution<int>& dist);
