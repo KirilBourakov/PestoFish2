@@ -84,3 +84,5 @@ private:
 inline std::ostream& operator<<(std::ostream& os, const Move& m) {
     return os << m.start << " -> " << m.end;
 }
+
+using OptionalMove = std::optional<Move>;

@@ -284,8 +284,8 @@ int Engine::quiescence(State& state, SearchLimits search) {
     return bestValue;
 }
 
-int Engine::get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,
-                           const State& currState, const std::optional<Move>& tt_move, HistoryTable& history, std::mt19937& rng,
+int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
+                           const OptionalMove& tt_move, HistoryTable& history, std::mt19937& rng,
                            std::uniform_int_distribution<int>& dist) {
     if (tt_move.has_value() && move == tt_move.value()) {
         return 1000000;

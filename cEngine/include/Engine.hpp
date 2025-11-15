@@ -36,13 +36,13 @@ public:
         moves[depth][0] = move;
         real[depth][0] = true;
     }
-    std::optional<Move> getFirst(const int depth) {
+    OptionalMove getFirst(const int depth) {
         if (real[depth][0]) {
             return moves[depth][0];
         }
         return std::nullopt;
     }
-    std::optional<Move> getSecond(const int depth) {
+    OptionalMove getSecond(const int depth) {
         if (real[depth][1]) {
             return moves[depth][1];
         }
@@ -110,8 +110,8 @@ private:
                 std::uniform_int_distribution<int>& dist);
     int quiescence(State& state, SearchLimits search);
 
-    static int get_move_score(const Move& move, const std::optional<Move>& killer1, const std::optional<Move>& killer2,
-                              const State& currState, const std::optional<Move>& tt_move, HistoryTable& history, std::mt19937& rng,
+    static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
+                              const OptionalMove& tt_move, HistoryTable& history, std::mt19937& rng,
                               std::uniform_int_distribution<int>& dist);
 
     [[nodiscard]] bool endSearch() const {
