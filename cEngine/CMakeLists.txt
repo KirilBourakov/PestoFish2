@@ -17,7 +17,7 @@ set(ENGINE_SOURCES
 set(ENGINE_MODULES
         include/Engine.hpp
         include/State.hpp
-        include/Move.hpp
+        include/ModuleOnly/Move.hpp
         include/Evaluator.hpp
         include/ZobristHash.hpp
 

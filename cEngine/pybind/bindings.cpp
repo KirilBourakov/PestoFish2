@@ -27,11 +27,11 @@ PYBIND11_MODULE(cEngine, m) {
         .def("get_half_move_clock", &State::getHalfMoveClock)
         .def("get_game_state", py::overload_cast<>(&State::getGameState));
 
-    py::class_<BoardArray>(m, "BoardArray").def("__getitem__", [](const BoardArray& self, size_t i) {
+    py::class_<NewBoard>(m, "BoardArray").def("__getitem__", [](const NewBoard& self, size_t i) {
         if (i >= BOARD_SIZE) {
             throw py::index_error();
         }
-        const auto& row = self[i];
+        const auto& row = self.get_row(i);
         return std::vector<Pieces::Piece>(row.begin(), row.end());
     });
 

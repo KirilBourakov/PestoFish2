@@ -1,20 +1,45 @@
 //
 // Created by Kiril on 2025-08-23.
 //
-#include <algorithm>
-#include <iostream>
 #include <stdexcept>
 
 #include "ModuleOnly/Board.hpp"
 #include "ModuleOnly/Enums.hpp"
-#include "Move.hpp"
+#include "ModuleOnly/Move.hpp"
+#include "NewBoard.hpp"
+
 #include <optional>
 #include <vector>
 
 using moveSet = std::vector<std::pair<int, int>>;
 
-void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights,
-                  std::vector<Move>& moves) {
+void NewBoard::addMoves(int x, int y, const Color activeColor, const std::optional<BoardPosition> enPassantSquare, int castlingRights,
+                        std::vector<Move>& out) const {
+    switch (Pieces::piece_type(board[y][x])) {
+    case PieceType::Pawn:
+        addPawnMoves(x, y, activeColor, enPassantSquare, out);
+        break;
+    case PieceType::Knight:
+        addKnightMoves(x, y, activeColor, out);
+        break;
+    case PieceType::Bishop:
+        addSlidingMoves(x, y, activeColor, false, true, out);
+        break;
+    case PieceType::Rook:
+        addSlidingMoves(x, y, activeColor, true, false, out);
+        break;
+    case PieceType::Queen:
+        addSlidingMoves(x, y, activeColor, true, true, out);
+        break;
+    case PieceType::King:
+        addKingMoves(x, y, activeColor, castlingRights, out);
+        break;
+    default:
+        throw std::invalid_argument(std::format("Invalid piece {} at ({}, {})", static_cast<int>(board[y][x]), x, y));
+    }
+}
+
+void NewBoard::addKingMoves(const int x, const int y, const Color color, const int castleRights, std::vector<Move>& moves) const {
     using namespace Pieces;
 
     static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -43,7 +68,7 @@ void addKingMoves(const BoardArray& board, const int x, const int y, const Color
 }
 
 // TODO: test
-void addPromotions(BoardPosition start, BoardPosition end, Pieces::Piece piece, Color color, std::vector<Move>& moves) {
+void NewBoard::addPromotions(BoardPosition start, BoardPosition end, Pieces::Piece piece, Color color, std::vector<Move>& moves) {
     using namespace Pieces;
 
     static constexpr std::array<Piece, 4> whitePieces = {WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN};
@@ -55,8 +80,8 @@ void addPromotions(BoardPosition start, BoardPosition end, Pieces::Piece piece, 
     }
 }
 
-void addPawnMoves(const BoardArray& board, const int x, const int y, const Color color,
-                  const std::optional<BoardPosition>& enPassantSquare, std::vector<Move>& moves) {
+void NewBoard::addPawnMoves(const int x, const int y, const Color color, const std::optional<BoardPosition>& enPassantSquare,
+                            std::vector<Move>& moves) const {
     int dir = color == Color::White ? -1 : 1;
     int newY = y + dir;
     const BoardPosition start{.x = x, .y = y};
@@ -107,7 +132,7 @@ void addPawnMoves(const BoardArray& board, const int x, const int y, const Color
     }
 }
 
-void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move>& moves) {
+void NewBoard::addKnightMoves(const int x, const int y, const Color color, std::vector<Move>& moves) const {
     static const moveSet possible = {{+2, -1}, {+2, +1}, {-2, -1}, {-2, +1}, {-1, +2}, {+1, +2}, {-1, -2}, {+1, -2}};
     const BoardPosition start{.x = x, .y = y};
     for (auto [off_x, off_y] : possible) {
@@ -121,8 +146,7 @@ void addKnightMoves(const BoardArray& board, const int x, const int y, const Col
     }
 }
 
-void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, const bool straight, const bool diag,
-                     std::vector<Move>& moves) {
+void NewBoard::addSlidingMoves(int x, int y, const Color color, const bool straight, const bool diag, std::vector<Move>& moves) const {
     static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     static const moveSet diag_dir = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     static const moveSet straight_dir = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
@@ -159,7 +183,7 @@ void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, c
     }
 }
 
-bool isAttacked(const BoardArray& board, const BoardPosition position, const Color color) {
+bool NewBoard::isAttacked(const BoardPosition& position, const Color color) const {
     if (!inBounds(position.x, position.y)) {
         throw std::invalid_argument("Position is out of bounds");
     }
@@ -238,7 +262,7 @@ bool isAttacked(const BoardArray& board, const BoardPosition position, const Col
     return false;
 }
 
-bool isAttacked(const BoardArray& board, const BoardPosition position) {
+bool NewBoard::isAttacked(const BoardPosition& position) const {
     if (!inBounds(position.x, position.y)) {
         throw std::invalid_argument("Position is out of bounds");
     }
@@ -246,5 +270,5 @@ bool isAttacked(const BoardArray& board, const BoardPosition position) {
         throw std::invalid_argument("Cannot implicitly find color of empty square");
     }
     const Color color = Pieces::piece_color(board[position.y][position.x]);
-    return isAttacked(board, position, color);
+    return isAttacked(position, color);
 }

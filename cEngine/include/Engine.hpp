@@ -6,8 +6,8 @@
 
 #include "ModuleOnly/Board.hpp"
 #include "ModuleOnly/Enums.hpp"
+#include "ModuleOnly/Move.hpp"
 #include "ModuleOnly/TranspositionTable.hpp"
-#include "Move.hpp"
 #include "State.hpp"
 #include <array>
 #include <optional>

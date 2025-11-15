@@ -9,13 +9,14 @@
 #include <unordered_map>
 
 #include "ModuleOnly/Board.hpp"
-#include "Move.hpp"
+#include "ModuleOnly/Move.hpp"
+#include "NewBoard.hpp"
 
 using u64 = unsigned long long;
 
 class ZobristHash {
 public:
-    ZobristHash(const BoardArray& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+    ZobristHash(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 
     void flipActiveColor();
     void changeCastling(int prevCastlingRights, int newCastlingRights);
@@ -39,7 +40,7 @@ public:
 private:
     static unsigned long long seed;
 
-    void recalculate(const BoardArray& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+    void recalculate(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 
     u64 value;
 

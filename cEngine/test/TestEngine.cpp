@@ -6,7 +6,7 @@
 
 #include "ModuleOnly/Board.hpp"
 #include "ModuleOnly/Enums.hpp"
-#include "Move.hpp"
+#include "ModuleOnly/Move.hpp"
 #include "testBoard.hpp"
 
 using namespace Pieces;

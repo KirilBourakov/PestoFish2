@@ -7,7 +7,8 @@
 
 #include "ModuleOnly/Board.hpp"
 #include "ModuleOnly/Enums.hpp"
-#include "Move.hpp"
+#include "ModuleOnly/Move.hpp"
+#include "NewBoard.hpp"
 #include "ZobristHash.hpp"
 
 class State {
@@ -32,12 +33,11 @@ public:
     };
 
     State();
-    State(const BoardArray& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
-    State(const BoardArray& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare,
           const std::vector<HistoricalEntry>& history, const std::vector<u64>& hashHistory);
 
-    void addMoves(int x, int y, std::vector<Move>& out) const;
     void makeMove(const Move& move);
     void undoMove();
     std::vector<Move> getMoves();
@@ -47,7 +47,7 @@ public:
     GameState getGameState();
 
     void printState() {
-        print_board(board);
+        board.print_board();
         if (enPassantSquare.has_value()) {
             std::cout << "en passent " << enPassantSquare.value() << std::endl;
         }
@@ -62,20 +62,20 @@ public:
     }
     [[nodiscard]] bool colorInCheck(const Color color) const {
         const BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
-        return isAttacked(board, kingSquare);
+        return board.isAttacked(kingSquare);
     }
 
     [[nodiscard]] int getCastlingRights() const {
         return castlingRights;
     }
-    [[nodiscard]] int getZobrist() const {
+    [[nodiscard]] u64 getZobrist() const {
         return hash.getValue();
     }
-    [[nodiscard]] const BoardArray& getBoard() const {
+    [[nodiscard]] const NewBoard& getBoard() const {
         return board;
     }
     [[nodiscard]] const Pieces::Piece getAt(const BoardPosition inp) const {
-        return board[inp.y][inp.x];
+        return board(inp.y, inp.x);
     }
 
     [[nodiscard]] std::optional<BoardPosition> getEnPassantSquare() const {
@@ -100,7 +100,7 @@ private:
     std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);
 
     // FEN info
-    BoardArray board;
+    NewBoard board;
     Color activeColor;
     int castlingRights;
     std::optional<BoardPosition> enPassantSquare;

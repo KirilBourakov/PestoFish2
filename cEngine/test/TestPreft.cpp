@@ -3,7 +3,7 @@
 //
 
 #include "ModuleOnly/Enums.hpp"
-#include "Move.hpp"
+#include "ModuleOnly/Move.hpp"
 #include "State.hpp"
 #include <gtest/gtest.h>
 

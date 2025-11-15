@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "Evaluator.hpp"
-#include "Move.hpp"
+#include "ModuleOnly/Move.hpp"
 
 void Engine::makeEngineMove() {
     state.makeMove(getBestMove());

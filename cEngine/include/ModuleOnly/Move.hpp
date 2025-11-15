@@ -5,10 +5,9 @@
 #include <iostream>
 #include <optional>
 #include <string>
-#include <vector>
 
-#include "ModuleOnly/Board.hpp"
-#include "ModuleOnly/Enums.hpp"
+#include "Board.hpp"
+#include "Enums.hpp"
 
 struct Move {
     Move() = default;
@@ -68,13 +67,3 @@ private:
 inline std::ostream& operator<<(std::ostream& os, const Move& m) {
     return os << m.start << " -> " << m.end;
 }
-
-void addPawnMoves(const BoardArray& board, const int x, const int y, const Color color,
-                  const std::optional<BoardPosition>& enPassantSquare, std::vector<Move>& moves);
-void addKingMoves(const BoardArray& board, const int x, const int y, const Color color, const int castleRights,
-                  std::vector<Move>& moves);
-void addKnightMoves(const BoardArray& board, const int x, const int y, const Color color, std::vector<Move>& moves);
-void addSlidingMoves(const BoardArray& board, int x, int y, const Color color, const bool straight, const bool diag,
-                     std::vector<Move>& moves);
-bool isAttacked(const BoardArray& board, const BoardPosition position);
-bool isAttacked(const BoardArray& board, const BoardPosition position, const Color color);

@@ -8,23 +8,6 @@
 
 #include "Enums.hpp"
 
-constexpr int BOARD_SIZE = 8;
-
-using BoardArray = std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE>;
-
-inline void print_board(const BoardArray& board) {
-    std::cout << "  +-----------------+" << std::endl;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        std::cout << i + 1 << " | ";
-        for (size_t j = 0; j < BOARD_SIZE; j++) {
-            std::cout << Pieces::piece_char(board[i][j]) << ' ';
-        }
-        std::cout << '|' << std::endl;
-    }
-    std::cout << "  +-----------------+" << std::endl;
-    std::cout << "    a b c d e f g h" << std::endl;
-}
-
 struct BoardPosition {
     int x, y;
     bool operator==(const BoardPosition& other) const {
@@ -33,25 +16,6 @@ struct BoardPosition {
 };
 inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
     return os << static_cast<char>(pos.x + 97) << (abs(pos.y - 8)) << "(" << pos.x << "," << pos.y << ")";
-}
-
-inline BoardArray getStartingBoard() {
-    using namespace Pieces;
-    return BoardArray{{{{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
-                       {{BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN}},
-                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                       {{WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN}},
-                       {{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}}}};
-}
-
-inline bool inBounds(const int x) {
-    return x >= 0 && x < BOARD_SIZE;
-}
-inline bool inBounds(const int x, const int y) {
-    return inBounds(x) && inBounds(y);
 }
 
 inline bool castleAllowed(const Color color, const CastleType type, const int castleRights) {
