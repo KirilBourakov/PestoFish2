@@ -33,7 +33,8 @@ public:
                 engine.get()->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
                 // Make any provided moves
                 for (int i = 2; i < tokens.size(); i++) {
-                    throw std::invalid_argument("UCI does not currently support moves after startpos"); // TODO: handle this case
+                    Move mv = moveFromLongAlgebric(tokens[i], engine.get()->getState());
+                    engine.get()->getState().makeMove(mv);
                 }
             }
             if (option == "fen") {
