@@ -216,6 +216,7 @@ int Engine::negamax(State& currState, SearchLimits search, HistoryTable& history
             if (!move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
                 killerMoves.insert(search.depth, move);
             }
+            history[move] = search.depth * search.depth;
             break;
         }
 
