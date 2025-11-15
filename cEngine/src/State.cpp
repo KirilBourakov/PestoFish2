@@ -184,6 +184,10 @@ GameState State::getGameState(const std::vector<Move>& possibleMoves) {
         return GameState::STALEMATE;
     }
 
+    if (board.isDrawFromMaterial()) {
+        return GameState::DRAW;
+    }
+
     return GameState::IN_PLAY;
 }
 

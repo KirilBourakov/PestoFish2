@@ -35,6 +35,47 @@ public:
     void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights,
                   std::vector<Move>& out) const;
 
+    bool isDrawFromMaterial() const {
+        int wBishops = 0;
+        int wKnights = 0;
+        int bBishops = 0;
+        int bKnights = 0;
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                switch (board[y][x]) {
+                case Pieces::WHITE_PAWN:
+                case Pieces::BLACK_PAWN:
+                case Pieces::WHITE_ROOK:
+                case Pieces::BLACK_ROOK:
+                case Pieces::WHITE_QUEEN:
+                case Pieces::BLACK_QUEEN:
+                    return false;
+
+                case Pieces::WHITE_KNIGHT:
+                    wKnights++;
+                    break;
+                case Pieces::WHITE_BISHOP:
+                    wBishops++;
+                    break;
+                case Pieces::BLACK_KNIGHT:
+                    bKnights++;
+                    break;
+                case Pieces::BLACK_BISHOP:
+                    bBishops++;
+                    break;
+
+                case Pieces::WHITE_KING:
+                case Pieces::BLACK_KING:
+                case Pieces::EMPTY:
+                    break;
+                }
+            }
+        }
+        const bool whiteCanWin = (wBishops >= 1 && wKnights >= 1) || (wBishops >= 2) || (wKnights >= 3);
+        const bool blackCanWin = (bBishops >= 1 && bKnights >= 1) || (bBishops >= 2) || (bKnights >= 3);
+        return !whiteCanWin && !blackCanWin;
+    }
+
     [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const;
     [[nodiscard]] bool isAttacked(const BoardPosition& position) const;
     static bool inBounds(const int x) {
