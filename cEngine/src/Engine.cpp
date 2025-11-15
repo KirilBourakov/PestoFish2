@@ -40,14 +40,18 @@ Move Engine::getBestMove() {
 
     int scoreOut;
     SearchLimits searchD1 = {0, 1, -INF, INF, 0, deadline};
-    Move out = root(state, possibleMoves, searchD1, globalHistory, scoreOut, 1);
+    KillerMoves killer{};
+    OrderingInfo orderingInfo = {globalHistory, killer};
+    Move out = root(state, possibleMoves, searchD1, orderingInfo, scoreOut, 1);
 
     int expected = scoreOut;
     int window = 40;
 
     constexpr int NUM_THREADS = 0; // turn shared SMP back on when threads are properly used (create once, use allways)
     std::array<std::thread, NUM_THREADS> helpers;
-    for (int depth = 2; depth <= 20 && steadyClock::now() < deadline; depth++) {
+
+    int depth;
+    for (depth = 2; depth <= 20 && steadyClock::now() < deadline; depth++) {
         int alpha = expected - window;
         int beta = expected + window;
         while (true) {
@@ -72,7 +76,7 @@ Move Engine::getBestMove() {
 
             int newScore;
             SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-            Move candidate = root(state, possibleMoves, search, globalHistory, newScore, 0);
+            Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, 0);
 
             stop.store(true, std::memory_order_seq_cst);
             // for (auto& helper : helpers) {
@@ -92,17 +96,16 @@ Move Engine::getBestMove() {
         }
     }
 
-    std::cout << "Score: " << scoreOut << std::endl;
+    std::cout << "Search Completed. Depth: " << depth << std::endl;
 
     return out;
 }
 
-Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, HistoryTable& history, int& scoreOut,
+Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, int& scoreOut,
                   int seed) {
     std::mt19937 rng(seed);
     std::uniform_int_distribution<int> dist(0, 10);
 
-    OrderingInfo orderingInfo = OrderingInfo::create(history);
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;

@@ -46,6 +46,26 @@ public:
         return std::nullopt;
     }
 
+    void print(Move mv) {
+        std::cout << "----- KillerMoves -----" << std::endl;
+        for (int i = 0; i < maxPly; i++) {
+            for (int j = 0; j < 2; j++) {
+                if (real[i][j]) {
+                    std::cout << moves[i][j] << " ";
+                    if (moves[i][j] == mv) {
+                        std::cout << "PLAYING THIS!";
+                    }
+                }
+            }
+
+            std::cout << std::endl;
+            if (!real[i][0] && !real[i][1]) {
+                break;
+            }
+        }
+        std::cout << "----- End KillerMoves -----" << std::endl;
+    }
+
 private:
     std::array<std::array<Move, 2>, maxPly> moves{};
     std::array<std::array<bool, 2>, maxPly> real{};
@@ -76,11 +96,7 @@ struct SearchLimits {
 
 struct OrderingInfo {
     HistoryTable& history;
-    KillerMoves killer;
-
-    static OrderingInfo create(HistoryTable& history) {
-        return {history, {}};
-    }
+    KillerMoves& killer;
 };
 
 class Engine {
@@ -102,7 +118,7 @@ private:
     std::atomic<bool> stop = false;
     std::atomic<bool> timeOut = false;
 
-    Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, HistoryTable& history, int& scoreOut,
+    Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, int& scoreOut,
               int seed);
     int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, std::mt19937& rng,
                 std::uniform_int_distribution<int>& dist);
