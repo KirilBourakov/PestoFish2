@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "Engine.hpp"
+#include "ModuleOnly/parse.hpp"
 
 class UCI {
 public:
@@ -29,7 +30,7 @@ public:
             std::string option = tokens[1];
             // Straight start position with no moves
             if (option == "startpos") {
-                engine.get()->setState(State::fromFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+                engine.get()->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
                 // Make any provided moves
                 for (int i = 2; i < tokens.size(); i++) {
                     throw std::invalid_argument("UCI does not currently support moves after startpos"); // TODO: handle this case
@@ -38,7 +39,7 @@ public:
             if (option == "fen") {
                 const std::string fen =
                     tokens[2] + " " + tokens[3] + " " + tokens[4] + " " + tokens[5] + " " + tokens[6] + " " + tokens[7];
-                engine.get()->setState(State::fromFen(fen)); // fen should be provided, if fen position is set
+                engine.get()->setState(fenToState(fen)); // fen should be provided, if fen position is set
             }
         }
         if (command == "go") {

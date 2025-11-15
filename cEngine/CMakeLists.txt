@@ -68,6 +68,7 @@ add_executable(runTests
         test/TestPreft.cpp
         test/TestState.cpp
         test/TestEngine.cpp
+        test/TestParse.cpp
 
         test/testBoard.hpp
         ${ENGINE_SOURCES}

@@ -40,8 +40,6 @@ public:
     State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock);
 
-    static State fromFen(const std::string& fen);
-
     void makeMove(const Move& move);
     void undoMove();
     std::vector<Move> getMoves();
