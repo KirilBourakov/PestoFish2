@@ -85,8 +85,8 @@ public:
             worker.join();
         }
 
-        worker = std::thread([this]() {
-            const Move best = this->engine->getBestMove();
+        worker = std::thread([this, request]() {
+            const Move best = this->engine->getBestMove(request);
             std::cout << "bestmove " << longAlgebricFromMove(best) << std::endl;
         });
     }

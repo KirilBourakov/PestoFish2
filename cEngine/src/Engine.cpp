@@ -22,7 +22,7 @@ Move Engine::getBestMove() {
 }
 
 // TODO: implement ply so earlier mates are more prioritized
-Move Engine::getBestMove(SearchRequest request) {
+Move Engine::getBestMove(const SearchRequest& request) {
     int timelimit = request.movetime;
     int maxDepth = request.depth;
     bool infinite = request.infinite;

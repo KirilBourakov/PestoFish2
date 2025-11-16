@@ -132,7 +132,7 @@ public:
     void makeEngineMove();
 
     Move getBestMove();
-    Move getBestMove(SearchRequest request);
+    Move getBestMove(const SearchRequest& request);
 
     State& getState() {
         return state;
