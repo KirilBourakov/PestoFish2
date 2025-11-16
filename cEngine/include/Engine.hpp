@@ -115,6 +115,18 @@ struct RngInfo {
     }
 };
 
+struct SearchRequest {
+    std::optional<std::vector<Move>> searchmoves = std::nullopt;
+    int wtime = -1;
+    int btime = -1;
+    int winc = 0;
+    int binc = 0;
+    int movestogo = -1;
+    int depth = -1;
+    int movetime = 1000;
+    bool infinite = false;
+};
+
 class Engine {
 public:
     Move getBestMove();

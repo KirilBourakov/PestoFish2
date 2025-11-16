@@ -44,6 +44,31 @@ public:
     }
 
     void runGo(std::vector<std::string> args) {
+        int i = 0;
+        SearchRequest request;
+        std::unordered_map<std::string, int*> map = {
+            {"movetime", &request.movetime}, {"depth", &request.depth}, {"movestogo", &request.movestogo}, {"binc", &request.binc},
+            {"winc", &request.winc},         {"btime", &request.btime}, {"wtime", &request.wtime},
+        };
+        while (i < args.size()) {
+            std::string arg = args.at(i);
+            if (arg == "ponder" || arg == "nodes" || arg == "mate") {
+                throw std::invalid_argument("ponder, nodes and mate not currently supported");
+            } else if (arg == "moves") {
+                // TODO: handle parsing moves
+            } else if (arg == "infinite") {
+                request.infinite = true;
+            } else {
+                auto it = map.find(args[i]);
+                if (it != map.end() && i + 1 < args.size()) {
+                    *it->second = std::stoi(args[i + 1]);
+                    ++i;
+                }
+            }
+
+            i++;
+        }
+
         if (worker.joinable()) {
             engine.get()->forceTimeout();
             worker.join();
