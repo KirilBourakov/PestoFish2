@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <regex>
 #include <sstream>
 
 #include "Engine.hpp"
@@ -54,8 +55,17 @@ public:
             std::string arg = args.at(i);
             if (arg == "ponder" || arg == "nodes" || arg == "mate") {
                 throw std::invalid_argument("ponder, nodes and mate not currently supported");
-            } else if (arg == "moves") {
-                // TODO: handle parsing moves
+            } else if (arg == "searchmoves") {
+                std::regex pattern("[a-h][1-8][a-h][1-8][nbrqNBRQ]?$");
+                std::vector<Move> moves;
+                i++;
+                while (i < args.size() && std::regex_match(args[i], pattern)) {
+                    moves.push_back(moveFromLongAlgebric(args[i], engine->getState()));
+                    i++;
+                }
+                request.searchmoves = moves;
+                i--;
+
             } else if (arg == "infinite") {
                 request.infinite = true;
             } else {
