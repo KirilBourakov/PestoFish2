@@ -30,16 +30,7 @@ public:
             runPosition(std::vector(tokens.begin() + 1, tokens.end()));
         }
         if (command == "go") {
-            if (worker.joinable()) {
-                engine.get()->forceTimeout();
-                worker.join();
-            }
-
-            engine->forceTimeout();
-            worker = std::thread([this]() {
-                const Move best = this->engine->getBestMove();
-                std::cout << "bestmove " << longAlgebricFromMove(best) << std::endl;
-            });
+            runGo(std::vector(tokens.begin() + 1, tokens.end()));
         }
         if (command == "stop") {
             engine.get()->forceTimeout();
@@ -50,6 +41,18 @@ public:
                 worker.join();
             }
         }
+    }
+
+    void runGo(std::vector<std::string> args) {
+        if (worker.joinable()) {
+            engine.get()->forceTimeout();
+            worker.join();
+        }
+
+        worker = std::thread([this]() {
+            const Move best = this->engine->getBestMove();
+            std::cout << "bestmove " << longAlgebricFromMove(best) << std::endl;
+        });
     }
 
     void runPosition(std::vector<std::string> args) {
