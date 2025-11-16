@@ -48,7 +48,7 @@ public:
     GameState getGameState(const std::vector<Move>& possibleMoves);
     GameState getGameState();
 
-    void printState() {
+    void printState() const {
         board.print_board();
         if (enPassantSquare.has_value()) {
             std::cout << "en passent " << enPassantSquare.value() << std::endl;
