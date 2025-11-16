@@ -123,14 +123,16 @@ struct SearchRequest {
     int binc = 0;
     int movestogo = -1;
     int depth = -1;
-    int movetime = 1000;
+    int movetime = -1;
     bool infinite = false;
 };
 
 class Engine {
 public:
-    Move getBestMove();
     void makeEngineMove();
+
+    Move getBestMove();
+    Move getBestMove(SearchRequest request);
 
     State& getState() {
         return state;
@@ -138,8 +140,8 @@ public:
     void setState(const State& state) {
         this->state = state;
     };
-    void forceTimeout() {
-        timeOut.store(true, std::memory_order_seq_cst);
+    void stopSearch() {
+        forceStop.store(true, std::memory_order_seq_cst);
     }
 
 private:
@@ -148,6 +150,7 @@ private:
     HistoryTable globalHistory{};
     std::atomic<bool> stop = false;
     std::atomic<bool> timeOut = false;
+    std::atomic<bool> forceStop = false;
 
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, int& scoreOut,
               RngInfo& rng);
@@ -158,7 +161,8 @@ private:
                               const OptionalMove& tt_move, HistoryTable& history, RngInfo& rng);
 
     [[nodiscard]] bool endSearch() const {
-        return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst);
+        return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst) ||
+               forceStop.load(std::memory_order_seq_cst);
     }
 };
 

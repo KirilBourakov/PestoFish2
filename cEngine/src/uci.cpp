@@ -34,11 +34,12 @@ public:
             runGo(std::vector(tokens.begin() + 1, tokens.end()));
         }
         if (command == "stop") {
-            engine.get()->forceTimeout();
+            engine.get()->stopSearch();
             worker.join();
         }
         if (command == "quit") {
             if (worker.joinable()) {
+                engine.get()->stopSearch();
                 worker.join();
             }
         }
@@ -80,7 +81,7 @@ public:
         }
 
         if (worker.joinable()) {
-            engine.get()->forceTimeout();
+            engine.get()->stopSearch();
             worker.join();
         }
 

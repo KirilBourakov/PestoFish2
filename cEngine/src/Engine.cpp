@@ -17,80 +17,114 @@ void Engine::makeEngineMove() {
     state.makeMove(getBestMove());
 }
 
-// TODO: implement ply so earlier mates are more prioritized
 Move Engine::getBestMove() {
-    int timeLimit = 1000;
-    auto start = steadyClock::now();
-    auto deadline = start + std::chrono::milliseconds(timeLimit);
-    timeOut.store(false, std::memory_order_seq_cst);
+    return getBestMove(SearchRequest{.movetime = 1000});
+}
 
+// TODO: implement ply so earlier mates are more prioritized
+Move Engine::getBestMove(SearchRequest request) {
+    int timelimit = request.movetime;
+    int maxDepth = request.depth;
+    bool infinite = request.infinite;
+
+    // we were not given timelimit, depth nor infinite.
+    // Let's calculate one from provided times, or drop to default if nothing is given
+    if (timelimit == -1 && maxDepth == -1 && !infinite) {
+        Color color = state.getActiveColor();
+        int time = -1;
+        int inc = 0;
+        int movestogo = request.movestogo != -1 ? request.movestogo : 30;
+        if (color == Color::Black) {
+            time = request.btime;
+            inc = request.binc;
+        } else {
+            time = request.wtime;
+            inc = request.winc;
+        }
+        if (time != -1) {
+            timelimit = time / (movestogo + 5) + inc * .8;
+        }
+        // default to a timelimit of 1 second
+        else {
+            timelimit = 1000;
+        }
+    }
+    timeOut.store(false, std::memory_order_seq_cst);
+    auto deadline = steadyClock::now();
+    if (timelimit != -1) {
+        deadline += std::chrono::milliseconds(timelimit);
+    } else {
+        deadline = steadyClock::time_point::max(); // No time provided
+    }
+
+    std::vector<Move> possibleMoves = request.searchmoves.value_or(state.getMoves());
+
+    // Order
+    int stateSeed = 1;
     Transposition::Entry entry_out;
     transPosTable.lookup(state.getZobrist(), entry_out);
-
-    std::vector<Move> possibleMoves = state.getMoves();
-
-    int stateSeed = 1;
-
     RngInfo rootRng = RngInfo::fromSeed(stateSeed);
     std::ranges::sort(possibleMoves, [this, &entry_out, &rootRng](const Move& a, const Move& b) {
         return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rootRng) >
                get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rootRng);
     });
 
-    int scoreOut;
-    SearchLimits searchD1 = {0, 1, -INF, INF, 0, deadline};
     KillerMoves killer{};
     OrderingInfo orderingInfo = {globalHistory, killer};
-    Move out = root(state, possibleMoves, searchD1, orderingInfo, scoreOut, rootRng);
-
-    int expected = scoreOut;
-    int window = 40;
 
     constexpr int NUM_THREADS = 0; // turn shared SMP back on when threads are properly used (create once, use allways)
     std::array<std::thread, NUM_THREADS> helpers;
 
-    int depth;
-    for (depth = 2; depth <= 20 && steadyClock::now() < deadline; depth++) {
-        int alpha = expected - window;
-        int beta = expected + window;
-        while (true) {
-            if (steadyClock::now() >= deadline) {
-                stop.store(true, std::memory_order_relaxed);
-                break;
-            }
+    Move out;
+    int expected, scoreOut;
+    for (int depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
+        if (depth == 1) {
+            SearchLimits search = {0, depth, -INF, INF, 0, deadline};
+            out = root(state, possibleMoves, search, orderingInfo, scoreOut, rootRng);
+            expected = scoreOut;
+        } else {
+            constexpr int window = 40;
+            int alpha = expected - window;
+            int beta = expected + window;
+            while (true) {
+                if (steadyClock::now() >= deadline) {
+                    stop.store(true, std::memory_order_relaxed);
+                    break;
+                }
 
-            // for (int i = 0; i < helpers.size(); i++) {
-            //     HistoryTable history = globalHistory;
-            //
-            //     int scoreOut;
-            //     State state_copy = this->state.makeThreadCopy();
-            //
-            //     int real_depth = (i % 2 == 0) ? depth + 1 : depth;
-            //
-            //     helpers[i] = std::thread(
-            //         [this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i, &deadline]() mutable {
-            //             this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1, deadline);
-            //         });
-            // }
+                // for (int i = 0; i < helpers.size(); i++) {
+                //     HistoryTable history = globalHistory;
+                //
+                //     int scoreOut;
+                //     State state_copy = this->state.makeThreadCopy();
+                //
+                //     int real_depth = (i % 2 == 0) ? depth + 1 : depth;
+                //
+                //     helpers[i] = std::thread(
+                //         [this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i, &deadline]() mutable {
+                //             this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1, deadline);
+                //         });
+                // }
 
-            int newScore;
-            SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-            Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, rootRng);
+                int newScore;
+                SearchLimits search = {0, depth, alpha, beta, 0, deadline};
+                Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, rootRng);
 
-            stop.store(true, std::memory_order_seq_cst);
-            // for (auto& helper : helpers) {
-            //     helper.join();
-            // }
-            stop.store(false, std::memory_order_seq_cst);
+                stop.store(true, std::memory_order_seq_cst);
+                // for (auto& helper : helpers) {
+                //     helper.join();
+                // }
+                stop.store(false, std::memory_order_seq_cst);
 
-            if (newScore <= alpha) { // fail low
-                alpha = -INF;
-            } else if (newScore >= beta) { // fail high
-                beta = INF;
-            } else {
-                out = candidate;
-                expected = newScore;
-                break;
+                if (newScore <= alpha) { // fail low
+                    alpha = -INF;
+                } else if (newScore >= beta) { // fail high
+                    beta = INF;
+                } else {
+                    out = candidate;
+                    expected = newScore;
+                    break;
+                }
             }
         }
     }
