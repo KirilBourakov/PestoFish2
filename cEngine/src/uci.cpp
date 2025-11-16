@@ -22,14 +22,11 @@ public:
         if (command == "isready") {
             std::cout << "readyok" << std::endl;
             return;
-        }
-        if (command == "ucinewgame") {
+        } else if (command == "ucinewgame") {
             engine = std::make_unique<Engine>();
-        }
-        if (command == "position") {
+        } else if (command == "position") {
             runPosition(std::vector(tokens.begin() + 1, tokens.end()));
-        }
-        if (command == "go") {
+        } else if (command == "go") {
             if (worker.joinable()) {
                 engine.get()->forceTimeout();
                 worker.join();
@@ -38,14 +35,12 @@ public:
             engine->forceTimeout();
             worker = std::thread([this]() {
                 const Move best = this->engine->getBestMove();
-                std::cout << "bestmove " << longAlgebricFromMove(best) << std::endl;
+                std::cout << longAlgebricFromMove(best) << std::endl;
             });
-        }
-        if (command == "stop") {
+        } else if (command == "stop") {
             engine.get()->forceTimeout();
             worker.join();
-        }
-        if (command == "quit") {
+        } else if (command == "quit") {
             if (worker.joinable()) {
                 worker.join();
             }
@@ -53,7 +48,7 @@ public:
     }
 
     void runPosition(std::vector<std::string> args) {
-        for (int i = 1; i < args.size(); i++) {
+        for (int i = 0; i < args.size(); i++) {
             std::string token = args[i];
             if (token == "startpos") {
                 engine.get()->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
@@ -64,8 +59,6 @@ public:
                 for (i = i + 1; i < goal; i++) {
                     fen += args[i] + " ";
                 }
-                std::cout << "fen: " << fen << std::endl;
-                engine.get()->setState(fenToState(fen));
             }
 
             if (token == "moves") {

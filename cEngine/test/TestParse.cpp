@@ -2,6 +2,7 @@
 // Created by Kiril on 2025-11-15.
 //
 
+#include "Engine.hpp"
 #include "ModuleOnly/parse.hpp"
 #include "State.hpp"
 #include "testBoard.hpp"
@@ -96,6 +97,15 @@ TEST(parseMove, PromotionToKnight) {
 
     ASSERT_TRUE(mv.promotedTo.has_value());
     EXPECT_EQ(Pieces::piece_type(mv.promotedTo.value()), PieceType::Knight);
+}
+
+TEST(parseMove, promoteCorner) {
+    Engine engine{};
+    engine.setState(fenToState("2k3r1/P7/8/8/8/8/8/7K w - - 0 1"));
+    Move move = engine.getBestMove();
+
+    auto mv = longAlgebricFromMove(move);
+    EXPECT_EQ(mv, "a7a8q");
 }
 
 // CASTLE
