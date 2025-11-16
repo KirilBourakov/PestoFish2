@@ -27,21 +27,7 @@ public:
             engine = std::make_unique<Engine>();
         }
         if (command == "position") {
-            std::string option = tokens[1];
-            // Straight start position with no moves
-            if (option == "startpos") {
-                engine.get()->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
-                // Make any provided moves
-                for (int i = 2; i < tokens.size(); i++) {
-                    Move mv = moveFromLongAlgebric(tokens[i], engine.get()->getState());
-                    engine.get()->getState().makeMove(mv);
-                }
-            }
-            if (option == "fen") {
-                const std::string fen =
-                    tokens[2] + " " + tokens[3] + " " + tokens[4] + " " + tokens[5] + " " + tokens[6] + " " + tokens[7];
-                engine.get()->setState(fenToState(fen)); // fen should be provided, if fen position is set
-            }
+            runPosition(std::vector(tokens.begin() + 1, tokens.end()));
         }
         if (command == "go") {
             if (worker.joinable()) {
@@ -52,7 +38,7 @@ public:
             engine->forceTimeout();
             worker = std::thread([this]() {
                 const Move best = this->engine->getBestMove();
-                std::cout << "bestmove " << best << std::endl;
+                std::cout << "bestmove " << longAlgebricFromMove(best) << std::endl;
             });
         }
         if (command == "stop") {
@@ -62,6 +48,31 @@ public:
         if (command == "quit") {
             if (worker.joinable()) {
                 worker.join();
+            }
+        }
+    }
+
+    void runPosition(std::vector<std::string> args) {
+        for (int i = 1; i < args.size(); i++) {
+            std::string token = args[i];
+            if (token == "startpos") {
+                engine.get()->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+            }
+            if (token == "fen") {
+                std::string fen;
+                int goal = i + 7;
+                for (i = i + 1; i < goal; i++) {
+                    fen += args[i] + " ";
+                }
+                std::cout << "fen: " << fen << std::endl;
+                engine.get()->setState(fenToState(fen));
+            }
+
+            if (token == "moves") {
+                for (i = i + 1; i < args.size(); i++) {
+                    Move mv = moveFromLongAlgebric(args[i], engine.get()->getState());
+                    engine.get()->getState().makeMove(mv);
+                }
             }
         }
     }
@@ -82,8 +93,8 @@ int main(void) {
     std::string command;
     while (std::getline(std::cin, command)) {
         if (command == "uci") {
-            std::cout << "id name PestoFish2\n";
-            std::cout << "id author Kiril Bourakov\n";
+            std::cout << "id name PestoFish2" << std::endl;
+            std::cout << "id author Kiril Bourakov" << std::endl;
             std::cout << "uciok" << std::endl;
         }
         uci.runCommand(command);
