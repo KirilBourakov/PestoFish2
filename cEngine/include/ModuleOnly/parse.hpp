@@ -23,7 +23,7 @@ inline std::string longAlgebricFromMove(const Move& move) {
             ch = 'r';
             break;
         case PieceType::Knight:
-            ch = 'k';
+            ch = 'n';
             break;
         case PieceType::Bishop:
             ch = 'b';
