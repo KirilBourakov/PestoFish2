@@ -104,6 +104,7 @@ public:
                     fen += args[i] + " ";
                 }
                 engine.get()->setState(fenToState(fen));
+                i--;
             }
 
             if (token == "moves") {
