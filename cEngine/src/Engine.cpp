@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <execution>
 #include <iostream>
+#include <iso646.h>
 #include <mutex>
 #include <ostream>
 #include <thread>
@@ -72,8 +73,8 @@ Move Engine::getBestMove(const SearchRequest& request) {
     KillerMoves killer{};
     OrderingInfo orderingInfo = {globalHistory, killer};
 
-    constexpr int NUM_THREADS = 0; // turn shared SMP back on when threads are properly used (create once, use allways)
-    std::array<std::thread, NUM_THREADS> helpers;
+    // constexpr int NUM_THREADS = 4; // turn shared SMP back on when threads are properly used (create once, use allways)
+    // std::array<std::thread, NUM_THREADS> helpers;
 
     Move out;
     int expected, scoreOut;
@@ -92,22 +93,23 @@ Move Engine::getBestMove(const SearchRequest& request) {
                     break;
                 }
 
+                SearchLimits search = {0, depth, alpha, beta, 0, deadline};
+
                 // for (int i = 0; i < helpers.size(); i++) {
-                //     HistoryTable history = globalHistory;
-                //
-                //     int scoreOut;
                 //     State state_copy = this->state.makeThreadCopy();
-                //
-                //     int real_depth = (i % 2 == 0) ? depth + 1 : depth;
+                //     SearchLimits search_copy = search;
+                //     search_copy.depth = (i % 2 == 0) ? depth + 1 : depth;;
                 //
                 //     helpers[i] = std::thread(
-                //         [this, state_copy, &possibleMoves, real_depth, alpha, beta, &history, &scoreOut, i, &deadline]() mutable {
-                //             this->root(state_copy, possibleMoves, real_depth, alpha, beta, history, scoreOut, i + 1, deadline);
+                //         [this, state_copy, &possibleMoves, search, history=globalHistory, rng=RngInfo::fromSeed(i*5)]() mutable {
+                //             int out;
+                //             KillerMoves killer{};
+                //             OrderingInfo threadlocalOrder = {history, killer};
+                //             this->root(state_copy, possibleMoves, search, threadlocalOrder, out, rng);
                 //         });
                 // }
 
                 int newScore;
-                SearchLimits search = {0, depth, alpha, beta, 0, deadline};
                 Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, rootRng);
 
                 stop.store(true, std::memory_order_seq_cst);
