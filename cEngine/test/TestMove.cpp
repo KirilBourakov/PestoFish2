@@ -47,7 +47,7 @@ TEST(TestMove, PawnBackNotCheck) {
 }
 
 TEST(TestMove, InvalidPostion) {
-    EXPECT_THROW(pawnCheck().isAttacked(BoardPosition{9, 9}), std::invalid_argument);
+    EXPECT_THROW((void)pawnCheck().isAttacked(BoardPosition{9, 9}), std::invalid_argument);
 }
 
 TEST(TestMove, KingCheck) {

@@ -11,7 +11,7 @@ int main() {
 
     Engine engine{};
     engine.setState(State{problemMiddleGame(), Color::White, 0b0000, std::nullopt});
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 1; i++) {
         auto start = std::chrono::high_resolution_clock::now();
         engine.makeEngineMove();
         auto end = std::chrono::high_resolution_clock::now();

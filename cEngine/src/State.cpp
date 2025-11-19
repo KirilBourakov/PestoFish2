@@ -119,7 +119,7 @@ GameState State::getGameState() {
     return getGameState(getMoves());
 }
 
-State State::makeThreadCopy() {
+State State::makeThreadCopy() const {
     NewBoard copyBoard = board;                 // TODO: make sure this is a copy
     std::vector<HistoricalEntry> historyCopy{}; // threads don't need game history
     std::vector<u64> hashCopy = hashHistory;

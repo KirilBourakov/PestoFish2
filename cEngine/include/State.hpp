@@ -57,7 +57,7 @@ public:
         std::cout << "Castle Rights " << castlingRights << std::endl;
     }
 
-    [[nodiscard]] State makeThreadCopy();
+    [[nodiscard]] State makeThreadCopy() const;
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] bool isHalfMoveTie() const {
         return halfMoveClock >= 50;

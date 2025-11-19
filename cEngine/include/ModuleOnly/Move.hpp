@@ -2,8 +2,10 @@
 // Created by Kiril on 2025-08-27.
 //
 #pragma once
+#include <condition_variable>
 #include <iostream>
 #include <optional>
+#include <thread>
 
 #include "Enums.hpp"
 

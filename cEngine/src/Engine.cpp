@@ -5,11 +5,6 @@
 
 #include <algorithm>
 #include <execution>
-#include <iostream>
-#include <iso646.h>
-#include <mutex>
-#include <ostream>
-#include <thread>
 
 #include "Evaluator.hpp"
 #include "ModuleOnly/Move.hpp"
@@ -66,22 +61,21 @@ Move Engine::getBestMove(const SearchRequest& request) {
     transPosTable.lookup(state.getZobrist(), entry_out);
     RngInfo rootRng = RngInfo::fromSeed(stateSeed);
     std::ranges::sort(possibleMoves, [this, &entry_out, &rootRng](const Move& a, const Move& b) {
-        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rootRng) >
-               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->globalHistory, rootRng);
+        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, rootRng) >
+               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, rootRng);
     });
-
-    KillerMoves killer{};
-    OrderingInfo orderingInfo = {globalHistory, killer};
 
     // constexpr int NUM_THREADS = 4; // turn shared SMP back on when threads are properly used (create once, use allways)
     // std::array<std::thread, NUM_THREADS> helpers;
 
     Move out;
     int expected, scoreOut;
+    std::cout << "Syncing..." << std::endl;
+    lazySmpThreads.sync(state, &possibleMoves);
     for (int depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
-            out = root(state, possibleMoves, search, orderingInfo, scoreOut, rootRng);
+            out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut);
             expected = scoreOut;
         } else {
             constexpr int window = 40;
@@ -94,28 +88,20 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 }
 
                 SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-
-                // for (int i = 0; i < helpers.size(); i++) {
-                //     State state_copy = this->state.makeThreadCopy();
-                //     SearchLimits search_copy = search;
-                //     search_copy.depth = (i % 2 == 0) ? depth + 1 : depth;;
-                //
-                //     helpers[i] = std::thread(
-                //         [this, state_copy, &possibleMoves, search, history=globalHistory, rng=RngInfo::fromSeed(i*5)]() mutable {
-                //             int out;
-                //             KillerMoves killer{};
-                //             OrderingInfo threadlocalOrder = {history, killer};
-                //             this->root(state_copy, possibleMoves, search, threadlocalOrder, out, rng);
-                //         });
-                // }
+                std::cout << "enqueue..." << std::endl;
+                lazySmpThreads.enqueue(
+                    [this](State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo,
+                           RngInfo& rng, int& scoreOut) {
+                        return this->root(currState, rootMoves, search, orderingInfo, rng, scoreOut);
+                    },
+                    search);
+                std::cout << "search..." << std::endl;
 
                 int newScore;
-                Move candidate = root(state, possibleMoves, search, orderingInfo, newScore, rootRng);
+                Move candidate = root(state, possibleMoves, search, orderInfo, rootRng, newScore);
 
                 stop.store(true, std::memory_order_seq_cst);
-                // for (auto& helper : helpers) {
-                //     helper.join();
-                // }
+                lazySmpThreads.clearQueue();
                 stop.store(false, std::memory_order_seq_cst);
 
                 if (newScore <= alpha) { // fail low
@@ -134,8 +120,8 @@ Move Engine::getBestMove(const SearchRequest& request) {
     return out;
 }
 
-Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, int& scoreOut,
-                  RngInfo& rng) {
+Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
+                  int& scoreOut) {
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;
