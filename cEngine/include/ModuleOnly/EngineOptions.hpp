@@ -23,20 +23,20 @@ constexpr int maxPly = 128;
 class KillerMoves {
 public:
     void insert(const int ply, const Move& move) {
-        moves[ply][1] = moves[ply][0];
-        real[ply][1] = real[ply][0];
+        moves.at(ply)[1] = moves.at(ply)[0];
+        real.at(ply)[1] = real.at(ply)[0];
 
-        moves[ply][0] = move;
-        real[ply][0] = true;
+        moves.at(ply)[0] = move;
+        real.at(ply)[0] = true;
     }
     OptionalMove getFirst(const int ply) {
-        if (real[ply][0]) {
+        if (real.at(ply)[0]) {
             return moves[ply][0];
         }
         return std::nullopt;
     }
     OptionalMove getSecond(const int ply) {
-        if (real[ply][1]) {
+        if (real.at(ply)[1]) {
             return moves[ply][1];
         }
         return std::nullopt;
