@@ -70,8 +70,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
     Move out;
     int expected, scoreOut;
-    std::cout << "Syncing..." << std::endl;
-    lazySmpThreads.sync(state, &possibleMoves);
+    lazySmpThreads.sync(state, possibleMoves);
     for (int depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
@@ -88,14 +87,12 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 }
 
                 SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-                std::cout << "enqueue..." << std::endl;
                 lazySmpThreads.enqueue(
                     [this](State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo,
                            RngInfo& rng, int& scoreOut) {
                         return this->root(currState, rootMoves, search, orderingInfo, rng, scoreOut);
                     },
                     search);
-                std::cout << "search..." << std::endl;
 
                 int newScore;
                 Move candidate = root(state, possibleMoves, search, orderInfo, rootRng, newScore);

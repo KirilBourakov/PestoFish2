@@ -27,10 +27,10 @@ public:
 
         for (int i = 0; i < num_threads; ++i) {
             threads.emplace_back([this, i] {
-                State threadCopy = state;
+                State threadCopy;
+                RootFunc task;
+                std::vector<Move> movesCopy;
                 while (true) {
-                    RootFunc task;
-
                     {
                         std::unique_lock<std::mutex> lock(taskMutex);
 
@@ -42,35 +42,36 @@ public:
                             return;
                         }
 
-                        task = move(tasks.front());
+                        task = std::move(tasks.front());
                         tasks.pop();
                         threadCopy = state;
+                        movesCopy = moves;
                     }
 
                     int out;
-                    if (moves == nullptr) {
-                        throw std::invalid_argument("Running task on nullptr");
-                    }
-                    task(threadCopy, *moves, limits, orderInfo.at(i), rngInfo.at(i), out);
+                    task(threadCopy, movesCopy, limits, orderInfo.at(i), rngInfo.at(i), out);
                 }
             });
         }
     }
 
-    void sync(const State& currState, std::vector<Move>* currMoves) {
+    void sync(const State& currState, const std::vector<Move> &currMoves) {
+        std::unique_lock<std::mutex> lock(taskMutex);
         state = currState.makeThreadCopy();
         moves = currMoves;
     }
 
     void enqueue(RootFunc task, const SearchLimits& limitsIn) {
+        std::unique_lock<std::mutex> lock(taskMutex);
         limits = limitsIn;
         for (int i = 0; i < nthreads; ++i) {
             {
-                std::unique_lock<std::mutex> lock(taskMutex);
-                tasks.emplace(i == nthreads - 1 ? move(task) : task);
+                tasks.emplace(i == nthreads - 1 ? std::move(task) : task);
             }
             condition.notify_one();
         }
+        lock.unlock();
+        condition.notify_all();
     }
 
     void clearQueue() {
@@ -102,7 +103,7 @@ private:
     SearchLimits limits{};
 
     State state;
-    std::vector<Move>* moves = nullptr;
+    std::vector<Move> moves;
 
     std::mutex taskMutex;
     std::condition_variable condition;
