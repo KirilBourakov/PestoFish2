@@ -315,5 +315,5 @@ int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const 
     if (move.enPassantCapture) {
         return 500000;
     }
-    return history[move] + rng.random();
+    return history[move];
 }
