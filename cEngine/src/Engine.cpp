@@ -65,9 +65,6 @@ Move Engine::getBestMove(const SearchRequest& request) {
                get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, rootRng);
     });
 
-    // constexpr int NUM_THREADS = 4; // turn shared SMP back on when threads are properly used (create once, use allways)
-    // std::array<std::thread, NUM_THREADS> helpers;
-
     Move out;
     int expected, scoreOut;
     lazySmpThreads.sync(state, possibleMoves);
