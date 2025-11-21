@@ -65,7 +65,7 @@ add_subdirectory(extern/googletest)
 enable_testing()
 add_executable(runTests
         test/TestMove.cpp
-        test/TestPreft.cpp
+        test/TestPerft.cpp
         test/TestState.cpp
         test/TestEngine.cpp
         test/TestParse.cpp
