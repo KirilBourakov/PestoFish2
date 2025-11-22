@@ -36,10 +36,10 @@ public:
                         std::unique_lock<std::mutex> lock(taskMutex);
 
                         condition.wait(lock, [this] {
-                            return !tasks.empty() || stop;
+                            return !tasks.empty() || destructorStop;
                         });
 
-                        if (stop && tasks.empty()) {
+                        if (destructorStop && tasks.empty()) {
                             return;
                         }
 
@@ -113,7 +113,7 @@ public:
     ~LazySmpThreads() {
         {
             std::unique_lock<std::mutex> lock(taskMutex);
-            stop = true;
+            destructorStop = true;
         }
 
         condition.notify_all();
@@ -137,7 +137,7 @@ private:
 
     std::mutex taskMutex;
     std::condition_variable condition;
-    bool stop = false;
+    bool destructorStop = false;
 
     int busy_count = 0;
     std::condition_variable cv_finished;

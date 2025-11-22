@@ -43,14 +43,14 @@ private:
     const LMRLookUp lmrTable{};
 
     LazySmpThreads lazySmpThreads;
-    std::atomic<bool> stop = false;
-    std::atomic<bool> timeOut = false;
-    std::atomic<bool> forceStop = false;
+    std::atomic<bool> stop = false; // stop used by main thread to tell smp to stop
+    std::atomic<bool> timeOut = false; // we ran out of time
+    std::atomic<bool> forceStop = false; // UCI told us to stop
 
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
               int& scoreOut);
     int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng);
-    int quiescence(State& state, SearchLimits search);
+    int quiescence(State& currState, SearchLimits search);
 
     static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
                               const OptionalMove& tt_move, HistoryTable& history, int dsync);
@@ -59,6 +59,14 @@ private:
         return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst) ||
                forceStop.load(std::memory_order_seq_cst);
     }
+
+    void clearBoolFlags() {
+        stop.store(false, std::memory_order_seq_cst);
+        timeOut.store(false, std::memory_order_seq_cst);
+        forceStop.store(false, std::memory_order_seq_cst);
+    }
+
+    void handleRequest(const SearchRequest& request, int& timelimit, int& maxDepth, bool& infinite, std::chrono::time_point<steadyClock> &deadline, std::vector<Move>& possibleMoves);
 };
 
 const std::unordered_map<PieceType, int> orderingValue{

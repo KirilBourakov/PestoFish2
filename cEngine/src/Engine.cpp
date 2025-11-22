@@ -13,15 +13,13 @@ void Engine::makeEngineMove() {
     state.makeMove(getBestMove());
 }
 
-Move Engine::getBestMove() {
-    return getBestMove(SearchRequest{.movetime = 1000});
-}
-
-// TODO: implement ply so earlier mates are more prioritized
-Move Engine::getBestMove(const SearchRequest& request) {
-    int timelimit = request.movetime;
-    int maxDepth = request.depth;
-    bool infinite = request.infinite;
+void Engine::handleRequest(
+    const SearchRequest& request, int &timelimit, int &maxDepth, bool &infinite,
+    std::chrono::time_point<steadyClock> &deadline, std::vector<Move> &possibleMoves
+) {
+    timelimit = request.movetime;
+    maxDepth = request.depth;
+    infinite = request.infinite;
 
     // we were not given timelimit, depth nor infinite.
     // Let's calculate one from provided times, or drop to default if nothing is given
@@ -46,14 +44,31 @@ Move Engine::getBestMove(const SearchRequest& request) {
         }
     }
 
-    auto deadline = steadyClock::now();
+    deadline = steadyClock::now();
     if (timelimit != -1) {
         deadline += std::chrono::milliseconds(timelimit);
     } else {
-        deadline = steadyClock::time_point::max(); // No time provided
+        deadline = steadyClock::time_point::max();
     }
 
-    std::vector<Move> possibleMoves = request.searchmoves.value_or(state.getMoves());
+    possibleMoves = request.searchmoves.value_or(state.getMoves());
+}
+
+
+Move Engine::getBestMove() {
+    return getBestMove(SearchRequest{.movetime = 1000});
+}
+
+// TODO: implement ply so earlier mates are more prioritized
+Move Engine::getBestMove(const SearchRequest& request) {
+    clearBoolFlags();
+
+    int timelimit;
+    int maxDepth;
+    bool infinite;
+    std::chrono::time_point<steadyClock> deadline;
+    std::vector<Move> possibleMoves;
+    handleRequest(request, timelimit, maxDepth, infinite, deadline, possibleMoves);
 
     // Order
     int stateSeed = 1;
@@ -65,7 +80,6 @@ Move Engine::getBestMove(const SearchRequest& request) {
                get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, 0);
     });
 
-    stop.store(false, std::memory_order_seq_cst);
 
     Move out;
     int expected, scoreOut, depth;
@@ -89,7 +103,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 lazySmpThreads.enqueue(
                     [this](State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo,
                            RngInfo& rng, int& scoreOut) {
-                        return this->root(currState, rootMoves, search, orderingInfo, rng, scoreOut);
+                        return this->root(currState, rootMoves, search, orderingInfo, rng, scoreOut); // TODO: give diff alpha/beta?
                     },
                     search);
 
@@ -99,12 +113,14 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 stop.store(true, std::memory_order_seq_cst);
                 lazySmpThreads.clearQueue();
                 lazySmpThreads.waitForIdle();
-                timeOut.store(false, std::memory_order_seq_cst);
+                stop.store(false, std::memory_order_seq_cst);
 
                 if (newScore <= alpha) { // fail low
                     alpha = -INF;
                 } else if (newScore >= beta) { // fail high
-                    out = candidate;
+                    if (!timeOut.load(std::memory_order_relaxed) && !forceStop.load(std::memory_order_relaxed)) {
+                        out = candidate;
+                    }
                     beta = INF;
                 } else {
                     out = candidate;
@@ -114,8 +130,6 @@ Move Engine::getBestMove(const SearchRequest& request) {
             }
         }
     }
-
-    // std::cout << "Searched to depth " << depth << "\n";
 
     return out;
 }
@@ -264,9 +278,9 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     return bestValue;
 }
 
-int Engine::quiescence(State& state, SearchLimits search) {
+int Engine::quiescence(State& currState, SearchLimits search) {
     // TODO: add color rep int
-    int staticEval = search.color * Evaluator::evaluate(state); // - eval means position good for black, else good for white
+    int staticEval = search.color * Evaluator::evaluate(currState); // - eval means position good for black, else good for white
 
     int bestValue = staticEval;
     if (search.depth == 0 || endSearch()) {
@@ -279,17 +293,17 @@ int Engine::quiescence(State& state, SearchLimits search) {
         search.alpha = bestValue;
     }
 
-    std::vector<Move> possibleMoves = state.getMoves(); // TODO: limit to captures, and checks
+    std::vector<Move> possibleMoves = currState.getMoves(); // TODO: limit to captures, and checks
     for (auto& move : possibleMoves) {
-        if (state.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
+        if (currState.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
             if (steadyClock::now() >= search.deadline) {
                 stop.store(true, std::memory_order_relaxed);
                 break;
             }
 
-            state.makeMove(move);
-            const int score = -quiescence(state, search.nextLimit());
-            state.undoMove();
+            currState.makeMove(move);
+            const int score = -quiescence(currState, search.nextLimit());
+            currState.undoMove();
 
             if (score >= search.beta) {
                 return score;
