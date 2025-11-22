@@ -2,6 +2,8 @@
 // Created by Kiril on 2025-11-15.
 //
 
+#include <regex>
+
 #include "Engine.hpp"
 #include "ModuleOnly/parse.hpp"
 #include "State.hpp"
@@ -106,7 +108,7 @@ TEST(parseMove, promoteCorner) {
     Move move = engine.getBestMove();
 
     auto mv = longAlgebricFromMove(move);
-    EXPECT_THAT(mv, testing::MatchesRegex("a7a8[nbrqNBRQ]"));
+    EXPECT_TRUE(std::regex_match(mv, std::regex("a7a8[nbrqNBRQ]")));
 }
 
 // CASTLE
