@@ -8,8 +8,38 @@
 #include "ModuleOnly/Move.hpp"
 #include "State.hpp"
 #include "testBoard.hpp"
+#include "ModuleOnly/parse.hpp"
 
 using namespace Pieces;
+
+// --- GET STATE --- //
+
+TEST(GameState, Scholars) {
+    State state = fenToState("r1bqk1nr/pppp1Qpp/2n5/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4");
+    ASSERT_EQ(state.getGameState(), GameState::WHITE_WIN);
+}
+
+TEST(GameState, Fools) {
+    State state = fenToState("rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3");
+    ASSERT_EQ(state.getGameState(), GameState::BLACK_WIN);
+}
+
+TEST(GameState, Stalemate) {
+    State state = fenToState("7k/5K2/6Q1/8/8/8/8/8 b - - 10 60");
+    ASSERT_EQ(state.getGameState(), GameState::STALEMATE);
+}
+
+TEST(GameState, InsufficantMaterial) {
+    State state = fenToState("8/8/8/4k3/8/3K4/8/8 w - - 0 1");
+    ASSERT_EQ(state.getGameState(), GameState::DRAW);
+}
+
+TEST(GameState, FiftyMoveRule) {
+    State state = fenToState("r1bqkb1r/pppp1ppp/2n5/4P3/2B3n1/5N2/PPP2PPP/RNBQK2R w KQkq - 100 5");
+    ASSERT_EQ(state.getGameState(), GameState::DRAW);
+}
+
+// --- GET MOVES --- //
 
 TEST(getMoves, whiteCheckmated) {
     State state{whiteBackRanked(), Color::White, 0b1111, std::nullopt};

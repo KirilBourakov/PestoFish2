@@ -81,7 +81,7 @@ void State::translateAndMove(BoardPosition start, BoardPosition end, std::option
     throw std::invalid_argument("Illegal move");
 }
 
-GameState State::getGameState(const std::vector<Move>& possibleMoves) {
+GameState State::getGameState(const std::vector<Move>& possibleMoves) const {
     if (isHalfMoveTie()) {
         return GameState::DRAW;
     }

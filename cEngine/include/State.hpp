@@ -45,7 +45,7 @@ public:
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
     void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo);
-    GameState getGameState(const std::vector<Move>& possibleMoves);
+    GameState getGameState(const std::vector<Move>& possibleMoves) const;
     GameState getGameState();
 
     void printState() const {
@@ -60,7 +60,7 @@ public:
     [[nodiscard]] State makeThreadCopy() const;
     [[nodiscard]] bool samePosition(const State& other) const;
     [[nodiscard]] bool isHalfMoveTie() const {
-        return halfMoveClock >= 50;
+        return halfMoveClock >= 100;
     }
     [[nodiscard]] bool colorInCheck(const Color color) const {
         const BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
