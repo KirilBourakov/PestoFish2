@@ -183,7 +183,6 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     if (search.depth == 0) {
         search.depth = 15;
         return quiescence(currState, search);
-        // return colorRep * Evaluator::evaluate(currState);
     }
 
 
@@ -199,7 +198,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     std::ranges::sort(scored, [](auto& a, auto& b){ return a.second > b.second; });
 
     int bestValue = -INF;
-    Move bestMove;
+    std::optional<Move> bestMove = std::nullopt;
     for (int i = 0; i < scored.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
@@ -211,7 +210,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         int currValue;
         // LMR
         int newDepth = search.depth - 1;
-        if (search.depth >= 3 && i > 2 && !bestMove.enPassantCapture && currState.getAt(move.end) != Pieces::EMPTY) {
+        if (search.depth >= 3 && i > 2 && !move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
             const int reduction =
                 static_cast<int>(.99 + std::log(search.depth) * std::log(i) / 3.14); // TODO: consider changing formula
             newDepth = search.depth - reduction;
@@ -253,8 +252,9 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         cutoffType = Transposition::CutoffType::EXACT;
     }
 
-    // using full move clock for age
-    transPosTable.insert(currState.getZobrist(), bestMove, search.depth, bestValue, cutoffType, currState.getFullMoveClock());
+    if (bestMove.has_value()) {
+        transPosTable.insert(currState.getZobrist(), bestMove.value(), search.depth, bestValue, cutoffType, currState.getFullMoveClock());
+    }
     return bestValue;
 }
 
@@ -307,18 +307,25 @@ int Engine::quiescence(State& state, SearchLimits search) {
 int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
                            const OptionalMove& tt_move, HistoryTable& history, int dsync) {
     if (tt_move.has_value() && move == tt_move.value()) {
-        return 1000000;
+        return 1000000 + dsync;
     }
     if ((killer1.has_value() && move == killer1.value()) || (killer2.has_value() && move == killer2.value())) {
-        return 900000;
+        return 900000 + dsync;
     }
+
+    // Cheap way to move promotions up above non promotions
+    if (move.promotedTo.has_value()) {
+        const int promoteValue = orderingValue.at(Pieces::piece_type(move.promotedTo.value()));
+        dsync += promoteValue;
+    }
+
     if (currState.getAt(move.end) != Pieces::EMPTY) {
         const int victim_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.end)));
         const int attacker_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.start)));
-        return 500000 + victim_value * 10 - attacker_value;
+        return 500000 + victim_value * 10 - attacker_value + dsync;
     }
     if (move.enPassantCapture) {
-        return 500000;
+        return 500000 + dsync;
     }
-    return history[move];
+    return history[move] + dsync;
 }
