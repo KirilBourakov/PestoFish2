@@ -5,8 +5,8 @@ import chess
 import chess.engine
 from tqdm import tqdm
 
-ENGINE = r"D:\Core\Desktop\Projects\personal\Pestofish\cEngine\build\Debug\uci.exe"
-OLD_ENGINE = r"D:\Core\Desktop\Projects\personal\Pestofish\evaluate\uci.exe"
+ENGINE = r"E:\Programming\Projects\PestoFish2\cEngine\build\Debug\uci.exe"
+OLD_ENGINE = r"E:\Programming\Projects\PestoFish2\evaluate\Pestofish2.exe"
 
 
 def play_game(fen):
@@ -35,6 +35,8 @@ def play_game(fen):
 # defaultdict(<class 'int'>, {'1/2-1/2': 247, '0-1': 3}) New V original
 
 # defaultdict(<class 'int'>, {'1/2-1/2': 244, '0-1': 3, '1-0': 3}) Original v new
+
+# defaultdict(<class 'int'>, {'1/2-1/2': 243, '0-1': 3, '1-0': 4}) Original vs new2
 
 if __name__ == "__main__":
     games = 250
