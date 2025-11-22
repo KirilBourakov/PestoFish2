@@ -52,7 +52,7 @@ private:
     int quiescence(State& state, SearchLimits search);
 
     static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
-                              const OptionalMove& tt_move, HistoryTable& history, RngInfo& rng);
+                              const OptionalMove& tt_move, HistoryTable& history, int dsync);
 
     [[nodiscard]] bool endSearch() const {
         return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst) ||

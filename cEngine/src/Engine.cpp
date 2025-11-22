@@ -60,9 +60,9 @@ Move Engine::getBestMove(const SearchRequest& request) {
     Transposition::Entry entry_out;
     transPosTable.lookup(state.getZobrist(), entry_out);
     RngInfo rootRng = RngInfo::fromSeed(stateSeed);
-    std::ranges::sort(possibleMoves, [this, &entry_out, &rootRng](const Move& a, const Move& b) {
-        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, rootRng) >
-               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, rootRng);
+    std::ranges::sort(possibleMoves, [this, &entry_out](const Move& a, const Move& b) {
+        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, 0) >
+               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, 0);
     });
 
     // constexpr int NUM_THREADS = 4; // turn shared SMP back on when threads are properly used (create once, use allways)
@@ -186,22 +186,27 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         // return colorRep * Evaluator::evaluate(currState);
     }
 
-    std::ranges::sort(possibleMoves, [&currState, &entry_out, &orderingInfo, &search, &rng](const Move& a, const Move& b) {
-        return get_move_score(a, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply), currState,
-                              entry_out.bestMove, orderingInfo.history, rng) >
-               get_move_score(b, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply), currState,
-                              entry_out.bestMove, orderingInfo.history, rng);
-    });
+
+    std::vector<std::pair<Move,int>> scored;
+    scored.reserve(possibleMoves.size());
+    for (auto& m : possibleMoves) {
+        const int dsync = rng.random();
+        scored.emplace_back(m, get_move_score(
+            m, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply),
+            currState, entry_out.bestMove, orderingInfo.history, dsync
+        ));
+    }
+    std::ranges::sort(scored, [](auto& a, auto& b){ return a.second > b.second; });
 
     int bestValue = -INF;
     Move bestMove;
-    for (int i = 0; i < possibleMoves.size(); ++i) {
+    for (int i = 0; i < scored.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
             break;
         }
 
-        Move& move = possibleMoves[i];
+        Move& move = scored[i].first;
         currState.makeMove(move);
         int currValue;
         // LMR
@@ -300,7 +305,7 @@ int Engine::quiescence(State& state, SearchLimits search) {
 }
 
 int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
-                           const OptionalMove& tt_move, HistoryTable& history, RngInfo& rng) {
+                           const OptionalMove& tt_move, HistoryTable& history, int dsync) {
     if (tt_move.has_value() && move == tt_move.value()) {
         return 1000000;
     }

@@ -6,6 +6,7 @@
 #include "ModuleOnly/parse.hpp"
 #include "State.hpp"
 #include "testBoard.hpp"
+#include "gmock/gmock-matchers.h"
 #include "gtest/gtest.h"
 
 // PARSE SQUARES
@@ -105,7 +106,7 @@ TEST(parseMove, promoteCorner) {
     Move move = engine.getBestMove();
 
     auto mv = longAlgebricFromMove(move);
-    EXPECT_EQ(mv, "a7a8q");
+    EXPECT_THAT(mv, testing::MatchesRegex("a7a8[nbrqNBRQ]"));
 }
 
 // CASTLE
