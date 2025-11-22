@@ -59,22 +59,11 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State& state, bool& endgame) 
                     endMaterialCount += eg_table.at(pieceType)[y][x];
                 }
 
-                // mobility (for now, lets just say each possible move is worth 3
-                // centipawns)
-                // TODO: rework, too slow
-                // std::vector<Move> moves;
-                // state.addMoves(x, y, moves);
-                // middleMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
-                // endMaterialCount += 3 * static_cast<int>(moves.size()) * dir;
-
-                // POSSIBLE Evaluation methods:
-                // pieces on enemy half of the board
-
                 // tracking to determine if it is an end game
                 if (Pieces::sameColor(Color::White, currPiece)) {
-                    whiteNormalCount += normalScore.contains(pieceType) ? normalScore.at(pieceType) * dir : 0;
+                    whiteNormalCount += normalScore.contains(pieceType) ? normalScore.at(pieceType) : 0;
                 } else if (Pieces::sameColor(Color::Black, currPiece)) {
-                    blackNormalCount += normalScore.contains(pieceType) ? normalScore.at(pieceType) * dir : 0;
+                    blackNormalCount += normalScore.contains(pieceType) ? normalScore.at(pieceType) : 0;
                 }
             }
         }

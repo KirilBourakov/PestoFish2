@@ -30,6 +30,7 @@ public:
                 State threadCopy;
                 RootFunc task;
                 std::vector<Move> movesCopy;
+                SearchLimits limitsCopy;
                 while (true) {
                     {
                         std::unique_lock<std::mutex> lock(taskMutex);
@@ -44,23 +45,39 @@ public:
 
                         task = std::move(tasks.front());
                         tasks.pop();
+                        busy_count++;
                         threadCopy = state;
                         movesCopy = moves;
+                        limitsCopy = limits;
                     }
 
                     int out;
-                    task(threadCopy, movesCopy, limits, orderInfo.at(i), rngInfo.at(i), out);
+                    task(threadCopy, movesCopy, limitsCopy, orderInfo.at(i), rngInfo.at(i), out);
+
+                    {
+                        std::lock_guard<std::mutex> lock(taskMutex);
+                        this->busy_count--;
+                        if(busy_count == 0 && tasks.empty()) {
+                            cv_finished.notify_all();
+                        }
+                    }
                 }
             });
         }
     }
 
+    /**
+     * Updates State and Moves used by Lazy SMP Threads
+     */
     void sync(const State& currState, const std::vector<Move> &currMoves) {
         std::unique_lock<std::mutex> lock(taskMutex);
         state = currState.makeThreadCopy();
         moves = currMoves;
     }
 
+    /**
+     * Gives each thread a new search task
+     */
     void enqueue(RootFunc task, const SearchLimits& limitsIn) {
         std::unique_lock<std::mutex> lock(taskMutex);
         limits = limitsIn;
@@ -74,10 +91,23 @@ public:
         condition.notify_all();
     }
 
+    /**
+     * Drops any tasks not in use
+     */
     void clearQueue() {
         std::unique_lock<std::mutex> lock(taskMutex);
         std::queue<RootFunc> empty;
         tasks.swap(empty);
+    }
+
+    /**
+     * Waits until all tasks are finished
+     */
+    void waitForIdle() {
+        std::unique_lock<std::mutex> lock(taskMutex);
+        cv_finished.wait(lock, [this]() {
+            return this->tasks.empty() && (this->busy_count == 0);
+        });
     }
 
     ~LazySmpThreads() {
@@ -108,4 +138,7 @@ private:
     std::mutex taskMutex;
     std::condition_variable condition;
     bool stop = false;
+
+    int busy_count = 0;
+    std::condition_variable cv_finished;
 };

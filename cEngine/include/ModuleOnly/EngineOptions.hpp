@@ -67,6 +67,31 @@ private:
     std::array<std::array<bool, 2>, maxPly> real{};
 };
 
+constexpr int MAX_DEPTH = 64;
+constexpr int MAX_MOVES = 64;
+class LMRLookUp {
+public:
+    LMRLookUp() {
+        reductions[0].fill(0);
+
+        for (int d = 1; d < MAX_DEPTH; d++) {
+            for (int m = 1; m < MAX_MOVES; m++) {
+                const double reduction = 0.99 + (std::log(d) * std::log(m)) / 3.14;
+                reductions[d][m] = static_cast<int>(reduction);
+            }
+        }
+    }
+
+    int operator()(int depth, int index) const noexcept {
+        depth = std::min(MAX_DEPTH-1, depth);
+        index = std::min(MAX_MOVES-1, index);
+        return reductions[depth][index];
+    }
+
+private:
+    std::array<std::array<int, MAX_MOVES>, MAX_DEPTH> reductions;
+};
+
 using steadyClock = std::chrono::steady_clock;
 
 struct SearchLimits {

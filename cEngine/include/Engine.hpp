@@ -40,6 +40,7 @@ private:
     State state{};
     Transposition::TranspositionTable transPosTable{};
     OrderingInfo orderInfo{};
+    const LMRLookUp lmrTable{};
 
     LazySmpThreads lazySmpThreads;
     std::atomic<bool> stop = false;

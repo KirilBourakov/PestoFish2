@@ -45,7 +45,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
             timelimit = 1000;
         }
     }
-    timeOut.store(false, std::memory_order_seq_cst);
+
     auto deadline = steadyClock::now();
     if (timelimit != -1) {
         deadline += std::chrono::milliseconds(timelimit);
@@ -65,13 +65,12 @@ Move Engine::getBestMove(const SearchRequest& request) {
                get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, 0);
     });
 
-    // constexpr int NUM_THREADS = 4; // turn shared SMP back on when threads are properly used (create once, use allways)
-    // std::array<std::thread, NUM_THREADS> helpers;
+    stop.store(false, std::memory_order_seq_cst);
 
     Move out;
-    int expected, scoreOut;
+    int expected, scoreOut, depth;
     lazySmpThreads.sync(state, possibleMoves);
-    for (int depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
+    for (depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
             out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut);
@@ -99,11 +98,13 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
                 stop.store(true, std::memory_order_seq_cst);
                 lazySmpThreads.clearQueue();
-                stop.store(false, std::memory_order_seq_cst);
+                lazySmpThreads.waitForIdle();
+                timeOut.store(false, std::memory_order_seq_cst);
 
                 if (newScore <= alpha) { // fail low
                     alpha = -INF;
                 } else if (newScore >= beta) { // fail high
+                    out = candidate;
                     beta = INF;
                 } else {
                     out = candidate;
@@ -113,6 +114,8 @@ Move Engine::getBestMove(const SearchRequest& request) {
             }
         }
     }
+
+    // std::cout << "Searched to depth " << depth << "\n";
 
     return out;
 }
@@ -169,10 +172,10 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         return 0;
     }
     if (currGameState == GameState::WHITE_WIN) {
-        return search.color * +MATE_SCORE;
+        return search.color * (+MATE_SCORE-search.ply);
     }
     if (currGameState == GameState::BLACK_WIN) {
-        return search.color * -MATE_SCORE;
+        return search.color * (-MATE_SCORE+search.ply);
     }
 
     // --- Check we should stop ---
@@ -208,13 +211,16 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         Move& move = scored[i].first;
         currState.makeMove(move);
         int currValue;
+
         // LMR
         int newDepth = search.depth - 1;
-        if (search.depth >= 3 && i > 2 && !move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
-            const int reduction =
-                static_cast<int>(.99 + std::log(search.depth) * std::log(i) / 3.14); // TODO: consider changing formula
-            newDepth = search.depth - reduction;
+
+        bool isQuiet = (currState.getAt(move.end) == Pieces::EMPTY) && !move.enPassantCapture;
+        bool isPromotion = move.promotedTo.has_value(); // TODO: add check as exception also
+        if (search.depth >= 3 && i > 2 && isQuiet && !isPromotion) {
+            newDepth = search.depth - lmrTable(search.depth, i);
         }
+
         if (i == 0) {
             currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng);
         } else {
@@ -252,7 +258,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         cutoffType = Transposition::CutoffType::EXACT;
     }
 
-    if (bestMove.has_value()) {
+    if (bestMove.has_value() && !endSearch()) {
         transPosTable.insert(currState.getZobrist(), bestMove.value(), search.depth, bestValue, cutoffType, currState.getFullMoveClock());
     }
     return bestValue;
