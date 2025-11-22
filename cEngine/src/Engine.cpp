@@ -123,13 +123,17 @@ Move Engine::getBestMove(const SearchRequest& request) {
                     }
                     beta = INF;
                 } else {
-                    out = candidate;
-                    expected = newScore;
+                    if (!timeOut.load(std::memory_order_relaxed) && !forceStop.load(std::memory_order_relaxed)) {
+                        out = candidate;
+                        expected = newScore;
+                    }
                     break;
                 }
             }
         }
+        // std::cout << "Best Move " << out << std::endl;
     }
+    // std::cout << "-----------" << std::endl;
 
     return out;
 }
