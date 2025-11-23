@@ -215,7 +215,7 @@ void State::makeMove(const Move& move) {
     updateCastlingRights(move, newPiece);
 
     // MOVE PIECE
-    board.move(move);
+    board.move(move, entry.movedPiece, entry.overwrittenPiece);
 
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
     hash.flipActiveColor();
