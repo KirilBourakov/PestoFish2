@@ -22,6 +22,7 @@ public:
     [[nodiscard]] std::vector<Move> getPseudoLegal(const Color activeColor, const std::optional<BoardPosition> enPassantSquare,
                                                    int castlingRights) const {
         std::vector<Move> moves;
+        moves.reserve(200);
         // get all pseudo legal moves
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
@@ -30,7 +31,7 @@ public:
                 }
             }
         }
-        return moves;
+        return std::move(moves);
     }
     void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights,
                   std::vector<Move>& out) const;
