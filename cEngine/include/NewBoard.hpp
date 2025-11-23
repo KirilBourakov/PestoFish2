@@ -101,11 +101,53 @@ public:
         return std::move(moves);
     }
 
+    void move(const Move& mv) {
+        const Pieces::Piece newPiece = mv.promotedTo.value_or(this->at(mv.start.y, mv.start.x));
+
+        board[mv.end.y][mv.end.x] = newPiece;
+        board[mv.start.y][mv.start.x] = Pieces::EMPTY;
+
+
+        if (mv.enPassantCapture) {
+            board[mv.start.y][mv.end.x] = Pieces::EMPTY;
+        } else if (mv.castle == CastleType::LONG) {
+            const Pieces::Piece rook = this->at(mv.start.y, 0);
+            board[mv.start.y][0] = Pieces::EMPTY;
+            board[mv.start.y][mv.end.x + 1] = rook;
+        } else if (mv.castle == CastleType::SHORT) {
+            const Pieces::Piece rook = this->at(mv.start.y, 7);
+            board[mv.start.y][7] = Pieces::EMPTY;
+            board[mv.start.y][mv.end.x - 1] = rook;
+        }
+    }
+
+    /**
+     * Undoes a played Move
+     * @param move Move played
+     * @param movedPiece Piece Moved
+     * @param overwrittenPiece Piece Taken or empty
+     * @param activeColor The Color that played the Move
+     */
+    void undoMove(const Move& move, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
+        if (move.enPassantCapture) {
+            board[move.start.y][move.end.x] = (activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
+
+        } else if (move.castle == CastleType::LONG) {
+            const Pieces::Piece rook = board[move.start.y][move.end.x + 1];
+            board[move.start.y][move.end.x + 1] = Pieces::EMPTY;
+            board[move.start.y][0] = rook;
+        } else if (move.castle == CastleType::SHORT) {
+            const Pieces::Piece rook = board[move.start.y][move.end.x - 1];
+            board[move.start.y][move.end.x - 1] = Pieces::EMPTY;
+            board[move.start.y][7] = rook;
+        }
+
+        board[move.end.y][move.end.x] = overwrittenPiece;
+        board[move.start.y][move.start.x] = movedPiece;
+    }
+
     [[nodiscard]] Pieces::Piece at(const int y, const int x) const {
         return board[y][x];
-    }
-    void set(const Pieces::Piece piece, const int y, const int x) {
-        board[y][x] = piece;
     }
 
     void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights, std::vector<Move>& out) const;

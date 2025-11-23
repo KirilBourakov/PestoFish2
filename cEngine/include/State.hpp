@@ -117,4 +117,6 @@ private:
     std::vector<u64> hashHistory;
 
     ZobristHash hash;
+
+    void updateCastlingRights(const Move& move, const Pieces::Piece newPiece);
 };
