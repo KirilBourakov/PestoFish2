@@ -11,6 +11,8 @@
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
 
+
+
 constexpr int BOARD_SIZE = 8;
 class NewBoard {
 public:
@@ -36,46 +38,7 @@ public:
     void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights,
                   std::vector<Move>& out) const;
 
-    bool isDrawFromMaterial() const {
-        int wBishops = 0;
-        int wKnights = 0;
-        int bBishops = 0;
-        int bKnights = 0;
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                switch (board[y][x]) {
-                case Pieces::WHITE_PAWN:
-                case Pieces::BLACK_PAWN:
-                case Pieces::WHITE_ROOK:
-                case Pieces::BLACK_ROOK:
-                case Pieces::WHITE_QUEEN:
-                case Pieces::BLACK_QUEEN:
-                    return false;
 
-                case Pieces::WHITE_KNIGHT:
-                    wKnights++;
-                    break;
-                case Pieces::WHITE_BISHOP:
-                    wBishops++;
-                    break;
-                case Pieces::BLACK_KNIGHT:
-                    bKnights++;
-                    break;
-                case Pieces::BLACK_BISHOP:
-                    bBishops++;
-                    break;
-
-                case Pieces::WHITE_KING:
-                case Pieces::BLACK_KING:
-                case Pieces::EMPTY:
-                    break;
-                }
-            }
-        }
-        const bool whiteCanWin = (wBishops >= 1 && wKnights >= 1) || (wBishops >= 2) || (wKnights >= 3);
-        const bool blackCanWin = (bBishops >= 1 && bKnights >= 1) || (bBishops >= 2) || (bKnights >= 3);
-        return !whiteCanWin && !blackCanWin;
-    }
 
     [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const;
     [[nodiscard]] bool isAttacked(const BoardPosition& position) const;
@@ -86,32 +49,15 @@ public:
         return inBounds(x) && inBounds(y);
     }
 
-    Pieces::Piece& operator()(const int y, const int x) {
+    [[nodiscard]] Pieces::Piece at(const int y, const int x) const {
         return board[y][x];
     }
-    const Pieces::Piece& operator()(const int y, const int x) const {
-        return board[y][x];
+    void set(const Pieces::Piece piece, const int y, const int x) {
+        board[y][x] = piece;
     }
 
     bool operator==(const NewBoard& other) const {
         return board == other.board;
-    }
-
-    const auto& get_row(size_t i) const {
-        return board[i];
-    }
-
-    void print_board() const {
-        std::cout << "  +-----------------+" << std::endl;
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            std::cout << i + 1 << " | ";
-            for (size_t j = 0; j < BOARD_SIZE; j++) {
-                std::cout << Pieces::piece_char(board[i][j]) << ' ';
-            }
-            std::cout << '|' << std::endl;
-        }
-        std::cout << "  +-----------------+" << std::endl;
-        std::cout << "    a b c d e f g h" << std::endl;
     }
 
     void addKingMoves(int x, int y, Color color, int castleRights, std::vector<Move>& moves) const;
@@ -120,10 +66,27 @@ public:
     void addKnightMoves(int x, int y, Color color, std::vector<Move>& moves) const;
     void addSlidingMoves(int x, int y, Color color, bool straight, bool diag, std::vector<Move>& moves) const;
 
+    friend std::ostream& operator<<(std::ostream& os, const NewBoard& b);
+
+    /**
+     * @return True, if the board position is draw due to material. False otherwise.
+     */
+    [[nodiscard]] bool isDrawFromMaterial() const;
+
+    /**
+     * Gets a row at an index. Used to expose board to python.
+     */
+    [[nodiscard]] const auto& get_row(size_t i) const {
+        return board[i];
+    }
+
 private:
     std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> board;
 };
 
+/**
+ * @return A board object in the starting position
+ */
 inline NewBoard getStartingBoard() {
     using namespace Pieces;
     return NewBoard({{{{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},

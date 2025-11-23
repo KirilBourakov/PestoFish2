@@ -35,9 +35,9 @@ State::State(const NewBoard& board, const Color activeColor, const int castlingR
     // find king squares
     for (int y = 0; y < this->board.size; ++y) {
         for (int x = 0; x < this->board.size; ++x) {
-            if (this->board(y, x) == Pieces::BLACK_KING) {
+            if (this->board.at(y, x) == Pieces::BLACK_KING) {
                 blackKingSquare = {x, y};
-            } else if (this->board(y, x) == Pieces::WHITE_KING) {
+            } else if (this->board.at(y, x) == Pieces::WHITE_KING) {
                 whiteKingSquare = {x, y};
             }
         }
@@ -143,7 +143,7 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
     std::vector<Move> legalMoves;
     for (const Move move : pseudolegalMoves) {
         bool isValid = true;
-        const Color color = Pieces::piece_color(board(move.start.y, move.start.x));
+        const Color color = Pieces::piece_color(board.at(move.start.y, move.start.x));
         if (move.castle == CastleType::LONG) {
             isValid = !board.isAttacked(BoardPosition{.x = move.end.x + 1, .y = move.end.y}, color) &&
                       !board.isAttacked(BoardPosition{.x = move.end.x + 2, .y = move.end.y}, color) &&
@@ -168,7 +168,9 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
 // Updated peicewise within State
 void State::makeMove(const Move& move) {
     const HistoricalEntry entry = {
-        move, board(move.start.y, move.start.x), board(move.end.y, move.end.x), castlingRights, halfMoveClock, enPassantSquare,
+        move,
+        board.at(move.start.y, move.start.x),
+        board.at(move.end.y, move.end.x), castlingRights, halfMoveClock, enPassantSquare,
     };
     const u64 preMoveHash = hash.getValue();
 
@@ -189,19 +191,19 @@ void State::makeMove(const Move& move) {
     }
 
     // MOVE PIECE
-    hash.makeMove(move, board(move.start.y, move.start.x), board(move.end.y, move.end.x));
-    board(move.end.y, move.end.x) = newPiece;
-    board(move.start.y, move.start.x) = Pieces::EMPTY;
+    hash.makeMove(move, board.at(move.start.y, move.start.x), board.at(move.end.y, move.end.x));
+    board.set(newPiece, move.end.y, move.end.x);
+    board.set(Pieces::EMPTY, move.start.y, move.start.x);
     if (move.enPassantCapture) {
-        board(move.start.y, move.end.x) = Pieces::EMPTY;
+        board.set(Pieces::EMPTY, move.start.y, move.end.x);
     } else if (move.castle == CastleType::LONG) {
-        const Pieces::Piece rook = board(move.start.y, 0);
-        board(move.start.y, 0) = Pieces::EMPTY;
-        board(move.start.y, move.end.x + 1) = rook;
+        const Pieces::Piece rook = board.at(move.start.y, 0);
+        board.set(Pieces::EMPTY, move.start.y, 0);
+        board.set(rook, move.start.y, move.end.x + 1);
     } else if (move.castle == CastleType::SHORT) {
-        const Pieces::Piece rook = board(move.start.y, 7);
-        board(move.start.y, 7) = Pieces::EMPTY;
-        board(move.start.y, move.end.x - 1) = rook;
+        const Pieces::Piece rook = board.at(move.start.y, 7);
+        board.set(Pieces::EMPTY, move.start.y, 7);
+        board.set(rook, move.start.y, move.end.x - 1);
     }
 
     // UPDATE EN PASSENT
@@ -276,19 +278,19 @@ void State::undoMove() {
     const int color = activeColor == Color::White ? 1 : -1;
 
     if (move.enPassantCapture) {
-        board(move.start.y, move.end.x) = (activeColor == Color::White) ? BLACK_PAWN : WHITE_PAWN;
+        board.set((activeColor == Color::White) ? BLACK_PAWN : WHITE_PAWN, move.start.y, move.end.x);
     } else if (move.castle == CastleType::LONG) {
-        const Piece rook = board(move.start.y, move.end.x + 1);
-        board(move.start.y, move.end.x + 1) = EMPTY;
-        board(move.start.y, 0) = rook;
+        const Piece rook = board.at(move.start.y, move.end.x + 1);
+        board.set(EMPTY, move.start.y, move.end.x + 1);
+        board.set(rook, move.start.y, 0);
     } else if (move.castle == CastleType::SHORT) {
-        const Piece rook = board(move.start.y, move.end.x - 1);
-        board(move.start.y, move.end.x - 1) = EMPTY;
-        board(move.start.y, 7) = rook;
+        const Piece rook = board.at(move.start.y, move.end.x - 1);
+        board.set(EMPTY, move.start.y, move.end.x - 1);
+        board.set(rook, move.start.y, 7);
     }
 
-    board(move.end.y, move.end.x) = entry.overwrittenPiece;
-    board(move.start.y, move.start.x) = entry.movedPiece;
+    board.set(entry.overwrittenPiece, move.end.y, move.end.x);
+    board.set(entry.movedPiece, move.start.y, move.start.x);
     if (entry.movedPiece == WHITE_KING) {
         whiteKingSquare = move.start;
     }

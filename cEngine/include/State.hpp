@@ -49,7 +49,7 @@ public:
     GameState getGameState();
 
     void printState() const {
-        board.print_board();
+        std::cout << board << '\n';
         if (enPassantSquare.has_value()) {
             std::cout << "en passent " << enPassantSquare.value() << std::endl;
         }
@@ -76,8 +76,8 @@ public:
     [[nodiscard]] const NewBoard& getBoard() const {
         return board;
     }
-    [[nodiscard]] const Pieces::Piece getAt(const BoardPosition inp) const {
-        return board(inp.y, inp.x);
+    [[nodiscard]] Pieces::Piece getAt(const BoardPosition inp) const {
+        return board.at(inp.y, inp.x);
     }
 
     [[nodiscard]] std::optional<BoardPosition> getEnPassantSquare() const {

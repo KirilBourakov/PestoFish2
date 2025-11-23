@@ -41,7 +41,7 @@ int Evaluator::getSquareWiseEvalAndGamePhase(const State& state, bool& endgame) 
 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            if (const Pieces::Piece currPiece = state.getBoard()(y, x); currPiece != Pieces::EMPTY) {
+            if (const Pieces::Piece currPiece = state.getBoard().at(y, x); currPiece != Pieces::EMPTY) {
                 const int dir = Pieces::sameColor(Color::White, currPiece) ? 1 : -1;
                 const auto pieceType = Pieces::piece_type(currPiece);
                 // Raw material (which king does not have)

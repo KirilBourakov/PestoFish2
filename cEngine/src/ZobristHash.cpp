@@ -44,7 +44,7 @@ void ZobristHash::recalculate(const NewBoard& board, Color activeColor, int cast
     value = 0;
     for (int i = 0; i < board.size; i++) {
         for (int j = 0; j < board.size; j++) {
-            if (Pieces::Piece piece = board(i, j); piece != Pieces::EMPTY) {
+            if (Pieces::Piece piece = board.at(i, j); piece != Pieces::EMPTY) {
                 value ^= pieceTable[piece][i][j];
             }
         }
