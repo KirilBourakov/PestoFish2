@@ -35,19 +35,6 @@ public:
         }
         return std::move(moves);
     }
-    void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights,
-                  std::vector<Move>& out) const;
-
-
-
-    [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const;
-    [[nodiscard]] bool isAttacked(const BoardPosition& position) const;
-    static bool inBounds(const int x) {
-        return x >= 0 && x < BOARD_SIZE;
-    }
-    static bool inBounds(const int x, const int y) {
-        return inBounds(x) && inBounds(y);
-    }
 
     [[nodiscard]] Pieces::Piece at(const int y, const int x) const {
         return board[y][x];
@@ -56,17 +43,14 @@ public:
         board[y][x] = piece;
     }
 
-    bool operator==(const NewBoard& other) const {
-        return board == other.board;
-    }
-
+    void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights, std::vector<Move>& out) const;
     void addKingMoves(int x, int y, Color color, int castleRights, std::vector<Move>& moves) const;
     static void addPromotions(BoardPosition start, BoardPosition end, Pieces::Piece piece, Color color, std::vector<Move>& moves);
     void addPawnMoves(int x, int y, Color color, const std::optional<BoardPosition>& enPassantSquare, std::vector<Move>& moves) const;
     void addKnightMoves(int x, int y, Color color, std::vector<Move>& moves) const;
     void addSlidingMoves(int x, int y, Color color, bool straight, bool diag, std::vector<Move>& moves) const;
-
-    friend std::ostream& operator<<(std::ostream& os, const NewBoard& b);
+    [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const;
+    [[nodiscard]] bool isAttacked(const BoardPosition& position) const;
 
     /**
      * @return True, if the board position is draw due to material. False otherwise.
@@ -78,6 +62,18 @@ public:
      */
     [[nodiscard]] const auto& get_row(size_t i) const {
         return board[i];
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const NewBoard& b);
+    bool operator==(const NewBoard& other) const {
+        return board == other.board;
+    }
+
+    static bool inBounds(const int x) {
+        return x >= 0 && x < BOARD_SIZE;
+    }
+    static bool inBounds(const int x, const int y) {
+        return inBounds(x) && inBounds(y);
     }
 
 private:
