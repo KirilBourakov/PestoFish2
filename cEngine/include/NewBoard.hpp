@@ -37,6 +37,13 @@ public:
         return y * BOARD_SIZE + x;
     }
 
+    bool operator==(const BitBoardManager& other) const {
+        return board == other.board && colorBoard == other.colorBoard;
+    }
+    bool operator!=(const BitBoardManager& other) const {
+        return !operator==(other);
+    }
+
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
@@ -107,7 +114,6 @@ public:
         board[mv.end.y][mv.end.x] = newPiece;
         board[mv.start.y][mv.start.x] = Pieces::EMPTY;
 
-
         if (mv.enPassantCapture) {
             board[mv.start.y][mv.end.x] = Pieces::EMPTY;
         } else if (mv.castle == CastleType::LONG) {
@@ -131,7 +137,6 @@ public:
     void undoMove(const Move& move, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
         if (move.enPassantCapture) {
             board[move.start.y][move.end.x] = (activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
-
         } else if (move.castle == CastleType::LONG) {
             const Pieces::Piece rook = board[move.start.y][move.end.x + 1];
             board[move.start.y][move.end.x + 1] = Pieces::EMPTY;
@@ -171,16 +176,19 @@ public:
         return board[i];
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const NewBoard& b);
-    bool operator==(const NewBoard& other) const {
-        return board == other.board;
-    }
-
     static bool inBounds(const int x) {
         return x >= 0 && x < BOARD_SIZE;
     }
     static bool inBounds(const int x, const int y) {
         return inBounds(x) && inBounds(y);
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const NewBoard& b);
+    bool operator==(const NewBoard& other) const {
+        return board == other.board && bitBoards == other.bitBoards;
+    }
+    bool operator!=(const NewBoard& other) const {
+        return !operator==(other);
     }
 
 private:
