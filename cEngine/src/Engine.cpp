@@ -56,7 +56,7 @@ void Engine::handleRequest(
 
 
 Move Engine::getBestMove() {
-    return getBestMove(SearchRequest{.movetime = 1000});
+    return getBestMove(SearchRequest{.depth = 3});
 }
 
 // TODO: implement ply so earlier mates are more prioritized
@@ -85,6 +85,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
     int expected, scoreOut, depth;
     lazySmpThreads.sync(state, possibleMoves);
     for (depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
+        std::cout << static_cast<int>(steadyClock::now() < deadline) << std::endl;
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
             out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut);
@@ -101,9 +102,9 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
                 SearchLimits search = {0, depth, alpha, beta, 0, deadline};
                 lazySmpThreads.enqueue(
-                    [this](State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo,
+                    [this](State& currState, const std::vector<Move>& mvs, const SearchLimits &searchRef, OrderingInfo& orderingInfo,
                            RngInfo& rng, int& scoreOut) {
-                        return this->root(currState, rootMoves, search, orderingInfo, rng, scoreOut); // TODO: give diff alpha/beta?
+                        return this->root(currState, mvs, searchRef, orderingInfo, rng, scoreOut); // TODO: give diff alpha/beta?
                     },
                     search);
 
@@ -118,12 +119,12 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 if (newScore <= alpha) { // fail low
                     alpha = -INF;
                 } else if (newScore >= beta) { // fail high
-                    if (!timeOut.load(std::memory_order_relaxed) && !forceStop.load(std::memory_order_relaxed)) {
+                    if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
                         out = candidate;
                     }
                     beta = INF;
                 } else {
-                    if (!timeOut.load(std::memory_order_relaxed) && !forceStop.load(std::memory_order_relaxed)) {
+                    if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
                         out = candidate;
                         expected = newScore;
                     }
@@ -131,9 +132,9 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 }
             }
         }
-        // std::cout << "Best Move " << out << std::endl;
+        std::cout << "Best Move " << out << std::endl;
     }
-    // std::cout << "-----------" << std::endl;
+    std::cout << "-----------" << std::endl;
 
     return out;
 }
