@@ -33,8 +33,8 @@ State::State(const NewBoard& board, const Color activeColor, const int castlingR
     , hash(board, activeColor, castlingRights, enPassantSquare) {
 
     // find king squares
-    for (int y = 0; y < this->board.size; ++y) {
-        for (int x = 0; x < this->board.size; ++x) {
+    for (int y = 0; y < BOARD_SIZE; ++y) {
+        for (int x = 0; x < BOARD_SIZE; ++x) {
             if (this->board.at(y, x) == Pieces::BLACK_KING) {
                 blackKingSquare = {x, y};
             } else if (this->board.at(y, x) == Pieces::WHITE_KING) {

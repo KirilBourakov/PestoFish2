@@ -16,8 +16,6 @@
 constexpr int BOARD_SIZE = 8;
 class NewBoard {
 public:
-    int size = BOARD_SIZE;
-
     explicit NewBoard(std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> inp)
         : board(inp) {}
 

@@ -42,8 +42,8 @@ ZobristHash::ZobristHash(const NewBoard& board, Color activeColor, int castlingR
 void ZobristHash::recalculate(const NewBoard& board, Color activeColor, int castlingRights,
                               std::optional<BoardPosition> enPassantLocation) {
     value = 0;
-    for (int i = 0; i < board.size; i++) {
-        for (int j = 0; j < board.size; j++) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
             if (Pieces::Piece piece = board.at(i, j); piece != Pieces::EMPTY) {
                 value ^= pieceTable[piece][i][j];
             }
