@@ -17,7 +17,6 @@ void NewBoard::addMoves(int x, int y, const Color activeColor, const std::option
                         std::vector<Move>& out) const {
     switch (Pieces::piece_type(board[y][x])) {
     case PieceType::Pawn:
-        addPawnMoves(x, y, activeColor, enPassantSquare, out);
         break;
     case PieceType::Knight:
         addKnightMoves(x, y, activeColor, out);
