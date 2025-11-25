@@ -18,9 +18,7 @@ void NewBoard::addMoves(int x, int y, const Color activeColor, const std::option
     switch (Pieces::piece_type(board[y][x])) {
     case PieceType::Pawn:
     case PieceType::King:
-        break;
     case PieceType::Knight:
-        addKnightMoves(x, y, activeColor, out);
         break;
     case PieceType::Bishop:
         addSlidingMoves(x, y, activeColor, false, true, out);

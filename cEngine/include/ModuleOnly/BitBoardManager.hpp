@@ -19,6 +19,29 @@ public:
         for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
         }
+        initKnightMasks();
+    }
+
+    void initKnightMasks() {
+        const int offsets[8][2] = {
+            {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
+            {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
+        };
+
+        for (int square = 0; square < 64; square++) {
+            uint64_t b = 0;
+            const int y = square / 8;
+            const int x = square % 8;
+
+            for (auto& offset : offsets) {
+                const int ny = y + offset[0];
+                const int nx = x + offset[1];
+                if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
+                    b |= (1ULL << shiftValue(ny, nx));
+                }
+            }
+            knightMoves[square] = b;
+        }
     }
 
 
@@ -95,6 +118,23 @@ public:
 
         if (overwrittenPiece != Pieces::EMPTY) {
             add(overwrittenPiece, mv.end.y, mv.end.x);
+        }
+    }
+
+    template<Color color>
+    void addKnightMoves(std::vector<Move>& moves) const {
+        const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KNIGHT : Pieces::BLACK_KNIGHT;
+        const uint64_t friendly = at(color);
+
+        uint64_t knights = at(piece);
+        while (knights) {
+            const int start = pop_lsb(knights);
+            uint64_t possibleMoves = knightMoves[start];
+            possibleMoves &= ~friendly;
+            while (possibleMoves) {
+                const int end = pop_lsb(possibleMoves);
+                moves.push_back(Move::standardMove(positions[start], positions[end]));
+            }
         }
     }
 
@@ -236,6 +276,7 @@ public:
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
+    std::array<uint64_t, BOARD_SIZE * BOARD_SIZE> knightMoves{};
     std::array<BoardPosition, BOARD_SIZE * BOARD_SIZE> positions{};
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
