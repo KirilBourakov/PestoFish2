@@ -292,14 +292,14 @@ private:
         return y * BOARD_SIZE + x;
     }
 
-    int pop_lsb(uint64_t &bb) const {
-#if defined(_MSC_VER)
+    static int pop_lsb(uint64_t &bb) {
+    #if defined(_MSC_VER)
         unsigned long index;
         _BitScanForward64(&index, bb);
         int sq = (int)index;
-#else
+    #else
         int sq = __builtin_ctzll(bb);
-#endif
+    #endif
 
         bb &= bb - 1;
 
