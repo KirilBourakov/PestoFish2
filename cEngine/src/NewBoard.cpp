@@ -17,6 +17,7 @@ void NewBoard::addMoves(int x, int y, const Color activeColor, const std::option
                         std::vector<Move>& out) const {
     switch (Pieces::piece_type(board[y][x])) {
     case PieceType::Pawn:
+    case PieceType::King:
         break;
     case PieceType::Knight:
         addKnightMoves(x, y, activeColor, out);
@@ -29,9 +30,6 @@ void NewBoard::addMoves(int x, int y, const Color activeColor, const std::option
         break;
     case PieceType::Queen:
         addSlidingMoves(x, y, activeColor, true, true, out);
-        break;
-    case PieceType::King:
-        addKingMoves(x, y, activeColor, castlingRights, out);
         break;
     default:
         throw std::invalid_argument(std::format("Invalid piece {} at ({}, {})", static_cast<int>(board[y][x]), x, y));

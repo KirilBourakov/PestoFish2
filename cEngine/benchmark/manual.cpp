@@ -10,11 +10,10 @@
 
 int main() {
     Engine engine{};
-    engine.setState(fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/4P1Pp/2N2Q2/1p2BP2/R1B1K2R b KQkq g3 0 1"));
+    engine.setState(fenToState("8/2p5/3p4/1P5r/1R3p1k/8/4P1P1/K7 w - - 0 1"));
 
     std::vector<Move> out;
-    BoardPosition pos = {6, 5};
-    engine.getState().getBoard().bitBoards.addPawnMoves<Color::Black>(pos, out);
+    engine.getState().getBoard().bitBoards.addKingMoves<Color::White>(0, out);
 
     for (auto move : out) {
         std::cout << move << std::endl;

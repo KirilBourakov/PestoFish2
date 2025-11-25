@@ -98,16 +98,58 @@ public:
     }
 
     template<Color color>
+    void addKingMoves(const int castleRights, std::vector<Move>& moves) const {
+        const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING;
+
+        uint64_t kingPos = at(piece);
+        const BoardPosition kingStart = positions[pop_lsb(kingPos)];
+        if (castleAllowed(color, CastleType::SHORT, castleRights)) {
+            constexpr uint64_t shortMask = color == Color::White ? 0x6000000000000000 : 0x60;
+            const BoardPosition end = color == Color::White ? BoardPosition{6, 7} : BoardPosition{6, 0};
+
+            if ((shortMask & (at(Color::White) | at(Color::Black))) == 0) {
+                moves.push_back(Move::castleMove(kingStart, end, CastleType::SHORT));
+            }
+        }
+        if (castleAllowed(color, CastleType::LONG, castleRights)) {
+            constexpr uint64_t longMask = color == Color::White ? 0xe00000000000000 : 0xe;
+            const BoardPosition end = color == Color::White ? BoardPosition{2, 7} : BoardPosition{2, 0};
+
+            if ((longMask & (at(Color::White) | at(Color::Black))) == 0) {
+                moves.push_back(Move::castleMove(kingStart, end, CastleType::LONG));
+            }
+        }
+
+        kingPos = at(piece);
+        const uint64_t friendly = at(color);
+        uint64_t kingMoves = 0;
+        kingMoves ^= (kingPos & notA) << 1;
+
+        kingMoves ^= (kingPos & notH) >> 1;
+
+        kingMoves ^= (kingPos & ~rank8) >> 8;
+        kingMoves ^= (kingPos & ~rank1) << 8;
+        kingMoves ^= (kingPos & (notA & ~rank8)) >> 7;
+        kingMoves ^= (kingPos & (notA & ~rank1)) << 9;
+        kingMoves ^= (kingPos & (notH & ~rank8)) >> 9;
+        kingMoves ^= (kingPos & (notH & ~rank1)) << 7;
+
+        kingMoves &= ~friendly;
+
+        while (kingMoves) {
+            moves.push_back(Move::standardMove(kingStart, positions[pop_lsb(kingMoves)]));
+        }
+    }
+
+    template<Color color>
     void addPawnMoves(const std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const {
         using namespace Pieces;
         static constexpr std::array<Piece, 4> whitePieces = {WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN};
         static constexpr std::array<Piece, 4> blackPieces = {BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN};
         const auto& usedPieces = (color == Color::White ? whitePieces : blackPieces);
 
-        static constexpr uint64_t rank8 = 0x00000000000000FFULL;
         static constexpr uint64_t rank7 = 0x000000000000FF00ULL;
         static constexpr uint64_t rank2 = 0x00FF000000000000ULL;
-        static constexpr uint64_t rank1 = 0xFF00000000000000ULL;
 
         const uint64_t leftAttacks = color == Color::White ? notH : notA;
         const uint64_t rightAttacks = color == Color::White ? notA : notH;
@@ -197,6 +239,8 @@ private:
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
     static constexpr uint64_t notH = 0xfefefefefefefefeULL;
+    static constexpr uint64_t rank1 = 0xFF00000000000000ULL;
+    static constexpr uint64_t rank8 = 0x00000000000000FFULL;
 
     uint64_t& at_mut(const Color color) {
         return colorBoard[static_cast<size_t>(color)];

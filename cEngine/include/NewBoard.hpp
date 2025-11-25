@@ -33,9 +33,11 @@ public:
 
         if (activeColor == Color::White) {
             bitBoards.addPawnMoves<Color::White>(enPassantSquare, moves);
+            bitBoards.addKingMoves<Color::White>(castlingRights, moves);
         }
         else {
             bitBoards.addPawnMoves<Color::Black>(enPassantSquare, moves);
+            bitBoards.addKingMoves<Color::Black>(castlingRights, moves);
         }
 
         // get all pseudo legal moves
