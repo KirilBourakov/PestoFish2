@@ -14,6 +14,13 @@
 constexpr int BOARD_SIZE = 8;
 class BitBoardManager {
 public:
+    BitBoardManager() {
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+            positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
+        }
+    }
+
+
     [[nodiscard]] uint64_t at(const Pieces::Piece piece) const {
         assert(piece != Pieces::EMPTY && "EMPTY has no bitboard");
         return board[indexOf(piece)];
@@ -132,18 +139,19 @@ public:
             while (bb) {
                 const int to = pop_lsb(bb);
                 const int from = to + offset;
+
+                BoardPosition start = positions[from];
+                BoardPosition end = positions[to];
+
                 if (type == 2) {
-                    moves.push_back(Move::enPassantCaptureMove(positionFromBitIndex(from),
-                                                   positionFromBitIndex(to)));
+                    moves.push_back(Move::enPassantCaptureMove(start, end));
                 }
                 else if (type == 3) {
-                    BoardPosition end = positionFromBitIndex(to);
                     const int enPassantSquareY = end.y - (color == Color::White ? -1 : 1);
-                    moves.push_back(Move::doublePawnMove(positionFromBitIndex(from), end, {end.x, enPassantSquareY}));
+                    moves.push_back(Move::doublePawnMove(start, end, {end.x, enPassantSquareY}));
                 }
                 else {
-                    moves.push_back(Move::standardMove(positionFromBitIndex(from),
-                                                   positionFromBitIndex(to)));
+                    moves.push_back(Move::standardMove(start,end));
                 }
             }
         };
@@ -153,7 +161,7 @@ public:
                 const int to = pop_lsb(bb);
                 const int from = to + offset;
                 for (const Piece promoteTo : usedPieces) {
-                    moves.push_back(Move::promotionMove(positionFromBitIndex(from), positionFromBitIndex(to), promoteTo));
+                    moves.push_back(Move::promotionMove(positions[from], positions[to], promoteTo));
                 }
             }
         };
@@ -185,6 +193,7 @@ public:
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
+    std::array<BoardPosition, BOARD_SIZE * BOARD_SIZE> positions{};
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
     static constexpr uint64_t notH = 0xfefefefefefefefeULL;
@@ -250,10 +259,6 @@ private:
         bb &= bb - 1;
 
         return sq;
-    }
-
-    static BoardPosition positionFromBitIndex(const int location) {
-        return {location % BOARD_SIZE, location / BOARD_SIZE};
     }
 
     static void printBitboard(const uint64_t bb, bool flat=false) {
