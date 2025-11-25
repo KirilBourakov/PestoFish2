@@ -14,7 +14,7 @@ int main() {
 
     std::vector<Move> out;
     BoardPosition pos = {6, 5};
-    engine.getState().getBoard().bitBoards.addPawnMoves(Color::Black, pos, out);
+    engine.getState().getBoard().bitBoards.addPawnMoves<Color::Black>(pos, out);
 
     for (auto move : out) {
         std::cout << move << std::endl;

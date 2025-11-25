@@ -31,7 +31,12 @@ public:
         std::vector<Move> moves;
         moves.reserve(200);
 
-        bitBoards.addPawnMoves(activeColor, enPassantSquare, moves);
+        if (activeColor == Color::White) {
+            bitBoards.addPawnMoves<Color::White>(enPassantSquare, moves);
+        }
+        else {
+            bitBoards.addPawnMoves<Color::Black>(enPassantSquare, moves);
+        }
 
         // get all pseudo legal moves
         for (int y = 0; y < BOARD_SIZE; y++) {

@@ -90,14 +90,13 @@ public:
         }
     }
 
-    void addPawnMoves(const Color color, const std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const {
+    template<Color color>
+    void addPawnMoves(const std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const {
         using namespace Pieces;
         static constexpr std::array<Piece, 4> whitePieces = {WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN};
         static constexpr std::array<Piece, 4> blackPieces = {BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN};
         const auto& usedPieces = (color == Color::White ? whitePieces : blackPieces);
 
-        static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
-        static constexpr uint64_t notH = 0xfefefefefefefefeULL;
         static constexpr uint64_t rank8 = 0x00000000000000FFULL;
         static constexpr uint64_t rank7 = 0x000000000000FF00ULL;
         static constexpr uint64_t rank2 = 0x00FF000000000000ULL;
@@ -112,13 +111,13 @@ public:
         const uint64_t lastRank = color == Color::White ? rank8 : rank1;
         const uint64_t doubleMoveRank = color == Color::White ? rank2 : rank7;
 
-        const uint64_t combinedForwardMoves = shift(color, pawnBoard, 8) & empty;
-        const uint64_t combinedLeftCaptures = shift(color, pawnBoard, 7) & leftAttacks & enemyBoard;
-        const uint64_t combinedRightCaptures = shift(color, pawnBoard, 9) & rightAttacks & enemyBoard;
+        const uint64_t combinedForwardMoves = shift<color>(pawnBoard, 8) & empty;
+        const uint64_t combinedLeftCaptures = shift<color>(pawnBoard, 7) & leftAttacks & enemyBoard;
+        const uint64_t combinedRightCaptures = shift<color>(pawnBoard, 9) & rightAttacks & enemyBoard;
 
 
         uint64_t singles = combinedForwardMoves & ~lastRank;
-        uint64_t doubles = shift(color, singles, 8) & empty & shift(color, doubleMoveRank, 16);
+        uint64_t doubles = shift<color>(singles, 8) & empty & shift<color>(doubleMoveRank, 16);
         uint64_t capLeft = combinedLeftCaptures & ~lastRank;
         uint64_t capRight = combinedRightCaptures & ~lastRank;
 
@@ -126,8 +125,8 @@ public:
         uint64_t promotionCapLeft = combinedLeftCaptures & lastRank;
         uint64_t promotionCapRight = combinedRightCaptures & lastRank;
 
-        uint64_t enPassantLeft = shift(color, pawnBoard, 7) & leftAttacks & enPassantMask;
-        uint64_t enPassantRight = shift(color, pawnBoard, 9) & rightAttacks & enPassantMask;
+        uint64_t enPassantLeft = shift<color>(pawnBoard, 7) & leftAttacks & enPassantMask;
+        uint64_t enPassantRight = shift<color>(pawnBoard, 9) & rightAttacks & enPassantMask;
 
         auto emit = [&](uint64_t bb, const int offset, const int type=1) {
             while (bb) {
@@ -170,11 +169,10 @@ public:
         emitPromotion(promotionCapRight, color == Color::White ? 9 : -9);
     }
 
-    static uint64_t shift(const Color color, const uint64_t bb, const int amount) {
+    template<Color color>
+    static uint64_t shift(const uint64_t bb, const int amount) {
         return color == Color::Black ? (bb << amount) : (bb >> amount);
     }
-
-
 
 
     bool operator==(const BitBoardManager& other) const {
@@ -187,6 +185,9 @@ public:
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
+
+    static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
+    static constexpr uint64_t notH = 0xfefefefefefefefeULL;
 
     uint64_t& at_mut(const Color color) {
         return colorBoard[static_cast<size_t>(color)];
