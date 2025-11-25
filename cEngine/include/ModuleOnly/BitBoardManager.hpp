@@ -9,6 +9,7 @@
 #include <vector>
 #include <ModuleOnly/Move.hpp>
 
+#include "CastleUtils.hpp"
 #include "Enums.hpp"
 
 constexpr int BOARD_SIZE = 8;
