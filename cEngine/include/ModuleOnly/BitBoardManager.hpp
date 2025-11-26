@@ -9,7 +9,7 @@
 #include <vector>
 #include <ModuleOnly/Move.hpp>
 
-#include "CastleUtils.hpp"
+#include "Utils.hpp"
 #include "Enums.hpp"
 
 class BitBoardManager {

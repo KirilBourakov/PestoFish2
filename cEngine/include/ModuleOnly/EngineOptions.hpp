@@ -7,6 +7,7 @@
 #include <random>
 #include <array>
 
+#include "ModuleOnly/Utils.hpp"
 #include "Move.hpp"
 
 class HistoryTable {

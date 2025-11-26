@@ -3,7 +3,7 @@
 //
 #include <stdexcept>
 
-#include "ModuleOnly/CastleUtils.hpp"
+#include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
 #include "ArrayBoard.hpp"

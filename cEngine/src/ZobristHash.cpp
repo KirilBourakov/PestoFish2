@@ -7,7 +7,7 @@
 #include <iostream>
 #include <random>
 
-#include "ModuleOnly/CastleUtils.hpp"
+#include "ModuleOnly/Utils.hpp"
 
 unsigned long long ZobristHash::seed = 90827521673ULL;
 

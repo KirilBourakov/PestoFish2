@@ -21,7 +21,7 @@ set(ENGINE_MODULES
         include/Evaluator.hpp
         include/ZobristHash.hpp
 
-        include/ModuleOnly/CastleUtils.hpp
+        include/ModuleOnly/Utils.hpp
         include/ModuleOnly/Enums.hpp
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp

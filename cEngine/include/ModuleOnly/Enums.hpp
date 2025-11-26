@@ -6,14 +6,6 @@
 #include <cstdint>
 #include <stdexcept>
 
-constexpr int BOARD_SIZE = 8;
-static bool inBounds(const int x) {
-    return x >= 0 && x < BOARD_SIZE;
-}
-static bool inBounds(const int x, const int y) {
-    return inBounds(x) && inBounds(y);
-}
-
 enum class CastleType { SHORT = 0, LONG = 1 };
 
 enum class GameState { IN_PLAY = 0, WHITE_WIN = 1, BLACK_WIN = -1, STALEMATE = 2, DRAW = 3 };

@@ -4,6 +4,14 @@
 #pragma once
 #include "Enums.hpp"
 
+constexpr int BOARD_SIZE = 8;
+static bool inBounds(const int x) {
+    return x >= 0 && x < BOARD_SIZE;
+}
+static bool inBounds(const int x, const int y) {
+    return inBounds(x) && inBounds(y);
+}
+
 inline bool castleAllowed(const Color color, const CastleType type, const int castleRights) {
     int bit;
     if (type == CastleType::SHORT && color == Color::White) {
