@@ -11,9 +11,9 @@
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
 
-class NewBoard {
+class ArrayBoard {
 public:
-    explicit NewBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp)
+    explicit ArrayBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp)
         : board(inp)
     {}
 
@@ -81,11 +81,11 @@ public:
         return board[i];
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const NewBoard& b);
-    bool operator==(const NewBoard& other) const {
+    friend std::ostream& operator<<(std::ostream& os, const ArrayBoard& b);
+    bool operator==(const ArrayBoard& other) const {
         return board == other.board;
     }
-    bool operator!=(const NewBoard& other) const {
+    bool operator!=(const ArrayBoard& other) const {
         return !operator==(other);
     }
 private:

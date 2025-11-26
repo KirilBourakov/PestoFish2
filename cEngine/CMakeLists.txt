@@ -9,7 +9,7 @@ find_package(pybind11 REQUIRED)
 set(ENGINE_SOURCES
         src/Engine.cpp
         src/State.cpp
-        src/NewBoard.cpp
+        src/ArrayBoard.cpp
         src/Evaluator.cpp
         src/ZobristHash.cpp
 )

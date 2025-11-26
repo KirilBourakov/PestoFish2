@@ -3,13 +3,13 @@
 //
 
 #pragma once
-#include "NewBoard.hpp"
+#include "ArrayBoard.hpp"
 #include "ModuleOnly/BitBoardManager.hpp"
 
 class Board {
 public:
     explicit Board(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &board)
-        : newBoard(board)
+        : arrayBoard(board)
         , bitBoard(board)
     {}
 
@@ -33,7 +33,7 @@ public:
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 if (Pieces::sameColor(activeColor, at(y,x))) {
-                    newBoard.addMoves(x, y, activeColor, enPassantSquare, castlingRights, moves);
+                    arrayBoard.addMoves(x, y, activeColor, enPassantSquare, castlingRights, moves);
                 }
             }
         }
@@ -42,56 +42,56 @@ public:
 
     void addMoves(int x, int y, const Color activeColor, const std::optional<BoardPosition> enPassantSquare, int castlingRights,
                         std::vector<Move>& out) const {
-        return newBoard.addMoves(x, y, activeColor, enPassantSquare, castlingRights, out); // TODO: deal with this, as it is invalid due to bitboards
+        return arrayBoard.addMoves(x, y, activeColor, enPassantSquare, castlingRights, out); // TODO: deal with this, as it is invalid due to bitboards
     }
 
     void move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
         bitBoard.move(mv, startContent, endContent);
-        newBoard.move(mv, startContent, endContent);
+        arrayBoard.move(mv, startContent, endContent);
     }
 
     void undoMove(const Move& move, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
         bitBoard.undoMove(move, movedPiece, overwrittenPiece, activeColor);
-        newBoard.undoMove(move, movedPiece, overwrittenPiece, activeColor);
+        arrayBoard.undoMove(move, movedPiece, overwrittenPiece, activeColor);
     }
 
     [[nodiscard]] Pieces::Piece at(const int y, const int x) const {
-        return newBoard.at(y,x);
+        return arrayBoard.at(y,x);
     }
 
     [[nodiscard]] bool isDrawFromMaterial() const {
-        return newBoard.isDrawFromMaterial();
+        return arrayBoard.isDrawFromMaterial();
     }
 
     [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const {
-        return newBoard.isAttacked(position, color);
+        return arrayBoard.isAttacked(position, color);
     };
     [[nodiscard]] bool isAttacked(const BoardPosition& position) const {
-        return newBoard.isAttacked(position);
+        return arrayBoard.isAttacked(position);
     };
 
     [[nodiscard]] const auto& get_row(const size_t i) const {
-        return newBoard.get_row(i);
+        return arrayBoard.get_row(i);
     }
 
     bool operator==(const Board& other) const {
-        return newBoard == other.newBoard && bitBoard == other.bitBoard;
+        return arrayBoard == other.arrayBoard && bitBoard == other.bitBoard;
     }
     bool operator!=(const Board& other) const {
         return !operator==(other);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Board& b) {
-        os << b.newBoard;
+        os << b.arrayBoard;
         return os;
     }
 
-    [[nodiscard]] NewBoard& getBoard() {
-        return newBoard;
+    [[nodiscard]] ArrayBoard& getBoard() {
+        return arrayBoard;
     }
 
 private:
-    NewBoard newBoard;
+    ArrayBoard arrayBoard;
     BitBoardManager bitBoard;
 };
 

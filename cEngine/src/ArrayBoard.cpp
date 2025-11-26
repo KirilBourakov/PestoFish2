@@ -6,14 +6,14 @@
 #include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-#include "NewBoard.hpp"
+#include "ArrayBoard.hpp"
 
 #include <optional>
 #include <vector>
 
 using moveSet = std::vector<std::pair<int, int>>;
 
-void NewBoard::addMoves(int x, int y, const Color activeColor, const std::optional<BoardPosition> enPassantSquare, int castlingRights,
+void ArrayBoard::addMoves(int x, int y, const Color activeColor, const std::optional<BoardPosition> enPassantSquare, int castlingRights,
                         std::vector<Move>& out) const {
     switch (Pieces::piece_type(board[y][x])) {
     case PieceType::Pawn:
@@ -34,7 +34,7 @@ void NewBoard::addMoves(int x, int y, const Color activeColor, const std::option
     }
 }
 
-void NewBoard::addSlidingMoves(int x, int y, const Color color, const bool straight, const bool diag, std::vector<Move>& moves) const {
+void ArrayBoard::addSlidingMoves(int x, int y, const Color color, const bool straight, const bool diag, std::vector<Move>& moves) const {
     static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     static const moveSet diag_dir = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     static const moveSet straight_dir = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
@@ -71,7 +71,7 @@ void NewBoard::addSlidingMoves(int x, int y, const Color color, const bool strai
     }
 }
 
-bool NewBoard::isAttacked(const BoardPosition& position, const Color color) const {
+bool ArrayBoard::isAttacked(const BoardPosition& position, const Color color) const {
     if (!inBounds(position.x, position.y)) {
         throw std::invalid_argument("Position is out of bounds");
     }
@@ -150,7 +150,7 @@ bool NewBoard::isAttacked(const BoardPosition& position, const Color color) cons
     return false;
 }
 
-bool NewBoard::isAttacked(const BoardPosition& position) const {
+bool ArrayBoard::isAttacked(const BoardPosition& position) const {
     if (!inBounds(position.x, position.y)) {
         throw std::invalid_argument("Position is out of bounds");
     }
@@ -161,7 +161,7 @@ bool NewBoard::isAttacked(const BoardPosition& position) const {
     return isAttacked(position, color);
 }
 
-bool NewBoard::isDrawFromMaterial() const {
+bool ArrayBoard::isDrawFromMaterial() const {
     int wBishops = 0;
     int wKnights = 0;
     int bBishops = 0;
@@ -202,7 +202,7 @@ bool NewBoard::isDrawFromMaterial() const {
     return !whiteCanWin && !blackCanWin;
 }
 
-std::ostream& operator<<(std::ostream& os, const NewBoard& b) {
+std::ostream& operator<<(std::ostream& os, const ArrayBoard& b) {
     os << "  +-----------------+\n";
     for (int i = 0; i < BOARD_SIZE; i++) {
         os << i + 1 << " | ";
