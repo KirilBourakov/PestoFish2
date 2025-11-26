@@ -20,7 +20,7 @@ TEST(praseSquare, fenInitial) {
 }
 
 TEST(praseSquare, fenUnBlockedCastle) {
-    State state = {NewBoard(unBlockedCastle()), Color::Black, 0, std::nullopt, 5, 25};
+    State state = {Board(unBlockedCastle()), Color::Black, 0, std::nullopt, 5, 25};
     State from = fenToState("r3k2r/8/8/8/8/8/3PPP2/R3K2R b - - 5 25");
 }
 

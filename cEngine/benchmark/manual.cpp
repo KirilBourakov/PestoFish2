@@ -13,7 +13,6 @@ int main() {
     engine.setState(fenToState("8/2p5/3p4/1P5r/1R3p1k/8/4P1P1/K7 w - - 0 1"));
 
     std::vector<Move> out;
-    engine.getState().getBoard().bitBoards.addKingMoves<Color::White>(0, out);
 
     for (auto move : out) {
         std::cout << move << std::endl;

@@ -12,14 +12,21 @@
 #include "CastleUtils.hpp"
 #include "Enums.hpp"
 
-constexpr int BOARD_SIZE = 8;
 class BitBoardManager {
 public:
-    BitBoardManager() {
+    explicit BitBoardManager(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
         for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
         }
         initKnightMasks();
+
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
+                if (inp[y][x] != Pieces::EMPTY) {
+                    insert(inp[y][x], y, x);
+                }
+            }
+        }
     }
 
     void initKnightMasks() {

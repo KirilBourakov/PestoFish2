@@ -8,7 +8,7 @@
 #include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-#include "NewBoard.hpp"
+#include "Board.hpp"
 #include "ZobristHash.hpp"
 
 class State {
@@ -33,11 +33,11 @@ public:
     };
 
     State();
-    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
-    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+    State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+    State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare,
           const std::vector<HistoricalEntry>& history, const std::vector<u64>& hashHistory);
-    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+    State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock);
 
     void makeMove(const Move& move);
@@ -73,7 +73,7 @@ public:
     [[nodiscard]] u64 getZobrist() const {
         return hash.getValue();
     }
-    [[nodiscard]] const NewBoard& getBoard() const {
+    [[nodiscard]] const Board& getBoard() const {
         return board;
     }
     [[nodiscard]] Pieces::Piece getAt(const BoardPosition inp) const {
@@ -102,7 +102,7 @@ private:
     std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);
 
     // FEN info
-    NewBoard board;
+    Board board;
     Color activeColor;
     int castlingRights;
     std::optional<BoardPosition> enPassantSquare;

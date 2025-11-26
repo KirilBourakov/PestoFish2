@@ -22,7 +22,7 @@ State::State()
     , blackKingSquare{4, 0}
     , hash(board, activeColor, castlingRights, enPassantSquare) {}
 
-State::State(const NewBoard& board, const Color activeColor, const int castlingRights,
+State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare, const int halfMoveClock, const int fullMoveClock)
     : board(board)
     , activeColor(activeColor)
@@ -44,11 +44,11 @@ State::State(const NewBoard& board, const Color activeColor, const int castlingR
     }
 }
 
-State::State(const NewBoard& board, const Color activeColor, const int castlingRights,
+State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare)
     : State(board, activeColor, castlingRights, enPassantSquare, activeColor == Color::White ? 0 : 1, 1) {}
 
-State::State(const NewBoard& board, const Color activeColor, const int castlingRights,
+State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare, const int halfMoveClock, const int fullMoveClock,
              const BoardPosition whiteKingSquare, const BoardPosition blackKingSquare, const std::vector<HistoricalEntry>& history,
              const std::vector<u64>& hashHistory)
@@ -120,7 +120,7 @@ GameState State::getGameState() {
 }
 
 State State::makeThreadCopy() const {
-    NewBoard copyBoard = board;                 // TODO: make sure this is a copy
+    Board copyBoard = board;                 // TODO: make sure this is a copy
     std::vector<HistoricalEntry> historyCopy{}; // threads don't need game history
     std::vector<u64> hashCopy = hashHistory;
     return {copyBoard,     activeColor,     castlingRights,  enPassantSquare, halfMoveClock,

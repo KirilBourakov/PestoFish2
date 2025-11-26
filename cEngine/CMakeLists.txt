@@ -26,6 +26,7 @@ set(ENGINE_MODULES
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp
         include/ModuleOnly/BitBoardManager.hpp
+        include/Board.hpp
 )
 
 # Build cEngine
