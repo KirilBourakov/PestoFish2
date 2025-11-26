@@ -12,9 +12,9 @@
 #include "Utils.hpp"
 #include "Enums.hpp"
 
-class BitBoardManager {
+class BitBoard {
 public:
-    explicit BitBoardManager(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
+    explicit BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
         for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
         }
@@ -273,10 +273,10 @@ public:
     }
 
 
-    bool operator==(const BitBoardManager& other) const {
+    bool operator==(const BitBoard& other) const {
         return board == other.board && colorBoard == other.colorBoard;
     }
-    bool operator!=(const BitBoardManager& other) const {
+    bool operator!=(const BitBoard& other) const {
         return !operator==(other);
     }
 

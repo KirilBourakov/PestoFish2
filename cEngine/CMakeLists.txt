@@ -25,8 +25,8 @@ set(ENGINE_MODULES
         include/ModuleOnly/Enums.hpp
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp
-        include/ModuleOnly/BitBoardManager.hpp
-        include/Board.hpp
+        include/ModuleOnly/BitBoard.hpp
+        include/ModuleOnly/Board.hpp
 )
 
 # Build cEngine

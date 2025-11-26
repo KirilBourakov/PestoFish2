@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "ArrayBoard.hpp"
-#include "ModuleOnly/BitBoardManager.hpp"
+#include "../ArrayBoard.hpp"
+#include "BitBoard.hpp"
 
 class Board {
 public:
@@ -92,7 +92,7 @@ public:
 
 private:
     ArrayBoard arrayBoard;
-    BitBoardManager bitBoard;
+    BitBoard bitBoard;
 };
 
 /**
