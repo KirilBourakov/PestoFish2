@@ -51,6 +51,26 @@ public:
         }
     }
 
+    std::vector<uint64_t> getBlockerBitBoard(const uint64_t attackMask) {
+        std::vector<int> locations;
+        uint64_t mask = attackMask;
+        while (mask) {
+            locations.push_back(pop_lsb(mask));
+        }
+
+        int numPatterns = 1 << locations.size();
+        std::vector<uint64_t> patterns;
+        patterns.assign(numPatterns, 0ULL);
+
+        for (int patternIndex = 0; patternIndex < numPatterns; patternIndex++) {
+            for (int bitIndex = 0; bitIndex < locations.size(); bitIndex++) {
+                int bit = (patternIndex >> bitIndex) & 1;
+                patterns[patternIndex] |= static_cast<uint64_t>(bit) << locations[bitIndex];
+            }
+        }
+        return std::move(patterns);
+    }
+
 
     [[nodiscard]] uint64_t at(const Pieces::Piece piece) const {
         assert(piece != Pieces::EMPTY && "EMPTY has no bitboard");
