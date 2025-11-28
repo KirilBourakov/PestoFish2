@@ -51,6 +51,41 @@ public:
         }
     }
 
+
+    static uint64_t attackMaskFor(const PieceType pieceType, const int pos) {
+        using moveSet = std::vector<std::pair<int, int>>;
+        static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        static const moveSet diag_dir = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        static const moveSet straight_dir = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+        const moveSet* dirs;
+        if (pieceType == PieceType::Queen) {
+            dirs = &straight_diag;
+        } else if (pieceType == PieceType::Bishop) {
+            dirs = &diag_dir;
+        } else if (pieceType == PieceType::Rook) {
+            dirs = &straight_dir;
+        } else {
+            throw std::invalid_argument("Invalid direction");
+        }
+
+        const int start_y = pos / 8;
+        const int start_x = pos % 8;
+
+        uint64_t mask = 0;
+        for (auto [dx, dy] : *dirs) {
+            for (int i = 1; i < BOARD_SIZE; i++) {
+                const int newY = start_y + i * dy;
+                const int newX = start_x + i * dx;
+                if (!inBounds(newX, newY)) {
+                    break;
+                }
+                mask |= (1ULL << shiftValue(newY, newX));
+            }
+        }
+        return mask;
+    }
+
     std::vector<uint64_t> getBlockerBitBoard(const uint64_t attackMask) {
         std::vector<int> locations;
         uint64_t mask = attackMask;
