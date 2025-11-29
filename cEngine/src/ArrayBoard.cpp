@@ -28,9 +28,9 @@ void ArrayBoard::addMoves(int x, int y, const Color activeColor, const std::opti
     // case PieceType::Rook:
     //     addSlidingMoves(x, y, activeColor, true, false, out);
     //     break;
-    case PieceType::Queen:
-        addSlidingMoves(x, y, activeColor, true, true, out);
-        break;
+    // case PieceType::Queen:
+    //     addSlidingMoves(x, y, activeColor, true, true, out);
+    //     break;
     default:
         throw std::invalid_argument(std::format("Invalid piece {} at ({}, {})", static_cast<int>(board[y][x]), x, y));
     }

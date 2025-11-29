@@ -24,7 +24,7 @@ public:
             bitBoard.addKnightMoves<Color::White>(moves);
             bitBoard.addSlidingMoves<Color::White, PieceType::Rook>(moves);
             bitBoard.addSlidingMoves<Color::White, PieceType::Bishop>(moves);
-            //bitBoard.addSlidingMoves<Color::White, PieceType::Queen>(moves);
+            bitBoard.addSlidingMoves<Color::White, PieceType::Queen>(moves);
         }
         else {
             bitBoard.addPawnMoves<Color::Black>(enPassantSquare, moves);
@@ -32,16 +32,7 @@ public:
             bitBoard.addKnightMoves<Color::Black>(moves);
             bitBoard.addSlidingMoves<Color::Black, PieceType::Rook>(moves);
             bitBoard.addSlidingMoves<Color::Black, PieceType::Bishop>(moves);
-           // bitBoard.addSlidingMoves<Color::Black, PieceType::Queen>(moves);
-        }
-
-        // get all pseudo legal moves
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                if (Pieces::sameColor(activeColor, at(y,x))) {
-                    arrayBoard.addMoves(x, y, activeColor, enPassantSquare, castlingRights, moves);
-                }
-            }
+            bitBoard.addSlidingMoves<Color::Black, PieceType::Queen>(moves);
         }
         return std::move(moves);
     }
