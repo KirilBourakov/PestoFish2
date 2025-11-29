@@ -110,8 +110,22 @@ public:
 
         for (int square = 0; square < 64; square++) {
             const uint64_t attackMask = attackMaskFor(type, square);
-            (*pieceKeys)[square] = attackMask; // TODO: prune end moves
-
+            const int y = square / 8;
+            const int x = square % 8;
+            uint64_t endMask = ~0ULL;
+            if (y != 0) {
+                endMask &= ~rank8;
+            }
+            if (y != 7) {
+                endMask &= ~rank1;
+            }
+            if (x != 7) {
+                endMask &= notA;
+            }
+            if (x != 0) {
+                endMask &= notH;
+            }
+            (*pieceKeys)[square] = attackMask & endMask;
             for (const auto& blockers :  getBlockerBitBoard(attackMask)) {
                 (*moveMasks)[square].add(
                     blockers,
