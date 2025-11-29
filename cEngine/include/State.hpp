@@ -8,7 +8,7 @@
 #include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-#include "ModuleOnly/Board.hpp"
+#include "Board/Board.hpp"
 #include "ZobristHash.hpp"
 
 class State {

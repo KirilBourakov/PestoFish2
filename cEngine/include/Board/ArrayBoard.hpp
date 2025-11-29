@@ -8,9 +8,9 @@
 #include <format>
 #include <vector>
 
-#include "ModuleOnly/Utils.hpp"
-#include "ModuleOnly/Enums.hpp"
-#include "ModuleOnly/Move.hpp"
+#include "../ModuleOnly/Utils.hpp"
+#include "../ModuleOnly/Enums.hpp"
+#include "../ModuleOnly/Move.hpp"
 
 class ArrayBoard {
 public:

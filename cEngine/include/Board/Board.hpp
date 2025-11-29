@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "../ArrayBoard.hpp"
+#include "ArrayBoard.hpp"
 #include "BitBoard.hpp"
 
 class Board {

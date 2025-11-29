@@ -11,8 +11,8 @@
 #include <algorithm>
 
 #include <ModuleOnly/Move.hpp>
-#include "Utils.hpp"
-#include "Enums.hpp"
+#include "../ModuleOnly/Utils.hpp"
+#include "../ModuleOnly/Enums.hpp"
 
 
 struct MoveLookup {

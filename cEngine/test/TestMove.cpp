@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "ArrayBoard.hpp"
+#include "../include/Board/ArrayBoard.hpp"
 #include "testBoard.hpp"
 
 #include "ModuleOnly/Enums.hpp"

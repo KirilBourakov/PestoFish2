@@ -8,7 +8,7 @@
 #include <random>
 #include <unordered_map>
 
-#include "ModuleOnly/Board.hpp"
+#include "Board/Board.hpp"
 #include "ModuleOnly/Move.hpp"
 
 using u64 = unsigned long long;

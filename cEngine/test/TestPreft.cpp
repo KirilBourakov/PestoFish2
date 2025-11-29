@@ -78,11 +78,11 @@ u64 DebugPreft(State& state, int depth) {
 //     EXPECT_NO_THROW(DebugPreft(state, 4));
 // }
 
-TEST(Perft, depth1) {
+TEST(Preft, depth1) {
     State state;
     ASSERT_EQ(Preft(state, 1), 20);
 }
-TEST(Perft, depth2) {
+TEST(Preft, depth2) {
     State state;
     ASSERT_EQ(Preft(state, 2), 400);
 }

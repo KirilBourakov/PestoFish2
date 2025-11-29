@@ -6,7 +6,7 @@
 #include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-#include "ArrayBoard.hpp"
+#include "../../include/Board/ArrayBoard.hpp"
 
 #include <optional>
 #include <vector>

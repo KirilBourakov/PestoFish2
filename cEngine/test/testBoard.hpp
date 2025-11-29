@@ -3,7 +3,7 @@
 //
 #pragma once
 #include "ModuleOnly/Enums.hpp"
-#include "../include/ModuleOnly/Board.hpp"
+#include "../include/Board/Board.hpp"
 
 using namespace Pieces;
 
