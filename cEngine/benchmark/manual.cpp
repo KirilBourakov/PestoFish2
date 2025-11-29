@@ -8,15 +8,45 @@
 #include "testBoard.hpp"
 #include "ModuleOnly/parse.hpp"
 
-int main() {
-    Engine engine{};
-    engine.setState(fenToState("8/2p5/3p4/1P5r/1R3p1k/8/4P1P1/K7 w - - 0 1"));
 
-    std::vector<Move> out;
+unsigned long long Preft(State& state, int depth) {
+    if (depth == 0)
+        return 1ULL;
 
-    for (auto move : out) {
-        std::cout << move << std::endl;
+    unsigned long long nodes = 0;
+
+    std::vector<Move> moves = state.getMoves();
+    for (const Move move : moves) {
+        state.makeMove(move);
+        nodes += Preft(state, depth - 1);
+        state.undoMove();
     }
+
+    return nodes;
+}
+
+int main() {
+    State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+    std::cout << Preft(state, 1);
+
+
+    // Engine engine{};
+    // engine.setState(fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"));
+    // std::vector<Move> out;
+    //
+    // engine.getState().getBoard().getBitBoard().addRookMoves<Color::White>(out);
+    //
+    // std::cout << out.size() << std::endl;
+    //
+    // engine.getState().printState();
+    // engine.getState().makeMove(out[0]);
+    // engine.getState().printState();
+    // engine.getState().undoMove();
+    // engine.getState().printState();
+    //
+    // for (auto move : out) {
+    //     std::cout << move << std::endl;
+    // }
 
     // engine.setState(fenToState(("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")));
     // std::cout << Evaluator::evaluate(engine.getState()) << std::endl;

@@ -5,6 +5,7 @@
 #include "Enums.hpp"
 
 constexpr int BOARD_SIZE = 8;
+constexpr int SQUARE_COUNT = BOARD_SIZE * BOARD_SIZE;
 static bool inBounds(const int x) {
     return x >= 0 && x < BOARD_SIZE;
 }

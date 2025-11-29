@@ -6,11 +6,47 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
-#include <ModuleOnly/Move.hpp>
+#include <algorithm>
 
+#include <ModuleOnly/Move.hpp>
 #include "Utils.hpp"
 #include "Enums.hpp"
+
+
+struct MoveLookup {
+    struct Entry {
+        uint64_t blockerMask;
+        uint64_t moves;
+        bool operator<(const Entry& other) const {
+            return blockerMask < other.blockerMask;
+        }
+    };
+
+    std::vector<Entry> table;
+
+    MoveLookup() {
+        table.reserve(4096);
+    }
+
+    void add(uint64_t key, uint64_t val) {
+        table.push_back({key, val});
+    }
+    void optimize() {
+        std::sort(table.begin(), table.end());
+    }
+
+    uint64_t get(uint64_t key) const {
+        Entry searchObj = {key, 0};
+        auto it = std::lower_bound(table.begin(), table.end(), searchObj);
+
+        if (it != table.end() && it->blockerMask == key) {
+            return it->moves;
+        }
+        throw std::invalid_argument("No such entry");
+    }
+};
 
 class BitBoard {
 public:
@@ -19,6 +55,7 @@ public:
             positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
         }
         initKnightMasks();
+        initRookMasks();
 
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
@@ -51,8 +88,22 @@ public:
         }
     }
 
+    void initRookMasks() {
+        for (int square = 0; square < 64; square++) {
+            uint64_t attackMask = attackMaskFor(PieceType::Rook, square);
+            rookKeys[square] = attackMask; // TODO: prune end moves
 
-    static uint64_t attackMaskFor(const PieceType pieceType, const int pos) {
+            for (const auto& blockers :  getBlockerBitBoard(attackMask)) {
+                rookMoves[square].add(
+                    blockers,
+                    attackMaskFor(PieceType::Rook, square, blockers)
+                );
+            }
+            rookMoves[square].optimize();
+        }
+    }
+
+    static uint64_t attackMaskFor(const PieceType pieceType, const int pos, const uint64_t board=0) {
         using moveSet = std::vector<std::pair<int, int>>;
         static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         static const moveSet diag_dir = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -81,6 +132,10 @@ public:
                     break;
                 }
                 mask |= (1ULL << shiftValue(newY, newX));
+
+                if (((1ULL << shiftValue(newY, newX)) & board) != 0) {
+                    break;
+                }
             }
         }
         return mask;
@@ -180,6 +235,26 @@ public:
 
         if (overwrittenPiece != Pieces::EMPTY) {
             add(overwrittenPiece, mv.end.y, mv.end.x);
+        }
+    }
+
+    template<Color color>
+    void addRookMoves(std::vector<Move>& moves) const {
+        const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
+        const uint64_t friendly = at(color);
+        const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
+
+        uint64_t rooks = at(piece);
+        while (rooks) {
+            const int start = pop_lsb(rooks);
+            uint64_t occupancyKey = rookKeys[start] & (friendly | enemy); // & noEdges;
+            uint64_t realMoves = rookMoves[start].get(occupancyKey);
+
+            realMoves &= ~friendly;
+            while (realMoves) {
+                const int end = pop_lsb(realMoves);
+                moves.push_back(Move::standardMove(positions[start], positions[end]));
+            }
         }
     }
 
@@ -338,13 +413,16 @@ public:
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
-    std::array<uint64_t, BOARD_SIZE * BOARD_SIZE> knightMoves{};
-    std::array<BoardPosition, BOARD_SIZE * BOARD_SIZE> positions{};
+    std::array<uint64_t, SQUARE_COUNT> knightMoves{};
+    std::array<uint64_t, SQUARE_COUNT> rookKeys{};
+    std::array<MoveLookup, SQUARE_COUNT> rookMoves{};
+    std::array<BoardPosition, SQUARE_COUNT> positions{};
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
     static constexpr uint64_t notH = 0xfefefefefefefefeULL;
     static constexpr uint64_t rank1 = 0xFF00000000000000ULL;
     static constexpr uint64_t rank8 = 0x00000000000000FFULL;
+    static constexpr uint64_t noEdges = notA & notH & ~rank1 & ~rank8;
 
     uint64_t& at_mut(const Color color) {
         return colorBoard[static_cast<size_t>(color)];

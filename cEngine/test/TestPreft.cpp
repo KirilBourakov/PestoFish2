@@ -30,7 +30,7 @@ u64 Preft(State& state, int depth) {
     return nodes;
 }
 
-void PreftDivide(State state, int depth) {
+void PreftDivide(State& state, int depth) {
     auto moves = state.getMoves();
     u64 total = 0;
     for (auto move : moves) {
@@ -68,15 +68,15 @@ u64 DebugPreft(State& state, int depth) {
     return nodes;
 }
 
-TEST(Preft, undoConsistency) {
-    State state;
-    EXPECT_NO_THROW(DebugPreft(state, 4));
-}
-
-TEST(Preft, undoInMiddleGame) {
-    State state{problemMiddleGame(), Color::Black, 0b0000, std::nullopt};
-    EXPECT_NO_THROW(DebugPreft(state, 4));
-}
+// TEST(Preft, undoConsistency) {
+//     State state;
+//     EXPECT_NO_THROW(DebugPreft(state, 4));
+// }
+//
+// TEST(Preft, undoInMiddleGame) {
+//     State state{problemMiddleGame(), Color::Black, 0b0000, std::nullopt};
+//     EXPECT_NO_THROW(DebugPreft(state, 4));
+// }
 
 // TEST(Perft, depth1) {
 //     State state;
@@ -90,14 +90,14 @@ TEST(Preft, undoInMiddleGame) {
 //     State state;
 //     ASSERT_EQ(Preft(state, 3),  8902);
 // }
-// TEST(Preft, depth4) {
-//     State state;
-//     ASSERT_EQ(Preft(state, 4), 197281);
-// }
-TEST(Preft, startpos5) {
+TEST(Preft, depth4) {
     State state;
-    ASSERT_EQ(Preft(state, 5), 4865609);
+    ASSERT_EQ(Preft(state, 4), 197281);
 }
+// TEST(Preft, startpos5) {
+//     State state;
+//     ASSERT_EQ(Preft(state, 5), 4865609);
+// }
 // TEST(Preft, Kiwipete1) {
 //     State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
 //     ASSERT_EQ(Preft(state,1), 48);

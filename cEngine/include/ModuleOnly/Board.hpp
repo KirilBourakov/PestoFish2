@@ -22,11 +22,13 @@ public:
             bitBoard.addPawnMoves<Color::White>(enPassantSquare, moves);
             bitBoard.addKingMoves<Color::White>(castlingRights, moves);
             bitBoard.addKnightMoves<Color::White>(moves);
+            bitBoard.addRookMoves<Color::White>(moves);
         }
         else {
             bitBoard.addPawnMoves<Color::Black>(enPassantSquare, moves);
             bitBoard.addKingMoves<Color::Black>(castlingRights, moves);
             bitBoard.addKnightMoves<Color::Black>(moves);
+            bitBoard.addRookMoves<Color::Black>(moves);
         }
 
         // get all pseudo legal moves
@@ -88,6 +90,10 @@ public:
 
     [[nodiscard]] ArrayBoard& getBoard() {
         return arrayBoard;
+    }
+
+    [[nodiscard]] BitBoard getBitBoard() const {
+        return bitBoard;
     }
 
 private:
