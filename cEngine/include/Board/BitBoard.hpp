@@ -11,8 +11,8 @@
 #include <algorithm>
 
 #include <ModuleOnly/Move.hpp>
-#include "../ModuleOnly/Utils.hpp"
-#include "../ModuleOnly/Enums.hpp"
+#include "ModuleOnly/Utils.hpp"
+#include "ModuleOnly/Enums.hpp"
 
 
 struct MoveLookup {
@@ -50,163 +50,10 @@ struct MoveLookup {
 
 class BitBoard {
 public:
-    explicit BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
-        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-            positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
-        }
-        initKnightMasks();
-        initSlidingMasks(PieceType::Rook);
-        initSlidingMasks(PieceType::Bishop);
+    explicit BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp);
 
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                if (inp[y][x] != Pieces::EMPTY) {
-                    insert(inp[y][x], y, x);
-                }
-            }
-        }
-    }
-
-    void initKnightMasks() {
-        const int offsets[8][2] = {
-            {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
-            {1, 2}, {1, -2}, {-1, 2}, {-1, -2}
-        };
-
-        for (int square = 0; square < 64; square++) {
-            uint64_t b = 0;
-            const int y = square / 8;
-            const int x = square % 8;
-
-            for (auto& offset : offsets) {
-                const int ny = y + offset[0];
-                const int nx = x + offset[1];
-                if (ny >= 0 && ny < 8 && nx >= 0 && nx < 8) {
-                    b |= (1ULL << shiftValue(ny, nx));
-                }
-            }
-            knightMoves[square] = b;
-        }
-    }
-
-    void initSlidingMasks(const PieceType type) {
-        std::array<uint64_t, SQUARE_COUNT>* pieceKeys = nullptr;
-        std::array<MoveLookup, SQUARE_COUNT>* moveMasks = nullptr;
-        if (type == PieceType::Rook) {
-            pieceKeys = &rookKeys;
-            moveMasks = &rookMoves;
-        } else if (type == PieceType::Bishop) {
-            pieceKeys = &bishopKeys;
-            moveMasks = &bishopMoves;
-        }
-
-        if (pieceKeys == nullptr || moveMasks == nullptr) {
-            throw std::invalid_argument("No such entry");
-        }
-
-        for (int square = 0; square < 64; square++) {
-            const uint64_t attackMask = attackMaskFor(type, square);
-            const int y = square / 8;
-            const int x = square % 8;
-            uint64_t endMask = ~0ULL;
-            if (y != 0) {
-                endMask &= ~rank8;
-            }
-            if (y != 7) {
-                endMask &= ~rank1;
-            }
-            if (x != 7) {
-                endMask &= notA;
-            }
-            if (x != 0) {
-                endMask &= notH;
-            }
-            (*pieceKeys)[square] = attackMask & endMask;
-            for (const auto& blockers :  getBlockerBitBoard(attackMask)) {
-                (*moveMasks)[square].add(
-                    blockers,
-                    attackMaskFor(type, square, blockers)
-                );
-            }
-            (*moveMasks)[square].optimize();
-        }
-    }
-
-    static uint64_t attackMaskFor(const PieceType pieceType, const int pos, const uint64_t board=0) {
-        using moveSet = std::vector<std::pair<int, int>>;
-        static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-        static const moveSet diag_dir = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-        static const moveSet straight_dir = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-
-        const moveSet* dirs;
-        if (pieceType == PieceType::Queen) {
-            dirs = &straight_diag;
-        } else if (pieceType == PieceType::Bishop) {
-            dirs = &diag_dir;
-        } else if (pieceType == PieceType::Rook) {
-            dirs = &straight_dir;
-        } else {
-            throw std::invalid_argument("Invalid direction");
-        }
-
-        const int start_y = pos / 8;
-        const int start_x = pos % 8;
-
-        uint64_t mask = 0;
-        for (auto [dx, dy] : *dirs) {
-            for (int i = 1; i < BOARD_SIZE; i++) {
-                const int newY = start_y + i * dy;
-                const int newX = start_x + i * dx;
-                if (!inBounds(newX, newY)) {
-                    break;
-                }
-                mask |= (1ULL << shiftValue(newY, newX));
-
-                if (((1ULL << shiftValue(newY, newX)) & board) != 0) {
-                    break;
-                }
-            }
-        }
-        return mask;
-    }
-
-    std::vector<uint64_t> getBlockerBitBoard(const uint64_t attackMask) {
-        std::vector<int> locations;
-        uint64_t mask = attackMask;
-        while (mask) {
-            locations.push_back(pop_lsb(mask));
-        }
-
-        int numPatterns = 1 << locations.size();
-        std::vector<uint64_t> patterns;
-        patterns.assign(numPatterns, 0ULL);
-
-        for (int patternIndex = 0; patternIndex < numPatterns; patternIndex++) {
-            for (int bitIndex = 0; bitIndex < locations.size(); bitIndex++) {
-                int bit = (patternIndex >> bitIndex) & 1;
-                patterns[patternIndex] |= static_cast<uint64_t>(bit) << locations[bitIndex];
-            }
-        }
-        return std::move(patterns);
-    }
-
-
-    [[nodiscard]] uint64_t at(const Pieces::Piece piece) const {
-        assert(piece != Pieces::EMPTY && "EMPTY has no bitboard");
-        return board[indexOf(piece)];
-    }
-
-    [[nodiscard]] uint64_t at(const Color color) const {
-        return colorBoard[static_cast<size_t>(color)]; // WHITE = 0, BLACK = 1
-    }
-
-    void insert(const Pieces::Piece piece, const int y, const int x) {
-        assert(piece != Pieces::EMPTY && "EMPTY has no bitboard");
-
-        const uint64_t mask = (1ULL << shiftValue(y, x));
-        at_mut(piece) |= mask;
-        at_mut(Pieces::piece_color(piece)) |= mask;
-    }
+    void initKnightMasks();
+    void initSlidingMasks(PieceType type);
 
     /**
      * Update the bitboard with a certain move.
@@ -214,58 +61,11 @@ public:
      * @param startContent the contents of the mv.start when the move was played
      * @param endContent the contents of mv.end when the move was played
      */
-    void move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
-        // remove piece
-        if (endContent != Pieces::EMPTY) {
-            remove(endContent, mv.end.y, mv.end.x);
-        }
+    void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
+    void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
-        // move
-        remove(startContent, mv.start.y, mv.start.x);
-        add(mv.promotedTo.value_or(startContent), mv.end.y, mv.end.x);
-
-        // remove pawn behind, if en passant
-        if (mv.enPassantCapture) {
-            const Pieces::Piece captured = startContent == Pieces::WHITE_PAWN ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
-            remove(captured, mv.start.y, mv.end.x);
-        }
-
-        // move rook when castling
-        else if (mv.castle == CastleType::LONG) {
-            const Pieces::Piece rook = startContent == Pieces::WHITE_KING ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-            remove(rook, mv.start.y, 0);
-            add(rook, mv.start.y, mv.end.x+1);
-        }
-
-        else if (mv.castle == CastleType::SHORT) {
-            const Pieces::Piece rook = startContent == Pieces::WHITE_KING ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-            remove(rook, mv.start.y, 7);
-            add(rook, mv.start.y, mv.end.x-1);
-        }
-    }
-
-    void undoMove(const Move& mv, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
-        if (mv.enPassantCapture) {
-            add((activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN, mv.start.y, mv.end.x);
-        }
-        else if (mv.castle == CastleType::LONG) {
-            const Pieces::Piece rook = (activeColor == Color::White) ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-            remove(rook, mv.start.y, mv.end.x+1);
-            add(rook, mv.start.y, 0);
-        }
-        else if (mv.castle == CastleType::SHORT) {
-            const Pieces::Piece rook = (activeColor == Color::White) ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-            remove(rook, mv.start.y, mv.end.x-1);
-            add(rook, mv.start.y, 7);
-        }
-
-        remove(mv.promotedTo.value_or(movedPiece), mv.end.y, mv.end.x);
-        add(movedPiece, mv.start.y, mv.start.x);
-
-        if (overwrittenPiece != Pieces::EMPTY) {
-            add(overwrittenPiece, mv.end.y, mv.end.x);
-        }
-    }
+    static uint64_t attackMaskFor(PieceType pieceType, int pos, uint64_t board=0);
+    static std::vector<uint64_t> getBlockerBitBoard(uint64_t attackMask);
 
     template<Color color, PieceType type>
     void addSlidingMoves(std::vector<Move>& moves) const {
@@ -448,11 +248,27 @@ public:
         emitPromotion(promotionCapRight, color == Color::White ? 9 : -9);
     }
 
+    [[nodiscard]] uint64_t at(const Pieces::Piece piece) const {
+        assert(piece != Pieces::EMPTY && "EMPTY has no bitboard");
+        return board[indexOf(piece)];
+    }
+
+    [[nodiscard]] uint64_t at(const Color color) const {
+        return colorBoard[static_cast<size_t>(color)]; // WHITE = 0, BLACK = 1
+    }
+
+    void insert(const Pieces::Piece piece, const int y, const int x) {
+        assert(piece != Pieces::EMPTY && "EMPTY has no bitboard");
+
+        const uint64_t mask = (1ULL << shiftValue(y, x));
+        at_mut(piece) |= mask;
+        at_mut(Pieces::piece_color(piece)) |= mask;
+    }
+
     template<Color color>
     static uint64_t shift(const uint64_t bb, const int amount) {
         return color == Color::Black ? (bb << amount) : (bb >> amount);
     }
-
 
     bool operator==(const BitBoard& other) const {
         return board == other.board && colorBoard == other.colorBoard;
@@ -477,34 +293,16 @@ private:
     static constexpr uint64_t rank8 = 0x00000000000000FFULL;
     static constexpr uint64_t noEdges = notA & notH & ~rank1 & ~rank8;
 
+    static size_t indexOf(Pieces::Piece piece);
+    static int pop_lsb(uint64_t &bb);
+    static void printBitboard(uint64_t bb, bool flat=false);
+
     uint64_t& at_mut(const Color color) {
         return colorBoard[static_cast<size_t>(color)];
     }
 
     uint64_t& at_mut(const Pieces::Piece piece) {
         return board[indexOf(piece)];
-    }
-
-    static size_t indexOf(const Pieces::Piece piece) {
-        switch (piece) {
-            case Pieces::WHITE_PAWN:   return 0;
-            case Pieces::WHITE_KNIGHT: return 1;
-            case Pieces::WHITE_BISHOP: return 2;
-            case Pieces::WHITE_ROOK:   return 3;
-            case Pieces::WHITE_QUEEN:  return 4;
-            case Pieces::WHITE_KING:   return 5;
-
-            case Pieces::BLACK_PAWN:   return 6;
-            case Pieces::BLACK_KNIGHT: return 7;
-            case Pieces::BLACK_BISHOP: return 8;
-            case Pieces::BLACK_ROOK:   return 9;
-            case Pieces::BLACK_QUEEN:  return 10;
-            case Pieces::BLACK_KING:   return 11;
-
-            case Pieces::EMPTY:
-            default:
-                throw std::invalid_argument("EMPTY has no bitboard index");
-        }
     }
 
     void add(const Pieces::Piece piece, const int y, const int x) {
@@ -524,35 +322,5 @@ private:
     }
     static int shiftValue(const int y, const int x) {
         return y * BOARD_SIZE + x;
-    }
-
-    static int pop_lsb(uint64_t &bb) {
-    #if defined(_MSC_VER)
-        unsigned long index;
-        _BitScanForward64(&index, bb);
-        int sq = (int)index;
-    #else
-        int sq = __builtin_ctzll(bb);
-    #endif
-
-        bb &= bb - 1;
-
-        return sq;
-    }
-
-    static void printBitboard(const uint64_t bb, bool flat=false) {
-        std::cout << "\n";
-        for (int rank = 0; rank < BOARD_SIZE; rank++) {
-            for (int file = 0; file < BOARD_SIZE; file++) {
-                int sq = rank * 8 + file;
-                uint64_t mask = 1ULL << sq;
-
-                std::cout << ((bb & mask) ? "1 " : ". ");
-            }
-            if (!flat) {
-                std::cout << "\n";
-            }
-        }
-        std::cout << "\n";
     }
 };

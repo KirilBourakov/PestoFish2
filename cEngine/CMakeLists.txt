@@ -9,9 +9,11 @@ find_package(pybind11 REQUIRED)
 set(ENGINE_SOURCES
         src/Engine.cpp
         src/State.cpp
-        src/Board/ArrayBoard.cpp
         src/Evaluator.cpp
         src/ZobristHash.cpp
+
+        src/Board/ArrayBoard.cpp
+        src/Board/BitBoard.cpp
 )
 
 set(ENGINE_MODULES
@@ -21,12 +23,13 @@ set(ENGINE_MODULES
         include/Evaluator.hpp
         include/ZobristHash.hpp
 
+        include/Board/BitBoard.hpp
+        include/Board/Board.hpp
+
         include/ModuleOnly/Utils.hpp
         include/ModuleOnly/Enums.hpp
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp
-        include/Board/BitBoard.hpp
-        include/Board/Board.hpp
 )
 
 # Build cEngine
