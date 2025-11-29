@@ -22,13 +22,17 @@ public:
             bitBoard.addPawnMoves<Color::White>(enPassantSquare, moves);
             bitBoard.addKingMoves<Color::White>(castlingRights, moves);
             bitBoard.addKnightMoves<Color::White>(moves);
-            bitBoard.addRookMoves<Color::White>(moves);
+            bitBoard.addSlidingMoves<Color::White, PieceType::Rook>(moves);
+            bitBoard.addSlidingMoves<Color::White, PieceType::Bishop>(moves);
+            //bitBoard.addSlidingMoves<Color::White, PieceType::Queen>(moves);
         }
         else {
             bitBoard.addPawnMoves<Color::Black>(enPassantSquare, moves);
             bitBoard.addKingMoves<Color::Black>(castlingRights, moves);
             bitBoard.addKnightMoves<Color::Black>(moves);
-            bitBoard.addRookMoves<Color::Black>(moves);
+            bitBoard.addSlidingMoves<Color::Black, PieceType::Rook>(moves);
+            bitBoard.addSlidingMoves<Color::Black, PieceType::Bishop>(moves);
+           // bitBoard.addSlidingMoves<Color::Black, PieceType::Queen>(moves);
         }
 
         // get all pseudo legal moves

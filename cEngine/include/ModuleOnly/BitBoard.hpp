@@ -55,7 +55,9 @@ public:
             positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
         }
         initKnightMasks();
-        initRookMasks();
+        initSlidingMasks(PieceType::Rook);
+        initSlidingMasks(PieceType::Bishop);
+        //initSlidingMasks(PieceType::Queen);
 
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
@@ -88,18 +90,35 @@ public:
         }
     }
 
-    void initRookMasks() {
+    void initSlidingMasks(const PieceType type) {
+        std::array<uint64_t, SQUARE_COUNT>* pieceKeys = nullptr;
+        std::array<MoveLookup, SQUARE_COUNT>* moveMasks = nullptr;
+        if (type == PieceType::Rook) {
+            pieceKeys = &rookKeys;
+            moveMasks = &rookMoves;
+        } else if (type == PieceType::Bishop) {
+            pieceKeys = &bishopKeys;
+            moveMasks = &bishopMoves;
+        } else if (type == PieceType::Queen) {
+            pieceKeys = &queenKeys;
+            moveMasks = &queenMoves;
+        }
+
+        if (pieceKeys == nullptr || moveMasks == nullptr) {
+            throw std::invalid_argument("No such entry");
+        }
+
         for (int square = 0; square < 64; square++) {
-            uint64_t attackMask = attackMaskFor(PieceType::Rook, square);
-            rookKeys[square] = attackMask; // TODO: prune end moves
+            const uint64_t attackMask = attackMaskFor(type, square);
+            (*pieceKeys)[square] = attackMask; // TODO: prune end moves
 
             for (const auto& blockers :  getBlockerBitBoard(attackMask)) {
-                rookMoves[square].add(
+                (*moveMasks)[square].add(
                     blockers,
-                    attackMaskFor(PieceType::Rook, square, blockers)
+                    attackMaskFor(type, square, blockers)
                 );
             }
-            rookMoves[square].optimize();
+            (*moveMasks)[square].optimize();
         }
     }
 
@@ -238,17 +257,35 @@ public:
         }
     }
 
-    template<Color color>
-    void addRookMoves(std::vector<Move>& moves) const {
-        const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
+    template<Color color, PieceType type>
+    void addSlidingMoves(std::vector<Move>& moves) const {
+        Pieces::Piece piece;
+        const std::array<uint64_t, SQUARE_COUNT>* pieceKeys = nullptr;
+        const std::array<MoveLookup, SQUARE_COUNT>* moveMasks = nullptr;
+        if (type == PieceType::Rook) {
+            piece = color == Color::White ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
+            pieceKeys = &rookKeys;
+            moveMasks = &rookMoves;
+        } else if (type == PieceType::Bishop) {
+            piece = color == Color::White ? Pieces::WHITE_BISHOP : Pieces::BLACK_BISHOP;
+            pieceKeys = &bishopKeys;
+            moveMasks = &bishopMoves;
+        } else if (type == PieceType::Queen) {
+            piece = color == Color::White ? Pieces::WHITE_QUEEN : Pieces::BLACK_QUEEN;
+            pieceKeys = &queenKeys;
+            moveMasks = &queenMoves;
+        } else {
+            throw std::invalid_argument("Invalid piece type");
+        }
+
         const uint64_t friendly = at(color);
         const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
 
         uint64_t rooks = at(piece);
         while (rooks) {
             const int start = pop_lsb(rooks);
-            uint64_t occupancyKey = rookKeys[start] & (friendly | enemy); // & noEdges;
-            uint64_t realMoves = rookMoves[start].get(occupancyKey);
+            uint64_t occupancyKey = (*pieceKeys)[start] & (friendly | enemy); // & noEdges;
+            uint64_t realMoves = (*moveMasks)[start].get(occupancyKey);
 
             realMoves &= ~friendly;
             while (realMoves) {
@@ -416,6 +453,10 @@ private:
     std::array<uint64_t, SQUARE_COUNT> knightMoves{};
     std::array<uint64_t, SQUARE_COUNT> rookKeys{};
     std::array<MoveLookup, SQUARE_COUNT> rookMoves{};
+    std::array<uint64_t, SQUARE_COUNT> bishopKeys{};
+    std::array<MoveLookup, SQUARE_COUNT> bishopMoves{};
+    std::array<uint64_t, SQUARE_COUNT> queenKeys{};
+    std::array<MoveLookup, SQUARE_COUNT> queenMoves{};
     std::array<BoardPosition, SQUARE_COUNT> positions{};
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;

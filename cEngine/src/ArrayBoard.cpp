@@ -20,10 +20,11 @@ void ArrayBoard::addMoves(int x, int y, const Color activeColor, const std::opti
     case PieceType::King:
     case PieceType::Knight:
     case PieceType::Rook:
-        break;
     case PieceType::Bishop:
-        addSlidingMoves(x, y, activeColor, false, true, out);
         break;
+    //
+    //     addSlidingMoves(x, y, activeColor, false, true, out);
+    //     break;
     // case PieceType::Rook:
     //     addSlidingMoves(x, y, activeColor, true, false, out);
     //     break;
