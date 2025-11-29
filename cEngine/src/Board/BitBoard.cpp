@@ -58,24 +58,8 @@ void BitBoard::initSlidingMasks(const PieceType type) {
     }
 
     for (int square = 0; square < 64; square++) {
-        const uint64_t attackMask = attackMaskFor(type, square);
-        const int y = square / 8;
-        const int x = square % 8;
-        uint64_t endMask = ~0ULL;
-        if (y != 0) {
-            endMask &= ~rank8;
-        }
-        if (y != 7) {
-            endMask &= ~rank1;
-        }
-        if (x != 7) {
-            endMask &= notA;
-        }
-        if (x != 0) {
-            endMask &= notH;
-        }
-        (*pieceKeys)[square] = attackMask & endMask;
-        for (const auto& blockers :  getBlockerBitBoard(attackMask)) {
+        (*pieceKeys)[square] = keyMask(type, square);
+        for (const auto& blockers :  getBlockerBitBoard((*pieceKeys)[square])) {
             (*moveMasks)[square].add(
                 blockers,
                 attackMaskFor(type, square, blockers)
@@ -156,6 +140,26 @@ std::vector<uint64_t> BitBoard::getBlockerBitBoard(const uint64_t attackMask) {
         }
     }
     return std::move(patterns);
+}
+
+uint64_t BitBoard::keyMask(const PieceType type, const int square) {
+    const uint64_t attackMask = attackMaskFor(type, square);
+    const int y = square / 8;
+    const int x = square % 8;
+    uint64_t endMask = ~0ULL;
+    if (y != 0) {
+        endMask &= ~rank8;
+    }
+    if (y != 7) {
+        endMask &= ~rank1;
+    }
+    if (x != 7) {
+        endMask &= notA;
+    }
+    if (x != 0) {
+        endMask &= notH;
+    }
+    return attackMask & endMask;
 }
 
 uint64_t BitBoard::attackMaskFor(const PieceType pieceType, const int pos, const uint64_t board) {
@@ -247,3 +251,8 @@ void BitBoard::printBitboard(const uint64_t bb, const bool flat) {
     }
     std::cout << "\n";
 }
+
+// void BitBoard::findMagic(Pieces::Piece piece, int square) {
+//     mask = attackMaskFor(piece, square);
+//
+// }

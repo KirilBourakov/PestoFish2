@@ -64,9 +64,6 @@ public:
     void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
     void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
-    static uint64_t attackMaskFor(PieceType pieceType, int pos, uint64_t board=0);
-    static std::vector<uint64_t> getBlockerBitBoard(uint64_t attackMask);
-
     template<Color color>
     void addKingMoves(int castleRights, std::vector<Move>& moves) const;
 
@@ -124,7 +121,26 @@ private:
     static constexpr uint64_t rank8 = 0x00000000000000FFULL;
     static constexpr uint64_t noEdges = notA & notH & ~rank1 & ~rank8;
 
+    /**
+     * Get the keymask for a sliding piece in a specific position.
+     * That is, all the possible moves on an empty board, with the end moves removed.
+     */
+    static uint64_t keyMask(PieceType type, int square);
+    /**
+     * Get all the possible attacks for sliding piece in a specific position and with a specific board configuration
+     */
+    static uint64_t attackMaskFor(PieceType pieceType, int pos, uint64_t board=0);
+    /**
+     * Get all the possible combinations of blockers for a certain attack mask
+     */
+    static std::vector<uint64_t> getBlockerBitBoard(uint64_t attackMask);
+    /**
+     * get the index for a specific piece within the per piece list of bitboards.
+     */
     static size_t indexOf(Pieces::Piece piece);
+    /**
+     * Remove least significant bit and return the value.
+     */
     static int pop_lsb(uint64_t &bb);
     static void printBitboard(uint64_t bb, bool flat=false);
 
