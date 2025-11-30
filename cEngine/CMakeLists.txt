@@ -48,17 +48,20 @@ target_include_directories(uci
 )
 
 # Build benchmarks
-add_executable(benchmark
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark's tests")
+add_subdirectory(extern/benchmark)
+add_executable(manual
         test/testBoard.hpp
-        benchmark/manual.cpp
+        benchmark/preftBenchmark.cpp
 
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
 )
-target_include_directories(benchmark
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/test/
+target_include_directories(manual
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test/
 )
+target_link_libraries(manual PRIVATE benchmark::benchmark benchmark::benchmark_main)
 
 # Build Tests
 add_subdirectory(extern/googletest)
@@ -82,8 +85,8 @@ target_link_libraries(runTests
 )
 
 target_include_directories(runTests
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/test/
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test/
 )
 
 include(GoogleTest)
