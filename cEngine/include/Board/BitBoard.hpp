@@ -44,7 +44,7 @@ struct Magics {
     std::vector<uint64_t> table;
     std::array<MagicEntry, SQUARE_COUNT> magics{};
 
-    uint64_t getMoves(const int pos, uint64_t occupancy) const {
+    inline uint64_t getMoves(const int pos, uint64_t occupancy) const {
         occupancy &= magics[pos].keyMask;
         occupancy *= magics[pos].magic;
         occupancy >>= magics[pos].shift;
