@@ -255,8 +255,8 @@ void BitBoard::printBitboard(const uint64_t bb, const bool flat) {
     std::cout << "\n";
 }
 
-std::array<MagicEntry, SQUARE_COUNT> BitBoard::findMagics(const PieceType type, bool verbose) {
-    auto out = std::array<MagicEntry, SQUARE_COUNT>();
+Magics BitBoard::findMagics(const PieceType type, bool verbose) {
+    auto out = Magics();
     for (int i = 0; i < SQUARE_COUNT; i++) {
         if (verbose) {
             std::cout << "Starting " << i << std::endl;

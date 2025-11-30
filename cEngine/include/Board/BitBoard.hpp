@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <cereal/archives/json.hpp>
+
 #include <array>
 #include <cassert>
 #include <cstdint>
@@ -41,6 +43,28 @@ struct MagicEntry {
 
     [[nodiscard]] uint64_t getMovesFor(const uint64_t blockerMask) const {
         return moves[getIndexFor(blockerMask)];
+    }
+
+    template<class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(keyMask, magic, bits, moves);
+    }
+};
+
+struct Magics {
+    std::array<MagicEntry, SQUARE_COUNT> magics;
+
+    const MagicEntry& operator[](const int index) const {
+        return magics[index];
+    }
+    MagicEntry& operator[](const int index) {
+        return magics[index];
+    }
+
+    template<class Archive>
+    void serialize(Archive& ar) {
+        ar(magics);
     }
 };
 
@@ -133,7 +157,7 @@ public:
     bool operator!=(const BitBoard& other) const {
         return !operator==(other);
     }
-    static std::array<MagicEntry, SQUARE_COUNT> findMagics(PieceType type, bool verbose=false);
+    static Magics findMagics(PieceType type, bool verbose=false);
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};

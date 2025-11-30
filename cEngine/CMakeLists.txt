@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(pybind11_DIR "${CMAKE_SOURCE_DIR}/../.venv/Lib/site-packages/pybind11/share/cmake/pybind11")
 find_package(pybind11 REQUIRED)
 
+include_directories(extern/cereal)
+
 set(ENGINE_SOURCES
         src/Engine.cpp
         src/State.cpp
@@ -40,6 +42,7 @@ pybind11_add_module(cEngine
 )
 target_include_directories(cEngine
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        PRIVATE extern/cereal/include/
 )
 
 # Build UCI exposure
@@ -50,6 +53,7 @@ add_executable(uci
 )
 target_include_directories(uci
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        PRIVATE extern/cereal/include/
 )
 
 # Build benchmarks
@@ -63,6 +67,7 @@ add_executable(benchmark
 target_include_directories(benchmark
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/test/
+        PRIVATE extern/cereal/include/
 )
 
 # Build Tests
@@ -89,6 +94,7 @@ target_link_libraries(runTests
 target_include_directories(runTests
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/test/
+        PRIVATE extern/cereal/include/
 )
 
 include(GoogleTest)
