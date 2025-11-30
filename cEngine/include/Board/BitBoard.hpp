@@ -14,6 +14,35 @@
 #include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 
+struct MagicEntry {
+    explicit MagicEntry()
+        : keyMask(0)
+        , magic(0)
+        , bits(0)
+    {}
+
+    explicit MagicEntry(const uint64_t keyMask, const uint64_t magic, int bits)
+        : keyMask(keyMask)
+        , magic(magic)
+        , bits(bits)
+    {
+        moves.resize(1ULL << bits);
+    }
+
+    uint64_t keyMask;
+    uint64_t magic;
+    int bits;
+    std::vector<uint64_t> moves;
+
+    [[nodiscard]] uint64_t getIndexFor(const uint64_t blockerMask) const {
+        const uint64_t index = (blockerMask * this->magic) >> (64 - bits);
+        return index;
+    }
+
+    [[nodiscard]] uint64_t getMovesFor(const uint64_t blockerMask) const {
+        return moves[getIndexFor(blockerMask)];
+    }
+};
 
 struct MoveLookup {
     struct Entry {
@@ -104,7 +133,7 @@ public:
     bool operator!=(const BitBoard& other) const {
         return !operator==(other);
     }
-
+    static std::array<MagicEntry, SQUARE_COUNT> findMagics(PieceType type, bool verbose=false);
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
@@ -139,13 +168,12 @@ private:
      */
     static size_t indexOf(Pieces::Piece piece);
     /**
-     * Remove least significant bit and return the value.
+     * Remove the least significant bit and return the value.
      */
     static int pop_lsb(uint64_t &bb);
-    static void printBitboard(uint64_t bb, bool flat=false);
 
     template<Color color, PieceType type>
-    [[nodiscard]] uint64_t getRealMoves(int start) const;
+        [[nodiscard]] uint64_t getRealMoves(int start) const;
 
     uint64_t& at_mut(const Color color) {
         return colorBoard[static_cast<size_t>(color)];
@@ -173,6 +201,19 @@ private:
     static int shiftValue(const int y, const int x) {
         return y * BOARD_SIZE + x;
     }
+
+    // FINDING MAGIC
+
+    static MagicEntry findMagic(PieceType type, int pos);
+    static bool fillAndValidateMagic(PieceType type, int pos, const std::vector<uint64_t>& blockerMasks, MagicEntry& magicEntry);
+
+    // DEBUG
+    /**
+     * Pretty print a specific bitboard
+     */
+    static void printBitboard(uint64_t bb, bool flat=false);
+
+
 };
 
 #include "BitBoard.tpp"

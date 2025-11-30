@@ -3,6 +3,9 @@
 //
 #include "Board/BitBoard.hpp"
 
+#include <random>
+#include <bit>
+
 BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
         positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
@@ -252,7 +255,51 @@ void BitBoard::printBitboard(const uint64_t bb, const bool flat) {
     std::cout << "\n";
 }
 
-// void BitBoard::findMagic(Pieces::Piece piece, int square) {
-//     mask = attackMaskFor(piece, square);
-//
-// }
+std::array<MagicEntry, SQUARE_COUNT> BitBoard::findMagics(const PieceType type, bool verbose) {
+    auto out = std::array<MagicEntry, SQUARE_COUNT>();
+    for (int i = 0; i < SQUARE_COUNT; i++) {
+        if (verbose) {
+            std::cout << "Starting " << i << std::endl;
+        }
+        out[i] = findMagic(type, i);
+        if (verbose) {
+            std::cout << "Finished " << i << std::endl;
+        }
+    }
+    return out;
+}
+
+MagicEntry BitBoard::findMagic(const PieceType type, const int pos) {
+    static std::mt19937_64 rng{};
+    static std::uniform_int_distribution<uint64_t> dist;
+
+    const uint64_t key = keyMask(type, pos);
+    const int bits = std::popcount(key);
+    std::vector<uint64_t> blockerMasks = getBlockerBitBoard(key);
+    while (true) {
+        const uint64_t magicCandidate = dist(rng) & dist(rng) & dist(rng);
+        MagicEntry entry {key, magicCandidate, bits};
+        if (fillAndValidateMagic(type, pos, blockerMasks, entry)) {
+            return entry;
+        }
+    }
+}
+
+bool BitBoard::fillAndValidateMagic(const PieceType type, const int pos, const std::vector<uint64_t>& blockerMasks, MagicEntry& magicEntry) {
+    std::vector<bool> filled;
+    filled.assign(1ULL << magicEntry.bits, false);
+    std::fill(magicEntry.moves.begin(), magicEntry.moves.end(), 0ULL);
+
+    for (const auto& blockerMask : blockerMasks) {
+        const int index = magicEntry.getIndexFor(blockerMask);
+        const uint64_t moveMask = attackMaskFor(type, pos, blockerMask);
+        if (!filled[index] ) {
+            magicEntry.moves[index] = moveMask;
+            filled[index] = true;
+        }
+        else if (filled[index] && magicEntry.moves[index] != moveMask) {
+            return false;
+        }
+    }
+    return true;
+}

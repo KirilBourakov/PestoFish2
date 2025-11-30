@@ -27,6 +27,14 @@ unsigned long long Preft(State& state, int depth) {
 
 int main() {
     State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+
+    std::chrono::duration<double, std::milli> ms{0};
+    auto start = std::chrono::high_resolution_clock::now();
+    state.getBoard().getBitBoard().findMagics(PieceType::Rook, true);
+    auto end = std::chrono::high_resolution_clock::now();
+    ms += end - start;
+    std::cout << "Execution time: " << ms.count() << " ms" << std::endl;
+
     // std::cout << Preft(state, 1);
 
     // std::vector<Move> out;
@@ -61,7 +69,7 @@ int main() {
     // engine.getState().makeMove(moveFromLongAlgebric("e7e5", engine.getState()));
     // std::cout << Evaluator::evaluate(engine.getState()) << std::endl;
 
-    // std::chrono::duration<double, std::milli> ms{0};
+    //
     //
     // Engine engine{};
     // engine.setState(State{problemMiddleGame(), Color::White, 0b0000, std::nullopt});
@@ -72,6 +80,6 @@ int main() {
     //     ms += end - start;
     // }
     //
-    // std::cout << "Execution time: " << ms.count() << " ms" << std::endl;
+    //
     // return 0;
 }
