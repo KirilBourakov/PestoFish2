@@ -19,7 +19,7 @@ static void getAll(benchmark::State& state, const std::string &fen) {
     }
 }
 
-void registerMoveGeneration(std::unordered_map<std::string, std::string> fens) {
+void registerMoveGeneration(const std::unordered_map<std::string, std::string> &fens) {
     for (auto fen : fens) {
         std::string name = "Get all for " + fen.first;
         benchmark::RegisterBenchmark(

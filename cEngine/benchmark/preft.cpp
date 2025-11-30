@@ -18,7 +18,7 @@ static void fenBench(benchmark::State& state, const std::string &fen, const int 
     }
 }
 
-void registerPreft(std::unordered_map<std::string, std::string> fens) {
+void registerPreft(const std::unordered_map<std::string, std::string> &fens) {
     static const std::vector<int> depths = {2, 4};
 
     for (auto depth : depths) {
