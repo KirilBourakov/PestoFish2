@@ -5,14 +5,15 @@
 
 #include <random>
 #include <bit>
+#include <filesystem>
+#include <fstream>
 
 BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
         positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
     }
+    loadOrFindMagics();
     initKnightMasks();
-    initSlidingMasks(PieceType::Rook);
-    initSlidingMasks(PieceType::Bishop);
 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
@@ -42,33 +43,6 @@ void BitBoard::initKnightMasks() {
             }
         }
         knightMoves[square] = b;
-    }
-}
-
-void BitBoard::initSlidingMasks(const PieceType type) {
-    std::array<uint64_t, SQUARE_COUNT>* pieceKeys = nullptr;
-    std::array<MoveLookup, SQUARE_COUNT>* moveMasks = nullptr;
-    if (type == PieceType::Rook) {
-        pieceKeys = &rookKeys;
-        moveMasks = &rookMoves;
-    } else if (type == PieceType::Bishop) {
-        pieceKeys = &bishopKeys;
-        moveMasks = &bishopMoves;
-    }
-
-    if (pieceKeys == nullptr || moveMasks == nullptr) {
-        throw std::invalid_argument("No such entry");
-    }
-
-    for (int square = 0; square < 64; square++) {
-        (*pieceKeys)[square] = keyMask(type, square);
-        for (const auto& blockers :  getBlockerBitBoard((*pieceKeys)[square])) {
-            (*moveMasks)[square].add(
-                blockers,
-                attackMaskFor(type, square, blockers)
-            );
-        }
-        (*moveMasks)[square].optimize();
     }
 }
 
@@ -253,6 +227,30 @@ void BitBoard::printBitboard(const uint64_t bb, const bool flat) {
         }
     }
     std::cout << "\n";
+}
+
+void BitBoard::loadOrFindMagics() {
+    if (std::filesystem::exists("rooks.json")) {
+        std::ifstream is("rooks.json");
+        cereal::JSONInputArchive archive(is);
+        archive(rookMagics);
+    } else {
+        rookMagics = findMagics(PieceType::Rook, true);
+        std::ofstream os("rooks.json");
+        cereal::JSONOutputArchive archive(os);
+        archive(rookMagics);
+    }
+
+    if (std::filesystem::exists("bishops.json")) {
+        std::ifstream is("bishops.json");
+        cereal::JSONInputArchive archive(is);
+        archive(bishopMagics);
+    } else {
+        bishopMagics = findMagics(PieceType::Bishop, true);
+        std::ofstream os("bishops.json");
+        cereal::JSONOutputArchive archive(os);
+        archive(bishopMagics);
+    }
 }
 
 Magics BitBoard::findMagics(const PieceType type, bool verbose) {

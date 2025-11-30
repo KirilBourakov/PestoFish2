@@ -162,20 +162,17 @@ void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, 
 
 template<Color color, PieceType type>
 uint64_t BitBoard::getRealMoves(const int start) const {
-    const std::array<uint64_t, SQUARE_COUNT>* pieceKeys = nullptr;
-    const std::array<MoveLookup, SQUARE_COUNT>* moveMasks = nullptr;
+    const Magics* magics = nullptr;
     if (type == PieceType::Rook) {
-        pieceKeys = &rookKeys;
-        moveMasks = &rookMoves;
+        magics = &rookMagics;
     } else if (type == PieceType::Bishop) {
-        pieceKeys = &bishopKeys;
-        moveMasks = &bishopMoves;
+        magics = &bishopMagics;
     } else {
         throw std::invalid_argument("Invalid piece type");
     }
     const uint64_t friendly = at(color);
     const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
-    const uint64_t occupancyKey = (*pieceKeys)[start] & (friendly | enemy);
-    uint64_t realMoves = (*moveMasks)[start].get(occupancyKey);
+    const uint64_t occupancyKey = (*magics)[start].keyMask & (friendly | enemy);
+    uint64_t realMoves = (*magics)[start].getMovesFor(occupancyKey);
     return realMoves & ~friendly;
 }

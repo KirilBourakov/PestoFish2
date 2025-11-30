@@ -4,6 +4,8 @@
 
 #pragma once
 #include <cereal/archives/json.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/vector.hpp>
 
 #include <array>
 #include <cassert>
@@ -68,45 +70,11 @@ struct Magics {
     }
 };
 
-struct MoveLookup {
-    struct Entry {
-        uint64_t blockerMask;
-        uint64_t moves;
-        bool operator<(const Entry& other) const {
-            return blockerMask < other.blockerMask;
-        }
-    };
-
-    std::vector<Entry> table;
-
-    MoveLookup() {
-        table.reserve(4096);
-    }
-
-    void add(uint64_t key, uint64_t val) {
-        table.push_back({key, val});
-    }
-    void optimize() {
-        std::sort(table.begin(), table.end());
-    }
-
-    uint64_t get(uint64_t key) const {
-        Entry searchObj = {key, 0};
-        auto it = std::lower_bound(table.begin(), table.end(), searchObj);
-
-        if (it != table.end() && it->blockerMask == key) {
-            return it->moves;
-        }
-        throw std::invalid_argument("No such entry");
-    }
-};
-
 class BitBoard {
 public:
     explicit BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp);
 
     void initKnightMasks();
-    void initSlidingMasks(PieceType type);
 
     /**
      * Update the bitboard with a certain move.
@@ -161,11 +129,10 @@ public:
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
+    Magics rookMagics;
+    Magics bishopMagics;
+
     std::array<uint64_t, SQUARE_COUNT> knightMoves{};
-    std::array<uint64_t, SQUARE_COUNT> rookKeys{};
-    std::array<MoveLookup, SQUARE_COUNT> rookMoves{};
-    std::array<uint64_t, SQUARE_COUNT> bishopKeys{};
-    std::array<MoveLookup, SQUARE_COUNT> bishopMoves{};
     std::array<BoardPosition, SQUARE_COUNT> positions{};
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
@@ -227,7 +194,7 @@ private:
     }
 
     // FINDING MAGIC
-
+    void loadOrFindMagics();
     static MagicEntry findMagic(PieceType type, int pos);
     static bool fillAndValidateMagic(PieceType type, int pos, const std::vector<uint64_t>& blockerMasks, MagicEntry& magicEntry);
 
