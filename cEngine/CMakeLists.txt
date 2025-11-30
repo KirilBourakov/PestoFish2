@@ -52,7 +52,8 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark's tests")
 add_subdirectory(extern/benchmark)
 add_executable(manual
         benchmark/main.cpp
-        benchmark/preftBenchmark.cpp
+        benchmark/preft.cpp
+        benchmark/generateMoves.cpp
 
         test/testBoard.hpp
 
