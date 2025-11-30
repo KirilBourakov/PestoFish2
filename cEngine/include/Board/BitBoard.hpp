@@ -19,54 +19,42 @@
 #include "ModuleOnly/Enums.hpp"
 
 struct MagicEntry {
-    explicit MagicEntry()
-        : keyMask(0)
-        , magic(0)
-        , bits(0)
-    {}
-
-    explicit MagicEntry(const uint64_t keyMask, const uint64_t magic, int bits)
-        : keyMask(keyMask)
-        , magic(magic)
-        , bits(bits)
-    {
-        moves.resize(1ULL << bits);
-    }
-
     uint64_t keyMask;
     uint64_t magic;
-    int bits;
-    std::vector<uint64_t> moves;
+    int shift;
+    int offset;
 
-    [[nodiscard]] uint64_t getIndexFor(const uint64_t blockerMask) const {
-        const uint64_t index = (blockerMask * this->magic) >> (64 - bits);
+    int64_t getIndexFor(const uint64_t blockerMask) const {
+        const uint64_t index = (blockerMask * this->magic) >> shift;
         return index;
-    }
-
-    [[nodiscard]] uint64_t getMovesFor(const uint64_t blockerMask) const {
-        return moves[getIndexFor(blockerMask)];
     }
 
     template<class Archive>
     void serialize(Archive& ar)
     {
-        ar(keyMask, magic, bits, moves);
+        ar(keyMask, magic, shift, offset);
     }
 };
 
 struct Magics {
-    std::array<MagicEntry, SQUARE_COUNT> magics;
-
-    const MagicEntry& operator[](const int index) const {
-        return magics[index];
+    explicit Magics(const int size) {
+        table.reserve(size);
     }
-    MagicEntry& operator[](const int index) {
-        return magics[index];
+
+    std::vector<uint64_t> table;
+    std::array<MagicEntry, SQUARE_COUNT> magics{};
+
+    uint64_t getMoves(const int pos, uint64_t occupancy) const {
+        occupancy &= magics[pos].keyMask;
+        occupancy *= magics[pos].magic;
+        occupancy >>= magics[pos].shift;
+        return table[magics[pos].offset + occupancy];
     }
 
     template<class Archive>
-    void serialize(Archive& ar) {
-        ar(magics);
+    void serialize(Archive& ar)
+    {
+        ar(table, magics);
     }
 };
 
@@ -125,10 +113,11 @@ public:
     bool operator!=(const BitBoard& other) const {
         return !operator==(other);
     }
-    static Magics findMagics(PieceType type, bool verbose=false);
+    static void findMagics(PieceType type, Magics& entry, bool verbose=false);
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
+
     Magics rookMagics;
     Magics bishopMagics;
 
@@ -195,8 +184,12 @@ private:
 
     // FINDING MAGIC
     void loadOrFindMagics();
-    static MagicEntry findMagic(PieceType type, int pos);
-    static bool fillAndValidateMagic(PieceType type, int pos, const std::vector<uint64_t>& blockerMasks, MagicEntry& magicEntry);
+
+    static std::pair<MagicEntry, std::vector<uint64_t>> findMagic(PieceType type, int pos);
+    static bool fillAndValidateMagic(
+        const PieceType type, const int bits, const int pos,
+        const std::vector<uint64_t>& blockerMasks, const MagicEntry& magicEntry, std::vector<uint64_t>& movesOut
+    );
 
     // DEBUG
     /**

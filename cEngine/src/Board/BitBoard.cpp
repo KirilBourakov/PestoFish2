@@ -8,10 +8,14 @@
 #include <filesystem>
 #include <fstream>
 
-BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp) {
+BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp)
+    : rookMagics(102400)
+    , bishopMagics(5248)
+{
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
         positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
     }
+
     loadOrFindMagics();
     initKnightMasks();
 
@@ -235,7 +239,7 @@ void BitBoard::loadOrFindMagics() {
         cereal::JSONInputArchive archive(is);
         archive(rookMagics);
     } else {
-        rookMagics = findMagics(PieceType::Rook, true);
+        findMagics(PieceType::Rook, rookMagics, true);
         std::ofstream os("rooks.json");
         cereal::JSONOutputArchive archive(os);
         archive(rookMagics);
@@ -246,56 +250,79 @@ void BitBoard::loadOrFindMagics() {
         cereal::JSONInputArchive archive(is);
         archive(bishopMagics);
     } else {
-        bishopMagics = findMagics(PieceType::Bishop, true);
+        findMagics(PieceType::Bishop, bishopMagics, true);
         std::ofstream os("bishops.json");
         cereal::JSONOutputArchive archive(os);
         archive(bishopMagics);
     }
 }
 
-Magics BitBoard::findMagics(const PieceType type, bool verbose) {
-    auto out = Magics();
+void BitBoard::findMagics(const PieceType type, Magics& entry, bool verbose) {
+    int offset = 0;
     for (int i = 0; i < SQUARE_COUNT; i++) {
         if (verbose) {
             std::cout << "Starting " << i << std::endl;
         }
-        out[i] = findMagic(type, i);
+        std::pair<MagicEntry, std::vector<uint64_t>> result = findMagic(type, i);
+
+        MagicEntry magic = result.first;
+        std::vector<uint64_t>& moves = result.second;
+        magic.offset = offset;
+
+        entry.magics[i] = magic;
+        for (auto& move : moves) {
+            entry.table.push_back(move);
+            offset++;
+        }
+
         if (verbose) {
             std::cout << "Finished " << i << std::endl;
         }
     }
-    return out;
 }
 
-MagicEntry BitBoard::findMagic(const PieceType type, const int pos) {
+std::pair<MagicEntry, std::vector<uint64_t>> BitBoard::findMagic(const PieceType type, const int pos) {
     static std::mt19937_64 rng{};
     static std::uniform_int_distribution<uint64_t> dist;
 
     const uint64_t key = keyMask(type, pos);
     const int bits = std::popcount(key);
-    std::vector<uint64_t> blockerMasks = getBlockerBitBoard(key);
+    const int shift = 64 - bits;
+
+    const std::vector<uint64_t> blockerMasks = getBlockerBitBoard(key);
+
     while (true) {
         const uint64_t magicCandidate = dist(rng) & dist(rng) & dist(rng);
-        MagicEntry entry {key, magicCandidate, bits};
-        if (fillAndValidateMagic(type, pos, blockerMasks, entry)) {
-            return entry;
+        MagicEntry entry = {key, magicCandidate, shift, 0};
+        std::vector<uint64_t> movesOut;
+
+        if (fillAndValidateMagic(type, bits, pos, blockerMasks, entry, movesOut)) {
+            return std::make_pair(entry, movesOut);
         }
     }
 }
 
-bool BitBoard::fillAndValidateMagic(const PieceType type, const int pos, const std::vector<uint64_t>& blockerMasks, MagicEntry& magicEntry) {
+bool BitBoard::fillAndValidateMagic(
+    const PieceType type,
+    const int bits,
+    const int pos,
+    const std::vector<uint64_t>& blockerMasks,
+    const MagicEntry& magicEntry,
+    std::vector<uint64_t>& movesOut
+) {
+
     std::vector<bool> filled;
-    filled.assign(1ULL << magicEntry.bits, false);
-    std::fill(magicEntry.moves.begin(), magicEntry.moves.end(), 0ULL);
+    filled.assign(1ULL << bits, false);
+    movesOut.assign(1ULL << bits, 0);
 
     for (const auto& blockerMask : blockerMasks) {
         const int index = magicEntry.getIndexFor(blockerMask);
         const uint64_t moveMask = attackMaskFor(type, pos, blockerMask);
-        if (!filled[index] ) {
-            magicEntry.moves[index] = moveMask;
+        if (!filled[index]) {
+            movesOut[index] = moveMask;
             filled[index] = true;
         }
-        else if (filled[index] && magicEntry.moves[index] != moveMask) {
+        else if (filled[index] && movesOut[index] != moveMask) {
             return false;
         }
     }
