@@ -12,24 +12,6 @@
 
 using namespace Pieces;
 
-typedef unsigned long long u64;
-
-u64 Preft(State& state, int depth) {
-    if (depth == 0)
-        return 1ULL;
-
-    u64 nodes = 0;
-
-    std::vector<Move> moves = state.getMoves();
-    for (const Move move : moves) {
-        state.makeMove(move);
-        nodes += Preft(state, depth - 1);
-        state.undoMove();
-    }
-
-    return nodes;
-}
-
 void PreftDivide(State state, int depth) {
     auto moves = state.getMoves();
     u64 total = 0;

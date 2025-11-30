@@ -4,9 +4,26 @@
 #pragma once
 #include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
+#include "State.hpp"
+
+typedef unsigned long long u64;
+
+inline u64 Preft(State& state, const int depth) {
+    if (depth == 0)
+        return 1ULL;
+
+    u64 nodes = 0;
+
+    for (const Move move : state.getMoves()) {
+        state.makeMove(move);
+        nodes += Preft(state, depth - 1);
+        state.undoMove();
+    }
+
+    return nodes;
+}
 
 using namespace Pieces;
-
 inline NewBoard randomMiddleGame() {
     return NewBoard({{{{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, EMPTY, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
                       {{BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN}},
