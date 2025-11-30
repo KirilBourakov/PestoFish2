@@ -181,28 +181,6 @@ uint64_t BitBoard::attackMaskFor(const PieceType pieceType, const int pos, const
     return mask;
 }
 
-size_t BitBoard::indexOf(const Pieces::Piece piece) {
-    switch (piece) {
-        case Pieces::WHITE_PAWN:   return 0;
-        case Pieces::WHITE_KNIGHT: return 1;
-        case Pieces::WHITE_BISHOP: return 2;
-        case Pieces::WHITE_ROOK:   return 3;
-        case Pieces::WHITE_QUEEN:  return 4;
-        case Pieces::WHITE_KING:   return 5;
-
-        case Pieces::BLACK_PAWN:   return 6;
-        case Pieces::BLACK_KNIGHT: return 7;
-        case Pieces::BLACK_BISHOP: return 8;
-        case Pieces::BLACK_ROOK:   return 9;
-        case Pieces::BLACK_QUEEN:  return 10;
-        case Pieces::BLACK_KING:   return 11;
-
-        case Pieces::EMPTY:
-        default:
-            throw std::invalid_argument("EMPTY has no bitboard index");
-    }
-}
-
 int BitBoard::pop_lsb(uint64_t &bb) {
     #if defined(_MSC_VER)
         unsigned long index;

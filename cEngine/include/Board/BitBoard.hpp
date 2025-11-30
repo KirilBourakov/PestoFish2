@@ -146,7 +146,9 @@ private:
     /**
      * get the index for a specific piece within the per piece list of bitboards.
      */
-    static size_t indexOf(Pieces::Piece piece);
+    static size_t indexOf(const Pieces::Piece piece) {
+        return (piece >> 3) * 6 + ((piece & 0b111) - 1);
+    }
     /**
      * Remove the least significant bit and return the value.
      */
