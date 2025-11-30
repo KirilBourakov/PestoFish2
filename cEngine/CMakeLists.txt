@@ -63,6 +63,7 @@ add_executable(manual
         benchmark/main.cpp
         benchmark/preft.cpp
         benchmark/generateMoves.cpp
+        benchmark/makeUndo.cpp
 
         test/testBoard.hpp
 
