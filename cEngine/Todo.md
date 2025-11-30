@@ -1,4 +1,5 @@
-1. Bitboard move gen
+1. Improve bitboards bits used
+2. Use bitboards to purge illegal moves
 2. Improve UCI Protocol
 3. Improve Time Management
 4. Crash Bugs
