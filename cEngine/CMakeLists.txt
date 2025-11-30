@@ -51,8 +51,10 @@ target_include_directories(uci
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark's tests")
 add_subdirectory(extern/benchmark)
 add_executable(manual
-        test/testBoard.hpp
+        benchmark/main.cpp
         benchmark/preftBenchmark.cpp
+
+        test/testBoard.hpp
 
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
