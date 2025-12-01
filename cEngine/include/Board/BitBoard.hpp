@@ -124,6 +124,7 @@ private:
     static Magics bishopMagics;
     static std::array<uint64_t, SQUARE_COUNT> knightMoves;
     static std::array<BoardPosition, SQUARE_COUNT> positions;
+    static bool initialized;
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
     static constexpr uint64_t notH = 0xfefefefefefefefeULL;

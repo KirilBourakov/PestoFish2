@@ -12,15 +12,19 @@ Magics BitBoard::rookMagics;
 Magics BitBoard::bishopMagics;
 std::array<uint64_t, SQUARE_COUNT> BitBoard::knightMoves;
 std::array<BoardPosition, SQUARE_COUNT> BitBoard::positions;
+bool BitBoard::initialized = false;
 
 BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp)
 {
-    for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
-        positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
-    }
+    if (!initialized) {
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+            positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
+        }
+        loadOrFindMagics();
+        initKnightMasks();
 
-    loadOrFindMagics();
-    initKnightMasks();
+        initialized = true;
+    }
 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
