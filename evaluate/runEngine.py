@@ -5,8 +5,8 @@ import chess
 import chess.engine
 from tqdm import tqdm
 
-ENGINE = r"E:\Programming\Projects\PestoFish2\cEngine\build\Debug\uci.exe"
-OLD_ENGINE = r"E:\Programming\Projects\PestoFish2\evaluate\Pestofish2.exe"
+ENGINE = r"E:\Programming\Projects\PestoFish2\evaluate\bitboards.exe"
+OLD_ENGINE = r"E:\Programming\Projects\PestoFish2\evaluate\normal.exe"
 
 
 def play_game(fen):
