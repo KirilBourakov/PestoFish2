@@ -37,6 +37,8 @@ struct MagicEntry {
 };
 
 struct Magics {
+    explicit Magics() {}
+
     explicit Magics(const int size) {
         table.reserve(size);
     }
@@ -118,11 +120,10 @@ private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
 
-    Magics rookMagics;
-    Magics bishopMagics;
-
-    std::array<uint64_t, SQUARE_COUNT> knightMoves{};
-    std::array<BoardPosition, SQUARE_COUNT> positions{};
+    static Magics rookMagics;
+    static Magics bishopMagics;
+    static std::array<uint64_t, SQUARE_COUNT> knightMoves;
+    static std::array<BoardPosition, SQUARE_COUNT> positions;
 
     static constexpr uint64_t notA = 0x7f7f7f7f7f7f7f7fULL;
     static constexpr uint64_t notH = 0xfefefefefefefefeULL;

@@ -8,6 +8,11 @@
 #include <filesystem>
 #include <fstream>
 
+Magics BitBoard::rookMagics;
+Magics BitBoard::bishopMagics;
+std::array<uint64_t, SQUARE_COUNT> BitBoard::knightMoves;
+std::array<BoardPosition, SQUARE_COUNT> BitBoard::positions;
+
 BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp)
 {
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
