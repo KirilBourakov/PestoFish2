@@ -9,8 +9,6 @@
 #include <fstream>
 
 BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD_SIZE> &inp)
-    : rookMagics(102400)
-    , bishopMagics(5248)
 {
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
         positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
