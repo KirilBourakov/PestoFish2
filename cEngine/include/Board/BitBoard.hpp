@@ -140,7 +140,7 @@ private:
     /**
      * Get all the possible attacks for sliding piece in a specific position and with a specific board configuration
      */
-    static uint64_t attackMaskFor(PieceType pieceType, int pos, uint64_t board=0);
+    static uint64_t slidingAttackMaskFor(PieceType pieceType, int pos, uint64_t board=0);
     /**
      * Get all the possible combinations of blockers for a certain attack mask
      */

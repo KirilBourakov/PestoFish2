@@ -131,7 +131,7 @@ std::vector<uint64_t> BitBoard::getBlockerBitBoard(const uint64_t attackMask) {
 }
 
 uint64_t BitBoard::keyMask(const PieceType type, const int square) {
-    const uint64_t attackMask = attackMaskFor(type, square);
+    const uint64_t attackMask = slidingAttackMaskFor(type, square);
     const int y = square / 8;
     const int x = square % 8;
     uint64_t endMask = ~0ULL;
@@ -150,7 +150,7 @@ uint64_t BitBoard::keyMask(const PieceType type, const int square) {
     return attackMask & endMask;
 }
 
-uint64_t BitBoard::attackMaskFor(const PieceType pieceType, const int pos, const uint64_t board) {
+uint64_t BitBoard::slidingAttackMaskFor(const PieceType pieceType, const int pos, const uint64_t board) {
     using moveSet = std::vector<std::pair<int, int>>;
     static const moveSet straight_diag = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     static const moveSet diag_dir = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -302,7 +302,7 @@ bool BitBoard::fillAndValidateMagic(
 
     for (const auto& blockerMask : blockerMasks) {
         const int index = magicEntry.getIndexFor(blockerMask);
-        const uint64_t moveMask = attackMaskFor(type, pos, blockerMask);
+        const uint64_t moveMask = slidingAttackMaskFor(type, pos, blockerMask);
         if (!filled[index]) {
             movesOut[index] = moveMask;
             filled[index] = true;
