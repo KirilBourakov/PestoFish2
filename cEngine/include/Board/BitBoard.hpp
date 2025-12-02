@@ -76,14 +76,28 @@ public:
     void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
     template<Color color>
+    bool isLegalMove(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
+
+    /**
+     * Get the King attack mask (it's 9 moves). Castling is not calculated
+     */
+    template<Color color>
+    [[nodiscard]] uint64_t getKingAttackMask() const;
+    template<Color color>
     void addKingMoves(int castleRights, std::vector<Move>& moves) const;
 
+    template<Color color, PieceType type>
+    [[nodiscard]] uint64_t getSlidingAttackMask() const;
     template<Color color, PieceType type>
     void addSlidingMoves(std::vector<Move>& moves) const;
 
     template<Color color>
+    [[nodiscard]] uint64_t getKnightAttackMask() const;
+    template<Color color>
     void addKnightMoves(std::vector<Move>& moves) const;
 
+    template<Color color>
+    [[nodiscard]] uint64_t getPawnAttackMask() const;
     template<Color color>
     void addPawnMoves(std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const;
 
@@ -131,6 +145,10 @@ private:
     static constexpr uint64_t rank1 = 0xFF00000000000000ULL;
     static constexpr uint64_t rank8 = 0x00000000000000FFULL;
     static constexpr uint64_t noEdges = notA & notH & ~rank1 & ~rank8;
+    static constexpr uint64_t shortCastleWhite = 0x6000000000000000;
+    static constexpr uint64_t shortCastleBlack = 0x60;
+    static constexpr uint64_t longCastleWhite = 0xe00000000000000;
+    static constexpr uint64_t longCastleBlack = 0xe;
 
     /**
      * Get the keymask for a sliding piece in a specific position.
@@ -157,7 +175,10 @@ private:
     static int pop_lsb(uint64_t &bb);
 
     template<Color color, PieceType type>
-        [[nodiscard]] uint64_t getRealMoves(int start) const;
+    [[nodiscard]] uint64_t getRealMoves(int start) const;
+
+    template<Color color>
+    [[nodiscard]] uint64_t getAttackMask() const;
 
     uint64_t& at_mut(const Color color) {
         return colorBoard[static_cast<size_t>(color)];

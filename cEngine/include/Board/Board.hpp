@@ -34,7 +34,17 @@ public:
             bitBoard.addSlidingMoves<Color::Black, PieceType::Bishop>(moves);
             bitBoard.addSlidingMoves<Color::Black, PieceType::Queen>(moves);
         }
-        return std::move(moves);
+
+        return moves;
+    }
+
+    bool isLegal(const Move &move) {
+        const Pieces::Piece moved = at(move.start.y ,move.start.x);
+
+        if (Pieces::piece_color(moved) == Color::White) {
+            return bitBoard.isLegalMove<Color::White>(move, moved, at(move.end.y ,move.end.x));
+        }
+        return bitBoard.isLegalMove<Color::Black>(move, moved, at(move.end.y ,move.end.x));
     }
 
     void addMoves(int x, int y, const Color activeColor, const std::optional<BoardPosition> enPassantSquare, int castlingRights,

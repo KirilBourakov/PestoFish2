@@ -1,30 +1,39 @@
 #pragma once
 
 template<Color color>
-void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) const {
+bool BitBoard::isLegalMove(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
+    constexpr uint64_t shortMask = color == Color::White ? shortCastleWhite : shortCastleBlack;
+    constexpr uint64_t longMask = color == Color::White ? 0xc00000000000000 : 0xc;
+
+    const uint64_t preMove = at(color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING);
+    move(mv, startContent, endContent);
+    uint64_t attackMask;
+    if (color == Color::White) {
+        attackMask = getAttackMask<Color::Black>();
+    } else {
+        attackMask = getAttackMask<Color::White>();
+    }
+
+    uint64_t king = at(color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING);
+    if (mv.castle.has_value() && mv.castle.value() == CastleType::SHORT) {
+        king |= shortMask | preMove; // prevent castling out of check
+    }
+    if (mv.castle.has_value() && mv.castle.value() == CastleType::LONG) {
+        king |= longMask | preMove;
+    }
+
+    undoMove(mv, startContent, endContent, color);
+
+    return (king & attackMask) == 0;
+}
+
+
+template<Color color>
+uint64_t BitBoard::getKingAttackMask() const {
     const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING;
 
     uint64_t kingPos = at(piece);
-    const BoardPosition kingStart = positions[pop_lsb(kingPos)];
-    if (castleAllowed(color, CastleType::SHORT, castleRights)) {
-        constexpr uint64_t shortMask = color == Color::White ? 0x6000000000000000 : 0x60;
-        const BoardPosition end = color == Color::White ? BoardPosition{6, 7} : BoardPosition{6, 0};
 
-        if ((shortMask & (at(Color::White) | at(Color::Black))) == 0) {
-            moves.push_back(Move::castleMove(kingStart, end, CastleType::SHORT));
-        }
-    }
-    if (castleAllowed(color, CastleType::LONG, castleRights)) {
-        constexpr uint64_t longMask = color == Color::White ? 0xe00000000000000 : 0xe;
-        const BoardPosition end = color == Color::White ? BoardPosition{2, 7} : BoardPosition{2, 0};
-
-        if ((longMask & (at(Color::White) | at(Color::Black))) == 0) {
-            moves.push_back(Move::castleMove(kingStart, end, CastleType::LONG));
-        }
-    }
-
-    kingPos = at(piece);
-    const uint64_t friendly = at(color);
     uint64_t kingMoves = 0;
     kingMoves ^= (kingPos & notA) << 1;
 
@@ -37,16 +46,60 @@ void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) co
     kingMoves ^= (kingPos & (notH & ~rank8)) >> 9;
     kingMoves ^= (kingPos & (notH & ~rank1)) << 7;
 
-    kingMoves &= ~friendly;
+    return kingMoves;
+}
 
+template<Color color>
+void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) const {
+    const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING;
+
+    uint64_t kingPos = at(piece);
+    const BoardPosition kingStart = positions[pop_lsb(kingPos)];
+    if (castleAllowed(color, CastleType::SHORT, castleRights)) {
+        constexpr uint64_t shortMask = color == Color::White ? shortCastleWhite : shortCastleBlack;
+        const BoardPosition end = color == Color::White ? BoardPosition{6, 7} : BoardPosition{6, 0};
+
+        if ((shortMask & (at(Color::White) | at(Color::Black))) == 0) {
+            moves.push_back(Move::castleMove(kingStart, end, CastleType::SHORT));
+        }
+    }
+    if (castleAllowed(color, CastleType::LONG, castleRights)) {
+        constexpr uint64_t longMask = color == Color::White ? longCastleWhite : longCastleBlack;
+        const BoardPosition end = color == Color::White ? BoardPosition{2, 7} : BoardPosition{2, 0};
+
+        if ((longMask & (at(Color::White) | at(Color::Black))) == 0) {
+            moves.push_back(Move::castleMove(kingStart, end, CastleType::LONG));
+        }
+    }
+    const uint64_t friendly = at(color);
+    uint64_t kingMoves = getKingAttackMask<color>() & ~friendly;
     while (kingMoves) {
         moves.push_back(Move::standardMove(kingStart, positions[pop_lsb(kingMoves)]));
     }
 }
 
 template<Color color, PieceType type>
+uint64_t BitBoard::getSlidingAttackMask() const {
+    uint64_t pieces = at(Pieces::make_piece(color, type));
+    uint64_t out = 0;
+    while (pieces) {
+        const int start = pop_lsb(pieces);
+        uint64_t realMoves;
+        if (type == PieceType::Queen) {
+            realMoves = getRealMoves<color, PieceType::Rook>(start);
+            realMoves |= getRealMoves<color, PieceType::Bishop>(start);
+        } else {
+            realMoves = getRealMoves<color, type>(start);
+        }
+        out |= realMoves;
+    }
+    return out;
+}
+
+template<Color color, PieceType type>
 void BitBoard::addSlidingMoves(std::vector<Move>& moves) const {
     uint64_t pieces = at(Pieces::make_piece(color, type));
+    const uint64_t friendly = at(color);
     while (pieces) {
         const int start = pop_lsb(pieces);
 
@@ -57,12 +110,26 @@ void BitBoard::addSlidingMoves(std::vector<Move>& moves) const {
         } else {
             realMoves = getRealMoves<color, type>(start);
         }
+        realMoves &= ~friendly;
 
         while (realMoves) {
             const int end = pop_lsb(realMoves);
             moves.push_back(Move::standardMove(positions[start], positions[end]));
         }
     }
+}
+
+template<Color color>
+uint64_t BitBoard::getKnightAttackMask() const {
+    const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KNIGHT : Pieces::BLACK_KNIGHT;
+
+    uint64_t out = 0;
+    uint64_t knights = at(piece);
+    while (knights) {
+        const int start = pop_lsb(knights);
+        out |= knightMoves[start];
+    }
+    return out;
 }
 
 template<Color color>
@@ -80,6 +147,17 @@ void BitBoard::addKnightMoves(std::vector<Move>& moves) const {
             moves.push_back(Move::standardMove(positions[start], positions[end]));
         }
     }
+}
+
+template<Color color>
+uint64_t BitBoard::getPawnAttackMask() const {
+    const uint64_t pawnBoard = at(color == Color::White ? Pieces::WHITE_PAWN : Pieces::BLACK_PAWN);
+    const uint64_t leftAttacks = color == Color::White ? notH : notA;
+    const uint64_t rightAttacks = color == Color::White ? notA : notH;
+
+    const uint64_t leftCaptures = shift<color>(pawnBoard, 7) & leftAttacks;
+    const uint64_t rightCaptures = shift<color>(pawnBoard, 9) & rightAttacks;
+    return leftCaptures | rightCaptures;
 }
 
 template<Color color>
@@ -166,10 +244,22 @@ uint64_t BitBoard::getRealMoves(const int start) const {
     const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
     uint64_t occupancyKey = (friendly | enemy);
     if (type == PieceType::Rook) {
-        return rookMagics.getMoves(start, occupancyKey) & ~friendly;
+        return rookMagics.getMoves(start, occupancyKey);
     } else if (type == PieceType::Bishop) {
-        return bishopMagics.getMoves(start, occupancyKey) & ~friendly;
+        return bishopMagics.getMoves(start, occupancyKey);
     } else {
         throw std::invalid_argument("Invalid piece type");
     }
+}
+
+template<Color color>
+uint64_t BitBoard::getAttackMask() const {
+    uint64_t moves = 0;
+    moves |= getKingAttackMask<color>();
+    moves |= getPawnAttackMask<color>();
+    moves |= getKnightAttackMask<color>();
+    moves |= getSlidingAttackMask<color, PieceType::Bishop>();
+    moves |= getSlidingAttackMask<color, PieceType::Rook>();
+    moves |= getSlidingAttackMask<color, PieceType::Queen>();
+    return moves;
 }

@@ -97,11 +97,11 @@ TEST(MakeUndo, whitePawnTakesPawn) {
 }
 
 TEST(MakeUndo, whiteSavedByBishop) {
-    State state{whiteSavedByBishop(), Color::White, 0b1111, std::nullopt};
+    State state{whiteSavedByBishop(), Color::White, 0b0000, std::nullopt};
     State stateCopy{state};
     std::vector<Move> moves = state.getMoves();
     state.makeMove(moves.at(0));
-    ASSERT_EQ(0b1111, state.getCastlingRights());
+    ASSERT_EQ(0b0000, state.getCastlingRights());
     ASSERT_EQ(EMPTY, state.getBoard().at(6, 4));
     ASSERT_EQ(WHITE_BISHOP, state.getBoard().at(7, 3));
     state.undoMove();

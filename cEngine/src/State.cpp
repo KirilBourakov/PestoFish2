@@ -142,23 +142,7 @@ bool State::isLegalMove(BoardPosition start, BoardPosition end) {
 std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves) {
     std::vector<Move> legalMoves;
     for (const Move move : pseudolegalMoves) {
-        bool isValid = true;
-        const Color color = Pieces::piece_color(board.at(move.start.y, move.start.x));
-        if (move.castle == CastleType::LONG) {
-            isValid = !board.isAttacked(BoardPosition{.x = move.end.x + 1, .y = move.end.y}, color) &&
-                      !board.isAttacked(BoardPosition{.x = move.end.x + 2, .y = move.end.y}, color) &&
-                      !board.isAttacked(BoardPosition{.x = move.start.x, .y = move.start.y}, color);
-        } else if (move.castle == CastleType::SHORT) {
-            isValid = !board.isAttacked(BoardPosition{.x = move.end.x - 1, .y = move.end.y}, color) &&
-                      !board.isAttacked(BoardPosition{.x = move.start.x, .y = move.start.y}, color);
-        }
-        if (isValid) {
-            const Color preMoveColor = activeColor;
-            makeMove(move);
-            isValid = !board.isAttacked(preMoveColor == Color::White ? whiteKingSquare : blackKingSquare);
-            undoMove();
-        }
-        if (isValid) {
+        if (board.isLegal(move)) {
             legalMoves.push_back(move);
         }
     }
