@@ -131,7 +131,6 @@ public:
     bool operator!=(const BitBoard& other) const {
         return !operator==(other);
     }
-    static void findMagics(PieceType type, Magics& entry, bool verbose=false);
 private:
     std::array<uint64_t, 12> board{};
     std::array<uint64_t, 2> colorBoard{};
@@ -211,10 +210,10 @@ private:
 
     // FINDING MAGIC
     void loadOrFindMagics();
-
+    static void findMagics(PieceType type, Magics& entry, bool verbose=false);
     static std::pair<MagicEntry, std::vector<uint64_t>> findMagic(PieceType type, int pos);
     static bool fillAndValidateMagic(
-        const PieceType type, const int bits, const int pos,
+        PieceType type, int bits, int pos,
         const std::vector<uint64_t>& blockerMasks, const MagicEntry& magicEntry, std::vector<uint64_t>& movesOut
     );
 
@@ -223,8 +222,6 @@ private:
      * Pretty print a specific bitboard
      */
     static void printBitboard(uint64_t bb, bool flat=false);
-
-
 };
 
 #include "BitBoard.tpp"
