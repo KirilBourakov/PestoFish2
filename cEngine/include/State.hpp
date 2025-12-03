@@ -62,10 +62,6 @@ public:
     [[nodiscard]] bool isHalfMoveTie() const {
         return halfMoveClock >= 100;
     }
-    [[nodiscard]] bool colorInCheck(const Color color) const {
-        const BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
-        return board.isAttacked(kingSquare);
-    }
 
     [[nodiscard]] int getCastlingRights() const {
         return castlingRights;

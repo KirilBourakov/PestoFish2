@@ -69,9 +69,7 @@ std::vector<Move> State::getMoves() {
 }
 
 void State::translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo) {
-    std::vector<Move> moves;
-    board.addMoves(start.x, start.y, activeColor, enPassantSquare, castlingRights, moves);
-    moves = purgeIllegal(moves);
+    std::vector<Move> moves = getMoves();
     for (auto move : moves) {
         if (move.start == start && move.end == end && move.promotedTo == promotedTo) {
             makeMove(move);
@@ -98,7 +96,7 @@ GameState State::getGameState(const std::vector<Move>& possibleMoves) const {
 
     if (possibleMoves.empty()) {
         // is the current color in check, other color wins
-        if (colorInCheck(activeColor)) {
+        if (board.inCheck(activeColor)) {
             if (activeColor == Color::White) {
                 return GameState::BLACK_WIN;
             }
@@ -128,10 +126,7 @@ State State::makeThreadCopy() const {
 }
 
 bool State::isLegalMove(BoardPosition start, BoardPosition end) {
-    std::vector<Move> moves;
-    board.addMoves(start.x, start.y, activeColor, enPassantSquare, castlingRights, moves);
-    moves = purgeIllegal(moves);
-    for (auto move : moves) {
+    for (auto move : getMoves()) {
         if (move.start == start && move.end == end) {
             return true;
         }

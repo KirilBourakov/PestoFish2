@@ -1,6 +1,18 @@
 #pragma once
 
 template<Color color>
+bool BitBoard::inCheck() const {
+    uint64_t attackMask;
+    if (color == Color::White) {
+        attackMask = getAttackMask<Color::Black>();
+    } else {
+        attackMask = getAttackMask<Color::White>();
+    }
+    uint64_t king = at(color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING);
+    return (king & attackMask) != 0;
+}
+
+template<Color color>
 bool BitBoard::isLegalMove(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
     constexpr uint64_t shortMask = color == Color::White ? shortCastleWhite : shortCastleBlack;
     constexpr uint64_t longMask = color == Color::White ? 0xc00000000000000 : 0xc;

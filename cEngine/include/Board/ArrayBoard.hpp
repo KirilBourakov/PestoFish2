@@ -65,11 +65,6 @@ public:
         return board[y][x];
     }
 
-    void addMoves(int x, int y, Color activeColor, std::optional<BoardPosition> enPassantSquare, int castlingRights, std::vector<Move>& out) const;
-    void addSlidingMoves(int x, int y, Color color, bool straight, bool diag, std::vector<Move>& moves) const;
-    [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const;
-    [[nodiscard]] bool isAttacked(const BoardPosition& position) const;
-
     /**
      * @return True, if the board position is draw due to material. False otherwise.
      */

@@ -47,11 +47,6 @@ public:
         return bitBoard.isLegalMove<Color::Black>(move, moved, at(move.end.y ,move.end.x));
     }
 
-    void addMoves(int x, int y, const Color activeColor, const std::optional<BoardPosition> enPassantSquare, int castlingRights,
-                        std::vector<Move>& out) const {
-        return arrayBoard.addMoves(x, y, activeColor, enPassantSquare, castlingRights, out); // TODO: deal with this, as it is invalid due to bitboards
-    }
-
     void move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
         bitBoard.move(mv, startContent, endContent);
         arrayBoard.move(mv, startContent, endContent);
@@ -70,12 +65,12 @@ public:
         return arrayBoard.isDrawFromMaterial();
     }
 
-    [[nodiscard]] bool isAttacked(const BoardPosition& position, Color color) const {
-        return arrayBoard.isAttacked(position, color);
-    };
-    [[nodiscard]] bool isAttacked(const BoardPosition& position) const {
-        return arrayBoard.isAttacked(position);
-    };
+    [[nodiscard]] bool inCheck(Color color) const {
+        if (color == Color::White) {
+            return bitBoard.inCheck<Color::White>();
+        }
+        return bitBoard.inCheck<Color::Black>();
+    }
 
     [[nodiscard]] const auto& get_row(const size_t i) const {
         return arrayBoard.get_row(i);

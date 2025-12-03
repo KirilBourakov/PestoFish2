@@ -76,6 +76,8 @@ public:
     void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
     template<Color color>
+    [[nodiscard]] bool inCheck() const;
+    template<Color color>
     bool isLegalMove(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
 
     /**
