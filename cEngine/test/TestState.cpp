@@ -7,7 +7,7 @@
 
 #include "ModuleOnly/Move.hpp"
 #include "State.hpp"
-#include "testBoard.hpp"
+#include "Preft.hpp"
 #include "ModuleOnly/parse.hpp"
 
 using namespace Pieces;
@@ -42,32 +42,32 @@ TEST(GameState, FiftyMoveRule) {
 // --- GET MOVES --- //
 
 TEST(getMoves, whiteCheckmated) {
-    State state{whiteBackRanked(), Color::White, 0b1111, std::nullopt};
+    State state = fenToState("8/P7/1kp5/8/8/8/PPP5/1K1r4 w - - 0 1");
 
     std::vector<Move> moves = state.getMoves();
     ASSERT_EQ(0, moves.size());
 }
 
 TEST(getMoves, whiteSavedByBishop) {
-    State state{whiteSavedByBishop(), Color::White, 0b1111, std::nullopt};
+    State state = fenToState("8/P7/1kp5/8/8/8/PPP1B3/1K1r4 w - - 0 1");
     std::vector<Move> moves = state.getMoves();
     ASSERT_EQ(1, moves.size());
 }
 
 TEST(getMoves, whiteMiddleGame) {
-    State state{randomMiddleGame(), Color::White, 0b1111, std::nullopt};
+    State state = fenToState("rnb1kbnr/p1pp1ppp/4q3/1p4pP/2P5/3P4/PP2PPPP/RNBQKBNR w KQkq - 0 1");
     std::vector<Move> moves = state.getMoves();
-    ASSERT_EQ(32, moves.size());
+    ASSERT_EQ(30, moves.size());
 }
 
 TEST(getMoves, blackMiddleGame) {
-    State state{randomMiddleGame(), Color::Black, 0b1111, std::nullopt};
+    State state = fenToState("rnb1kbnr/p1pp1ppp/4q3/1p4pP/2P5/3P4/PP2PPPP/RNBQKBNR b KQkq - 0 1");
     std::vector<Move> moves = state.getMoves();
     ASSERT_EQ(44, moves.size());
 }
 
 TEST(getMoves, whiteCenterKnight) {
-    State state{centralWhiteKnight(), Color::White, 0b0000, std::nullopt};
+    State state = fenToState("1k6/8/8/1K6/4N3/8/8/8 w - - 0 1");
     std::vector<Move> moves = state.getMoves();
     ASSERT_EQ(16, moves.size());
 }
@@ -84,7 +84,7 @@ TEST(getMoves, f3e5) {
 /// --- MAKE AND UNDO TESTS --- ///
 
 TEST(MakeUndo, whitePawnTakesPawn) {
-    State state{randomMiddleGame(), Color::White, 0b1111, std::nullopt};
+    State state = fenToState("rnb1kbnr/p1pp1ppp/4q3/1p4pP/2P5/3P4/PP2PPPP/RNBQKBNR w KQkq - 0 1");
     State stateCopy{state};
 
     state.makeMove(Move::standardMove({2, 4}, {1, 3}));
@@ -97,7 +97,7 @@ TEST(MakeUndo, whitePawnTakesPawn) {
 }
 
 TEST(MakeUndo, whiteSavedByBishop) {
-    State state{whiteSavedByBishop(), Color::White, 0b0000, std::nullopt};
+    State state = fenToState("8/P7/1kp5/8/8/8/PPP1B3/1K1r4 w - - 0 1");
     State stateCopy{state};
     std::vector<Move> moves = state.getMoves();
     state.makeMove(moves.at(0));
@@ -109,10 +109,10 @@ TEST(MakeUndo, whiteSavedByBishop) {
 }
 
 TEST(MakeUndo, whiteKnightCapture) {
-    State state{smotheredMatePosition(), Color::White, 0b1111, std::nullopt};
+    State state = fenToState("r3k1nr/pppnrbpp/3r4/8/4N3/N5P1/PPPP1P1P/R1BQK2R w KQkq - 0 1");
     State stateCopy{state};
 
-    ASSERT_EQ(BLACK_ROOK, state.getBoard().at(3, 2));
+    ASSERT_EQ(BLACK_ROOK, state.getBoard().at(2, 3));
     ASSERT_EQ(WHITE_KNIGHT, state.getBoard().at(4, 4));
 
     state.makeMove(Move::standardMove({4, 4}, {2, 3}));
@@ -122,12 +122,12 @@ TEST(MakeUndo, whiteKnightCapture) {
 
     state.undoMove();
     ASSERT_EQ(stateCopy, state);
-    ASSERT_EQ(BLACK_ROOK, state.getBoard().at(3, 2));
+    ASSERT_EQ(BLACK_ROOK, state.getBoard().at(2, 3));
     ASSERT_EQ(WHITE_KNIGHT, state.getBoard().at(4, 4));
 }
 
 TEST(MakeUndo, whiteKingSideCastle) {
-    State state{unBlockedCastle(), Color::White, 0b1111, std::nullopt};
+    State state = fenToState("r3k2r/8/8/8/8/8/3PPP2/R3K2R w KQkq - 0 1");
 
     State stateCopy{state};
     state.makeMove(Move::castleMove({4, 7}, {6, 7}, CastleType::SHORT));

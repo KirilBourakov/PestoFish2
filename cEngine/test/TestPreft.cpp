@@ -7,7 +7,7 @@
 #include "State.hpp"
 #include <gtest/gtest.h>
 
-#include "testBoard.hpp"
+#include "Preft.hpp"
 #include "ModuleOnly/parse.hpp"
 
 using namespace Pieces;

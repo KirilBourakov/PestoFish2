@@ -7,7 +7,7 @@
 #include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-#include "testBoard.hpp"
+#include "Preft.hpp"
 #include "gmock/gmock-matchers.h"
 #include "ModuleOnly/parse.hpp"
 
@@ -15,7 +15,7 @@ using namespace Pieces;
 
 TEST(TestEngine, testSimpleGetBest) {
     Engine engine{};
-    engine.setState(State{simpleBest(), Color::White, 0b1111, std::nullopt});
+    engine.setState(fenToState("r3k2r/8/8/8/8/6P1/P3PPP1/R3K2R w - - 0 1"));
 
     const Move best = engine.getBestMove();
     ASSERT_EQ(best, Move::standardMove(BoardPosition{7, 7}, BoardPosition{7, 0}));

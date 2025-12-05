@@ -66,7 +66,7 @@ add_executable(manual
         benchmark/makeUndo.cpp
         benchmark/bitBoard.cpp
 
-        test/testBoard.hpp
+        test/Preft.hpp
 
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
@@ -88,7 +88,7 @@ add_executable(runTests
         test/TestEngine.cpp
         test/TestParse.cpp
 
-        test/testBoard.hpp
+        test/Preft.hpp
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
 )
