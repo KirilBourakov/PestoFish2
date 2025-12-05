@@ -5,10 +5,10 @@
 #include <optional>
 #include <vector>
 
-#include "ModuleOnly/CastleUtils.hpp"
+#include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-#include "NewBoard.hpp"
+#include "Board/Board.hpp"
 #include "ZobristHash.hpp"
 
 class State {
@@ -33,11 +33,11 @@ public:
     };
 
     State();
-    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
-    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+    State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
+    State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare,
           const std::vector<HistoricalEntry>& history, const std::vector<u64>& hashHistory);
-    State(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
+    State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock);
 
     void makeMove(const Move& move);
@@ -49,7 +49,7 @@ public:
     GameState getGameState();
 
     void printState() const {
-        board.print_board();
+        std::cout << board << '\n';
         if (enPassantSquare.has_value()) {
             std::cout << "en passent " << enPassantSquare.value() << std::endl;
         }
@@ -62,10 +62,6 @@ public:
     [[nodiscard]] bool isHalfMoveTie() const {
         return halfMoveClock >= 100;
     }
-    [[nodiscard]] bool colorInCheck(const Color color) const {
-        const BoardPosition kingSquare = color == Color::White ? whiteKingSquare : blackKingSquare;
-        return board.isAttacked(kingSquare);
-    }
 
     [[nodiscard]] int getCastlingRights() const {
         return castlingRights;
@@ -73,11 +69,11 @@ public:
     [[nodiscard]] u64 getZobrist() const {
         return hash.getValue();
     }
-    [[nodiscard]] const NewBoard& getBoard() const {
+    [[nodiscard]] const Board& getBoard() const {
         return board;
     }
-    [[nodiscard]] const Pieces::Piece getAt(const BoardPosition inp) const {
-        return board(inp.y, inp.x);
+    [[nodiscard]] Pieces::Piece getAt(const BoardPosition inp) const {
+        return board.at(inp.y, inp.x);
     }
 
     [[nodiscard]] std::optional<BoardPosition> getEnPassantSquare() const {
@@ -102,7 +98,7 @@ private:
     std::vector<Move> purgeIllegal(const std::vector<Move>& pseudolegalMoves);
 
     // FEN info
-    NewBoard board;
+    Board board;
     Color activeColor;
     int castlingRights;
     std::optional<BoardPosition> enPassantSquare;
@@ -117,4 +113,6 @@ private:
     std::vector<u64> hashHistory;
 
     ZobristHash hash;
+
+    void updateCastlingRights(const Move& move, const Pieces::Piece newPiece);
 };

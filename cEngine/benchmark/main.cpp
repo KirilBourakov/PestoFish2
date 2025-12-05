@@ -7,6 +7,7 @@
 extern void registerPreft(const std::unordered_map<std::string, std::string> &fens);
 extern void registerMoveGeneration(const std::unordered_map<std::string, std::string> &fens);
 extern void registerMakeUndo(const std::unordered_map<std::string, std::string> &fens);
+extern void registerBitBoards(const std::unordered_map<std::string, std::string> &fens);
 
 const std::unordered_map<std::string, std::string> fens {
     {"startpos", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"},
@@ -23,6 +24,7 @@ int main(int argc, char** argv) {
     registerPreft(fens);
     registerMoveGeneration(fens);
     registerMakeUndo(fens);
+    registerBitBoards(fens);
 
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();

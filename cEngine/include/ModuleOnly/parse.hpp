@@ -190,5 +190,5 @@ inline State fenToState(const std::string& fen) {
     int halfMoveClock = std::stoi(tokens[4]);
     int fullMoveClock = std::stoi(tokens[5]);
 
-    return {NewBoard(board), activeColor, castleRights, enPassantSquare, halfMoveClock, fullMoveClock};
+    return {Board(board), activeColor, castleRights, enPassantSquare, halfMoveClock, fullMoveClock};
 }

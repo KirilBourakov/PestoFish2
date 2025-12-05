@@ -1,7 +1,7 @@
 //
 // Created by Kiril on 2025-08-31.
 //
-#include "ModuleOnly/CastleUtils.hpp"
+#include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
 #include <iostream>
@@ -22,7 +22,7 @@ State::State()
     , blackKingSquare{4, 0}
     , hash(board, activeColor, castlingRights, enPassantSquare) {}
 
-State::State(const NewBoard& board, const Color activeColor, const int castlingRights,
+State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare, const int halfMoveClock, const int fullMoveClock)
     : board(board)
     , activeColor(activeColor)
@@ -33,22 +33,22 @@ State::State(const NewBoard& board, const Color activeColor, const int castlingR
     , hash(board, activeColor, castlingRights, enPassantSquare) {
 
     // find king squares
-    for (int y = 0; y < this->board.size; ++y) {
-        for (int x = 0; x < this->board.size; ++x) {
-            if (this->board(y, x) == Pieces::BLACK_KING) {
+    for (int y = 0; y < BOARD_SIZE; ++y) {
+        for (int x = 0; x < BOARD_SIZE; ++x) {
+            if (this->board.at(y, x) == Pieces::BLACK_KING) {
                 blackKingSquare = {x, y};
-            } else if (this->board(y, x) == Pieces::WHITE_KING) {
+            } else if (this->board.at(y, x) == Pieces::WHITE_KING) {
                 whiteKingSquare = {x, y};
             }
         }
     }
 }
 
-State::State(const NewBoard& board, const Color activeColor, const int castlingRights,
+State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare)
     : State(board, activeColor, castlingRights, enPassantSquare, activeColor == Color::White ? 0 : 1, 1) {}
 
-State::State(const NewBoard& board, const Color activeColor, const int castlingRights,
+State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare, const int halfMoveClock, const int fullMoveClock,
              const BoardPosition whiteKingSquare, const BoardPosition blackKingSquare, const std::vector<HistoricalEntry>& history,
              const std::vector<u64>& hashHistory)
@@ -69,9 +69,7 @@ std::vector<Move> State::getMoves() {
 }
 
 void State::translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo) {
-    std::vector<Move> moves;
-    board.addMoves(start.x, start.y, activeColor, enPassantSquare, castlingRights, moves);
-    moves = purgeIllegal(moves);
+    std::vector<Move> moves = getMoves();
     for (auto move : moves) {
         if (move.start == start && move.end == end && move.promotedTo == promotedTo) {
             makeMove(move);
@@ -98,7 +96,7 @@ GameState State::getGameState(const std::vector<Move>& possibleMoves) const {
 
     if (possibleMoves.empty()) {
         // is the current color in check, other color wins
-        if (colorInCheck(activeColor)) {
+        if (board.inCheck(activeColor)) {
             if (activeColor == Color::White) {
                 return GameState::BLACK_WIN;
             }
@@ -120,7 +118,7 @@ GameState State::getGameState() {
 }
 
 State State::makeThreadCopy() const {
-    NewBoard copyBoard = board;                 // TODO: make sure this is a copy
+    Board copyBoard = board;                 // TODO: make sure this is a copy
     std::vector<HistoricalEntry> historyCopy{}; // threads don't need game history
     std::vector<u64> hashCopy = hashHistory;
     return {copyBoard,     activeColor,     castlingRights,  enPassantSquare, halfMoveClock,
@@ -128,10 +126,7 @@ State State::makeThreadCopy() const {
 }
 
 bool State::isLegalMove(BoardPosition start, BoardPosition end) {
-    std::vector<Move> moves;
-    board.addMoves(start.x, start.y, activeColor, enPassantSquare, castlingRights, moves);
-    moves = purgeIllegal(moves);
-    for (auto move : moves) {
+    for (auto move : getMoves()) {
         if (move.start == start && move.end == end) {
             return true;
         }
@@ -142,23 +137,7 @@ bool State::isLegalMove(BoardPosition start, BoardPosition end) {
 std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves) {
     std::vector<Move> legalMoves;
     for (const Move move : pseudolegalMoves) {
-        bool isValid = true;
-        const Color color = Pieces::piece_color(board(move.start.y, move.start.x));
-        if (move.castle == CastleType::LONG) {
-            isValid = !board.isAttacked(BoardPosition{.x = move.end.x + 1, .y = move.end.y}, color) &&
-                      !board.isAttacked(BoardPosition{.x = move.end.x + 2, .y = move.end.y}, color) &&
-                      !board.isAttacked(BoardPosition{.x = move.start.x, .y = move.start.y}, color);
-        } else if (move.castle == CastleType::SHORT) {
-            isValid = !board.isAttacked(BoardPosition{.x = move.end.x - 1, .y = move.end.y}, color) &&
-                      !board.isAttacked(BoardPosition{.x = move.start.x, .y = move.start.y}, color);
-        }
-        if (isValid) {
-            const Color preMoveColor = activeColor;
-            makeMove(move);
-            isValid = !board.isAttacked(preMoveColor == Color::White ? whiteKingSquare : blackKingSquare);
-            undoMove();
-        }
-        if (isValid) {
+        if (board.isLegal(move)) {
             legalMoves.push_back(move);
         }
     }
@@ -167,13 +146,28 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
 
 // Updated peicewise within State
 void State::makeMove(const Move& move) {
-    const HistoricalEntry entry = {
-        move, board(move.start.y, move.start.x), board(move.end.y, move.end.x), castlingRights, halfMoveClock, enPassantSquare,
-    };
     const u64 preMoveHash = hash.getValue();
 
+    const HistoricalEntry entry = {
+        move,
+        board.at(move.start.y, move.start.x),
+        board.at(move.end.y, move.end.x),
+        castlingRights,
+        halfMoveClock,
+        enPassantSquare,
+    };
     const Pieces::Piece movingPiece = entry.movedPiece;
-    if (Pieces::piece_type(movingPiece) == PieceType::Pawn || entry.overwrittenPiece != Pieces::EMPTY) {
+    const Pieces::Piece newPiece = move.promotedTo.value_or(entry.movedPiece);
+
+
+    // Error checking
+    if (!Pieces::sameColor(activeColor, newPiece)) {
+        std::cout << "Illegal move: " << move.start << "->" << move.end << " moving " << newPiece << std::endl;
+        throw std::invalid_argument("Moving piece from wrong side.");
+    }
+
+    // UPDATE STATE INFO
+    if (bool pawnMoveOrAttack = Pieces::piece_type(movingPiece) == PieceType::Pawn || entry.overwrittenPiece != Pieces::EMPTY) {
         halfMoveClock = 0;
     } else {
         halfMoveClock++;
@@ -182,29 +176,8 @@ void State::makeMove(const Move& move) {
         fullMoveClock++;
     }
 
-    const Pieces::Piece newPiece = move.promotedTo.value_or(movingPiece);
-    if (!Pieces::sameColor(activeColor, newPiece)) {
-        std::cout << "Illegal move: " << move.start << "->" << move.end << " moving " << newPiece << std::endl;
-        throw std::invalid_argument("Moving piece from wrong side.");
-    }
+    hash.makeMove(move, entry.movedPiece, entry.overwrittenPiece);
 
-    // MOVE PIECE
-    hash.makeMove(move, board(move.start.y, move.start.x), board(move.end.y, move.end.x));
-    board(move.end.y, move.end.x) = newPiece;
-    board(move.start.y, move.start.x) = Pieces::EMPTY;
-    if (move.enPassantCapture) {
-        board(move.start.y, move.end.x) = Pieces::EMPTY;
-    } else if (move.castle == CastleType::LONG) {
-        const Pieces::Piece rook = board(move.start.y, 0);
-        board(move.start.y, 0) = Pieces::EMPTY;
-        board(move.start.y, move.end.x + 1) = rook;
-    } else if (move.castle == CastleType::SHORT) {
-        const Pieces::Piece rook = board(move.start.y, 7);
-        board(move.start.y, 7) = Pieces::EMPTY;
-        board(move.start.y, move.end.x - 1) = rook;
-    }
-
-    // UPDATE EN PASSENT
     if (enPassantSquare != move.newEnPassantSquare) {
         hash.changeEnPassantSquare(enPassantSquare, move.newEnPassantSquare);
     }
@@ -218,7 +191,19 @@ void State::makeMove(const Move& move) {
         blackKingSquare = move.end;
     }
 
-    // HANDLE CASTLING
+    updateCastlingRights(move, newPiece);
+
+    // MOVE PIECE
+    board.move(move, entry.movedPiece, entry.overwrittenPiece);
+
+    activeColor = activeColor == Color::White ? Color::Black : Color::White;
+    hash.flipActiveColor();
+
+    history.push_back(entry);
+    hashHistory.push_back(preMoveHash);
+}
+
+void State::updateCastlingRights(const Move& move, const Pieces::Piece newPiece) {
     const int backRow = activeColor == Color::White ? 7 : 0;
     const bool movingKing = Pieces::piece_type(newPiece) == PieceType::King;
     const bool movingQueenSideRook = backRow == move.start.y && move.start.x == 0;
@@ -250,55 +235,31 @@ void State::makeMove(const Move& move) {
     if (updated) {
         hash.changeCastling(oldRights, castlingRights);
     }
-
-    activeColor = activeColor == Color::White ? Color::Black : Color::White;
-    hash.flipActiveColor();
-
-    history.push_back(entry);
-    hashHistory.push_back(preMoveHash);
 }
 
-void State::undoMove() {
-    using namespace Pieces;
 
-    HistoricalEntry entry = history.back();
-    u64 historicalHash = hashHistory.back();
+void State::undoMove() {
+    auto [move, movedPiece, overwrittenPiece, castlingBeforeMove, halfMoveClockBeforeMove, enPassantBeforeMove] = history.back();
+    const u64 historicalHash = hashHistory.back();
     history.pop_back();
     hashHistory.pop_back();
 
-    Move move = entry.move;
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
+    board.undoMove(move, movedPiece, overwrittenPiece, activeColor);
 
     if (activeColor == Color::Black) {
         fullMoveClock--;
     }
-
-    const int color = activeColor == Color::White ? 1 : -1;
-
-    if (move.enPassantCapture) {
-        board(move.start.y, move.end.x) = (activeColor == Color::White) ? BLACK_PAWN : WHITE_PAWN;
-    } else if (move.castle == CastleType::LONG) {
-        const Piece rook = board(move.start.y, move.end.x + 1);
-        board(move.start.y, move.end.x + 1) = EMPTY;
-        board(move.start.y, 0) = rook;
-    } else if (move.castle == CastleType::SHORT) {
-        const Piece rook = board(move.start.y, move.end.x - 1);
-        board(move.start.y, move.end.x - 1) = EMPTY;
-        board(move.start.y, 7) = rook;
-    }
-
-    board(move.end.y, move.end.x) = entry.overwrittenPiece;
-    board(move.start.y, move.start.x) = entry.movedPiece;
-    if (entry.movedPiece == WHITE_KING) {
+    if (movedPiece == Pieces::WHITE_KING) {
         whiteKingSquare = move.start;
     }
-    if (entry.movedPiece == BLACK_KING) {
+    else if (movedPiece == Pieces::BLACK_KING) {
         blackKingSquare = move.start;
     }
 
-    castlingRights = entry.castlingBeforeMove;
-    enPassantSquare = entry.enPassantBeforeMove;
-    halfMoveClock = entry.halfMoveClockBeforeMove;
+    castlingRights = castlingBeforeMove;
+    enPassantSquare = enPassantBeforeMove;
+    halfMoveClock = halfMoveClockBeforeMove;
     hash.setValue(historicalHash);
 }
 

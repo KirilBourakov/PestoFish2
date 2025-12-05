@@ -1,6 +1,9 @@
 [submodule "cEngine/extern/googletest"]
 	path = cEngine/extern/googletest
 	url = https://github.com/google/googletest.git
+[submodule "cEngine/extern/cereal"]
+	path = cEngine/extern/cereal
+	url = https://github.com/USCiLab/cereal.git
 [submodule "cEngine/extern/benchmark"]
 	path = cEngine/extern/benchmark
 	url = https://github.com/google/benchmark.git

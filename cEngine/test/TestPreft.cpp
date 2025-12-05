@@ -7,7 +7,7 @@
 #include "State.hpp"
 #include <gtest/gtest.h>
 
-#include "testBoard.hpp"
+#include "Preft.hpp"
 #include "ModuleOnly/parse.hpp"
 
 using namespace Pieces;
@@ -55,26 +55,42 @@ TEST(Preft, undoConsistency) {
     EXPECT_NO_THROW(DebugPreft(state, 4));
 }
 
-TEST(Preft, undoInMiddleGame) {
-    State state{problemMiddleGame(), Color::Black, 0b0000, std::nullopt};
+TEST(Preft, undoInKiwipete) {
+    State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
     EXPECT_NO_THROW(DebugPreft(state, 4));
 }
 
-// TEST(Perft, depth1) {
-//     ASSERT_EQ(Perft(State{}, 1), 20);
-// }
-// TEST(Perft, depth2) {
-//     ASSERT_EQ(Perft(State{}, 2), 400);
-// }
-// TEST(Preft, depth3) {
-//     ASSERT_EQ(Perft(State{}, 3),  8902);
-// }
-// TEST(Preft, depth4) {
-//     ASSERT_EQ(Perft(State{}, 4), 197281);
-// }
+TEST(Preft, depth1) {
+    State state;
+    ASSERT_EQ(Preft(state, 1), 20);
+}
+TEST(Preft, depth2) {
+    State state;
+    ASSERT_EQ(Preft(state, 2), 400);
+}
+TEST(Preft, depth3) {
+    State state;
+    ASSERT_EQ(Preft(state, 3),  8902);
+}
+TEST(Preft, depth4) {
+    State state;
+    ASSERT_EQ(Preft(state, 4), 197281);
+}
 TEST(Preft, startpos5) {
     State state;
     ASSERT_EQ(Preft(state, 5), 4865609);
+}
+TEST(Preft, Kiwipete1) {
+    State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+    ASSERT_EQ(Preft(state,1), 48);
+}
+TEST(Preft, Kiwipete2) {
+    State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+    ASSERT_EQ(Preft(state, 2), 2039);
+}
+TEST(Preft, Kiwipete3) {
+    State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+    ASSERT_EQ(Preft(state, 3), 97862);
 }
 TEST(Preft, Kiwipete4) {
     State state = fenToState("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");

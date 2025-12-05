@@ -7,11 +7,11 @@
 #include <iostream>
 #include <random>
 
-#include "ModuleOnly/CastleUtils.hpp"
+#include "ModuleOnly/Utils.hpp"
 
 unsigned long long ZobristHash::seed = 90827521673ULL;
 
-ZobristHash::ZobristHash(const NewBoard& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantLocation)
+ZobristHash::ZobristHash(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantLocation)
     : rng(seed)
     , dis(std::numeric_limits<unsigned long long>::min(), std::numeric_limits<unsigned long long>::max()) {
     auto start = std::chrono::high_resolution_clock::now();
@@ -39,12 +39,12 @@ ZobristHash::ZobristHash(const NewBoard& board, Color activeColor, int castlingR
     recalculate(board, activeColor, castlingRights, enPassantLocation);
 }
 
-void ZobristHash::recalculate(const NewBoard& board, Color activeColor, int castlingRights,
+void ZobristHash::recalculate(const Board& board, Color activeColor, int castlingRights,
                               std::optional<BoardPosition> enPassantLocation) {
     value = 0;
-    for (int i = 0; i < board.size; i++) {
-        for (int j = 0; j < board.size; j++) {
-            if (Pieces::Piece piece = board(i, j); piece != Pieces::EMPTY) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (Pieces::Piece piece = board.at(i, j); piece != Pieces::EMPTY) {
                 value ^= pieceTable[piece][i][j];
             }
         }

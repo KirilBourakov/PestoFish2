@@ -5,9 +5,10 @@
 #pragma once
 #include <chrono>
 #include <random>
+#include <array>
 
+#include "ModuleOnly/Utils.hpp"
 #include "Move.hpp"
-#include "NewBoard.hpp"
 
 class HistoryTable {
 public:

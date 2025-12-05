@@ -7,11 +7,12 @@
 #include "Engine.hpp"
 #include "ModuleOnly/parse.hpp"
 #include "State.hpp"
-#include "testBoard.hpp"
 #include "gmock/gmock-matchers.h"
 #include "gtest/gtest.h"
 
 // PARSE SQUARES
+
+using namespace Pieces;
 
 TEST(praseSquare, fenInitial) {
     State state;
@@ -20,7 +21,16 @@ TEST(praseSquare, fenInitial) {
 }
 
 TEST(praseSquare, fenUnBlockedCastle) {
-    State state = {NewBoard(unBlockedCastle()), Color::Black, 0, std::nullopt, 5, 25};
+    Board b({{{{BLACK_ROOK, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, BLACK_ROOK}},
+                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
+                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
+                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
+                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
+                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
+                      {{EMPTY, EMPTY, EMPTY, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, EMPTY, EMPTY}},
+                      {{WHITE_ROOK, EMPTY, EMPTY, EMPTY, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}}});
+
+    State state = {b, Color::Black, 0, std::nullopt, 5, 25};
     State from = fenToState("r3k2r/8/8/8/8/8/3PPP2/R3K2R b - - 5 25");
 }
 

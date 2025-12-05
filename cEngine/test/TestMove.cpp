@@ -1,306 +1,50 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "NewBoard.hpp"
-#include "testBoard.hpp"
+#include "Board/ArrayBoard.hpp"
+#include "Preft.hpp"
 
-#include "ModuleOnly/CastleUtils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
-
-using ::testing::UnorderedElementsAreArray;
-using namespace Pieces;
+#include "ModuleOnly/parse.hpp"
 
 // KING IN CHECK
 TEST(TestMove, NoCheck) {
-    EXPECT_FALSE(randomMiddleGame().isAttacked(BoardPosition{4, 7}));
-    EXPECT_FALSE(randomMiddleGame().isAttacked(BoardPosition{4, 0}));
+    EXPECT_FALSE(fenToState("rnb1kbnr/p1pp1ppp/4q3/1p4pP/2P5/3P4/PP2PPPP/RNBQKBNR w - - 0 1").getBoard().inCheck(Color::Black));
+    EXPECT_FALSE(fenToState("rnb1kbnr/p1pp1ppp/4q3/1p4pP/2P5/3P4/PP2PPPP/RNBQKBNR w - - 0 1").getBoard().inCheck(Color::White));
 }
 
 TEST(TestMove, CheckBlockedByPawn) {
-    EXPECT_FALSE(randomMiddleGame().isAttacked(BoardPosition{4, 7}));
+    EXPECT_FALSE(fenToState("rnb1kbnr/p1pp1ppp/4q3/1p4pP/2P5/3P4/PP2PPPP/RNBQKBNR w - - 0 1").getBoard().inCheck(Color::White));
 }
 
 TEST(TestMove, KnightCheck) {
-    EXPECT_TRUE(knightCheck().isAttacked(BoardPosition{4, 7}));
-    EXPECT_TRUE(knightCheck().isAttacked(BoardPosition{4, 0}));
+    EXPECT_TRUE(fenToState("4k3/7r/4Q1N1/4P3/6R1/3n4/P7/3QKB2 w - - 0 1").getBoard().inCheck(Color::White));
+    EXPECT_TRUE(fenToState("4k3/7r/4Q1N1/4P3/6R1/3n4/P7/3QKB2 w - - 0 1").getBoard().inCheck(Color::Black));
 }
 
 TEST(TestMove, StrightCheck) {
-    EXPECT_TRUE(straightCheck().isAttacked(BoardPosition{4, 7}));
-    EXPECT_TRUE(straightCheck().isAttacked(BoardPosition{4, 0}));
+    EXPECT_TRUE(fenToState("4k2R/7r/4q3/4P3/8/8/P7/2q1K3 w - - 0 1").getBoard().inCheck(Color::White));
+    EXPECT_TRUE(fenToState("4k2R/7r/4q3/4P3/8/8/P7/2q1K3 w - - 0 1").getBoard().inCheck(Color::Black));
 }
 
 TEST(TestMove, DiagCheck) {
-    EXPECT_TRUE(diagCheck().isAttacked(BoardPosition{3, 7}));
-    EXPECT_TRUE(diagCheck().isAttacked(BoardPosition{4, 0}));
+    EXPECT_TRUE(fenToState("4k3/7r/4q3/4P3/B7/1q6/P7/3K4 w - - 0 1").getBoard().inCheck(Color::White));
+    EXPECT_TRUE(fenToState("4k3/7r/4q3/4P3/B7/1q6/P7/3K4 w - - 0 1").getBoard().inCheck(Color::Black));
 }
 
 TEST(TestMove, PawnCheck) {
-    EXPECT_TRUE(pawnCheck().isAttacked(BoardPosition{1, 0}));
-    EXPECT_TRUE(pawnCheck().isAttacked(BoardPosition{1, 3}));
+    EXPECT_TRUE(fenToState("1k6/P7/2p5/1K6/8/8/8/8 w - - 0 1").getBoard().inCheck(Color::Black));
+    EXPECT_TRUE(fenToState("1k6/P7/2p5/1K6/8/8/8/8 w - - 0 1").getBoard().inCheck(Color::White));
 }
 
 TEST(TestMove, PawnBackNotCheck) {
-    EXPECT_FALSE(kingsFlankPawns().isAttacked(BoardPosition{1, 2}));
-    EXPECT_FALSE(kingsFlankPawns().isAttacked(BoardPosition{3, 1}));
-}
-
-TEST(TestMove, InvalidPostion) {
-    EXPECT_THROW((void)pawnCheck().isAttacked(BoardPosition{9, 9}), std::invalid_argument);
+    const State s = fenToState("8/3K4/1kp5/8/8/8/8/8 w - - 0 1");
+    EXPECT_FALSE(s.getBoard().inCheck(Color::Black));
+    EXPECT_FALSE(s.getBoard().inCheck(Color::White));
 }
 
 TEST(TestMove, KingCheck) {
-    EXPECT_TRUE(kingCheck().isAttacked(BoardPosition{1, 0}));
-    EXPECT_TRUE(kingCheck().isAttacked(BoardPosition{0, 1}));
-}
-
-TEST(TestMove, notProtected) {
-    EXPECT_FALSE(pawnCheck().isAttacked(BoardPosition{7, 7}, Color::Black));
-}
-
-// PAWN MOVES
-TEST(TestMove, CapturePromotion) {
-    std::vector<Move> moves;
-    capturePromotion().addPawnMoves(1, 1, Color::White, std::nullopt, moves);
-    constexpr BoardPosition start{.x = 1, .y = 1};
-    const std::vector<Move> expectedMoves = {
-        Move::promotionMove(start, {0, 0}, WHITE_KNIGHT), Move::promotionMove(start, {0, 0}, WHITE_BISHOP),
-        Move::promotionMove(start, {0, 0}, WHITE_ROOK),   Move::promotionMove(start, {0, 0}, WHITE_QUEEN),
-
-        Move::promotionMove(start, {2, 0}, WHITE_KNIGHT), Move::promotionMove(start, {2, 0}, WHITE_BISHOP),
-        Move::promotionMove(start, {2, 0}, WHITE_ROOK),   Move::promotionMove(start, {2, 0}, WHITE_QUEEN),
-    };
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, Promotion) {
-    std::vector<Move> moves;
-    kingsFlankPawns().addPawnMoves(0, 1, Color::White, std::nullopt, moves);
-
-    constexpr BoardPosition start{.x = 0, .y = 1};
-    const std::vector<Move> expectedMoves = {
-        Move::promotionMove(start, {0, 0}, WHITE_KNIGHT),
-        Move::promotionMove(start, {0, 0}, WHITE_BISHOP),
-        Move::promotionMove(start, {0, 0}, WHITE_ROOK),
-        Move::promotionMove(start, {0, 0}, WHITE_QUEEN),
-    };
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, GetMovesFromStartWhitePawn) {
-    std::vector<Move> moves;
-    randomMiddleGame().addPawnMoves(0, 6, Color::White, std::nullopt, moves);
-    constexpr BoardPosition start{.x = 0, .y = 6};
-    const std::vector<Move> expectedMoves = {
-        Move::standardMove(start, {0, 5}),
-        Move::doublePawnMove(start, {0, 4}, {0, 5}),
-    };
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, GetMovesFromStartBlackPawn) {
-    std::vector<Move> moves;
-    randomMiddleGame().addPawnMoves(5, 1, Color::Black, std::nullopt, moves);
-
-    constexpr BoardPosition start{.x = 5, .y = 1};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start, {5, 2}), Move::doublePawnMove(start, {5, 3}, {5, 2})};
-
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, GetMovesWhitePawnCaptureAndPush) {
-    std::vector<Move> moves;
-    randomMiddleGame().addPawnMoves(2, 4, Color::White, std::nullopt, moves);
-
-    constexpr BoardPosition start{.x = 2, .y = 4};
-    const std::vector<Move> expectedMoves = {
-        Move::standardMove(start, {2, 3}),
-        Move::standardMove(start, {1, 3}),
-    };
-
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, BlackPawnBlocked) {
-    std::vector<Move> moves;
-    randomMiddleGame().addPawnMoves(7, 1, Color::Black, std::nullopt, moves);
-
-    constexpr BoardPosition start{.x = 7, .y = 1};
-    const std::vector expectedMoves = {Move::standardMove(start, {7, 2})};
-
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-// Knight Moves
-TEST(TestMove, smotheredMateKnight) {
-    std::vector<Move> moves;
-    smotheredMatePosition().addKnightMoves(4, 4, Color::White, moves);
-
-    constexpr BoardPosition start{4, 4};
-    const std::vector<Move> expectedMoves = {
-        Move::standardMove(start, {5, 2}), Move::standardMove(start, {3, 2}),
-
-        Move::standardMove(start, {6, 3}), Move::standardMove(start, {2, 5}), Move::standardMove(start, {2, 3}),
-    };
-
-    EXPECT_THAT(moves, UnorderedElementsAreArray(expectedMoves));
-}
-
-TEST(TestMove, cornerKnight) {
-    std::vector<Move> moves;
-    smotheredMatePosition().addKnightMoves(0, 5, Color::White, moves);
-    constexpr BoardPosition start{0, 5};
-    const std::vector<Move> expectedMoves = {
-        Move::standardMove(start, {1, 3}),
-        Move::standardMove(start, {2, 4}),
-        Move::standardMove(start, {1, 7}),
-    };
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, startKnight) {
-    std::vector<Move> moves;
-    getStartingBoard().addKnightMoves(1, 7, Color::White, moves);
-    constexpr BoardPosition start{1, 7};
-    const std::vector<Move> expectedMoves = {
-        Move::standardMove(start, {0, 5}),
-        Move::standardMove(start, {2, 5}),
-    };
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, movedKnight) {
-    std::vector<Move> moves;
-    knightMovedFromStart().addKnightMoves(0, 5, Color::White, moves);
-    constexpr BoardPosition start{0, 5};
-    const std::vector<Move> expectedMoves = {
-        Move::standardMove(start, {1, 7}),
-        Move::standardMove(start, {1, 3}),
-        Move::standardMove(start, {2, 4}),
-    };
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-// King Moves
-TEST(TestMove, stuckKing) {
-    std::vector<Move> moves;
-    smotheredMatePosition().addKingMoves(4, 0, Color::Black, 0b1111, moves);
-    const std::vector<Move> expectedMoves = {};
-
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, StanderedKingMove) {
-    std::vector<Move> moves;
-    smotheredMatePosition().addKingMoves(4, 7, Color::White, 0b1111, moves);
-    constexpr BoardPosition start{4, 7};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start,
-                                                                {
-                                                                    4,
-                                                                    6,
-                                                                }),
-                                             Move::standardMove(start,
-                                                                {
-                                                                    5,
-                                                                    7,
-                                                                }),
-                                             Move::castleMove(start, {6, 7}, CastleType::SHORT)};
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, SmotheredMateLongCastlePosition) {
-    std::vector<Move> moves;
-    smotheredMateLongCastlePosition().addKingMoves(4, 7, Color::White, 0b1111, moves);
-    constexpr BoardPosition start{4, 7};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start,
-                                                                {
-                                                                    4,
-                                                                    6,
-                                                                }),
-                                             Move::standardMove(start,
-                                                                {
-                                                                    3,
-                                                                    7,
-                                                                }),
-                                             Move::castleMove(start, {2, 7}, CastleType::LONG)};
-    EXPECT_THAT(moves, UnorderedElementsAreArray(expectedMoves));
-}
-
-TEST(TestMove, StanderedKingWithoutCastleRights) {
-    std::vector<Move> moves;
-    smotheredMatePosition().addKingMoves(4, 7, Color::White, 0b0111, moves);
-    constexpr BoardPosition start{4, 7};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start, {4, 6}), Move::standardMove(start, {5, 7})};
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, CastleAllowed) {
-    std::vector<Move> moves;
-    unBlockedCastle().addKingMoves(4, 7, Color::White, 0b1111, moves);
-    constexpr BoardPosition start{4, 7};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start, {3, 7}), Move::standardMove(start, {5, 7}),
-                                             Move::castleMove(start, {6, 7}, CastleType::SHORT),
-                                             Move::castleMove(start, {2, 7}, CastleType::LONG)};
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-
-    moves = {};
-    unBlockedCastle().addKingMoves(4, 0, Color::Black, 0b1111, moves);
-    constexpr BoardPosition bStart{4, 0};
-    const std::vector<Move> bExpectedMoves = {Move::standardMove(bStart, {3, 0}),
-                                              Move::standardMove(bStart, {5, 0}),
-                                              Move::standardMove(bStart, {4, 1}),
-                                              Move::standardMove(bStart, {3, 1}),
-                                              Move::standardMove(bStart, {5, 1}),
-
-                                              Move::castleMove(bStart, {6, 0}, CastleType::SHORT),
-                                              Move::castleMove(bStart, {2, 0}, CastleType::LONG)};
-    EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, CastleDisAllowed) {
-    std::vector<Move> moves;
-    unBlockedCastle().addKingMoves(4, 7, Color::White, 0b0000, moves);
-    constexpr BoardPosition start{4, 7};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start, {3, 7}), Move::standardMove(start, {5, 7})};
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-
-    moves = {};
-    unBlockedCastle().addKingMoves(4, 0, Color::Black, 0b0010, moves);
-    constexpr BoardPosition bStart{4, 0};
-    const std::vector<Move> bExpectedMoves = {
-        Move::standardMove(bStart, {3, 0}),
-        Move::standardMove(bStart, {5, 0}),
-        Move::standardMove(bStart, {4, 1}),
-        Move::standardMove(bStart, {3, 1}),
-        Move::standardMove(bStart, {5, 1}),
-
-        Move::castleMove(bStart, {6, 0}, CastleType::SHORT),
-    };
-    EXPECT_THAT(bExpectedMoves, UnorderedElementsAreArray(moves));
-}
-
-// Sliding Moves
-TEST(TestMove, RookSlidingMoves) {
-    std::vector<Move> moves;
-    unBlockedCastle().addSlidingMoves(7, 7, Color::White, true, false, moves);
-
-    constexpr BoardPosition start{7, 7};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start, {6, 7}), Move::standardMove(start, {5, 7}),
-
-                                             Move::standardMove(start, {7, 6}), Move::standardMove(start, {7, 5}),
-                                             Move::standardMove(start, {7, 4}), Move::standardMove(start, {7, 3}),
-                                             Move::standardMove(start, {7, 2}), Move::standardMove(start, {7, 1}),
-                                             Move::standardMove(start, {7, 0})};
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
-}
-
-TEST(TestMove, BishopSlidingMoves) {
-    std::vector<Move> moves;
-    smotheredMatePosition().addSlidingMoves(3, 0, Color::Black, false, true, moves);
-
-    constexpr BoardPosition start{3, 0};
-    const std::vector<Move> expectedMoves = {Move::standardMove(start, {2, 1}), Move::standardMove(start, {1, 2}),
-                                             Move::standardMove(start, {0, 3})};
-    EXPECT_THAT(expectedMoves, UnorderedElementsAreArray(moves));
+    EXPECT_TRUE(fenToState("1k6/K7/8/8/8/8/8/8 w - - 0 1").getBoard().inCheck(Color::Black));
+    EXPECT_TRUE(fenToState("1k6/K7/8/8/8/8/8/8 w - - 0 1").getBoard().inCheck(Color::White));
 }

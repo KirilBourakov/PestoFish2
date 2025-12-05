@@ -5,7 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "Engine.hpp"
-#include "ModuleOnly/CastleUtils.hpp"
+#include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "State.hpp"
 #include <iostream>
@@ -27,7 +27,7 @@ PYBIND11_MODULE(cEngine, m) {
         .def("get_half_move_clock", &State::getHalfMoveClock)
         .def("get_game_state", py::overload_cast<>(&State::getGameState));
 
-    py::class_<NewBoard>(m, "BoardArray").def("__getitem__", [](const NewBoard& self, size_t i) {
+    py::class_<ArrayBoard>(m, "BoardArray").def("__getitem__", [](const ArrayBoard& self, size_t i) {
         if (i >= BOARD_SIZE) {
             throw py::index_error();
         }
