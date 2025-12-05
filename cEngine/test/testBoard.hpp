@@ -47,17 +47,6 @@ inline Board smotheredMatePosition() {
                       {{WHITE_ROOK, EMPTY, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}}});
 }
 
-inline Board smotheredMateLongCastlePosition() {
-    return Board({{{{BLACK_ROOK, EMPTY, EMPTY, BLACK_BISHOP, BLACK_KING, BLACK_KNIGHT, EMPTY, BLACK_ROOK}},
-                      {{BLACK_PAWN, BLACK_PAWN, EMPTY, BLACK_PAWN, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, BLACK_PAWN}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, BLACK_ROOK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, WHITE_KNIGHT, EMPTY, EMPTY, EMPTY}},
-                      {{WHITE_KNIGHT, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, WHITE_PAWN, EMPTY}},
-                      {{WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, EMPTY, WHITE_PAWN, EMPTY, WHITE_PAWN}},
-                      {{WHITE_ROOK, EMPTY, EMPTY, EMPTY, WHITE_KING, WHITE_QUEEN, WHITE_BISHOP, WHITE_ROOK}}}});
-}
-
 inline Board unBlockedCastle() {
     return Board({{{{BLACK_ROOK, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, BLACK_ROOK}},
                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -67,17 +56,6 @@ inline Board unBlockedCastle() {
                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                       {{EMPTY, EMPTY, EMPTY, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, EMPTY, EMPTY}},
                       {{WHITE_ROOK, EMPTY, EMPTY, EMPTY, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}}});
-}
-
-inline Board simpleMiddleGame() {
-    return Board({{{{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK_ROOK}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, BLACK_QUEEN, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, WHITE_PAWN, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, WHITE_ROOK, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{WHITE_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, WHITE_QUEEN, WHITE_KING, EMPTY, EMPTY, EMPTY}}}});
 }
 
 inline Board knightCheck() {
@@ -146,17 +124,6 @@ inline Board kingsFlankPawns() {
                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}});
 }
 
-inline Board capturePromotion() {
-    return Board({{{{BLACK_ROOK, BLACK_ROOK, BLACK_ROOK, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, WHITE_PAWN, EMPTY, WHITE_KING, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, BLACK_KING, BLACK_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}});
-}
-
 inline Board whiteBackRanked() {
     return Board({{{{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                       {{WHITE_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -190,17 +157,6 @@ inline Board centralWhiteKnight() {
                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}}}});
 }
 
-inline Board knightMovedFromStart() {
-    return Board({{{{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK}},
-                      {{BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{WHITE_KNIGHT, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
-                      {{WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN}},
-                      {{WHITE_ROOK, EMPTY, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}}}});
-}
-
 inline Board simpleBest() {
     return Board({{{{BLACK_ROOK, EMPTY, EMPTY, EMPTY, BLACK_KING, EMPTY, EMPTY, BLACK_ROOK}},
                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
@@ -210,15 +166,4 @@ inline Board simpleBest() {
                       {{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY}},
                       {{WHITE_PAWN, EMPTY, EMPTY, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, EMPTY, EMPTY}},
                       {{WHITE_ROOK, EMPTY, EMPTY, EMPTY, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}}});
-}
-
-inline Board problemMiddleGame() {
-    return Board({{{BLACK_ROOK, EMPTY, EMPTY, BLACK_BISHOP, EMPTY, EMPTY, EMPTY, BLACK_ROOK},
-                      {BLACK_PAWN, BLACK_PAWN, EMPTY, BLACK_KING, BLACK_KNIGHT, BLACK_ROOK, BLACK_PAWN, BLACK_PAWN},
-                      {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, BLACK_KNIGHT, EMPTY},
-                      {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-                      {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-                      {WHITE_KNIGHT, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, WHITE_PAWN, EMPTY},
-                      {WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_QUEEN, WHITE_PAWN, EMPTY, WHITE_PAWN},
-                      {WHITE_ROOK, EMPTY, WHITE_BISHOP, EMPTY, WHITE_KING, EMPTY, EMPTY, WHITE_ROOK}}});
 }
