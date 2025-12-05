@@ -1,8 +1,6 @@
 import pygame
 import game.assets.assets as assets
 import game.constants.globals as globals
-import game.pieces.white_pieces as wp
-import game.pieces.black_pieces as bp
 
 from game.game_states.utils.cAPI import PIECE, cAPI
 

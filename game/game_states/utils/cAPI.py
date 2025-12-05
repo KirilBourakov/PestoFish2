@@ -4,7 +4,6 @@ from pygame import Surface
 
 import cEngine
 from game.assets import assets
-from game.constants.globals import Piece
 
 PIECE = cEngine.Piece
 COLOR = cEngine.Color

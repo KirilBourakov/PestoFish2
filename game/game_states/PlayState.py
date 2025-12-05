@@ -1,11 +1,6 @@
-import numpy as np
-import pygame, copy
+import pygame
 import game.assets.assets as assets
-import game.pieces.white_pieces as wp
-import game.pieces.black_pieces as bp
-import game.pieces.EnPassent as ep
 import game.constants.globals as globals
-import game.constants.move_sets as mv
 from game.game_states.utils.Promotion import Promotion
 from game.game_states.AbstractState import AbstractState
 from game.game_states.utils.cAPI import cAPI, PIECE
