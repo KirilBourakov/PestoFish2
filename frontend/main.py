@@ -11,7 +11,7 @@ class WidgetManager(QStackedWidget):
         super().__init__()
 
         self.start = Start(self.to_play)
-        self.play = Play()
+        self.play = Play(self.to_start)
 
         self.addWidget(self.start)
         self.addWidget(self.play)
@@ -25,6 +25,8 @@ class WidgetManager(QStackedWidget):
         self.play.set_state(game_type)
         self.setCurrentIndex(1)
 
+    def to_start(self):
+        self.setCurrentIndex(0)
 
 def main():
     app = QApplication(sys.argv)

@@ -1,3 +1,5 @@
+from typing import Callable
+
 import chess
 from PyQt6.QtCore import QByteArray
 from PyQt6.QtSvgWidgets import QSvgWidget
@@ -11,8 +13,10 @@ class Play(QWidget):
     size: int = 480
     board_frame_size: int = 5
 
-    def __init__(self):
+    def __init__(self, to_start: Callable):
         super().__init__()
+
+        self.to_start = to_start
 
         self.board = chess.Board()
         self.selected_square = None
@@ -62,8 +66,15 @@ class Play(QWidget):
 
         if move in self.board.legal_moves:
             self.board.push(move)
-            self.load_board_svg()
             self.selected_square = None
+
+            if self.board.is_game_over(claim_draw=True):
+                dialog = GameOverDialog(self.board.outcome(claim_draw=True))
+                dialog.exec()
+                self.to_start()
+
+            self.load_board_svg()
+
         else:
             self.load_board_svg()
             self.selected_square = None
@@ -87,6 +98,18 @@ class Play(QWidget):
     @property
     def square_size(self):
         return self.size // 8
+
+class GameOverDialog(QDialog):
+    def __init__(self, outcome: chess.Outcome | None):
+        super().__init__()
+        self.setWindowTitle("Game Over")
+
+        layout = QVBoxLayout()
+        if outcome is None:
+            layout.addWidget(QLabel(f"Game over."))
+        else:
+            layout.addWidget(QLabel(f"Game over: {outcome.result()}"))
+        self.setLayout(layout)
 
 class PromotionDialog(QDialog):
     def __init__(self):
