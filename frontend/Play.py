@@ -1,7 +1,7 @@
 import chess
 from PyQt6.QtCore import QByteArray
 from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialog, QPushButton
 from chess.svg import SQUARE_SIZE, board
 
 from GameType import GameType
@@ -39,14 +39,7 @@ class Play(QWidget):
         square = chess.parse_square(sq_str)
 
         if self.selected_square is not None:
-            move = chess.Move(from_square=self.selected_square, to_square=square)
-            if move in self.board.legal_moves:
-                self.board.push(move)
-                self.load_board_svg()
-                self.selected_square = None
-            else:
-                self.load_board_svg()
-                self.selected_square = None
+            self.handle_move(square)
 
         else:
             if self.state.is_playing(self.board.color_at(square)) and self.board.turn == self.board.color_at(square):
@@ -58,6 +51,29 @@ class Play(QWidget):
             else:
                 self.load_board_svg()
                 self.selected_square = None
+
+    def handle_move(self, square: int):
+        move = chess.Move(from_square=self.selected_square, to_square=square)
+
+        if self.is_promotion(move):
+            dialog = PromotionDialog()
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                move.promotion = dialog.selected_piece_type
+
+        if move in self.board.legal_moves:
+            self.board.push(move)
+            self.load_board_svg()
+            self.selected_square = None
+        else:
+            self.load_board_svg()
+            self.selected_square = None
+
+    def is_promotion(self, move: chess.Move) -> bool:
+        piece = self.board.piece_at(move.from_square)
+        rank = chess.square_rank(move.to_square)
+        return piece.piece_type == chess.PAWN and \
+            ((piece.color == chess.WHITE and rank == 7) or (piece.color == chess.BLACK and rank == 0))
+
 
     def square_clicked(self, x: float, y: float) -> str:
         file = round((x-self.board_frame_size) // self.square_size)
@@ -71,3 +87,28 @@ class Play(QWidget):
     @property
     def square_size(self):
         return self.size // 8
+
+class PromotionDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Choose promotion")
+        self.selected_piece_type = None
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        pieces = [
+            (chess.QUEEN, "Queen"),
+            (chess.ROOK, "Rook"),
+            (chess.BISHOP, "Bishop"),
+            (chess.KNIGHT, "Knight")
+        ]
+
+        for piece_type, name in pieces:
+            btn = QPushButton(name)
+            btn.clicked.connect(lambda _, p=piece_type: self.select(p))
+            layout.addWidget(btn)
+
+    def select(self, piece_type):
+        self.selected_piece_type = piece_type
+        self.accept()
