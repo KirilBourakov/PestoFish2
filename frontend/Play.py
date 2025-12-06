@@ -9,6 +9,7 @@ from GameType import GameType
 class Play(QWidget):
     state: GameType
     size: int = 480
+    board_frame_size: int = 5
 
     def __init__(self):
         super().__init__()
@@ -34,23 +35,33 @@ class Play(QWidget):
         self.svg_widget.load(QByteArray(svg_bytes))
 
     def mousePressEvent(self, event):
-        sq_str = self.square_clicked(int(event.position().x()), int(event.position().y()))
+        sq_str = self.square_clicked(event.position().x(), event.position().y())
         square = chess.parse_square(sq_str)
-        print(square)
 
-        if self.state.is_playing(self.board.color_at(square)) and self.board.turn == self.board.color_at(square):
-            self.selected_square = square
-            moves = [move.to_square for move in self.board.legal_moves if move.from_square == square]
-            self.load_board_svg(
-                fill={sq: "#cc0000cc" for sq in moves}
-            )
+        if self.selected_square is not None:
+            move = chess.Move(from_square=self.selected_square, to_square=square)
+            if move in self.board.legal_moves:
+                self.board.push(move)
+                self.load_board_svg()
+                self.selected_square = None
+            else:
+                self.load_board_svg()
+                self.selected_square = None
+
         else:
-            self.load_board_svg()
-            self.selected_square = None
+            if self.state.is_playing(self.board.color_at(square)) and self.board.turn == self.board.color_at(square):
+                self.selected_square = square
+                moves = [move.to_square for move in self.board.legal_moves if move.from_square == square]
+                self.load_board_svg(
+                    fill={sq: "#cc0000cc" for sq in moves}
+                )
+            else:
+                self.load_board_svg()
+                self.selected_square = None
 
-    def square_clicked(self, x: int, y: int) -> str:
-        file = x // self.square_size
-        rank = y // self.square_size
+    def square_clicked(self, x: float, y: float) -> str:
+        file = round((x-self.board_frame_size) // self.square_size)
+        rank = round((y-self.board_frame_size) // self.square_size)
 
         file_char = chr(ord('a') + file)
         rank_char = chr(ord('8') - rank)
