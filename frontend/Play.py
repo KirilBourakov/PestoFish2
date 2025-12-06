@@ -75,16 +75,25 @@ class Play(QWidget):
 
             self.load_board_svg()
 
+            if self.is_engine_move():
+                self.make_engine_move()
+
         else:
             self.load_board_svg()
             self.selected_square = None
+
+    def make_engine_move(self):
+        raise NotImplementedError()
+
+    def is_engine_move(self):
+        return (self.state == GameType.PLAYER_WHITE and self.board.turn == chess.BLACK) \
+            or (self.state == GameType.PLAYER_BLACK and self.board.turn == chess.WHITE)
 
     def is_promotion(self, move: chess.Move) -> bool:
         piece = self.board.piece_at(move.from_square)
         rank = chess.square_rank(move.to_square)
         return piece.piece_type == chess.PAWN and \
             ((piece.color == chess.WHITE and rank == 7) or (piece.color == chess.BLACK and rank == 0))
-
 
     def square_clicked(self, x: float, y: float) -> str:
         file = round((x-self.board_frame_size) // self.square_size)
