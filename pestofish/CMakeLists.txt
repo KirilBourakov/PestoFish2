@@ -3,9 +3,6 @@ project(cEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(pybind11_DIR "${CMAKE_SOURCE_DIR}/../.venv/Lib/site-packages/pybind11/share/cmake/pybind11")
-find_package(pybind11 REQUIRED)
-
 include_directories(extern/cereal)
 
 set(ENGINE_SOURCES
@@ -34,24 +31,13 @@ set(ENGINE_MODULES
         include/ModuleOnly/TranspositionTable.hpp
 )
 
-# Build cEngine
-pybind11_add_module(cEngine
-        ${ENGINE_SOURCES}
-        ${ENGINE_MODULES}
-        pybind/bindings.cpp
-)
-target_include_directories(cEngine
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        PRIVATE extern/cereal/include/
-)
-
 # Build UCI exposure
-add_executable(uci
+add_executable(pestofish2
         src/uci.cpp
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
 )
-target_include_directories(uci
+target_include_directories(pestofish2
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
         PRIVATE extern/cereal/include/
 )
@@ -59,7 +45,7 @@ target_include_directories(uci
 # Build benchmarks
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark's tests")
 add_subdirectory(extern/benchmark)
-add_executable(manual
+add_executable(bench
         benchmark/main.cpp
         benchmark/preft.cpp
         benchmark/generateMoves.cpp
@@ -71,12 +57,12 @@ add_executable(manual
         ${ENGINE_SOURCES}
         ${ENGINE_MODULES}
 )
-target_include_directories(manual
+target_include_directories(bench
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test/
         PRIVATE extern/cereal/include/
 )
-target_link_libraries(manual PRIVATE benchmark::benchmark benchmark::benchmark_main)
+target_link_libraries(bench PRIVATE benchmark::benchmark benchmark::benchmark_main)
 
 # Build Tests
 add_subdirectory(extern/googletest)

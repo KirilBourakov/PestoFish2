@@ -1,17 +1,24 @@
 from typing import Callable
 
 import chess
+import chess.engine
+
 from PyQt6.QtCore import QByteArray
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialog, QPushButton
+from chess.engine import SimpleEngine
 from chess.svg import SQUARE_SIZE, board
 
 from GameType import GameType
 
+ENGINE = "pestofish2.exe"
+
 class Play(QWidget):
-    state: GameType
     size: int = 480
     board_frame_size: int = 5
+
+    state: GameType
+    engine: SimpleEngine | None = None
 
     def __init__(self, to_start: Callable):
         super().__init__()
@@ -30,8 +37,12 @@ class Play(QWidget):
         layout.addWidget(self.svg_widget)
         self.setLayout(layout)
 
-    def set_state(self, state: GameType):
+    def enter(self, state: GameType):
         self.state = state
+        if self.state == GameType.PLAYER_WHITE or self.state == GameType.PLAYER_BLACK:
+            self.engine = chess.engine.SimpleEngine.popen_uci(ENGINE)
+        if self.is_engine_move():
+            self.make_engine_move()
 
     def load_board_svg(self, **kwargs):
         svg_text = chess.svg.board(self.board, size=self.size, **kwargs)
@@ -68,12 +79,7 @@ class Play(QWidget):
             self.board.push(move)
             self.selected_square = None
 
-            if self.board.is_game_over(claim_draw=True):
-                dialog = GameOverDialog(self.board.outcome(claim_draw=True))
-                dialog.exec()
-                self.to_start()
-
-            self.load_board_svg()
+            self.update_after_move()
 
             if self.is_engine_move():
                 self.make_engine_move()
@@ -83,7 +89,18 @@ class Play(QWidget):
             self.selected_square = None
 
     def make_engine_move(self):
-        raise NotImplementedError()
+        assert self.engine is not None
+        result = self.engine.play(self.board, limit=chess.engine.Limit(time=1))
+        self.board.push(result.move)
+        self.update_after_move()
+
+    def update_after_move(self):
+        if self.board.is_game_over(claim_draw=True):
+            dialog = GameOverDialog(self.board.outcome(claim_draw=True))
+            dialog.exec()
+            self.to_start()
+
+        self.load_board_svg()
 
     def is_engine_move(self):
         return (self.state == GameType.PLAYER_WHITE and self.board.turn == chess.BLACK) \

@@ -85,7 +85,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
     int expected, scoreOut, depth;
     lazySmpThreads.sync(state, possibleMoves);
     for (depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
-        std::cout << static_cast<int>(steadyClock::now() < deadline) << std::endl;
+        //std::cout << static_cast<int>(steadyClock::now() < deadline) << std::endl;
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
             out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut);
@@ -132,9 +132,10 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 }
             }
         }
-        std::cout << "Best Move " << out << std::endl;
+       // std::cout << "Best Move " << out << std::endl;
     }
-    std::cout << "-----------" << std::endl;
+    std::cout << "Depth searched " << depth << std::endl;
+    //std::cout << "-----------" << std::endl;
 
     return out;
 }

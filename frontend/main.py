@@ -22,7 +22,7 @@ class WidgetManager(QStackedWidget):
         self.resize(400, 300)
 
     def to_play(self, game_type: GameType):
-        self.play.set_state(game_type)
+        self.play.enter(game_type)
         self.setCurrentIndex(1)
 
     def to_start(self):
