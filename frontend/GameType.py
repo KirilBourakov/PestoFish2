@@ -4,9 +4,9 @@ import chess
 
 
 class GameType(Enum):
-    PLAYER_WHITE = 0
-    PLAYER_BLACK = 1
-    PVP = 3
+    PLAYER_WHITE = "Play as White"
+    PLAYER_BLACK = "Play as Black"
+    PVP = "Player vs Player"
 
     def is_playing(self, color: chess.Color | None) -> bool:
         if self == self.PVP:
