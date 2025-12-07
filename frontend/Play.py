@@ -3,9 +3,12 @@ from typing import Callable
 import chess
 import chess.engine
 
-from PyQt6.QtCore import QByteArray, QPoint
+from PyQt6.QtCore import QByteArray, QSize
+from PyQt6.QtGui import QPixmap, QIcon, QPainter, QColor
+from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialog, QPushButton
+from chess import WHITE
 from chess.engine import SimpleEngine
 from chess.svg import SQUARE_SIZE, board
 
@@ -87,7 +90,7 @@ class Play(QWidget):
         move = chess.Move(from_square=self.selected_square, to_square=square)
 
         if self.is_promotion(move):
-            dialog = PromotionDialog()
+            dialog = PromotionDialog(self.board.turn)
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 move.promotion = dialog.selected_piece_type
 
@@ -165,7 +168,7 @@ class GameOverDialog(QDialog):
         self.setLayout(layout)
 
 class PromotionDialog(QDialog):
-    def __init__(self):
+    def __init__(self, color: chess.Color):
         super().__init__()
         self.setWindowTitle("Choose promotion")
         self.selected_piece_type = None
@@ -174,15 +177,29 @@ class PromotionDialog(QDialog):
         self.setLayout(layout)
 
         pieces = [
-            (chess.QUEEN, "Queen"),
-            (chess.ROOK, "Rook"),
-            (chess.BISHOP, "Bishop"),
-            (chess.KNIGHT, "Knight")
+            (chess.QUEEN, "Queen", chess.svg.piece(chess.Piece.from_symbol("Q" if color == WHITE else "q"))),
+            (chess.ROOK, "Rook", chess.svg.piece(chess.Piece.from_symbol("R" if color == WHITE else "r"))),
+            (chess.BISHOP, "Bishop", chess.svg.piece(chess.Piece.from_symbol("B" if color == WHITE else "b"))),
+            (chess.KNIGHT, "Knight", chess.svg.piece(chess.Piece.from_symbol("N" if color == WHITE else "n")))
         ]
 
-        for piece_type, name in pieces:
+        for piece_type, name, svg in pieces:
+            renderer = QSvgRenderer(QByteArray(svg.encode("utf-8")))
+
+            pixmap = QPixmap(48, 48)
+            pixmap.fill(QColor(0, 0, 0, 0))
+
+            painter = QPainter(pixmap)
+            renderer.render(painter)
+            painter.end()
+
+            icon = QIcon(pixmap)
+
             btn = QPushButton(name)
+            btn.setIcon(icon)
+            btn.setIconSize(QSize(48, 48))
             btn.clicked.connect(lambda _, p=piece_type: self.select(p))
+
             layout.addWidget(btn)
 
     def select(self, piece_type):
