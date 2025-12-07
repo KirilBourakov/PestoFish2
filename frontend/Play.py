@@ -3,7 +3,7 @@ from typing import Callable
 import chess
 import chess.engine
 
-from PyQt6.QtCore import QByteArray, QSize
+from PyQt6.QtCore import QByteArray, QSize, Qt
 from PyQt6.QtGui import QPixmap, QIcon, QPainter, QColor
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtSvgWidgets import QSvgWidget
@@ -115,7 +115,7 @@ class Play(QWidget):
 
     def update_after_move(self):
         if self.board.is_game_over(claim_draw=True):
-            dialog = GameOverDialog(self.board.outcome(claim_draw=True))
+            dialog = GameOverDialog(self.board.outcome(claim_draw=True), self.state)
             dialog.exec()
             self.to_start()
 
@@ -156,15 +156,31 @@ class Play(QWidget):
             return False
 
 class GameOverDialog(QDialog):
-    def __init__(self, outcome: chess.Outcome | None):
+    def __init__(self, outcome: chess.Outcome | None, game: GameType):
+        assert outcome is not None
+
         super().__init__()
         self.setWindowTitle("Game Over")
 
         layout = QVBoxLayout()
-        if outcome is None:
-            layout.addWidget(QLabel(f"Game over."))
+
+        white = "assets/player32.png" if game in [GameType.PLAYER_WHITE, GameType.PVP] else "assets/pesto.png"
+        black = "assets/player32.png" if game in [GameType.PLAYER_BLACK, GameType.PVP] else "assets/pesto.png"
+        for color in [white, black]:
+            label = QLabel()
+            pixmap = QPixmap(color).scaled(128, 128)
+            label.setPixmap(pixmap)
+            layout.addWidget(label, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        if outcome.winner == chess.WHITE:
+            text = "White won"
+        elif outcome.winner == chess.BLACK:
+            text = "Black won"
         else:
-            layout.addWidget(QLabel(f"Game over: {outcome.result()}"))
+            text = "Draw"
+
+        layout.addWidget(QLabel(text), alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
 
 class PromotionDialog(QDialog):
