@@ -14,7 +14,7 @@ from chess.svg import SQUARE_SIZE, board
 
 from GameType import GameType
 
-ENGINE = "pestofish2.exe"
+ENGINE = "engine/pestofish2.exe"
 
 class Play(QWidget):
     # Constants
