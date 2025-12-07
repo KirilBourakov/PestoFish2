@@ -7,16 +7,16 @@ class Base(DeclarativeBase):
 class ChessPosition(Base):
     __tablename__ = "ChessPosition"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     fen: Mapped[str] = mapped_column(String)
-    rating: Mapped[int] = mapped_column(Integer)
+    evaluation: Mapped[int] = mapped_column(Integer)
 
     matches: Mapped[list["Match"]] = relationship(back_populates="position")
 
 class Engine(Base):
     __tablename__ = "Engine"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String)
 
     white_matches: Mapped[list["Tournament"]] = relationship(
@@ -31,9 +31,9 @@ class Engine(Base):
 class Tournament(Base):
     __tablename__ = "Tournament"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    white_engine_id: Mapped[int] = mapped_column(ForeignKey("engine.id"))
-    black_engine_id: Mapped[int] = mapped_column(ForeignKey("engine.id"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    white_engine_id: Mapped[int] = mapped_column(ForeignKey("Engine.id"))
+    black_engine_id: Mapped[int] = mapped_column(ForeignKey("Engine.id"))
 
     white_engine: Mapped["Engine"] = relationship(
         foreign_keys=[white_engine_id],
@@ -49,7 +49,7 @@ class Tournament(Base):
 class Match(Base):
     __tablename__ = "Match"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     tournament_id: Mapped[int] = mapped_column(ForeignKey("Tournament.id"))
     position_id: Mapped[int] = mapped_column(ForeignKey("ChessPosition.id"))
     result: Mapped[str] = mapped_column(String)
