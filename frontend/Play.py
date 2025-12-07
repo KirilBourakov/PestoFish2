@@ -3,7 +3,7 @@ from typing import Callable
 import chess
 import chess.engine
 
-from PyQt6.QtCore import QByteArray
+from PyQt6.QtCore import QByteArray, QPoint
 from PyQt6.QtSvgWidgets import QSvgWidget
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialog, QPushButton
 from chess.engine import SimpleEngine
@@ -14,27 +14,40 @@ from GameType import GameType
 ENGINE = "pestofish2.exe"
 
 class Play(QWidget):
+    # Constants
     size: int = 480
-    board_frame_size: int = 5
+    padding: int = 15
 
+    # State management
+    to_start: Callable
+
+    # Game
     state: GameType
+    board: chess.Board
+    selected_square: chess.Square | None = None
     engine: SimpleEngine | None = None
+
+    # Display
+    svg_widget: QSvgWidget
 
     def __init__(self, to_start: Callable):
         super().__init__()
 
+        # State management
         self.to_start = to_start
 
+        # Game
         self.board = chess.Board()
         self.selected_square = None
 
+        # Display
+        layout = QVBoxLayout()
+
         self.svg_widget = QSvgWidget()
         self.svg_widget.setFixedSize(self.size, self.size)
-
+        layout.addWidget(self.svg_widget)
         self.load_board_svg()
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.svg_widget)
         self.setLayout(layout)
 
     def enter(self, state: GameType):
@@ -50,7 +63,10 @@ class Play(QWidget):
         self.svg_widget.load(QByteArray(svg_bytes))
 
     def mousePressEvent(self, event):
-        sq_str = self.square_clicked(event.position().x(), event.position().y())
+        local = self.svg_widget.mapFromGlobal(event.globalPosition().toPoint())
+        sq_str = self.square_clicked(local.x(), local.y())
+        if not self.is_valid_square(sq_str):
+            return
         square = chess.parse_square(sq_str)
 
         if self.selected_square is not None:
@@ -108,13 +124,16 @@ class Play(QWidget):
 
     def is_promotion(self, move: chess.Move) -> bool:
         piece = self.board.piece_at(move.from_square)
-        rank = chess.square_rank(move.to_square)
-        return piece.piece_type == chess.PAWN and \
-            ((piece.color == chess.WHITE and rank == 7) or (piece.color == chess.BLACK and rank == 0))
+        to_rank = chess.square_rank(move.to_square)
+        from_rank = chess.square_rank(move.from_square)
+
+        white_promote = piece.color == chess.WHITE and to_rank == 7 and from_rank == 6
+        black_promote = piece.color == chess.BLACK and to_rank == 0 and from_rank == 1
+        return piece.piece_type == chess.PAWN and (white_promote or black_promote)
 
     def square_clicked(self, x: float, y: float) -> str:
-        file = round((x-self.board_frame_size) // self.square_size)
-        rank = round((y-self.board_frame_size) // self.square_size)
+        file = int((x - self.padding) / self.square_size)
+        rank = int((y - self.padding) / self.square_size)
 
         file_char = chr(ord('a') + file)
         rank_char = chr(ord('8') - rank)
@@ -123,7 +142,15 @@ class Play(QWidget):
 
     @property
     def square_size(self):
-        return self.size // 8
+        return (self.size - 2 * self.padding) // 8
+
+    @staticmethod
+    def is_valid_square(square: str) -> bool:
+        try:
+            chess.parse_square(square)
+            return True
+        except ValueError:
+            return False
 
 class GameOverDialog(QDialog):
     def __init__(self, outcome: chess.Outcome | None):
