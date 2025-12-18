@@ -1,18 +1,13 @@
-import logging
-import os
-from collections import defaultdict
-from pathlib import Path
-from plistlib import InvalidFileException
 from typing import Sequence
 
 import chess
 import chess.engine
-from chess.engine import SimpleEngine
-from sqlalchemy import create_engine, select, exists
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from tqdm import tqdm
 
 from Models import Engine, Tournament, ChessPosition, Match
+from utils import validate_engine, get_engine_model
 
 ENGINE = r"E:\Programming\Projects\PestoFish2\evaluate\bitboards.exe"
 OLD_ENGINE = r"E:\Programming\Projects\PestoFish2\evaluate\normal.exe"
@@ -54,33 +49,6 @@ def get_inputs() -> tuple[str, int, tuple[str, str], tuple[str, str]]:
     black = input("Engine for black: ")
 
     return db_name, games, validate_engine(white), validate_engine(black)
-
-def validate_engine(engine: str) -> tuple[str, str]:
-    path = Path.cwd() / "engines" / engine
-    if os.path.isdir(path):
-        exes = []
-        for filename in os.listdir(path):
-            full_path = path / filename
-            if filename.lower().endswith(".exe") and os.path.isfile(full_path):
-                exes.append(full_path)
-        if len(exes) == 1:
-            return engine, exes[0]
-        else:
-            raise InvalidFileException(f"Invalid engine folder format; {len(exes)} .exe files found.")
-    else:
-        raise FileNotFoundError(f"{engine} not found.")
-
-def get_engine_model(session: Session, name: str) -> Engine:
-    stmt = select(Engine).where(Engine.name == name)
-    engine_obj = session.scalar(stmt)
-
-    if engine_obj is None:
-        engine_obj = Engine(name=name)
-        session.add(engine_obj)
-        session.commit()
-        session.refresh(engine_obj)
-
-    return engine_obj
 
 def main():
     db_name, games, (white_name, white_engine), (black_name, black_engine) = get_inputs()
