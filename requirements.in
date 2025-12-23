@@ -1,0 +1,7 @@
+pytest
+mypy
+python-chess
+pip-tools
+PyQt6
+sqlalchemy
+tqdm
