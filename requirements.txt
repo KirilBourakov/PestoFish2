@@ -36,6 +36,8 @@ mypy-extensions==1.0.0
     # via mypy
 networkx==3.6.1
     # via torch
+numpy==2.4.0
+    # via -r requirements.in
 packaging==24.2
     # via
     #   build

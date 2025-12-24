@@ -1,18 +1,19 @@
 import torch
 from torch import nn, Tensor
 
-INPUT_BITS = 40960
+from data import ENCODING_SIZE
+
 
 class CReLU(nn.Module):
     def __init__(self):
-        super(CReLU, self).__init__()
+        super().__init__()
     def forward(self, x):
         return torch.clamp(x, 0, 1)
 
 class Model(nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        self.feature_transformer = nn.Linear(INPUT_BITS, 16)
+        self.feature_transformer = nn.Linear(ENCODING_SIZE, 16)
 
         self.layer_1 = nn.Linear(16 * 2, 32)
 
