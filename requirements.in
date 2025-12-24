@@ -5,3 +5,4 @@ pip-tools
 PyQt6
 sqlalchemy
 tqdm
+torch
