@@ -7,3 +7,4 @@ sqlalchemy
 tqdm
 torch
 numpy
+pydantic

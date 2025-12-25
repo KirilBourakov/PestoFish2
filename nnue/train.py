@@ -5,6 +5,8 @@ from torch.utils.data import DataLoader
 from data import Positions
 from model import Model
 
+PATH = "model_weights.json"
+
 if __name__ == '__main__':
     data = Positions(limit=1000000)
     loader = DataLoader(data, batch_size=1024, num_workers=3)
@@ -13,7 +15,7 @@ if __name__ == '__main__':
     optimizer = optim.SGD(model.parameters(), lr=0.01)
 
     loss_fn = nn.MSELoss()
-    for i in range(100):
+    for i in range(10):
         batches = 0
         epoch_loss = 0
         for (our, enemy), value in loader:
@@ -28,3 +30,7 @@ if __name__ == '__main__':
             epoch_loss += loss.item()
             batches += 1
         print(f"Epoch loss {epoch_loss / batches}")
+
+    model.export.save(PATH)
+
+    # torch.save(model.state_dict(), PATH)

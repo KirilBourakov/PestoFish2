@@ -1,7 +1,37 @@
+from typing import Annotated, Any, TypeVar
+
+import numpy as np
 import torch
+from pydantic import BaseModel, BeforeValidator, PlainSerializer, ConfigDict
 from torch import nn, Tensor
+import numpy.typing as npt
 
 from data import ENCODING_SIZE
+
+def val(v: Any) -> npt.NDArray[np.generic]:
+    return np.asarray(v)
+
+def serialize(v: npt.NDArray[np.generic]) -> list[Any]:
+    return v.tolist()
+
+type PydanticNDArray[Tnum: np.generic] = Annotated[
+    npt.NDArray[Tnum],
+    BeforeValidator(val),
+    PlainSerializer(serialize, return_type=list)
+]
+
+class WeightModel(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    feature_transformer: PydanticNDArray[np.float32]
+    layer_1: PydanticNDArray[np.float32]
+    layer_2: PydanticNDArray[np.float32]
+    layer_3: PydanticNDArray[np.float32]
+
+    def save(self, path: str) -> None:
+        json_string = self.model_dump_json(indent=4)
+        with open(path, 'w') as f:
+            f.write(json_string)
 
 
 class CReLU(nn.Module):
@@ -39,3 +69,12 @@ class Model(nn.Module):
         combined = torch.cat([our_processed, enemy_processed], dim=-1)
 
         return self.output(self.layer_1(combined))
+
+    @property
+    def export(self) -> WeightModel:
+        return WeightModel(
+            feature_transformer=self.feature_transformer.weight.to("cpu").detach().numpy(),
+            layer_1=self.layer_1.weight.to("cpu").detach().numpy(),
+            layer_2=self.output[1].weight.to("cpu").detach().numpy(),
+            layer_3=self.output[3].weight.to("cpu").detach().numpy(),
+        )
