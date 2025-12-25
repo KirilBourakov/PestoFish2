@@ -1,9 +1,11 @@
 import json
+from itertools import islice
 from typing import Generator
 
 import chess
 import numpy as np
 import numpy.typing as npt
+import torch
 from torch.utils.data import IterableDataset
 
 DATA_FILE = "data/lichess_db_eval.jsonl"
@@ -16,12 +18,21 @@ HalfKP = tuple[npt.NDArray[np.int8], npt.NDArray[np.int8]]
 
 #TODO: reuse buffers
 class Positions(IterableDataset):
-    def __init__(self):
-        pass
+    def __init__(self, limit: int | None = None):
+        self.limit = limit
 
     def __iter__(self) -> Generator[tuple[HalfKP, float]]:
+        worker_info = torch.utils.data.get_worker_info()
+
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
+            if worker_info is None:
+                iter_start = 0
+                iter_step = 1
+            else:
+                iter_start = worker_info.id
+                iter_step = worker_info.num_workers
+
+            for line in islice(f, iter_start, self.limit, iter_step):
                 data = json.loads(line)
 
                 fen = data["fen"]
