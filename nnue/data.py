@@ -1,6 +1,6 @@
 import json
 from itertools import islice
-from typing import Generator
+from typing import Generator, Literal
 
 import chess
 import numpy as np
@@ -18,8 +18,14 @@ HalfKP = tuple[npt.NDArray[np.int8], npt.NDArray[np.int8]]
 
 #TODO: reuse buffers
 class Positions(IterableDataset):
-    def __init__(self, limit: int | None = None):
-        self.limit = limit
+    def __init__(self, train_limit: int, validation_limit: int, style: Literal["train", "validation"]) -> None:
+        self.train_limit = train_limit
+        self.validation_limit = validation_limit
+        self.style = style
+
+    @staticmethod
+    def create(train_limit: int, validation_limit: int) -> tuple["Positions", "Positions"]:
+        return Positions(train_limit, validation_limit, "train"), Positions(train_limit, validation_limit, "validation")
 
     def __iter__(self) -> Generator[tuple[HalfKP, float]]:
         worker_info = torch.utils.data.get_worker_info()
@@ -31,8 +37,13 @@ class Positions(IterableDataset):
             else:
                 iter_start = worker_info.id
                 iter_step = worker_info.num_workers
+            iter_limit = self.train_limit
 
-            for line in islice(f, iter_start, self.limit, iter_step):
+            if self.style == "validation":
+                iter_limit += self.validation_limit
+                iter_start += self.train_limit
+
+            for line in islice(f, iter_start, iter_limit, iter_step):
                 data = json.loads(line)
 
                 fen = data["fen"]
