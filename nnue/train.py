@@ -6,6 +6,7 @@ import torch
 from torch import nn, optim
 from torch.nn import MSELoss
 from torch.optim import Optimizer
+from torch.optim.lr_scheduler import ReduceLROnPlateau, OneCycleLR, LRScheduler
 from torch.utils.data import DataLoader
 
 from data import Positions
@@ -32,19 +33,22 @@ class Trainer:
     def __call__(self):
         train, validate = Positions.create(self.train_positions, self.validation_positions)
 
+        batch_size=1024
         train_loader = DataLoader(
             train,
-            batch_size=1024,
+            batch_size=batch_size,
             num_workers=3
         )
         validate_loader = DataLoader(
             validate,
-            batch_size=1024,
+            batch_size=batch_size,
             num_workers=3
         )
 
         model = Model()
-        optimizer = optim.SGD(model.parameters(), lr=0.01)
+        optimizer = optim.SGD(model.parameters())
+        scheduler = OneCycleLR(optimizer, max_lr=.01, steps_per_epoch=(self.train_positions // batch_size), epochs=self.epochs)
+
         loss_fn = nn.MSELoss()
         epoch = 0
         train_loss_history = []
@@ -53,7 +57,7 @@ class Trainer:
             epoch, train_loss_history, validation_loss_history = self.load_checkpoint(self.load_path, model, optimizer)
 
         for i in range(epoch, self.epochs, 1):
-            train_loss = self.train_step(model, train_loader, loss_fn, optimizer)
+            train_loss = self.train_step(model, train_loader, loss_fn, optimizer, scheduler)
             validation_loss = self.validate_step(model, validate_loader, loss_fn)
 
             train_loss_history.append(train_loss)
@@ -67,7 +71,7 @@ class Trainer:
         model.export.save(save_path)
 
     @staticmethod
-    def train_step(model: Model, data: DataLoader, loss_fn: MSELoss, optimizer: Optimizer) -> float:
+    def train_step(model: Model, data: DataLoader, loss_fn: MSELoss, optimizer: Optimizer, scheduler: LRScheduler) -> float:
         batches, epoch_loss = 0, 0
         model.train()
         for (our, enemy), value in data:
@@ -77,6 +81,7 @@ class Trainer:
 
             loss.backward()
             optimizer.step()
+            scheduler.step()
             optimizer.zero_grad()
 
             epoch_loss += loss.item()
