@@ -8,6 +8,7 @@ from torch.nn import MSELoss
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import ReduceLROnPlateau, OneCycleLR, LRScheduler
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from data import Positions
 from model import Model
@@ -33,7 +34,7 @@ class Trainer:
     def __call__(self):
         train, validate = Positions.create(self.train_positions, self.validation_positions)
 
-        batch_size=1024
+        batch_size=10_000
         train_loader = DataLoader(
             train,
             batch_size=batch_size,
@@ -62,8 +63,8 @@ class Trainer:
 
             train_loss_history.append(train_loss)
             validation_loss_history.append(validation_loss)
-            if min(validation_loss_history) == validation_loss:
-                self.save_checkpoint(model, optimizer, i, train_loss_history, validation_loss_history)
+            # if min(validation_loss_history) == validation_loss:
+            self.save_checkpoint(model, optimizer, i, train_loss_history, validation_loss_history)
 
             print(f"Epoch train loss {train_loss}, validation loss {validation_loss}")
 
@@ -74,7 +75,7 @@ class Trainer:
     def train_step(model: Model, data: DataLoader, loss_fn: MSELoss, optimizer: Optimizer, scheduler: LRScheduler) -> float:
         batches, epoch_loss = 0, 0
         model.train()
-        for (our, enemy), value in data:
+        for (our, enemy), value in tqdm(data):
             pred = model(our, enemy).squeeze()
 
             loss = loss_fn(pred, value.to(torch.float32))
@@ -92,7 +93,7 @@ class Trainer:
     def validate_step(model: Model, data: DataLoader, loss_fn: MSELoss) -> float:
         batches, epoch_loss = 0, 0
         model.eval()
-        for (our, enemy), value in data:
+        for (our, enemy), value in tqdm(data):
             pred = model(our, enemy).squeeze()
 
             loss = loss_fn(pred, value.to(torch.float32))
@@ -123,7 +124,11 @@ class Trainer:
         return epoch + 1, train_loss_history, validation_loss_history
 
 def main():
-    train = Trainer()
+    train = Trainer(
+        epochs=3,
+        train_positions=50_000_000,
+        validation_positions=10_000_000,
+    )
     train()
 
 if __name__ == '__main__':
