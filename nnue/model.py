@@ -63,8 +63,8 @@ class Model(nn.Module):
         Returns:
             Score prediction
         """
-        our_processed = self.feature_transformer(our_color)
-        enemy_processed = self.feature_transformer(enemy_color)
+        our_processed = self.feature_transformer(our_color.float())
+        enemy_processed = self.feature_transformer(enemy_color.float())
 
         combined = torch.cat([our_processed, enemy_processed], dim=-1)
 

@@ -75,7 +75,7 @@ class Trainer:
         batches, epoch_loss = 0, 0
         model.train()
         for (our, enemy), value in data:
-            pred = model(our.to(torch.float32), enemy.to(torch.float32)).squeeze()
+            pred = model(our, enemy).squeeze()
 
             loss = loss_fn(pred, value.to(torch.float32))
 
@@ -93,7 +93,7 @@ class Trainer:
         batches, epoch_loss = 0, 0
         model.eval()
         for (our, enemy), value in data:
-            pred = model(our.to(torch.float32), enemy.to(torch.float32)).squeeze()
+            pred = model(our, enemy).squeeze()
 
             loss = loss_fn(pred, value.to(torch.float32))
 

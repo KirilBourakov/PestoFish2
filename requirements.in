@@ -8,3 +8,4 @@ tqdm
 torch
 numpy
 pydantic
+snakeviz
