@@ -20,6 +20,7 @@ type PydanticNDArray[Tnum: np.generic] = Annotated[
     PlainSerializer(serialize, return_type=list)
 ]
 
+# TODO: store and export bias
 class WeightModel(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

@@ -1,134 +1,192 @@
 import os
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import Literal, overload
 
 import torch
 from torch import nn, optim
 from torch.nn import MSELoss
-from torch.optim import Optimizer
-from torch.optim.lr_scheduler import ReduceLROnPlateau, OneCycleLR, LRScheduler
+from torch.optim.lr_scheduler import OneCycleLR
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from data import Positions
 from model import Model
 
+@dataclass
+class PosInData:
+    step: Literal['train', 'validate']
+    completed: int = 0
+    curr_total_loss: float = 0
+
+    def enter_train(self):
+        self.step = 'train'
+        self.completed = 0
+        self.curr_total_loss = 0
+
+    def enter_validate(self):
+        self.step = 'validate'
+        self.completed = 0
+        self.curr_total_loss = 0
+
+    def add_loss(self, n_loss):
+        self.curr_total_loss += n_loss
+        self.completed += 1
+
+    @property
+    def avg_loss(self):
+        return self.curr_total_loss / self.completed
+
+@dataclass
+class TrainConfig:
+    epochs: int = 3
+    curr_epoch: int = 0
+    train_positions: int = 1_000_000
+    validation_positions: int = 1_000_000
+    batch_size: int = 10_000
+
+    minutes_per_checkpoint: int = 10
+
+    @property
+    def train_step_count(self) -> int:
+        return self.train_positions // self.batch_size
+
+torch.serialization.add_safe_globals([TrainConfig, PosInData])
+
 class Trainer:
+    @overload
+    def __init__(self, *, config: TrainConfig) -> None: ...
+    @overload
+    def __init__(self, *, load_path: Path | str) -> None: ...
+
     def __init__(
         self,
-        epochs: int = 10,
-        train_positions: int = 1_000_000,
-        validation_positions: int = 1_000_000,
-        export_path = "model_weights.json",
+        *,
+        config: TrainConfig | None = None,
         load_path: Path | str | None = None
     ):
-        self.checkpoint_dir = datetime.now().strftime("%B-%d_%H_%M")
-        self.epochs = epochs
-        self.train_positions = train_positions
-        self.validation_positions = validation_positions
-        self.export_path = export_path
-        self.load_path = load_path
+        self.checkpoint_dir = datetime.now().strftime("%B-%d_%H_%M") if load_path is None else os.path.dirname(load_path)
+        if config is not None:
+            self.config = config
+            self.pos_in_data = PosInData('train')
+            os.makedirs(self.checkpoint_dir, exist_ok=False)
+        else:
+            meta = torch.load(load_path)
+            self.config = meta['config']
+            self.pos_in_data = meta['pos_in_data']
 
-        os.makedirs(self.checkpoint_dir, exist_ok=False)
+        self.model = Model()
+        self.optimizer = optim.SGD(self.model.parameters())
+        self.scheduler = OneCycleLR(self.optimizer, max_lr=.01, steps_per_epoch=self.config.train_step_count,
+                                    epochs=self.config.epochs)
+
+        if load_path is not None:
+            info = torch.load(load_path)
+            self.model.load_state_dict(info['model_state_dict'])
+            self.optimizer.load_state_dict(info['optimizer_state_dict'])
+            self.scheduler.load_state_dict(info['scheduler_state_dict'])
+
+
+        train, validate = Positions.create(self.config.train_positions, self.config.validation_positions)
+        self.train_loader = DataLoader(
+            train,
+            batch_size=self.config.batch_size,
+            num_workers=3
+        )
+        self.validate_loader = DataLoader(
+            validate,
+            batch_size=self.config.batch_size,
+            num_workers=3
+        )
+
+        self.last_checkpoint_time = datetime.now()
 
     def __call__(self):
-        train, validate = Positions.create(self.train_positions, self.validation_positions)
-
-        batch_size=10_000
-        train_loader = DataLoader(
-            train,
-            batch_size=batch_size,
-            num_workers=3
-        )
-        validate_loader = DataLoader(
-            validate,
-            batch_size=batch_size,
-            num_workers=3
-        )
-
-        model = Model()
-        optimizer = optim.SGD(model.parameters())
-        scheduler = OneCycleLR(optimizer, max_lr=.01, steps_per_epoch=(self.train_positions // batch_size), epochs=self.epochs)
-
         loss_fn = nn.MSELoss()
-        epoch = 0
-        train_loss_history = []
-        validation_loss_history = []
-        if self.load_path is not None:
-            epoch, train_loss_history, validation_loss_history = self.load_checkpoint(self.load_path, model, optimizer)
 
-        for i in range(epoch, self.epochs, 1):
-            train_loss = self.train_step(model, train_loader, loss_fn, optimizer, scheduler)
-            validation_loss = self.validate_step(model, validate_loader, loss_fn)
+        train_start = self.pos_in_data.completed if self.pos_in_data.step == 'train' else 0
+        validate_start = self.pos_in_data.completed if self.pos_in_data.step == 'validate' else 0
 
-            train_loss_history.append(train_loss)
-            validation_loss_history.append(validation_loss)
-            # if min(validation_loss_history) == validation_loss:
-            self.save_checkpoint(model, optimizer, i, train_loss_history, validation_loss_history)
+        while self.config.curr_epoch < self.config.epochs:
+            if validate_start != 0:
+                validation_loss = self.validate_step(loss_fn, validate_start)
+                train_loss = -1
+            else:
+                train_loss = self.train_step(loss_fn, train_start)
+                validation_loss = self.validate_step(loss_fn, validate_start)
 
             print(f"Epoch train loss {train_loss}, validation loss {validation_loss}")
 
-        save_path = os.path.join(self.checkpoint_dir, self.export_path)
-        model.export.save(save_path)
+            self.config.curr_epoch += 1
+            train_start = 0
+            validate_start = 0
 
-    @staticmethod
-    def train_step(model: Model, data: DataLoader, loss_fn: MSELoss, optimizer: Optimizer, scheduler: LRScheduler) -> float:
-        batches, epoch_loss = 0, 0
-        model.train()
-        for (our, enemy), value in tqdm(data):
-            pred = model(our, enemy).squeeze()
+        self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
 
-            loss = loss_fn(pred, value.to(torch.float32))
+    def train_step(self, loss_fn: MSELoss, start_from_batch: int) -> float:
+        self.model.train()
+        if start_from_batch == 0:
+            self.pos_in_data.enter_train()
 
-            loss.backward()
-            optimizer.step()
-            scheduler.step()
-            optimizer.zero_grad()
+        curr_batch = 0
+        for (our, enemy), value in tqdm(self.train_loader):
+            if curr_batch >= start_from_batch:
+                pred = self.model(our, enemy).squeeze()
 
-            epoch_loss += loss.item()
-            batches += 1
-        return epoch_loss / batches
+                loss = loss_fn(pred, value.to(torch.float32))
 
-    @staticmethod
-    def validate_step(model: Model, data: DataLoader, loss_fn: MSELoss) -> float:
-        batches, epoch_loss = 0, 0
-        model.eval()
-        for (our, enemy), value in tqdm(data):
-            pred = model(our, enemy).squeeze()
+                loss.backward()
+                self.optimizer.step()
+                self.scheduler.step()
+                self.optimizer.zero_grad()
 
-            loss = loss_fn(pred, value.to(torch.float32))
+                self.pos_in_data.add_loss(loss.item())
+                self.timed_save_checkpoint()
 
-            epoch_loss += loss.item()
-            batches += 1
-        return epoch_loss / batches
+            curr_batch += 1
 
-    def save_checkpoint(self, model: Model, optimizer: Optimizer, epoch: int, train_loss_history: list[float], validation_loss_history: list[float]) -> None:
-        save_path = os.path.join(self.checkpoint_dir, f"{epoch}-{validation_loss_history[-1]}.pth")
+        return  self.pos_in_data.avg_loss
+
+    def validate_step(self, loss_fn: MSELoss, start_from_batch: int) -> float:
+        self.model.eval()
+        if start_from_batch == 0:
+            self.pos_in_data.enter_validate()
+
+        curr_batch = 0
+        for (our, enemy), value in tqdm(self.validate_loader):
+            if curr_batch >= start_from_batch:
+                pred = self.model(our, enemy).squeeze()
+
+                loss = loss_fn(pred, value.to(torch.float32))
+
+                self.pos_in_data.add_loss(loss.item())
+                self.timed_save_checkpoint()
+            curr_batch += 1
+
+        return self.pos_in_data.avg_loss
+
+    def timed_save_checkpoint(self) -> None:
+        time_difference = datetime.now() - self.last_checkpoint_time
+        minutes_difference = time_difference.total_seconds() / 60
+
+        if self.config.minutes_per_checkpoint < minutes_difference:
+            self.save_checkpoint()
+            self.last_checkpoint_time = datetime.now()
+
+    def save_checkpoint(self) -> None:
+        save_path = os.path.join(self.checkpoint_dir, f"{self.config.curr_epoch}.pth")
         checkpoint = {
-            'epoch': epoch,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'train_loss_history': train_loss_history,
-            'validation_loss_history': validation_loss_history
+            'config': self.config,
+            'pos_in_data': self.pos_in_data,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'scheduler_state_dict': self.scheduler.state_dict()
         }
         torch.save(checkpoint, save_path)
 
-    @staticmethod
-    def load_checkpoint(filepath: str | Path, model: Model, optimizer: Optimizer) -> tuple[int, list[float], list[float]]:
-        checkpoint = torch.load(filepath)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        epoch = checkpoint['epoch']
-        train_loss_history = checkpoint['train_loss_history']
-        validation_loss_history = checkpoint['validation_loss_history']
-        return epoch + 1, train_loss_history, validation_loss_history
-
 def main():
-    train = Trainer(
-        epochs=3,
-        train_positions=50_000_000,
-        validation_positions=10_000_000,
-    )
+    train = Trainer(load_path=r"December-28_12_22/0.pth")#config=TrainConfig(train_positions=100_000_000))
     train()
 
 if __name__ == '__main__':
