@@ -11,7 +11,7 @@ from torch.optim.lr_scheduler import OneCycleLR
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from data import Positions
+from data import LichessPositions
 from model import Model
 
 @dataclass
@@ -88,7 +88,13 @@ class Trainer:
             self.scheduler.load_state_dict(info['scheduler_state_dict'])
 
 
-        train, validate = Positions.create(self.config.train_positions, self.config.validation_positions)
+        train, validate = LichessPositions.create(self.config.train_positions, self.config.validation_positions)
+        if load_path is not None:
+            if self.pos_in_data.step == 'train':
+                train.seek(self.pos_in_data.completed * self.config.batch_size)
+            else:
+                validate.seek(self.pos_in_data.completed * self.config.batch_size)
+
         self.train_loader = DataLoader(
             train,
             batch_size=self.config.batch_size,
@@ -105,64 +111,53 @@ class Trainer:
     def __call__(self):
         loss_fn = nn.MSELoss()
 
-        train_start = self.pos_in_data.completed if self.pos_in_data.step == 'train' else 0
-        validate_start = self.pos_in_data.completed if self.pos_in_data.step == 'validate' else 0
-
         while self.config.curr_epoch < self.config.epochs:
-            if validate_start != 0:
-                validation_loss = self.validate_step(loss_fn, validate_start)
-                train_loss = -1
+            if self.pos_in_data.step == 'train':
+                train_loss = self.train_step(loss_fn)
+                self.pos_in_data.enter_validate()
+                validation_loss = self.validate_step(loss_fn)
             else:
-                train_loss = self.train_step(loss_fn, train_start)
-                validation_loss = self.validate_step(loss_fn, validate_start)
+                train_loss = 1
+                validation_loss = self.validate_step(loss_fn)
 
             print(f"Epoch train loss {train_loss}, validation loss {validation_loss}")
 
             self.config.curr_epoch += 1
-            train_start = 0
-            validate_start = 0
+            self.pos_in_data.enter_train()
 
         self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
 
-    def train_step(self, loss_fn: MSELoss, start_from_batch: int) -> float:
+    def train_step(self, loss_fn: MSELoss) -> float:
         self.model.train()
-        if start_from_batch == 0:
-            self.pos_in_data.enter_train()
 
-        curr_batch = 0
         for (our, enemy), value in tqdm(self.train_loader):
-            if curr_batch >= start_from_batch:
-                pred = self.model(our, enemy).squeeze()
+            pred = self.model(our, enemy).squeeze()
 
-                loss = loss_fn(pred, value.to(torch.float32))
+            loss = loss_fn(pred, value.to(torch.float32))
 
-                loss.backward()
-                self.optimizer.step()
-                self.scheduler.step()
-                self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            self.scheduler.step()
+            self.optimizer.zero_grad()
 
-                self.pos_in_data.add_loss(loss.item())
-                self.timed_save_checkpoint()
+            self.pos_in_data.add_loss(loss.item())
+            self.timed_save_checkpoint()
 
-            curr_batch += 1
+        self.train_loader.dataset.seek(0)
 
-        return  self.pos_in_data.avg_loss
+        return self.pos_in_data.avg_loss
 
-    def validate_step(self, loss_fn: MSELoss, start_from_batch: int) -> float:
+    def validate_step(self, loss_fn: MSELoss) -> float:
         self.model.eval()
-        if start_from_batch == 0:
-            self.pos_in_data.enter_validate()
 
-        curr_batch = 0
         for (our, enemy), value in tqdm(self.validate_loader):
-            if curr_batch >= start_from_batch:
-                pred = self.model(our, enemy).squeeze()
+            pred = self.model(our, enemy).squeeze()
 
-                loss = loss_fn(pred, value.to(torch.float32))
+            loss = loss_fn(pred, value.to(torch.float32))
 
-                self.pos_in_data.add_loss(loss.item())
-                self.timed_save_checkpoint()
-            curr_batch += 1
+            self.pos_in_data.add_loss(loss.item())
+
+        self.validate_loader.dataset.seek(0)
 
         return self.pos_in_data.avg_loss
 
@@ -186,7 +181,7 @@ class Trainer:
         torch.save(checkpoint, save_path)
 
 def main():
-    train = Trainer(load_path=r"December-28_12_22/0.pth")#config=TrainConfig(train_positions=100_000_000))
+    train = Trainer(load_path=r"December-29_09_24/0.pth")# config=TrainConfig(train_positions=100_000_000)) 687it [25:09,  2.18s/it]
     train()
 
 if __name__ == '__main__':

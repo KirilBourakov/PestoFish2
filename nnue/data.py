@@ -8,92 +8,70 @@ import numpy.typing as npt
 import torch
 from torch.utils.data import IterableDataset
 
-DATA_FILE = "data/lichess_db_eval.jsonl"
+from parse import extract_encoding, HalfKP, DATA_FILE, extract_score_from_pv, soft_max_normalize, ENCODING_SIZE
 
-ENCODINGS_PER_KING_POS = 640
-ENCODING_SIZE = ENCODINGS_PER_KING_POS * 64
-MAX_SCORE = 32000
-
-HalfKP = tuple[npt.NDArray[np.int8], npt.NDArray[np.int8]]
 
 #TODO: reuse buffers
-class Positions(IterableDataset):
+class LichessPositions(IterableDataset):
     def __init__(self, train_limit: int, validation_limit: int, style: Literal["train", "validation"]) -> None:
         self.train_limit = train_limit
         self.validation_limit = validation_limit
         self.style = style
+        self.start_offset = 0
 
     @staticmethod
-    def create(train_limit: int, validation_limit: int) -> tuple["Positions", "Positions"]:
-        return Positions(train_limit, validation_limit, "train"), Positions(train_limit, validation_limit, "validation")
+    def create(train_limit: int, validation_limit: int) -> tuple["LichessPositions", "LichessPositions"]:
+        return LichessPositions(train_limit, validation_limit, "train"), LichessPositions(train_limit, validation_limit, "validation")
+
+    def seek(self, offset: int) -> None:
+        print(f"Skipping forward {offset} positions")
+        self.start_offset = offset
 
     def __iter__(self) -> Generator[tuple[HalfKP, float]]:
         worker_info = torch.utils.data.get_worker_info()
+        entry_size = 130
 
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            if worker_info is None:
-                iter_start = 0
-                iter_step = 1
-            else:
-                iter_start = worker_info.id
-                iter_step = worker_info.num_workers
-            iter_limit = self.train_limit
-
-            if self.style == "validation":
-                iter_limit += self.validation_limit
-                iter_start += self.train_limit
-
-            for line in islice(f, iter_start, iter_limit, iter_step):
-                data = json.loads(line)
-
-                fen = data["fen"]
-                encoding = self._extract_encoding(fen)
-
-                first_pv = data["evals"][0]["pvs"][0]
-                score = self._extract_score_from_pv(first_pv)
-
-                yield encoding, score
-
-    @staticmethod
-    def _extract_encoding(fen: str) -> HalfKP:
-        def extract_for(board: chess.Board, color: chess.Color) -> npt.NDArray[np.int8]:
-            encoding = np.zeros((ENCODING_SIZE, ), dtype=np.int8)
-
-            k_sq = board.king(color)
-            if color == chess.BLACK:
-                k_sq = chess.square_mirror(k_sq)
-
-            offset = ENCODINGS_PER_KING_POS * k_sq
-
-            SQUARE_COUNT = 64
-            for square, piece in board.piece_map().items():
-                if piece.piece_type == chess.KING:
-                    continue
-
-                p_sq = square if color == chess.WHITE else chess.square_mirror(square)
-                piece_type_idx = piece.piece_type - 1  # pawn = 0 ... queen = 4
-                color_idx = 0 if piece.color == color else 5
-
-                colored_piece_idx = color_idx + piece_type_idx # enemy pawn becomes 5
-
-                piece_index = (colored_piece_idx * 64) + p_sq # find area of color_piece, and then square in it
-                encoding[offset + piece_index] = 1
-
-            return encoding
-
-        converted_fen = chess.Board(fen)
-        return extract_for(converted_fen, converted_fen.turn), extract_for(converted_fen, not converted_fen.turn)
-
-    @staticmethod
-    def _extract_score_from_pv(first_pv: dict) -> float:
-        if "cp" in first_pv:
-            position_score = clamp(first_pv["cp"], -MAX_SCORE, MAX_SCORE)
-        elif "mate" in first_pv:
-            position_score = MAX_SCORE if first_pv["mate"] > 0 else -MAX_SCORE
+        if self.style == "validation":
+            abs_start = self.train_limit * entry_size
+            abs_end = abs_start + (self.validation_limit * entry_size)
         else:
-            raise ValueError(f"No evaluation or mate in {first_pv}")
+            abs_start = 0
+            abs_end = self.train_limit * entry_size
 
-        return 2 / (1 + 10 ** (-position_score / 400)) - 1
+        with open(DATA_FILE, 'rb') as f:
+            if worker_info is None:
+                worker_id = 0
+                num_workers = 1
+            else:
+                worker_id = worker_info.id
+                num_workers = worker_info.num_workers
+            base_worker_start = abs_start + (worker_id * entry_size)
+            stride_size = num_workers * entry_size
 
-def clamp(value, minimum, maximum):
-    return max(minimum, min(value, maximum))
+            skip_steps = self.start_offset // num_workers
+            current_pos = base_worker_start + (skip_steps * stride_size)
+
+            f.seek(current_pos)
+
+            while True:
+                chunk = f.read(entry_size)
+                if not chunk or len(chunk) < entry_size:
+                    break
+
+                our_idx = np.frombuffer(chunk, dtype=np.uint16, count=32)
+                our = np.zeros((ENCODING_SIZE,), dtype=np.int8)
+                our[our_idx[our_idx != np.iinfo(np.uint16).max]] = 1
+
+                their_idx = np.frombuffer(chunk[64:], dtype=np.uint16, count=32)
+                their = np.zeros((ENCODING_SIZE,), dtype=np.int8)
+                their[their_idx[their_idx != np.iinfo(np.uint16).max]] = 1
+
+                score = np.frombuffer(chunk[128:], dtype=np.int16, count=1)[0]
+
+                yield (our, their), soft_max_normalize(score)
+
+                if stride_size-entry_size > 0:
+                    f.seek(stride_size-entry_size, 1)
+                if f.tell() >= abs_end:
+                    break
+
