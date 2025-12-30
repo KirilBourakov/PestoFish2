@@ -58,15 +58,16 @@ torch.serialization.add_safe_globals([TrainConfig, PosInData])
 
 class Trainer:
     @overload
-    def __init__(self, *, config: TrainConfig) -> None: ...
+    def __init__(self, *, config: TrainConfig, data_path: Path | str) -> None: ...
     @overload
-    def __init__(self, *, load_path: Path | str) -> None: ...
+    def __init__(self, *, load_path: Path | str, data_path: Path | str) -> None: ...
 
     def __init__(
         self,
         *,
         config: TrainConfig | None = None,
-        load_path: Path | str | None = None
+        load_path: Path | str | None = None,
+        data_path: Path | str
     ):
         self.checkpoint_dir = datetime.now().strftime("%B-%d_%H_%M") if load_path is None else os.path.dirname(load_path)
         if config is not None:
@@ -93,7 +94,7 @@ class Trainer:
             self.scheduler.load_state_dict(info['scheduler_state_dict'])
 
 
-        train, validate = LichessPositions.create(self.config.train_positions, self.config.validation_positions, self.config.encoding)
+        train, validate = LichessPositions.create(self.config.train_positions, self.config.validation_positions, self.config.encoding, data_path)
         if load_path is not None:
             if self.pos_in_data.step == 'train':
                 train.seek(self.pos_in_data.completed * self.config.batch_size)
@@ -186,7 +187,7 @@ class Trainer:
         torch.save(checkpoint, save_path)
 
 def main():
-    train = Trainer(config=TrainConfig(train_positions=100_000_000)) #687it [25:09,  2.18s/it]
+    train = Trainer(load_path="December-30_11_12/0.pth", data_path="data/simple-329082547.bin")#config=TrainConfig(train_positions=100_000_000)) #6751it [15:31,  7.25it/s]
     train()
 
 if __name__ == '__main__':

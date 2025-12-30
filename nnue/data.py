@@ -1,5 +1,6 @@
 import json
 from itertools import islice
+from pathlib import Path
 from typing import Generator, Literal
 
 import chess
@@ -8,22 +9,26 @@ import numpy.typing as npt
 import torch
 from torch.utils.data import IterableDataset
 
-from parse import extract_halfkp_encoding, DATA_FILE, extract_score_from_pv, soft_max_normalize, HALF_KP_ENCODING_SIZE, \
+from parse import extract_halfkp_encoding, extract_score_from_pv, soft_max_normalize, HALF_KP_ENCODING_SIZE, \
     SIMPLE_FEATURES
 
 
 #TODO: reuse buffers
 class LichessPositions(IterableDataset):
-    def __init__(self, train_limit: int, validation_limit: int, style: Literal["train", "validation"], encoding: Literal['halfkp', 'simple']) -> None:
+    def __init__(self, train_limit: int, validation_limit: int, style: Literal["train", "validation"], encoding: Literal['halfkp', 'simple'], data_path: str | Path) -> None:
         self.train_limit = train_limit
         self.validation_limit = validation_limit
         self.style = style
         self.start_offset = 0
         self.encoding = encoding
+        self.data_path = data_path
 
     @staticmethod
-    def create(train_limit: int, validation_limit: int, encoding: Literal['halfkp', 'simple']) -> tuple["LichessPositions", "LichessPositions"]:
-        return LichessPositions(train_limit, validation_limit, "train", encoding), LichessPositions(train_limit, validation_limit, "validation", encoding)
+    def create(train_limit: int, validation_limit: int, encoding: Literal['halfkp', 'simple'], data_path: str | Path) -> tuple["LichessPositions", "LichessPositions"]:
+        return (
+            LichessPositions(train_limit, validation_limit, "train", encoding, data_path),
+            LichessPositions(train_limit, validation_limit, "validation", encoding, data_path)
+        )
 
     def seek(self, offset: int) -> None:
         print(f"Skipping forward {offset} positions")
@@ -40,7 +45,7 @@ class LichessPositions(IterableDataset):
             abs_start = 0
             abs_end = self.train_limit * entry_size
 
-        with open(DATA_FILE, 'rb') as f:
+        with open(self.data_path, 'rb') as f:
             if worker_info is None:
                 worker_id = 0
                 num_workers = 1

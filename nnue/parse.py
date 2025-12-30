@@ -17,7 +17,6 @@ HALF_KP_ENCODINGS_PER_KING_POS = 640
 HALF_KP_ENCODING_SIZE = HALF_KP_ENCODINGS_PER_KING_POS * 64
 
 MAX_SCORE = 32000
-DATA_FILE = "data/simple-329082547.bin"
 
 
 def extract_simple_encoding(fen: str) -> tuple[npt.NDArray[np.int8], npt.NDArray[np.int8]]:
