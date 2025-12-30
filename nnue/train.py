@@ -12,7 +12,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from data import LichessPositions
-from model import Model
+from model import HalfKPModel, SimpleModel
+
 
 @dataclass
 class PosInData:
@@ -46,6 +47,7 @@ class TrainConfig:
     validation_positions: int = 1_000_000
     batch_size: int = 10_000
 
+    encoding: Literal['halfkp', 'simple'] = 'simple'
     minutes_per_checkpoint: int = 10
 
     @property
@@ -76,7 +78,10 @@ class Trainer:
             self.config = meta['config']
             self.pos_in_data = meta['pos_in_data']
 
-        self.model = Model()
+        if self.config.encoding == 'halfkp':
+            self.model = HalfKPModel()
+        else:
+            self.model = SimpleModel()
         self.optimizer = optim.SGD(self.model.parameters())
         self.scheduler = OneCycleLR(self.optimizer, max_lr=.01, steps_per_epoch=self.config.train_step_count,
                                     epochs=self.config.epochs)
@@ -88,7 +93,7 @@ class Trainer:
             self.scheduler.load_state_dict(info['scheduler_state_dict'])
 
 
-        train, validate = LichessPositions.create(self.config.train_positions, self.config.validation_positions)
+        train, validate = LichessPositions.create(self.config.train_positions, self.config.validation_positions, self.config.encoding)
         if load_path is not None:
             if self.pos_in_data.step == 'train':
                 train.seek(self.pos_in_data.completed * self.config.batch_size)
@@ -125,7 +130,7 @@ class Trainer:
             self.config.curr_epoch += 1
             self.pos_in_data.enter_train()
 
-        self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
+        #self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
 
     def train_step(self, loss_fn: MSELoss) -> float:
         self.model.train()
@@ -181,7 +186,7 @@ class Trainer:
         torch.save(checkpoint, save_path)
 
 def main():
-    train = Trainer(load_path=r"December-29_09_24/0.pth")# config=TrainConfig(train_positions=100_000_000)) 687it [25:09,  2.18s/it]
+    train = Trainer(config=TrainConfig(train_positions=100_000_000)) #687it [25:09,  2.18s/it]
     train()
 
 if __name__ == '__main__':

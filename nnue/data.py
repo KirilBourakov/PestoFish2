@@ -8,26 +8,28 @@ import numpy.typing as npt
 import torch
 from torch.utils.data import IterableDataset
 
-from parse import extract_encoding, HalfKP, DATA_FILE, extract_score_from_pv, soft_max_normalize, ENCODING_SIZE
+from parse import extract_halfkp_encoding, DATA_FILE, extract_score_from_pv, soft_max_normalize, HALF_KP_ENCODING_SIZE, \
+    SIMPLE_FEATURES
 
 
 #TODO: reuse buffers
 class LichessPositions(IterableDataset):
-    def __init__(self, train_limit: int, validation_limit: int, style: Literal["train", "validation"]) -> None:
+    def __init__(self, train_limit: int, validation_limit: int, style: Literal["train", "validation"], encoding: Literal['halfkp', 'simple']) -> None:
         self.train_limit = train_limit
         self.validation_limit = validation_limit
         self.style = style
         self.start_offset = 0
+        self.encoding = encoding
 
     @staticmethod
-    def create(train_limit: int, validation_limit: int) -> tuple["LichessPositions", "LichessPositions"]:
-        return LichessPositions(train_limit, validation_limit, "train"), LichessPositions(train_limit, validation_limit, "validation")
+    def create(train_limit: int, validation_limit: int, encoding: Literal['halfkp', 'simple']) -> tuple["LichessPositions", "LichessPositions"]:
+        return LichessPositions(train_limit, validation_limit, "train", encoding), LichessPositions(train_limit, validation_limit, "validation", encoding)
 
     def seek(self, offset: int) -> None:
         print(f"Skipping forward {offset} positions")
         self.start_offset = offset
 
-    def __iter__(self) -> Generator[tuple[HalfKP, float]]:
+    def __iter__(self) -> Generator[tuple[tuple[npt.NDArray[np.int8], npt.NDArray[np.int8]], float]]:
         worker_info = torch.utils.data.get_worker_info()
         entry_size = 130
 
@@ -59,11 +61,17 @@ class LichessPositions(IterableDataset):
                     break
 
                 our_idx = np.frombuffer(chunk, dtype=np.uint16, count=32)
-                our = np.zeros((ENCODING_SIZE,), dtype=np.int8)
+                if self.encoding == 'halfkp':
+                    our = np.zeros((HALF_KP_ENCODING_SIZE,), dtype=np.int8)
+                else:
+                    our = np.zeros((SIMPLE_FEATURES,), dtype=np.int8)
                 our[our_idx[our_idx != np.iinfo(np.uint16).max]] = 1
 
                 their_idx = np.frombuffer(chunk[64:], dtype=np.uint16, count=32)
-                their = np.zeros((ENCODING_SIZE,), dtype=np.int8)
+                if self.encoding == 'halfkp':
+                    their = np.zeros((HALF_KP_ENCODING_SIZE,), dtype=np.int8)
+                else:
+                    their = np.zeros((SIMPLE_FEATURES,), dtype=np.int8)
                 their[their_idx[their_idx != np.iinfo(np.uint16).max]] = 1
 
                 score = np.frombuffer(chunk[128:], dtype=np.int16, count=1)[0]

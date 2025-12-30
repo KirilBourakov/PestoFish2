@@ -6,7 +6,9 @@ from pydantic import BaseModel, BeforeValidator, PlainSerializer, ConfigDict
 from torch import nn, Tensor
 import numpy.typing as npt
 
-from data import ENCODING_SIZE
+from data import HALF_KP_ENCODING_SIZE
+from parse import SIMPLE_FEATURES
+
 
 def val(v: Any) -> npt.NDArray[np.generic]:
     return np.asarray(v)
@@ -20,31 +22,38 @@ type PydanticNDArray[Tnum: np.generic] = Annotated[
     PlainSerializer(serialize, return_type=list)
 ]
 
-# TODO: store and export bias
-class WeightModel(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    feature_transformer: PydanticNDArray[np.float32]
-    layer_1: PydanticNDArray[np.float32]
-    layer_2: PydanticNDArray[np.float32]
-    layer_3: PydanticNDArray[np.float32]
-
-    def save(self, path: str) -> None:
-        json_string = self.model_dump_json(indent=4)
-        with open(path, 'w') as f:
-            f.write(json_string)
-
-
 class CReLU(nn.Module):
     def __init__(self):
         super().__init__()
     def forward(self, x):
         return torch.clamp(x, 0, 1)
 
-class Model(nn.Module):
+
+class SimpleModel(nn.Module):
+    def __init__(self, l1_size=256):
+        super(SimpleModel, self).__init__()
+        self.feature_transformer = nn.Linear(768, l1_size)
+        self.layer_stack = nn.Sequential(
+            CReLU(),
+            nn.Linear(2 * l1_size, 32),
+            CReLU(),
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, stm_features: Tensor, non_stm_features: Tensor) -> Tensor:
+        """
+        stm_features: Features from the perspective of the player whose turn it is.
+        non_stm_features: Features from the perspective of the opponent.
+        """
+        acc_stm = self.feature_transformer(stm_features.float())
+        acc_non_stm = self.feature_transformer(non_stm_features.float())
+        combined = torch.cat([acc_stm, acc_non_stm], dim=1)
+        return self.layer_stack(combined)
+
+class HalfKPModel(nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        self.feature_transformer = nn.Linear(ENCODING_SIZE, 16)
+        self.feature_transformer = nn.Linear(HALF_KP_ENCODING_SIZE, 16)
 
         self.layer_1 = nn.Linear(16 * 2, 32)
 
@@ -70,12 +79,3 @@ class Model(nn.Module):
         combined = torch.cat([our_processed, enemy_processed], dim=-1)
 
         return self.output(self.layer_1(combined))
-
-    @property
-    def export(self) -> WeightModel:
-        return WeightModel(
-            feature_transformer=self.feature_transformer.weight.to("cpu").detach().numpy(),
-            layer_1=self.layer_1.weight.to("cpu").detach().numpy(),
-            layer_2=self.output[1].weight.to("cpu").detach().numpy(),
-            layer_3=self.output[3].weight.to("cpu").detach().numpy(),
-        )
