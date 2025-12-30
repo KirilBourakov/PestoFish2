@@ -34,7 +34,7 @@ class LichessPositions(IterableDataset):
         print(f"Skipping forward {offset} positions")
         self.start_offset = offset
 
-    def __iter__(self) -> Generator[tuple[tuple[npt.NDArray[np.int8], npt.NDArray[np.int8]], float]]:
+    def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()
         entry_size = 130
 
