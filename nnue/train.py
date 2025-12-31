@@ -7,7 +7,7 @@ from typing import Literal, overload
 import torch
 from torch import nn, optim
 from torch.nn import MSELoss
-from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import OneCycleLR, ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -73,19 +73,22 @@ class Trainer:
         if config is not None:
             self.config = config
             self.pos_in_data = PosInData('train')
+            self.train_history = []
+            self.validation_history = []
             os.makedirs(self.checkpoint_dir, exist_ok=False)
         else:
             meta = torch.load(load_path)
             self.config = meta['config']
             self.pos_in_data = meta['pos_in_data']
+            self.train_history = meta['train_history']
+            self.validation_history = meta['validation_history']
 
         if self.config.encoding == 'halfkp':
             self.model = HalfKPModel()
         else:
             self.model = SimpleModel()
-        self.optimizer = optim.SGD(self.model.parameters())
-        self.scheduler = OneCycleLR(self.optimizer, max_lr=.01, steps_per_epoch=self.config.train_step_count,
-                                    epochs=self.config.epochs)
+        self.optimizer = optim.AdamW(self.model.parameters(), lr=1e-3)
+        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6)
 
         if load_path is not None:
             info = torch.load(load_path)
@@ -104,12 +107,12 @@ class Trainer:
         self.train_loader = DataLoader(
             train,
             batch_size=self.config.batch_size,
-            num_workers=3
+            num_workers=5
         )
         self.validate_loader = DataLoader(
             validate,
             batch_size=self.config.batch_size,
-            num_workers=3
+            num_workers=5
         )
 
         self.last_checkpoint_time = datetime.now()
@@ -122,14 +125,23 @@ class Trainer:
                 train_loss = self.train_step(loss_fn)
                 self.pos_in_data.enter_validate()
                 validation_loss = self.validate_step(loss_fn)
+
+                self.train_history.append(train_loss)
+                self.validation_history.append(validation_loss)
             else:
-                train_loss = 1
+                train_loss = -1
                 validation_loss = self.validate_step(loss_fn)
+                self.validation_history.append(validation_loss)
+
+            self.scheduler.step(validation_loss)
 
             print(f"Epoch train loss {train_loss}, validation loss {validation_loss}")
+            print(f"History: \n\t train: {self.train_history} \n\t validate: {self.validation_history} ")
 
+            self.save_checkpoint()
             self.config.curr_epoch += 1
             self.pos_in_data.enter_train()
+
 
         #self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
 
@@ -143,7 +155,6 @@ class Trainer:
 
             loss.backward()
             self.optimizer.step()
-            self.scheduler.step()
             self.optimizer.zero_grad()
 
             self.pos_in_data.add_loss(loss.item())
@@ -158,9 +169,7 @@ class Trainer:
 
         for (our, enemy), value in tqdm(self.validate_loader):
             pred = self.model(our, enemy).squeeze()
-
             loss = loss_fn(pred, value.to(torch.float32))
-
             self.pos_in_data.add_loss(loss.item())
 
         self.validate_loader.dataset.seek(0)
@@ -172,14 +181,17 @@ class Trainer:
         minutes_difference = time_difference.total_seconds() / 60
 
         if self.config.minutes_per_checkpoint < minutes_difference:
-            self.save_checkpoint()
+            self.save_checkpoint(False)
             self.last_checkpoint_time = datetime.now()
 
-    def save_checkpoint(self) -> None:
-        save_path = os.path.join(self.checkpoint_dir, f"{self.config.curr_epoch}.pth")
+    def save_checkpoint(self, full=True) -> None:
+        name = f"{self.config.curr_epoch} - {self.validation_history[-1]}.pth" if full else f"{self.config.curr_epoch}.pth"
+        save_path = os.path.join(self.checkpoint_dir, name)
         checkpoint = {
             'config': self.config,
             'pos_in_data': self.pos_in_data,
+            'train_history': self.train_history,
+            'validation_history': self.validation_history,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
             'scheduler_state_dict': self.scheduler.state_dict()
@@ -187,7 +199,15 @@ class Trainer:
         torch.save(checkpoint, save_path)
 
 def main():
-    train = Trainer(load_path="December-30_11_12/0.pth", data_path="data/simple-329082547.bin")#config=TrainConfig(train_positions=100_000_000)) #6751it [15:31,  7.25it/s]
+    train = Trainer(config=TrainConfig(
+        train_positions=300_000_000,
+        validation_positions=29_080_000,
+        epochs=50,
+        batch_size=16384,
+        minutes_per_checkpoint=5
+    ),
+        data_path="data/simple-329082547.bin"
+    )# #6751it [15:31,  7.25it/s]
     train()
 
 if __name__ == '__main__':

@@ -89,7 +89,7 @@ def extract_score_from_pv(first_pv: dict) -> float:
 
 def soft_max_normalize(position_score: float) -> float:
     """Soft max between -1 and 1"""
-    return 2 / (1 + 10 ** (-position_score / 400)) - 1
+    return 2 / (1 + 10 ** (-clamp(position_score, -2000, 2000) / 600)) - 1
 
 def clamp(value, minimum, maximum):
     return max(minimum, min(value, maximum))

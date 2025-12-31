@@ -5,9 +5,10 @@ import torch
 from pydantic import BaseModel, BeforeValidator, PlainSerializer, ConfigDict
 from torch import nn, Tensor
 import numpy.typing as npt
+from torch.nn import Tanh
 
 from data import HALF_KP_ENCODING_SIZE
-from parse import SIMPLE_FEATURES
+from parse import SIMPLE_FEATURES, MAX_SCORE
 
 
 def val(v: Any) -> npt.NDArray[np.generic]:
@@ -37,7 +38,8 @@ class SimpleModel(nn.Module):
             CReLU(),
             nn.Linear(2 * l1_size, 32),
             CReLU(),
-            nn.Linear(32, 1)
+            nn.Linear(32, 1),
+            Tanh()
         )
 
     def forward(self, stm_features: Tensor, non_stm_features: Tensor) -> Tensor:
@@ -58,9 +60,9 @@ class HalfKPModel(nn.Module):
         self.layer_1 = nn.Linear(16 * 2, 32)
 
         self.output = nn.Sequential(
-            CReLU(),
+            Clamp(),
             nn.Linear(32, 32),
-            CReLU(),
+            Clamp(),
             nn.Linear(32, 1)
         )
 
