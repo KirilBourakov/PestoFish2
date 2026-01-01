@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, overload
+from typing import Literal, overload, Callable
 
 import torch
 from torch import nn, optim
@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from data import LichessPositions
-from model import HalfKPModel, SimpleModel
+from model import HalfKPModel, SimpleModel, nnue_loss
 
 
 @dataclass
@@ -118,19 +118,17 @@ class Trainer:
         self.last_checkpoint_time = datetime.now()
 
     def __call__(self):
-        loss_fn = nn.MSELoss()
-
         while self.config.curr_epoch < self.config.epochs:
             if self.pos_in_data.step == 'train':
-                train_loss = self.train_step(loss_fn)
+                train_loss = self.train_step()
                 self.pos_in_data.enter_validate()
-                validation_loss = self.validate_step(loss_fn)
+                validation_loss = self.validate_step()
 
                 self.train_history.append(train_loss)
                 self.validation_history.append(validation_loss)
             else:
                 train_loss = -1
-                validation_loss = self.validate_step(loss_fn)
+                validation_loss = self.validate_step()
                 self.validation_history.append(validation_loss)
 
             self.scheduler.step(validation_loss)
@@ -145,13 +143,13 @@ class Trainer:
 
         #self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
 
-    def train_step(self, loss_fn: MSELoss) -> float:
+    def train_step(self) -> float:
         self.model.train()
 
         for (our, enemy), value in tqdm(self.train_loader):
             pred = self.model(our, enemy).squeeze()
 
-            loss = loss_fn(pred, value.to(torch.float32))
+            loss = nnue_loss(pred, value.to(torch.float32))
 
             loss.backward()
             self.optimizer.step()
@@ -164,12 +162,12 @@ class Trainer:
 
         return self.pos_in_data.avg_loss
 
-    def validate_step(self, loss_fn: MSELoss) -> float:
+    def validate_step(self) -> float:
         self.model.eval()
 
         for (our, enemy), value in tqdm(self.validate_loader):
             pred = self.model(our, enemy).squeeze()
-            loss = loss_fn(pred, value.to(torch.float32))
+            loss = nnue_loss(pred, value.to(torch.float32))
             self.pos_in_data.add_loss(loss.item())
 
         self.validate_loader.dataset.seek(0)
@@ -206,6 +204,7 @@ def main():
         batch_size=16384,
         minutes_per_checkpoint=5
     ),
+        #load_path = "December-30_17_45/6.pth",
         data_path="data/simple-329082547.bin"
     )# #6751it [15:31,  7.25it/s]
     train()

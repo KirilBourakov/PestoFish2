@@ -81,7 +81,7 @@ class LichessPositions(IterableDataset):
 
                 score = np.frombuffer(chunk[128:], dtype=np.int16, count=1)[0]
 
-                yield (our, their), soft_max_normalize(score)
+                yield (our, their), score
 
                 if stride_size-entry_size > 0:
                     f.seek(stride_size-entry_size, 1)

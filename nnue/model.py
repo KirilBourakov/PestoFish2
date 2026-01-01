@@ -31,16 +31,10 @@ class CReLU(nn.Module):
 
 
 class SimpleModel(nn.Module):
-    def __init__(self, l1_size=256):
+    def __init__(self, l1_size=512):
         super(SimpleModel, self).__init__()
         self.feature_transformer = nn.Linear(768, l1_size)
-        self.layer_stack = nn.Sequential(
-            CReLU(),
-            nn.Linear(2 * l1_size, 32),
-            CReLU(),
-            nn.Linear(32, 1),
-            Tanh()
-        )
+        self.out = nn.Linear(l1_size*2, 1)
 
     def forward(self, stm_features: Tensor, non_stm_features: Tensor) -> Tensor:
         """
@@ -50,7 +44,13 @@ class SimpleModel(nn.Module):
         acc_stm = self.feature_transformer(stm_features.float())
         acc_non_stm = self.feature_transformer(non_stm_features.float())
         combined = torch.cat([acc_stm, acc_non_stm], dim=1)
-        return self.layer_stack(combined)
+        combined = torch.clamp(combined, 0.0, 1.0)
+        return self.out(combined)
+
+def nnue_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+    model_eval = (pred * 600.0 / 361).sigmoid()
+    target_eval = (target / 410).sigmoid()
+    return (target_eval  - model_eval).square().mean()
 
 class HalfKPModel(nn.Module):
     def __init__(self) -> None:
