@@ -143,6 +143,13 @@ class Trainer:
 
         #self.model.export.save(os.path.join(self.checkpoint_dir, "final.json"))
 
+    def print_preds(self):
+        self.model.train()
+        for (our, enemy), value in self.validate_loader:
+            pred = self.model(our, enemy).squeeze()
+            out = torch.hstack(((pred * 600.0 / 361), value/ 410))
+            print(out)
+
     def train_step(self) -> float:
         self.model.train()
 
@@ -205,10 +212,11 @@ def main():
         #     batch_size=16384,
         #     minutes_per_checkpoint=5
         # ),
-        load_path = r"December-31_22_00\3.pth",
+        load_path = r"December-31_22_00\6.pth",
         data_path="data/simple-329082547.bin"
     )# #6751it [15:31,  7.25it/s]
     train()
+    #train.print_preds()
 
 if __name__ == '__main__':
     main()
