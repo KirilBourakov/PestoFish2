@@ -32,18 +32,23 @@ class JsonEncoding(BaseModel):
     accumulator_weights: PydanticNDArray[np.int16]
     accumulator_biases: PydanticNDArray[np.int16]
     output_weights: PydanticNDArray[np.int16]
-    output_bias: PydanticNDArray[np.int16]
+    output_bias: int
 
     @staticmethod
     def from_model(model: SimpleModel) -> "JsonEncoding":
         L1_SCALE = 255
         L2_SCALE = 64
 
+        print(f"Input weights: \n\t {model.feature_transformer.weight.shape}")
+        print(f"Input Bias: \n\t {model.feature_transformer.bias.shape}")
+        print(f"Output weights: \n\t {model.out.weight.shape}")
+        print(f"Output bias: \n\t {model.out.bias.shape}")
+
         return JsonEncoding(
             accumulator_weights=np.round(model.feature_transformer.weight.detach().numpy() * L1_SCALE).astype(np.int16),
             accumulator_biases=np.round(model.feature_transformer.bias.detach().numpy() * L1_SCALE).astype(np.int16),
             output_weights=np.round(model.out.weight.detach().numpy() * L2_SCALE).astype(np.int16),
-            output_bias=np.round(model.out.bias.detach().numpy() * L1_SCALE * L2_SCALE).astype(np.int16),
+            output_bias=np.round(model.out.bias.detach().numpy() * L1_SCALE * L2_SCALE).astype(np.int16)[0],
         )
 
     def write(self, path: str | Path) -> None:
