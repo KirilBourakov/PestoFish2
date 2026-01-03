@@ -60,21 +60,45 @@ public:
                 const Pieces::Piece piece = board.at(y, x);
                 if (piece != Pieces::EMPTY) {
                     const int square = y*8+x;
-
-
-                    int feature = calculateIndex(Color::White, square, piece);
-                    for (int i = 0; i < L1_OUT; i++) {
-                        whiteAccumulator[i] += weights.accumulator_weights[feature][i];
-                    }
-
-                    feature = calculateIndex(Color::Black, square, piece);
-                    for (int i = 0; i < L1_OUT; i++) {
-                        blackAccumulator[i] += weights.accumulator_weights[feature][i];
-                    }
+                    add(square, piece);
                 }
             }
         }
 
+        return eval(activeColor);
+    }
+
+    void add(const int square, const Pieces::Piece piece) {
+        int feature = calculateIndex(Color::White, square, piece);
+        for (int i = 0; i < L1_OUT; i++) {
+            whiteAccumulator[i] += weights.accumulator_weights[feature][i];
+        }
+
+        feature = calculateIndex(Color::Black, square, piece);
+        for (int i = 0; i < L1_OUT; i++) {
+            blackAccumulator[i] += weights.accumulator_weights[feature][i];
+        }
+    }
+    void add(const BoardPosition& pos, const Pieces::Piece piece){
+        return add(pos.y * 8 + pos.x, piece);
+    }
+
+    void remove(const int square, const Pieces::Piece piece) {
+        int feature = calculateIndex(Color::White, square, piece);
+        for (int i = 0; i < L1_OUT; i++) {
+            whiteAccumulator[i] -= weights.accumulator_weights[feature][i];
+        }
+
+        feature = calculateIndex(Color::Black, square, piece);
+        for (int i = 0; i < L1_OUT; i++) {
+            blackAccumulator[i] -= weights.accumulator_weights[feature][i];
+        }
+    }
+    void remove(const BoardPosition& pos, const Pieces::Piece piece){
+        return remove(pos.y * 8 + pos.x, piece);
+    }
+
+    int eval(const Color activeColor) const {
         const auto& first = activeColor == Color::White ? whiteAccumulator : blackAccumulator;
         const auto& second = activeColor == Color::White ? blackAccumulator : whiteAccumulator;
 
@@ -86,8 +110,8 @@ public:
             out += clamped_value * weights.output_weights[i];
         }
 
-        constexpr int FINAL_DIVISOR = std::round(static_cast<double>(L1_SCALE * L2_SCALE) / ((600.0 / 361.0) * 410.0));
-        return out / FINAL_DIVISOR;
+        constexpr double FINAL_DIVISOR = static_cast<double>(L1_SCALE * L2_SCALE) / ((600.0 / 361.0) * 410.0);
+        return out / std::round(FINAL_DIVISOR);
     }
 
     static int calculateIndex(const Color perspective, int square, const Pieces::Piece piece){
