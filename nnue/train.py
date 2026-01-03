@@ -147,7 +147,7 @@ class Trainer:
         self.model.train()
         for (our, enemy), value in self.validate_loader:
             pred = self.model(our, enemy).squeeze()
-            out = torch.hstack(((pred * 600.0 / 361), value/ 410))
+            out = torch.hstack(((pred * 681.44), value))
             print(out)
 
     def train_step(self) -> float:
