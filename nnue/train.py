@@ -197,14 +197,15 @@ class Trainer:
         torch.save(checkpoint, save_path)
 
 def main():
-    train = Trainer(config=TrainConfig(
-        train_positions=300_000_000,
-        validation_positions=29_080_000,
-        epochs=50,
-        batch_size=16384,
-        minutes_per_checkpoint=5
-    ),
-        #load_path = "December-30_17_45/6.pth",
+    train = Trainer(
+        # config=TrainConfig(
+        #     train_positions=300_000_000,
+        #     validation_positions=29_080_000,
+        #     epochs=50,
+        #     batch_size=16384,
+        #     minutes_per_checkpoint=5
+        # ),
+        load_path = r"December-31_22_00\3.pth",
         data_path="data/simple-329082547.bin"
     )# #6751it [15:31,  7.25it/s]
     train()

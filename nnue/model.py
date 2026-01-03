@@ -1,27 +1,10 @@
-from typing import Annotated, Any, TypeVar
-
-import numpy as np
 import torch
-from pydantic import BaseModel, BeforeValidator, PlainSerializer, ConfigDict
+
 from torch import nn, Tensor
-import numpy.typing as npt
 from torch.nn import Tanh
 
 from data import HALF_KP_ENCODING_SIZE
 from parse import SIMPLE_FEATURES, MAX_SCORE
-
-
-def val(v: Any) -> npt.NDArray[np.generic]:
-    return np.asarray(v)
-
-def serialize(v: npt.NDArray[np.generic]) -> list[Any]:
-    return v.tolist()
-
-type PydanticNDArray[Tnum: np.generic] = Annotated[
-    npt.NDArray[Tnum],
-    BeforeValidator(val),
-    PlainSerializer(serialize, return_type=list)
-]
 
 class CReLU(nn.Module):
     def __init__(self):
@@ -60,9 +43,9 @@ class HalfKPModel(nn.Module):
         self.layer_1 = nn.Linear(16 * 2, 32)
 
         self.output = nn.Sequential(
-            Clamp(),
+            CReLU(),
             nn.Linear(32, 32),
-            Clamp(),
+            CReLU(),
             nn.Linear(32, 1)
         )
 
