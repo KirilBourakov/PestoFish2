@@ -45,7 +45,7 @@ class JsonEncoding(BaseModel):
         print(f"Output bias: \n\t {model.out.bias.shape}")
 
         return JsonEncoding(
-            accumulator_weights=np.round(model.feature_transformer.weight.detach().numpy() * L1_SCALE).astype(np.int16),
+            accumulator_weights=np.round(model.feature_transformer.weight.detach().numpy() * L1_SCALE).astype(np.int16).T,
             accumulator_biases=np.round(model.feature_transformer.bias.detach().numpy() * L1_SCALE).astype(np.int16),
             output_weights=np.round(model.out.weight.detach().numpy() * L2_SCALE).astype(np.int16),
             output_bias=np.round(model.out.bias.detach().numpy() * L1_SCALE * L2_SCALE).astype(np.int16)[0],
