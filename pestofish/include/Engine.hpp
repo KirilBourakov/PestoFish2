@@ -46,6 +46,7 @@ private:
     std::atomic<bool> stop = false; // stop used by main thread to tell smp to stop
     std::atomic<bool> timeOut = false; // we ran out of time
     std::atomic<bool> forceStop = false; // UCI told us to stop
+    std::optional<Nnue> nnue = std::nullopt;
 
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
               int& scoreOut);

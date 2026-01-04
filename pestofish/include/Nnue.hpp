@@ -38,17 +38,13 @@ struct Weights {
     }
 
     void load() {
-        std::cout << "Loading" << std::endl;
-        std::cout << "Empty weights" << std::endl;
         if (std::filesystem::exists(WEIGHT_FILE)) {
             std::ifstream is(WEIGHT_FILE);
             cereal::JSONInputArchive archive(is);
             this->serialize(archive);
         } else {
-            std::cout << "WEIGHT_FILE not found." << std::endl;
             throw std::logic_error("WEIGHT_FILE not found.");
         }
-        std::cout << "Done Weights" << std::endl;
     }
 };
 
@@ -63,6 +59,8 @@ public:
     }
 
     int setBoard(const Board &board, Color activeColor) const;
+    void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
+    void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
     void add(int square, Pieces::Piece piece) const;
     void add(const BoardPosition& pos, const Pieces::Piece piece){

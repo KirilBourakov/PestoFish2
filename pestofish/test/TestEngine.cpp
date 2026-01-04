@@ -40,11 +40,12 @@ TEST(TestEngine, BackRank1) {
 TEST(TestEngine, BackRank2) {
     Engine engine{};
     engine.setState(fenToState(("6k1/5ppp/8/8/4r3/8/8/R6K w - - 0 1")));
+    std::optional<Nnue> nnue = std::nullopt;
 
     const Move best1 = engine.getBestMove();
-    engine.getState().makeMove(best1);
+    engine.getState().makeMove(best1, nnue);
     const Move best2 = engine.getBestMove();
-    engine.getState().makeMove(best2);
+    engine.getState().makeMove(best2, nnue);
     const Move best3 = engine.getBestMove();
 
 

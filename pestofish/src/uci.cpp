@@ -108,9 +108,10 @@ public:
             }
 
             if (token == "moves") {
+                std::optional<Nnue> nnue = std::nullopt;
                 for (i = i + 1; i < args.size(); i++) {
                     Move mv = moveFromLongAlgebric(args[i], engine.get()->getState());
-                    engine.get()->getState().makeMove(mv);
+                    engine.get()->getState().makeMove(mv, nnue);
                 }
             }
         }

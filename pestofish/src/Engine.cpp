@@ -10,7 +10,7 @@
 #include "ModuleOnly/Move.hpp"
 
 void Engine::makeEngineMove() {
-    state.makeMove(getBestMove());
+    state.makeMove(getBestMove(), nnue);
 }
 
 void Engine::handleRequest(
@@ -151,9 +151,9 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
             break;
         }
 
-        currState.makeMove(move);
+        currState.makeMove(move, nnue);
         int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng);
-        currState.undoMove();
+        currState.undoMove(nnue);
         if (eval > bestEval) {
             bestEval = eval;
             bestMove = move;
@@ -229,7 +229,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         }
 
         Move& move = scored[i].first;
-        currState.makeMove(move);
+        currState.makeMove(move, nnue);
         int currValue;
 
         // LMR
@@ -250,7 +250,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
                 currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng);
             }
         }
-        currState.undoMove();
+        currState.undoMove(nnue);
         if (currValue > bestValue) {
             bestValue = currValue;
             bestMove = move;
@@ -307,9 +307,9 @@ int Engine::quiescence(State& currState, SearchLimits search) {
                 break;
             }
 
-            currState.makeMove(move);
+            currState.makeMove(move, nnue);
             const int score = -quiescence(currState, search.nextLimit());
-            currState.undoMove();
+            currState.undoMove(nnue);
 
             if (score >= search.beta) {
                 return score;
