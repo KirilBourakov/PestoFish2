@@ -17,7 +17,7 @@
 
 constexpr int NNUE_INPUTS = 6 * 2 * 64;
 constexpr int L1_OUT = 512;
-constexpr std::string WEIGHT_FILE = "weights.json";
+constexpr char WEIGHT_FILE[] = "weights.json";
 constexpr int L1_SCALE = 255;
 constexpr int L2_SCALE = 64;
 constexpr int SCALE_FACTOR = (600.0 / 361.0) * 410.0;
@@ -31,108 +31,54 @@ struct Weights {
     template<class Archive>
     void serialize(Archive& ar)
     {
-        ar(accumulator_weights, accumulator_biases, output_weights, output_bias);
+        ar( CEREAL_NVP(accumulator_weights),
+        CEREAL_NVP(accumulator_biases),
+        CEREAL_NVP(output_weights),
+        CEREAL_NVP(output_bias) );
     }
 
-    static Weights load() {
-        Weights weights{};
+    void load() {
+        std::cout << "Loading" << std::endl;
+        std::cout << "Empty weights" << std::endl;
         if (std::filesystem::exists(WEIGHT_FILE)) {
             std::ifstream is(WEIGHT_FILE);
             cereal::JSONInputArchive archive(is);
-            archive(weights);
+            this->serialize(archive);
         } else {
-            throw std::logic_error("WEIGHT_FILE not found");
+            std::cout << "WEIGHT_FILE not found." << std::endl;
+            throw std::logic_error("WEIGHT_FILE not found.");
         }
-        return weights;
+        std::cout << "Done Weights" << std::endl;
     }
 };
 
 class Nnue {
 public:
-    explicit Nnue() : weights(Weights::load()) {}
-
-    int setBoard(const Board &board, const Color activeColor) {
-        whiteAccumulator = weights.accumulator_biases;
-        blackAccumulator = weights.accumulator_biases;
-
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                const Pieces::Piece piece = board.at(y, x);
-                if (piece != Pieces::EMPTY) {
-                    const int square = y*8+x;
-                    add(square, piece);
-                }
-            }
-        }
-
-        return eval(activeColor);
+    Nnue()
+        : whiteAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
+        , blackAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
+        , weights(std::make_unique<Weights>())
+    {
+        weights->load();
     }
 
-    void add(const int square, const Pieces::Piece piece) {
-        int feature = calculateIndex(Color::White, square, piece);
-        for (int i = 0; i < L1_OUT; i++) {
-            whiteAccumulator[i] += weights.accumulator_weights[feature][i];
-        }
+    int setBoard(const Board &board, Color activeColor) const;
 
-        feature = calculateIndex(Color::Black, square, piece);
-        for (int i = 0; i < L1_OUT; i++) {
-            blackAccumulator[i] += weights.accumulator_weights[feature][i];
-        }
-    }
+    void add(int square, Pieces::Piece piece) const;
     void add(const BoardPosition& pos, const Pieces::Piece piece){
         return add(pos.y * 8 + pos.x, piece);
     }
 
-    void remove(const int square, const Pieces::Piece piece) {
-        int feature = calculateIndex(Color::White, square, piece);
-        for (int i = 0; i < L1_OUT; i++) {
-            whiteAccumulator[i] -= weights.accumulator_weights[feature][i];
-        }
-
-        feature = calculateIndex(Color::Black, square, piece);
-        for (int i = 0; i < L1_OUT; i++) {
-            blackAccumulator[i] -= weights.accumulator_weights[feature][i];
-        }
-    }
+    void remove(int square, Pieces::Piece piece) const;
     void remove(const BoardPosition& pos, const Pieces::Piece piece){
         return remove(pos.y * 8 + pos.x, piece);
     }
 
-    int eval(const Color activeColor) const {
-        const auto& first = activeColor == Color::White ? whiteAccumulator : blackAccumulator;
-        const auto& second = activeColor == Color::White ? blackAccumulator : whiteAccumulator;
-
-        int out = weights.output_bias;
-        for (int i = 0; i < L1_OUT*2; i++) {
-            const int idx = i % L1_OUT;
-            const auto& ref = i < L1_OUT ? first : second;
-            const int clamped_value = std::clamp(ref[idx], static_cast<int16_t>(0), static_cast<int16_t>(L1_SCALE));
-            out += clamped_value * weights.output_weights[i];
-        }
-
-        constexpr double FINAL_DIVISOR = static_cast<double>(L1_SCALE * L2_SCALE) / ((600.0 / 361.0) * 410.0);
-        return out / std::round(FINAL_DIVISOR);
-    }
-
-    static int calculateIndex(const Color perspective, int square, const Pieces::Piece piece){
-        Color color = Pieces::piece_color(piece);
-
-        if (perspective == Color::Black){
-            color = color == Color::White ? Color::Black : Color::White;
-            square = square ^ 0b111000;
-        }
-
-        const int side_offset = color == Color::White ? 0 : 1;
-        const int piece_type_offset = static_cast<int>(Pieces::piece_type(piece)) - 1;
-        if (piece_type_offset == -1) {
-            throw std::logic_error("Running calculateIndex on empty square.");
-        }
-
-        return side_offset * 64 * 6 + piece_type_offset * 64 + square;
-    }
+    [[nodiscard]] int eval(Color activeColor) const;
+    static int calculateIndex(Color perspective, int square, Pieces::Piece piece);
 
 private:
-    std::array<int16_t, L1_OUT> whiteAccumulator{};
-    std::array<int16_t, L1_OUT> blackAccumulator{};
-    Weights weights;
+    std::unique_ptr<std::array<int32_t, L1_OUT>> whiteAccumulator;
+    std::unique_ptr<std::array<int32_t, L1_OUT>> blackAccumulator;
+    std::unique_ptr<Weights> weights;
 };

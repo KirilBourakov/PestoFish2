@@ -46,12 +46,17 @@ class JsonEncoding(BaseModel):
 
         return JsonEncoding(
             accumulator_weights=np.round(model.feature_transformer.weight.detach().numpy() * L1_SCALE).astype(np.int16).T,
-            accumulator_biases=np.round(model.feature_transformer.bias.detach().numpy() * L1_SCALE).astype(np.int16),
-            output_weights=np.round(model.out.weight.detach().numpy() * L2_SCALE).astype(np.int16),
+            accumulator_biases=np.round(model.feature_transformer.bias.detach().numpy() * L1_SCALE).astype(np.int16).flatten(),
+            output_weights=np.round(model.out.weight.detach().numpy() * L2_SCALE).astype(np.int16).flatten(),
             output_bias=np.round(model.out.bias.detach().numpy() * L1_SCALE * L2_SCALE).astype(np.int16)[0],
         )
 
     def write(self, path: str | Path) -> None:
+        print("Writing to file...")
+        print(f"L1 W: min={self.accumulator_weights.min()}, max={self.accumulator_weights.max()}")
+        print(f"L1 B: min={self.accumulator_biases.min()}, max={self.accumulator_biases.max()}")
+        print(f"L2 W: min={self.output_weights.min()}, max={self.output_weights.max()}")
+        print(f"L2 B: value={self.output_bias}")
         with open(path, "w") as f:
             f.write(self.model_dump_json(indent=2))
 
@@ -68,4 +73,4 @@ def main(path: str | Path):
     JsonEncoding.from_model(model).write("out.json")
 
 if __name__ == "__main__":
-    main("December-31_22_00/4 - 0.0410061841982771.pth")
+    main("December-31_22_00/6 - stop - 0.040990173494522.pth")
