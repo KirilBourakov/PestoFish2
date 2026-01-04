@@ -28,6 +28,16 @@ struct Weights {
     std::array<int16_t, L1_OUT*2> output_weights;
     int32_t output_bias;
 
+    Weights() {
+        if (std::filesystem::exists(WEIGHT_FILE)) {
+            std::ifstream is(WEIGHT_FILE);
+            cereal::JSONInputArchive archive(is);
+            serialize(archive);
+        } else {
+            throw std::runtime_error("WEIGHT_FILE not found: " + std::string(WEIGHT_FILE));
+        }
+    }
+
     template<class Archive>
     void serialize(Archive& ar)
     {
@@ -36,16 +46,6 @@ struct Weights {
         CEREAL_NVP(output_weights),
         CEREAL_NVP(output_bias) );
     }
-
-    void load() {
-        if (std::filesystem::exists(WEIGHT_FILE)) {
-            std::ifstream is(WEIGHT_FILE);
-            cereal::JSONInputArchive archive(is);
-            this->serialize(archive);
-        } else {
-            throw std::logic_error("WEIGHT_FILE not found.");
-        }
-    }
 };
 
 class Nnue {
@@ -53,10 +53,7 @@ public:
     Nnue()
         : whiteAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
         , blackAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
-        , weights(std::make_unique<Weights>())
-    {
-        weights->load();
-    }
+    {}
 
     int setBoard(const Board &board, Color activeColor) const;
     void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
@@ -78,5 +75,9 @@ public:
 private:
     std::unique_ptr<std::array<int32_t, L1_OUT>> whiteAccumulator;
     std::unique_ptr<std::array<int32_t, L1_OUT>> blackAccumulator;
-    std::unique_ptr<Weights> weights;
+
+    static const std::unique_ptr<Weights>& getWeights() {
+        static auto w = std::make_unique<Weights>();;
+        return w;
+    }
 };
