@@ -115,6 +115,7 @@ TEST(parseMove, PromotionToKnight) {
 TEST(parseMove, promoteCorner) {
     Engine engine{};
     engine.setState(fenToState("2k3r1/P7/8/8/8/8/8/7K w - - 0 1"));
+    engine.updatedMainNnue();
     Move move = engine.getBestMove();
 
     auto mv = longAlgebricFromMove(move);

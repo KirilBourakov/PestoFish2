@@ -13,13 +13,12 @@
 using namespace Pieces;
 
 void PreftDivide(State state, int depth) {
-    std::optional<Nnue> nnue = std::nullopt;
     auto moves = state.getMoves();
     u64 total = 0;
     for (auto move : moves) {
-        state.makeMove(move, nnue);
+        state.makeMove(move, nullptr);
         u64 count = Preft(state, depth - 1);
-        state.undoMove(nnue);
+        state.undoMove(nullptr);
         std::cout << move << ": " << count << "\n";
         total += count;
     }
@@ -27,7 +26,6 @@ void PreftDivide(State state, int depth) {
 }
 
 u64 DebugPreft(State& state, int depth) {
-    std::optional<Nnue> nnue = std::nullopt;
     if (depth == 0)
         return 1ULL;
 
@@ -37,9 +35,9 @@ u64 DebugPreft(State& state, int depth) {
     for (const Move move : moves) {
         State before = state;
 
-        state.makeMove(move, nnue);
+        state.makeMove(move, nullptr);
         nodes += DebugPreft(state, depth - 1);
-        state.undoMove(nnue);
+        state.undoMove(nullptr);
 
         if (state != before) {
             std::cerr << "Undo failed for move: " << move << "\n";

@@ -55,6 +55,13 @@ public:
         , blackAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
     {}
 
+    void syncAccumulator(const Nnue& source) const {
+        for (int x = 0; x < L1_OUT; ++x) {
+            (*whiteAccumulator)[x] = (*source.whiteAccumulator)[x];
+            (*blackAccumulator)[x] = (*source.blackAccumulator)[x];
+        }
+    }
+
     int setBoard(const Board &board, Color activeColor) const;
     void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
     void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);

@@ -17,8 +17,8 @@ static void makeMove(benchmark::State& state, const std::string &fen) {
 
     Move& move = moves[distribution(rng)];
     for (auto _ : state) {
-        benchmark::DoNotOptimize([&boardState, &move, &nnue]() {
-            boardState.makeMove(move, nnue);
+        benchmark::DoNotOptimize([&boardState, &move]() {
+            boardState.makeMove(move, nullptr);
         });
     }
 }
@@ -26,16 +26,15 @@ static void makeMove(benchmark::State& state, const std::string &fen) {
 static void undoMove(benchmark::State& state, const std::string &fen) {
     State boardState = fenToState(fen);
     std::vector<Move> moves = boardState.getMoves();
-    std::optional<Nnue> nnue = std::nullopt;
 
     std::default_random_engine rng;
     std::uniform_int_distribution<std::size_t> distribution(0, moves.size() - 1);
     Move& move = moves[distribution(rng)];
-    boardState.makeMove(move, nnue);
+    boardState.makeMove(move, nullptr);
 
     for (auto _ : state) {
-        benchmark::DoNotOptimize([&boardState, &move, &nnue]() {
-            boardState.undoMove(nnue);
+        benchmark::DoNotOptimize([&boardState, &move]() {
+            boardState.undoMove(nullptr);
         });
     }
 }

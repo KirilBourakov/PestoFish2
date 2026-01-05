@@ -41,8 +41,8 @@ public:
     State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock);
 
-    void makeMove(const Move& move, std::optional<Nnue>& nnue);
-    void undoMove(std::optional<Nnue>& nnue);
+    void makeMove(const Move& move, Nnue *nnue);
+    void undoMove(Nnue *nnue);
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
     GameState getGameState(const std::vector<Move>& possibleMoves) const;

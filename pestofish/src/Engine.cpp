@@ -10,7 +10,7 @@
 #include "ModuleOnly/Move.hpp"
 
 void Engine::makeEngineMove() {
-    state.makeMove(getBestMove(), nnue);
+    state.makeMove(getBestMove(), &mainNnue);
 }
 
 void Engine::handleRequest(
@@ -83,12 +83,12 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
     Move out;
     int expected, scoreOut, depth;
-    lazySmpThreads.sync(state, possibleMoves);
+    lazySmpThreads.sync(state, possibleMoves, mainNnue);
     for (depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
         //std::cout << static_cast<int>(steadyClock::now() < deadline) << std::endl;
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
-            out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut);
+            out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut, mainNnue);
             expected = scoreOut;
         } else {
             constexpr int window = 40;
@@ -103,13 +103,13 @@ Move Engine::getBestMove(const SearchRequest& request) {
                 SearchLimits search = {0, depth, alpha, beta, 0, deadline};
                 lazySmpThreads.enqueue(
                     [this](State& currState, const std::vector<Move>& mvs, const SearchLimits &searchRef, OrderingInfo& orderingInfo,
-                           RngInfo& rng, int& scoreOut) {
-                        return this->root(currState, mvs, searchRef, orderingInfo, rng, scoreOut); // TODO: give diff alpha/beta?
+                           RngInfo& rng, int& scoreOut, Nnue& nnue) {
+                        return this->root(currState, mvs, searchRef, orderingInfo, rng, scoreOut, nnue); // TODO: give diff alpha/beta?
                     },
                     search);
 
                 int newScore;
-                Move candidate = root(state, possibleMoves, search, orderInfo, rootRng, newScore);
+                Move candidate = root(state, possibleMoves, search, orderInfo, rootRng, newScore, mainNnue);
 
                 stop.store(true, std::memory_order_seq_cst);
                 lazySmpThreads.clearQueue();
@@ -141,7 +141,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
 }
 
 Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
-                  int& scoreOut) {
+                  int& scoreOut, Nnue& nnue) {
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;
@@ -151,9 +151,9 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
             break;
         }
 
-        currState.makeMove(move, nnue);
-        int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng);
-        currState.undoMove(nnue);
+        currState.makeMove(move, &nnue);
+        int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
+        currState.undoMove(&nnue);
         if (eval > bestEval) {
             bestEval = eval;
             bestMove = move;
@@ -168,7 +168,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
     return bestMove;
 }
 
-int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng) {
+int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue) {
     int alphaOrig = search.alpha;
 
     Transposition::Entry entry_out;
@@ -200,12 +200,12 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
 
     // --- Check we should stop ---
     if (endSearch()) {
-        return search.color * Evaluator::evaluate(currState);
+        return search.color * nnue.eval(currState.getActiveColor());
     }
 
     if (search.depth == 0) {
         search.depth = 15;
-        return quiescence(currState, search);
+        return quiescence(currState, search, nnue);
     }
 
 
@@ -229,7 +229,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         }
 
         Move& move = scored[i].first;
-        currState.makeMove(move, nnue);
+        currState.makeMove(move, &nnue);
         int currValue;
 
         // LMR
@@ -242,15 +242,15 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         }
 
         if (i == 0) {
-            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng);
+            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng, nnue);
         } else {
             // principle variation search
-            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng);
+            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng, nnue);
             if (currValue > search.alpha && currValue < search.beta) {
-                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng);
+                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
             }
         }
-        currState.undoMove(nnue);
+        currState.undoMove(&nnue);
         if (currValue > bestValue) {
             bestValue = currValue;
             bestMove = move;
@@ -284,9 +284,9 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     return bestValue;
 }
 
-int Engine::quiescence(State& currState, SearchLimits search) {
+int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
     // TODO: add color rep int
-    int staticEval = search.color * Evaluator::evaluate(currState); // - eval means position good for black, else good for white
+    int staticEval = search.color * nnue.eval(currState.getActiveColor()); // - eval means position good for black, else good for white
 
     int bestValue = staticEval;
     if (search.depth == 0 || endSearch()) {
@@ -307,9 +307,9 @@ int Engine::quiescence(State& currState, SearchLimits search) {
                 break;
             }
 
-            currState.makeMove(move, nnue);
-            const int score = -quiescence(currState, search.nextLimit());
-            currState.undoMove(nnue);
+            currState.makeMove(move, &nnue);
+            const int score = -quiescence(currState, search.nextLimit(), nnue);
+            currState.undoMove(&nnue);
 
             if (score >= search.beta) {
                 return score;

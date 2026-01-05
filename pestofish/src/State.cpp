@@ -134,7 +134,7 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
 }
 
 // Updated peicewise within State
-void State::makeMove(const Move& move, std::optional<Nnue>& nnue) {
+void State::makeMove(const Move& move, Nnue *nnue) {
     const u64 preMoveHash = hash.getValue();
 
     const HistoricalEntry entry = {
@@ -184,8 +184,8 @@ void State::makeMove(const Move& move, std::optional<Nnue>& nnue) {
 
     // MOVE PIECE
     board.move(move, entry.movedPiece, entry.overwrittenPiece);
-    if (nnue.has_value()) {
-        nnue.value().move(move, entry.movedPiece, entry.overwrittenPiece);
+    if (nnue != nullptr) {
+        nnue->move(move, entry.movedPiece, entry.overwrittenPiece);
     }
 
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
@@ -230,7 +230,7 @@ void State::updateCastlingRights(const Move& move, const Pieces::Piece newPiece)
 }
 
 
-void State::undoMove(std::optional<Nnue>& nnue) {
+void State::undoMove(Nnue *nnue) {
     auto [move, movedPiece, overwrittenPiece, castlingBeforeMove, halfMoveClockBeforeMove, enPassantBeforeMove] = history.back();
     const u64 historicalHash = hashHistory.back();
     history.pop_back();
@@ -238,8 +238,8 @@ void State::undoMove(std::optional<Nnue>& nnue) {
 
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
     board.undoMove(move, movedPiece, overwrittenPiece, activeColor);
-    if (nnue.has_value()) {
-        nnue.value().undoMove(move, movedPiece, overwrittenPiece, activeColor);
+    if (nnue != nullptr) {
+        nnue->undoMove(move, movedPiece, overwrittenPiece, activeColor);
     }
 
     if (activeColor == Color::Black) {
