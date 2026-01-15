@@ -14,49 +14,64 @@
 
 #include "Board/Board.hpp"
 
+namespace Weights {
+    constexpr int SCALE = 400;
+    constexpr short QA = 255;
+    constexpr short QB = 64;
+    constexpr int INPUT_SIZE = 768;
+    constexpr int HIDDEN_LAYER_SIZE = 640;
 
-constexpr int NNUE_INPUTS = 6 * 2 * 64;
-constexpr int L1_OUT = 512;
-constexpr char WEIGHT_FILE[] = "weights.json";
-constexpr int L1_SCALE = 255;
-constexpr int L2_SCALE = 64;
-constexpr int SCALE_FACTOR = (600.0 / 361.0) * 410.0;
+    constexpr char WEIGHT_FILE[] = "model.nnue";
 
-struct Weights {
-    std::array<std::array<int16_t, L1_OUT>, NNUE_INPUTS> accumulator_weights;
-    std::array<int16_t, L1_OUT> accumulator_biases;
-    std::array<int16_t, L1_OUT*2> output_weights;
-    int32_t output_bias;
+    struct Values {
+        std::array<int16_t, INPUT_SIZE*HIDDEN_LAYER_SIZE> accumulator_weights{};
+        std::array<int16_t, HIDDEN_LAYER_SIZE> accumulator_biases{};
+        std::array<int16_t, HIDDEN_LAYER_SIZE*2> output_weights{};
+        int16_t output_bias{};
 
-    Weights() {
-        if (std::filesystem::exists(WEIGHT_FILE)) {
-            std::ifstream is(WEIGHT_FILE);
-            cereal::JSONInputArchive archive(is);
-            serialize(archive);
-        } else {
-            throw std::runtime_error("WEIGHT_FILE not found: " + std::string(WEIGHT_FILE));
+        Values() {
+            if (std::filesystem::exists(WEIGHT_FILE)) {
+                std::ifstream is(WEIGHT_FILE, std::ios::binary);
+                if (!is.is_open()) {
+                    throw std::runtime_error("WEIGHT_FILE COULD NOT BE OPENED: " + std::string(WEIGHT_FILE));
+                }
+
+                is.read(
+                    reinterpret_cast<char*>(accumulator_weights.data()),
+                    accumulator_weights.size() * sizeof(int16_t)
+                );
+                is.read(
+                    reinterpret_cast<char*>(accumulator_biases.data()),
+                    accumulator_biases.size() * sizeof(int16_t)
+                );
+                is.read(reinterpret_cast<char*>(
+                    output_weights.data()),
+                    output_weights.size() * sizeof(int16_t)
+                );
+                is.read(
+                    reinterpret_cast<char*>(&output_bias),
+                    sizeof(int16_t)
+                );
+
+                if (!is) {
+                    throw std::runtime_error("Error: File ended prematurely or is corrupt.");
+                }
+            } else {
+                throw std::runtime_error("WEIGHT_FILE not found: " + std::string(WEIGHT_FILE));
+            }
         }
-    }
-
-    template<class Archive>
-    void serialize(Archive& ar)
-    {
-        ar( CEREAL_NVP(accumulator_weights),
-        CEREAL_NVP(accumulator_biases),
-        CEREAL_NVP(output_weights),
-        CEREAL_NVP(output_bias) );
-    }
-};
+    };
+}
 
 class Nnue {
 public:
     Nnue()
-        : whiteAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
-        , blackAccumulator(std::make_unique<std::array<int32_t, L1_OUT>>())
+        : whiteAccumulator(std::make_unique<std::array<int32_t, Weights::INPUT_SIZE>>())
+        , blackAccumulator(std::make_unique<std::array<int32_t, Weights::INPUT_SIZE>>())
     {}
 
     void syncAccumulator(const Nnue& source) const {
-        for (int x = 0; x < L1_OUT; ++x) {
+        for (int x = 0; x < Weights::INPUT_SIZE; ++x) {
             (*whiteAccumulator)[x] = (*source.whiteAccumulator)[x];
             (*blackAccumulator)[x] = (*source.blackAccumulator)[x];
         }
@@ -80,11 +95,11 @@ public:
     static int calculateIndex(Color perspective, int square, Pieces::Piece piece);
 
 private:
-    std::unique_ptr<std::array<int32_t, L1_OUT>> whiteAccumulator;
-    std::unique_ptr<std::array<int32_t, L1_OUT>> blackAccumulator;
+    std::unique_ptr<std::array<int32_t, Weights::INPUT_SIZE>> whiteAccumulator;
+    std::unique_ptr<std::array<int32_t, Weights::INPUT_SIZE>> blackAccumulator;
 
-    static const std::unique_ptr<Weights>& getWeights() {
-        static auto w = std::make_unique<Weights>();;
+    static const std::unique_ptr<Weights::Values>& getWeights() {
+        static auto w = std::make_unique<Weights::Values>();
         return w;
     }
 };

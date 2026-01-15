@@ -5,7 +5,7 @@
 #include "Nnue.hpp"
 
 int Nnue::setBoard(const Board &board, const Color activeColor) const {
-    for (int i = 0; i < L1_OUT; i++) {
+    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
         (*whiteAccumulator)[i] = getWeights()->accumulator_biases[i];
         (*blackAccumulator)[i] = getWeights()->accumulator_biases[i];
     }
@@ -78,25 +78,25 @@ void Nnue::undoMove(const Move& mv, const Pieces::Piece movedPiece, const Pieces
 
 void Nnue::add(const int square, const Pieces::Piece piece) const {
     int feature = calculateIndex(Color::White, square, piece);
-    for (int i = 0; i < L1_OUT; i++) {
-        (*whiteAccumulator)[i] += getWeights()->accumulator_weights[feature][i];
+    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
+        (*whiteAccumulator)[i] += getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
     }
 
     feature = calculateIndex(Color::Black, square, piece);
-    for (int i = 0; i < L1_OUT; i++) {
-        (*blackAccumulator)[i] += getWeights()->accumulator_weights[feature][i];
+    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
+        (*blackAccumulator)[i] += getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
     }
 }
 
 void Nnue::remove(const int square, const Pieces::Piece piece) const {
     int feature = calculateIndex(Color::White, square, piece);
-    for (int i = 0; i < L1_OUT; i++) {
-        (*whiteAccumulator)[i] -= getWeights()->accumulator_weights[feature][i];
+    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
+        (*whiteAccumulator)[i] -= getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
     }
 
     feature = calculateIndex(Color::Black, square, piece);
-    for (int i = 0; i < L1_OUT; i++) {
-        (*blackAccumulator)[i] -= getWeights()->accumulator_weights[feature][i];
+    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
+        (*blackAccumulator)[i] -= getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
     }
 }
 
@@ -105,14 +105,14 @@ int Nnue::eval(const Color activeColor) const {
     const auto& second = activeColor == Color::White ? blackAccumulator : whiteAccumulator;
 
     int out = getWeights()->output_bias;
-    for (int i = 0; i < L1_OUT*2; i++) {
-        const int idx = i % L1_OUT;
-        const auto& ref = i < L1_OUT ? first : second;
-        const int clamped_value = std::clamp((*ref)[idx], 0, static_cast<int32_t>(L1_SCALE));
+    for (int i = 0; i < Weights::INPUT_SIZE*2; i++) {
+        const int idx = i % Weights::INPUT_SIZE;
+        const auto& ref = i < Weights::INPUT_SIZE ? first : second;
+        const int clamped_value = std::clamp((*ref)[idx], 0, static_cast<int32_t>(Weights::INPUT_SIZE));
         out += clamped_value * getWeights()->output_weights[i];
     }
 
-    constexpr double FINAL_DIVISOR = static_cast<double>(L1_SCALE * L2_SCALE) / ((600.0 / 361.0) * 410.0);
+    constexpr double FINAL_DIVISOR = static_cast<double>(Weights::INPUT_SIZE * Weights::INPUT_SIZE) / ((600.0 / 361.0) * 410.0);
     return out / std::round(FINAL_DIVISOR);
 }
 
