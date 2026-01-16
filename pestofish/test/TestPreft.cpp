@@ -16,9 +16,9 @@ void PreftDivide(State state, int depth) {
     auto moves = state.getMoves();
     u64 total = 0;
     for (auto move : moves) {
-        state.makeMove(move);
+        state.makeMove(move, nullptr);
         u64 count = Preft(state, depth - 1);
-        state.undoMove();
+        state.undoMove(nullptr);
         std::cout << move << ": " << count << "\n";
         total += count;
     }
@@ -35,9 +35,9 @@ u64 DebugPreft(State& state, int depth) {
     for (const Move move : moves) {
         State before = state;
 
-        state.makeMove(move);
+        state.makeMove(move, nullptr);
         nodes += DebugPreft(state, depth - 1);
-        state.undoMove();
+        state.undoMove(nullptr);
 
         if (state != before) {
             std::cerr << "Undo failed for move: " << move << "\n";

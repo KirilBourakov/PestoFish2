@@ -15,9 +15,9 @@ inline u64 Preft(State& state, const int depth) {
     u64 nodes = 0;
 
     for (const Move move : state.getMoves()) {
-        state.makeMove(move);
+        state.makeMove(move, nullptr);
         nodes += Preft(state, depth - 1);
-        state.undoMove();
+        state.undoMove(nullptr);
     }
 
     return nodes;
