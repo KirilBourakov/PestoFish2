@@ -5,7 +5,7 @@
 #include "Nnue.hpp"
 
 int Nnue::setBoard(const Board &board, const Color activeColor) const {
-    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
+    for (int i = 0; i < Weights::HIDDEN_LAYER_SIZE; i++) {
         (*whiteAccumulator)[i] = getWeights()->accumulator_biases[i];
         (*blackAccumulator)[i] = getWeights()->accumulator_biases[i];
     }
@@ -14,8 +14,7 @@ int Nnue::setBoard(const Board &board, const Color activeColor) const {
         for (int x = 0; x < BOARD_SIZE; x++) {
             const Pieces::Piece piece = board.at(y, x);
             if (piece != Pieces::EMPTY) {
-                const int square = y*8+x;
-                add(square, piece);
+                add(calcSquare(y,x), piece);
             }
         }
     }
@@ -78,25 +77,25 @@ void Nnue::undoMove(const Move& mv, const Pieces::Piece movedPiece, const Pieces
 
 void Nnue::add(const int square, const Pieces::Piece piece) const {
     int feature = calculateIndex(Color::White, square, piece);
-    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
-        (*whiteAccumulator)[i] += getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
+    for (int i = 0; i < whiteAccumulator->size(); i++) {
+        (*whiteAccumulator)[i] += getWeights()->accumulator_weights[feature*Weights::HIDDEN_LAYER_SIZE+i];
     }
 
     feature = calculateIndex(Color::Black, square, piece);
-    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
-        (*blackAccumulator)[i] += getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
+    for (int i = 0; i < blackAccumulator->size(); i++) {
+        (*blackAccumulator)[i] += getWeights()->accumulator_weights[feature*Weights::HIDDEN_LAYER_SIZE+i];
     }
 }
 
 void Nnue::remove(const int square, const Pieces::Piece piece) const {
     int feature = calculateIndex(Color::White, square, piece);
-    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
-        (*whiteAccumulator)[i] -= getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
+    for (int i = 0; i < whiteAccumulator->size(); i++) {
+        (*whiteAccumulator)[i] -= getWeights()->accumulator_weights[feature*Weights::HIDDEN_LAYER_SIZE + i];
     }
 
     feature = calculateIndex(Color::Black, square, piece);
-    for (int i = 0; i < Weights::INPUT_SIZE; i++) {
-        (*blackAccumulator)[i] -= getWeights()->accumulator_weights[feature*Weights::INPUT_SIZE*i];
+    for (int i = 0; i < blackAccumulator->size(); i++) {
+        (*blackAccumulator)[i] -= getWeights()->accumulator_weights[feature*Weights::HIDDEN_LAYER_SIZE+i];
     }
 }
 
@@ -104,16 +103,19 @@ int Nnue::eval(const Color activeColor) const {
     const auto& first = activeColor == Color::White ? whiteAccumulator : blackAccumulator;
     const auto& second = activeColor == Color::White ? blackAccumulator : whiteAccumulator;
 
-    int out = getWeights()->output_bias;
-    for (int i = 0; i < Weights::INPUT_SIZE*2; i++) {
-        const int idx = i % Weights::INPUT_SIZE;
-        const auto& ref = i < Weights::INPUT_SIZE ? first : second;
-        const int clamped_value = std::clamp((*ref)[idx], 0, static_cast<int32_t>(Weights::INPUT_SIZE));
-        out += clamped_value * getWeights()->output_weights[i];
+    int sum = 0;
+    for (int i = 0; i < Weights::HIDDEN_LAYER_SIZE; ++i) {
+        short val = std::clamp((*first)[i], static_cast<short>(0), Weights::QA);
+        sum += val * val * getWeights()->output_weights[i];
+
+        val = std::clamp((*second)[i], static_cast<short>(0), Weights::QA);
+        sum += val * val * getWeights()->output_weights[i+Weights::HIDDEN_LAYER_SIZE];;
     }
 
-    constexpr double FINAL_DIVISOR = static_cast<double>(Weights::INPUT_SIZE * Weights::INPUT_SIZE) / ((600.0 / 361.0) * 410.0);
-    return out / std::round(FINAL_DIVISOR);
+    int output = sum / Weights::QA;
+    output += getWeights()->output_bias;
+    const int scaled = (output * Weights::SCALE) / (Weights::QA * Weights::QB);
+    return activeColor == Color::White ? scaled : -scaled;
 }
 
 int Nnue::calculateIndex(const Color perspective, int square, const Pieces::Piece piece) {

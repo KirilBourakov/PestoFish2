@@ -66,12 +66,12 @@ namespace Weights {
 class Nnue {
 public:
     Nnue()
-        : whiteAccumulator(std::make_unique<std::array<int32_t, Weights::INPUT_SIZE>>())
-        , blackAccumulator(std::make_unique<std::array<int32_t, Weights::INPUT_SIZE>>())
+        : whiteAccumulator(std::make_unique<std::array<short, Weights::HIDDEN_LAYER_SIZE>>())
+        , blackAccumulator(std::make_unique<std::array<short, Weights::HIDDEN_LAYER_SIZE>>())
     {}
 
     void syncAccumulator(const Nnue& source) const {
-        for (int x = 0; x < Weights::INPUT_SIZE; ++x) {
+        for (int x = 0; x < Weights::HIDDEN_LAYER_SIZE; ++x) {
             (*whiteAccumulator)[x] = (*source.whiteAccumulator)[x];
             (*blackAccumulator)[x] = (*source.blackAccumulator)[x];
         }
@@ -81,22 +81,29 @@ public:
     void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
     void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
-    void add(int square, Pieces::Piece piece) const;
-    void add(const BoardPosition& pos, const Pieces::Piece piece){
-        return add(pos.y * 8 + pos.x, piece);
-    }
 
-    void remove(int square, Pieces::Piece piece) const;
+    void add(const BoardPosition& pos, const Pieces::Piece piece){
+        return add(calcSquare(pos), piece);
+    }
     void remove(const BoardPosition& pos, const Pieces::Piece piece){
-        return remove(pos.y * 8 + pos.x, piece);
+        return remove(calcSquare(pos), piece);
     }
 
     [[nodiscard]] int eval(Color activeColor) const;
     static int calculateIndex(Color perspective, int square, Pieces::Piece piece);
 
 private:
-    std::unique_ptr<std::array<int32_t, Weights::INPUT_SIZE>> whiteAccumulator;
-    std::unique_ptr<std::array<int32_t, Weights::INPUT_SIZE>> blackAccumulator;
+    std::unique_ptr<std::array<short, Weights::HIDDEN_LAYER_SIZE>> whiteAccumulator;
+    std::unique_ptr<std::array<short, Weights::HIDDEN_LAYER_SIZE>> blackAccumulator;
+
+    void add(int square, Pieces::Piece piece) const;
+    void remove(int square, Pieces::Piece piece) const;
+    static int calcSquare(const BoardPosition& pos) {
+        return calcSquare(pos.y, pos.x);
+    }
+    static int calcSquare(const int y, const int x) {
+        return 63 - (y * 8 + x);
+    }
 
     static const std::unique_ptr<Weights::Values>& getWeights() {
         static auto w = std::make_unique<Weights::Values>();

@@ -19,6 +19,10 @@ TEST(TestEngine, testSimpleGetBest) {
     engine.updatedMainNnue();
 
     const Move best = engine.getBestMove();
+
+    engine.setState(fenToState("r3k2R/8/8/8/8/6P1/P3PPP1/R3K3 b - - 0 1"));
+    engine.updatedMainNnue();
+
     ASSERT_EQ(best, Move::standardMove(BoardPosition{7, 7}, BoardPosition{7, 0}));
 }
 

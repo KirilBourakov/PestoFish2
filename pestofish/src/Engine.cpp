@@ -134,7 +134,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
         }
        // std::cout << "Best Move " << out << std::endl;
     }
-    std::cout << "Depth searched " << depth << std::endl;
+    // std::cout << "Depth searched " << depth << "Score: " << scoreOut << std::endl;
     //std::cout << "-----------" << std::endl;
 
     return out;
