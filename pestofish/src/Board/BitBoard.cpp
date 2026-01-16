@@ -8,6 +8,12 @@
 #include <filesystem>
 #include <fstream>
 
+#include <cereal/archives/binary.hpp>
+
+#include "Resources/bishop.h"
+#include "Resources/buffer.hpp"
+#include "Resources/rooks.h"
+
 Magics BitBoard::rookMagics;
 Magics BitBoard::bishopMagics;
 std::array<uint64_t, SQUARE_COUNT> BitBoard::knightMoves;
@@ -219,27 +225,15 @@ void BitBoard::printBitboard(const uint64_t bb, const bool flat) {
 }
 
 void BitBoard::loadOrFindMagics() {
-    if (std::filesystem::exists("rooks.json")) {
-        std::ifstream is("rooks.json");
-        cereal::JSONInputArchive archive(is);
-        archive(rookMagics);
-    } else {
-        findMagics(PieceType::Rook, rookMagics, true);
-        std::ofstream os("rooks.json");
-        cereal::JSONOutputArchive archive(os);
-        archive(rookMagics);
-    }
+    auto rookbuf = MemBuf(resources_rooks_bin, resources_rooks_bin_len);
+    std::istream rookStream(&rookbuf);
+    cereal::BinaryInputArchive rookArch(rookStream);
+    rookArch(rookMagics);
 
-    if (std::filesystem::exists("bishops.json")) {
-        std::ifstream is("bishops.json");
-        cereal::JSONInputArchive archive(is);
-        archive(bishopMagics);
-    } else {
-        findMagics(PieceType::Bishop, bishopMagics, true);
-        std::ofstream os("bishops.json");
-        cereal::JSONOutputArchive archive(os);
-        archive(bishopMagics);
-    }
+    auto bishopBuf = MemBuf(resources_bishops_bin, resources_bishops_bin_len);
+    std::istream bishopStream(&bishopBuf);
+    cereal::BinaryInputArchive bishopArch(bishopStream);
+    bishopArch(bishopMagics);
 }
 
 void BitBoard::findMagics(const PieceType type, Magics& entry, bool verbose) {

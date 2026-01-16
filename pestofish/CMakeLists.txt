@@ -29,6 +29,10 @@ set(ENGINE_MODULES
         include/ModuleOnly/Enums.hpp
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp
+
+        include/Resources/bishop.h
+        include/Resources/rook.h
+        include/Resources/buffer.hpp
 )
 
 # Build UCI exposure
