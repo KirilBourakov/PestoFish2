@@ -31,7 +31,7 @@ set(ENGINE_MODULES
         include/ModuleOnly/TranspositionTable.hpp
 
         include/Resources/bishop.h
-        include/Resources/rook.h
+        include/Resources/rooks.h
         include/Resources/buffer.hpp
 )
 
