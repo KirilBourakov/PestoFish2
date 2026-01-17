@@ -2,13 +2,13 @@
 // Created by Kiril on 2025-08-31.
 //
 
-#include "ModuleOnly/Enums.hpp"
-#include "ModuleOnly/Move.hpp"
-#include "State.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
+#include "pestofish/Core/State.hpp"
 #include <gtest/gtest.h>
 
 #include "Preft.hpp"
-#include "ModuleOnly/parse.hpp"
+#include "pestofish/Core/parse.hpp"
 
 using namespace Pieces;
 

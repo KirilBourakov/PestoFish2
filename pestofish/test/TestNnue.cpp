@@ -1,10 +1,10 @@
 //
 // Created by Kiril on 1/4/2026.
 //
-#include "Nnue.hpp"
+#include "pestofish/Eval/Nnue.hpp"
 #include "gmock/gmock-matchers.h"
 #include "gtest/gtest.h"
-#include "ModuleOnly/parse.hpp"
+#include "pestofish/Core/parse.hpp"
 
 TEST(NNUE, startPosMoveUndo) {
     State state = fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
