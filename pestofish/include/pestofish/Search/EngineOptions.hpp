@@ -7,8 +7,8 @@
 #include <random>
 #include <array>
 
-#include "ModuleOnly/Utils.hpp"
-#include "Move.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Move.hpp"
 
 class HistoryTable {
 public:

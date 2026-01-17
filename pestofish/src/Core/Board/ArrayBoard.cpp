@@ -3,10 +3,10 @@
 //
 #include <stdexcept>
 
-#include "pestofish/ModuleOnly/Utils.hpp"
-#include "pestofish/ModuleOnly/Enums.hpp"
-#include "pestofish/ModuleOnly/Move.hpp"
-#include "pestofish/Board/ArrayBoard.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
+#include "pestofish/Core/Board/ArrayBoard.hpp"
 
 #include <optional>
 #include <vector>

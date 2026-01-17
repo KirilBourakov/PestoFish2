@@ -9,14 +9,12 @@
 
 #include <array>
 #include <cassert>
-#include <cstdint>
-#include <unordered_map>
 #include <vector>
 #include <algorithm>
 
-#include "pestofish/ModuleOnly/Move.hpp"
-#include "pestofish/ModuleOnly/Utils.hpp"
-#include "pestofish/ModuleOnly/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Enums.hpp"
 
 struct MagicEntry {
     uint64_t keyMask;

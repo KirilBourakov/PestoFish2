@@ -6,13 +6,12 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
-
-#include "Move.hpp"
-#include "pestofish/ZobristHash.hpp"
 #include <vector>
 
-// TODO: rewrite using atomics, storing a packed Move in u16/u32 instead of a
-// Move
+#include "pestofish/Core/Move.hpp"
+#include "pestofish/Core/ZobristHash.hpp"
+
+// TODO: rewrite using atomics, storing a packed Move in u16/u32 instead of mutex. Or drop locks all together.
 namespace Transposition {
 enum class CutoffType : char { UPPER_BOUND = 0, LOWER_BOUND = 1, EXACT = 2, INVALID = 3 };
 

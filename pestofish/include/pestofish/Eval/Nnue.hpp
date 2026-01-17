@@ -4,15 +4,13 @@
 
 #pragma once
 
-#include <cereal/archives/json.hpp>
-#include <cereal/types/array.hpp>
 #include <array>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 
-#include "Board/Board.hpp"
+#include "pestofish/Core/Board/Board.hpp"
 #include "Resources/model.h"
 
 namespace Weights {

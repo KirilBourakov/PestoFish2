@@ -1,13 +1,13 @@
 //
 // Created by Kiril on 2025-08-31.
 //
-#include "pestofish/ModuleOnly/Utils.hpp"
-#include "pestofish/ModuleOnly/Enums.hpp"
-#include "pestofish/ModuleOnly/Move.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
 #include <iostream>
 #include <stdexcept>
 
-#include "pestofish/State.hpp"
+#include "pestofish/Core/State.hpp"
 
 #include <sstream>
 

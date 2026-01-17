@@ -2,9 +2,9 @@
 // Created by Kiril on 11/30/2025.
 //
 
-#include "pestofish/State.hpp"
+#include "pestofish/Core/State.hpp"
 #include "benchmark/benchmark.h"
-#include "pestofish/ModuleOnly/parse.hpp"
+#include "pestofish/Core/parse.hpp"
 
 
 static void makeMove(benchmark::State& state, const std::string &fen) {

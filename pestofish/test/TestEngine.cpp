@@ -1,15 +1,15 @@
 //
 // Created by Kiril on 2025-10-04.
 //
-#include "../include/pestofish/Engine.hpp"
+#include "../include/pestofish/Search/Engine.hpp"
 #include "gtest/gtest.h"
 
-#include "pestofish/ModuleOnly/Utils.hpp"
-#include "pestofish/ModuleOnly/Enums.hpp"
-#include "pestofish/ModuleOnly/Move.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
 #include "Preft.hpp"
 #include "gmock/gmock-matchers.h"
-#include "pestofish/ModuleOnly/parse.hpp"
+#include "pestofish/Core/parse.hpp"
 
 using namespace Pieces;
 

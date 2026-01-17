@@ -10,10 +10,10 @@
 
 #include <cereal/archives/binary.hpp>
 
-#include "pestofish/Board/BitBoard.hpp"
-#include "pestofish/Resources/bishop.h"
-#include "pestofish/Resources/buffer.hpp"
-#include "pestofish/Resources/rooks.h"
+#include "pestofish/Core/Board/BitBoard.hpp"
+#include "pestofish/Eval/Resources/bishop.h"
+#include "pestofish/Eval/Resources/buffer.hpp"
+#include "pestofish/Eval/Resources/rooks.h"
 
 Magics BitBoard::rookMagics;
 Magics BitBoard::bishopMagics;

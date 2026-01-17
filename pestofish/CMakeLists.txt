@@ -3,101 +3,91 @@ project(cEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(extern/cereal)
-
 set(ENGINE_SOURCES
-        src/Engine.cpp
-        src/State.cpp
-        src/Evaluator.cpp
-        src/ZobristHash.cpp
-        src/Nnue.cpp
-
-        src/Board/ArrayBoard.cpp
-        src/Board/BitBoard.cpp
-
+    src/Core/State.cpp
+    src/Core/ZobristHash.cpp
+    src/Core/Board/ArrayBoard.cpp
+    src/Core/Board/BitBoard.cpp
+    src/Eval/Evaluator.cpp
+    src/Eval/Nnue.cpp
+    src/Search/Engine.cpp
+    src/Interface/UCI.cpp
 )
 
-set(ENGINE_MODULES
-        include/pestofish/Engine.hpp
-        include/pestofish/State.hpp
-        include/pestofish/ModuleOnly/Move.hpp
-        include/pestofish/Evaluator.hpp
-        include/pestofish/ZobristHash.hpp
-        include/pestofish/Nnue.hpp
+set(ENGINE_HEADERS
+    include/pestofish/Core/State.hpp
+    include/pestofish/Core/Move.hpp
+    include/pestofish/Core/Enums.hpp
+    include/pestofish/Core/Utils.hpp
+    include/pestofish/Core/parse.hpp
+    include/pestofish/Core/PieceSqTables.hpp
+    include/pestofish/Core/ZobristHash.hpp
+    include/pestofish/Core/Board/Board.hpp
+    include/pestofish/Core/Board/BitBoard.hpp
+    include/pestofish/Core/Board/ArrayBoard.hpp
+    
+    include/pestofish/Eval/Evaluator.hpp
+    include/pestofish/Eval/Nnue.hpp
+    include/pestofish/Eval/Resources/buffer.hpp
+    include/pestofish/Eval/Resources/bishop.h
+    include/pestofish/Eval/Resources/rooks.h
+    include/pestofish/Eval/Resources/model.h
 
-        include/pestofish/Board/BitBoard.hpp
-        include/pestofish/Board/Board.hpp
+    include/pestofish/Search/Engine.hpp
+    include/pestofish/Search/TranspositionTable.hpp
+    include/pestofish/Search/LazySmpThreads.hpp
+    include/pestofish/Search/EngineOptions.hpp
 
-        include/pestofish/ModuleOnly/Utils.hpp
-        include/pestofish/ModuleOnly/Enums.hpp
-        include/pestofish/ModuleOnly/PieceSqTables.hpp
-        include/pestofish/ModuleOnly/TranspositionTable.hpp
-
-        include/pestofish/Resources/buffer.hpp
-        include/pestofish/Resources/bishop.h
-        include/pestofish/Resources/rooks.h
-        include/pestofish/Resources/model.h
+    include/pestofish/Interface/UCI.hpp
 )
 
-# Build UCI exposure
-add_executable(pestofish2
-        src/uci.cpp
-        ${ENGINE_SOURCES}
-        ${ENGINE_MODULES}
-)
-target_include_directories(pestofish2
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        PRIVATE extern/cereal/include/
+# Create the library
+add_library(pestofish_lib STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS})
+target_include_directories(pestofish_lib
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PUBLIC extern/cereal/include
 )
 
-# Build benchmarks
+# Main Executable
+add_executable(pestofish2 src/main.cpp)
+target_link_libraries(pestofish2 PRIVATE pestofish_lib)
+
+# Benchmarks
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark's tests")
 add_subdirectory(extern/benchmark)
 add_executable(bench
-        benchmark/main.cpp
-        benchmark/preft.cpp
-        benchmark/generateMoves.cpp
-        benchmark/makeUndo.cpp
-        benchmark/bitBoard.cpp
-
-        test/Preft.hpp
-
-        ${ENGINE_SOURCES}
-        ${ENGINE_MODULES}
+    benchmark/main.cpp
+    benchmark/preft.cpp
+    benchmark/generateMoves.cpp
+    benchmark/makeUndo.cpp
+    benchmark/bitBoard.cpp
+    test/Preft.hpp
 )
 target_include_directories(bench
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test/
-        PRIVATE extern/cereal/include/
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test
 )
-target_link_libraries(bench PRIVATE benchmark::benchmark benchmark::benchmark_main)
+target_link_libraries(bench PRIVATE pestofish_lib benchmark::benchmark benchmark::benchmark_main)
 
-# Build Tests
+# Tests
 add_subdirectory(extern/googletest)
 enable_testing()
 add_executable(runTests
-        test/TestMove.cpp
-        test/TestPreft.cpp
-        test/TestState.cpp
-        test/TestEngine.cpp
-        test/TestParse.cpp
-        test/TestNnue.cpp
-
-        test/Preft.hpp
-        ${ENGINE_SOURCES}
-        ${ENGINE_MODULES}
+    test/TestMove.cpp
+    test/TestPreft.cpp
+    test/TestState.cpp
+    test/TestEngine.cpp
+    test/TestParse.cpp
+    test/TestNnue.cpp
+    test/Preft.hpp
 )
-
-target_link_libraries(runTests
-        GTest::gtest_main
-        GTest::gmock
-        GTest::gmock_main
-)
-
 target_include_directories(runTests
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test/
-        PRIVATE extern/cereal/include/
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/test
+)
+target_link_libraries(runTests
+    PRIVATE pestofish_lib
+    GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
 )
 
 include(GoogleTest)

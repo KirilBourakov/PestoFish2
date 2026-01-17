@@ -3,12 +3,12 @@
 //
 
 #include <benchmark/benchmark.h>
-#include "../include/pestofish/Engine.hpp"
-#include "../include/pestofish/Evaluator.hpp"
-#include "pestofish/ModuleOnly/Move.hpp"
+#include "../include/pestofish/Search/Engine.hpp"
+#include "../include/pestofish/Eval/Evaluator.hpp"
+#include "pestofish/Core/Move.hpp"
 #include "Preft.hpp"
-#include "pestofish/ModuleOnly/parse.hpp"
-#include "pestofish/State.hpp"
+#include "pestofish/Core/parse.hpp"
+#include "pestofish/Core/State.hpp"
 
 static void fenBench(benchmark::State& state, const std::string &fen, const int depth) {
     State boardState = fenToState(fen);

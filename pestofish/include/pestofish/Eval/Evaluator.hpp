@@ -2,8 +2,8 @@
 // Created by Kiril on 2025-09-11.
 //
 #pragma once
-#include "pestofish/ModuleOnly/Enums.hpp"
-#include "State.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/State.hpp"
 #include <unordered_map>
 
 constexpr int INF = 32000;

@@ -5,10 +5,10 @@
 #include <optional>
 #include <vector>
 
-#include "Nnue.hpp"
-#include "ModuleOnly/Utils.hpp"
-#include "ModuleOnly/Enums.hpp"
-#include "ModuleOnly/Move.hpp"
+#include "pestofish/Eval/Nnue.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
 #include "Board/Board.hpp"
 #include "ZobristHash.hpp"
 

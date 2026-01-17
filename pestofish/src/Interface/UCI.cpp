@@ -1,0 +1,123 @@
+#include "pestofish/Interface/UCI.hpp"
+#include "pestofish/Core/parse.hpp"
+#include <iostream>
+#include <regex>
+#include <sstream>
+
+UCI::UCI() {
+    engine = std::make_unique<Engine>();
+}
+
+void UCI::runCommand(const std::string& fullCommand) {
+    std::vector<std::string> tokens = tokenize(fullCommand);
+    if (tokens.empty()) return;
+    std::string command = tokens[0];
+
+    if (command == "isready") {
+        std::cout << "readyok" << std::endl;
+        return;
+    }
+    if (command == "ucinewgame") {
+        engine = std::make_unique<Engine>();
+    }
+    if (command == "position") {
+        runPosition(std::vector(tokens.begin() + 1, tokens.end()));
+    }
+    if (command == "go") {
+        runGo(std::vector(tokens.begin() + 1, tokens.end()));
+    }
+    if (command == "stop") {
+        engine->stopSearch();
+        if (worker.joinable()) {
+            worker.join();
+        }
+    }
+    if (command == "quit") {
+        if (worker.joinable()) {
+            engine->stopSearch();
+            worker.join();
+        }
+    }
+}
+
+void UCI::runGo(std::vector<std::string> args) {
+    int i = 0;
+    SearchRequest request;
+    std::unordered_map<std::string, int*> map = {
+        {"movetime", &request.movetime}, {"depth", &request.depth}, {"movestogo", &request.movestogo}, {"binc", &request.binc},
+        {"winc", &request.winc},         {"btime", &request.btime}, {"wtime", &request.wtime},
+    };
+    while (i < args.size()) {
+        std::string arg = args.at(i);
+        if (arg == "ponder" || arg == "nodes" || arg == "mate") {
+            // throw std::invalid_argument("ponder, nodes and mate not currently supported");
+            // Better to ignore or log than throw in UCI loop usually, but keeping original logic
+             throw std::invalid_argument("ponder, nodes and mate not currently supported");
+        } else if (arg == "searchmoves") {
+            std::regex pattern("[a-h][1-8][a-h][1-8][nbrqNBRQ]?$");
+            std::vector<Move> moves;
+            i++;
+            while (i < args.size() && std::regex_match(args[i], pattern)) {
+                moves.push_back(moveFromLongAlgebric(args[i], engine->getState()));
+                i++;
+            }
+            request.searchmoves = moves;
+            i--;
+
+        } else if (arg == "infinite") {
+            request.infinite = true;
+        } else {
+            auto it = map.find(args[i]);
+            if (it != map.end() && i + 1 < args.size()) {
+                *it->second = std::stoi(args[i + 1]);
+                ++i;
+            }
+        }
+
+        i++;
+    }
+
+    if (worker.joinable()) {
+        engine->stopSearch();
+        worker.join();
+    }
+
+    worker = std::thread([this, request]() {
+        const Move best = this->engine->getBestMove(request);
+        std::cout << "bestmove " << longAlgebricFromMove(best) << std::endl;
+    });
+}
+
+void UCI::runPosition(std::vector<std::string> args) {
+    for (int i = 0; i < args.size(); i++) {
+        std::string token = args[i];
+        if (token == "startpos") {
+            engine->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+        }
+        if (token == "fen") {
+            std::string fen;
+            int goal = i + 7;
+            for (i = i + 1; i < goal; i++) {
+                if (i < args.size()) {
+                    fen += args[i] + " ";
+                }
+            }
+            engine->setState(fenToState(fen));
+            i--;
+        }
+
+        if (token == "moves") {
+            std::optional<Nnue> nnue = std::nullopt;
+            for (i = i + 1; i < args.size(); i++) {
+                Move mv = moveFromLongAlgebric(args[i], engine.get()->getState());
+                engine->getState().makeMove(mv, nullptr);
+            }
+        }
+    }
+    engine->updatedMainNnue();
+}
+
+std::vector<std::string> UCI::tokenize(const std::string& command) {
+    std::istringstream iss(command);
+    return {std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
+}

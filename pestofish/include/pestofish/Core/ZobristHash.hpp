@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #include "Board/Board.hpp"
-#include "ModuleOnly/Move.hpp"
+#include "pestofish/Core/Move.hpp"
 
 using u64 = unsigned long long;
 

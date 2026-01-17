@@ -1,14 +1,14 @@
 //
 // Created by Kiril on 2025-09-06.
 //
-#include "pestofish/ModuleOnly/Utils.hpp"
-#include "pestofish/ModuleOnly/Enums.hpp"
+#include "pestofish/Core/Utils.hpp"
+#include "pestofish/Core/Enums.hpp"
 #include "gtest/gtest.h"
 
-#include "pestofish/ModuleOnly/Move.hpp"
-#include "../include/pestofish/State.hpp"
+#include "pestofish/Core/Move.hpp"
+#include "../include/pestofish/Core/State.hpp"
 #include "Preft.hpp"
-#include "pestofish/ModuleOnly/parse.hpp"
+#include "pestofish/Core/parse.hpp"
 
 using namespace Pieces;
 

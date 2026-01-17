@@ -4,15 +4,15 @@
 #include <atomic>
 #include <unordered_map>
 
-#include "ModuleOnly/EngineOptions.hpp"
-#include "ModuleOnly/Enums.hpp"
-#include "ModuleOnly/Move.hpp"
-#include "ModuleOnly/TranspositionTable.hpp"
-#include "State.hpp"
+#include "pestofish/Search/EngineOptions.hpp"
+#include "pestofish/Core/Enums.hpp"
+#include "pestofish/Core/Move.hpp"
+#include "pestofish/Search/TranspositionTable.hpp"
+#include "pestofish/Core/State.hpp"
 #include <optional>
 #include <vector>
 
-#include "ModuleOnly/LazySmpThreads.hpp"
+#include "pestofish/Search/LazySmpThreads.hpp"
 
 class Engine {
 public:
