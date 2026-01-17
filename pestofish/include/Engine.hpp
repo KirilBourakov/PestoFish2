@@ -32,6 +32,9 @@ public:
     void setState(const State& state) {
         this->state = state;
     };
+    void updatedMainNnue() {
+        mainNnue.setBoard(state.getBoard(), state.getActiveColor());
+    }
     void stopSearch() {
         forceStop.store(true, std::memory_order_seq_cst);
     }
@@ -47,10 +50,12 @@ private:
     std::atomic<bool> timeOut = false; // we ran out of time
     std::atomic<bool> forceStop = false; // UCI told us to stop
 
+    Nnue mainNnue = {};
+
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
-              int& scoreOut);
-    int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng);
-    int quiescence(State& currState, SearchLimits search);
+              int& scoreOut, Nnue& nnue);
+    int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue);
+    int quiescence(State& currState, SearchLimits search, Nnue& nnue);
 
     static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
                               const OptionalMove& tt_move, HistoryTable& history, int dsync);

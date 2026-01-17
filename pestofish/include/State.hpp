@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+#include "Nnue.hpp"
 #include "ModuleOnly/Utils.hpp"
 #include "ModuleOnly/Enums.hpp"
 #include "ModuleOnly/Move.hpp"
@@ -40,11 +41,10 @@ public:
     State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock);
 
-    void makeMove(const Move& move);
-    void undoMove();
+    void makeMove(const Move& move, Nnue *nnue);
+    void undoMove(Nnue *nnue);
     std::vector<Move> getMoves();
     bool isLegalMove(BoardPosition start, BoardPosition end);
-    void translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo);
     GameState getGameState(const std::vector<Move>& possibleMoves) const;
     GameState getGameState();
 

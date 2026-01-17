@@ -68,17 +68,6 @@ std::vector<Move> State::getMoves() {
     return purgeIllegal(board.getPseudoLegal(activeColor, enPassantSquare, castlingRights));
 }
 
-void State::translateAndMove(BoardPosition start, BoardPosition end, std::optional<Pieces::Piece> promotedTo) {
-    std::vector<Move> moves = getMoves();
-    for (auto move : moves) {
-        if (move.start == start && move.end == end && move.promotedTo == promotedTo) {
-            makeMove(move);
-            return;
-        }
-    }
-    throw std::invalid_argument("Illegal move");
-}
-
 GameState State::getGameState(const std::vector<Move>& possibleMoves) const {
     if (isHalfMoveTie()) {
         return GameState::DRAW;
@@ -145,7 +134,7 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
 }
 
 // Updated peicewise within State
-void State::makeMove(const Move& move) {
+void State::makeMove(const Move& move, Nnue *nnue) {
     const u64 preMoveHash = hash.getValue();
 
     const HistoricalEntry entry = {
@@ -195,6 +184,9 @@ void State::makeMove(const Move& move) {
 
     // MOVE PIECE
     board.move(move, entry.movedPiece, entry.overwrittenPiece);
+    if (nnue != nullptr) {
+        nnue->move(move, entry.movedPiece, entry.overwrittenPiece);
+    }
 
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
     hash.flipActiveColor();
@@ -238,7 +230,7 @@ void State::updateCastlingRights(const Move& move, const Pieces::Piece newPiece)
 }
 
 
-void State::undoMove() {
+void State::undoMove(Nnue *nnue) {
     auto [move, movedPiece, overwrittenPiece, castlingBeforeMove, halfMoveClockBeforeMove, enPassantBeforeMove] = history.back();
     const u64 historicalHash = hashHistory.back();
     history.pop_back();
@@ -246,6 +238,9 @@ void State::undoMove() {
 
     activeColor = activeColor == Color::White ? Color::Black : Color::White;
     board.undoMove(move, movedPiece, overwrittenPiece, activeColor);
+    if (nnue != nullptr) {
+        nnue->undoMove(move, movedPiece, overwrittenPiece, activeColor);
+    }
 
     if (activeColor == Color::Black) {
         fullMoveClock--;

@@ -34,12 +34,12 @@ public:
             runGo(std::vector(tokens.begin() + 1, tokens.end()));
         }
         if (command == "stop") {
-            engine.get()->stopSearch();
+            engine->stopSearch();
             worker.join();
         }
         if (command == "quit") {
             if (worker.joinable()) {
-                engine.get()->stopSearch();
+                engine->stopSearch();
                 worker.join();
             }
         }
@@ -81,7 +81,7 @@ public:
         }
 
         if (worker.joinable()) {
-            engine.get()->stopSearch();
+            engine->stopSearch();
             worker.join();
         }
 
@@ -95,7 +95,7 @@ public:
         for (int i = 0; i < args.size(); i++) {
             std::string token = args[i];
             if (token == "startpos") {
-                engine.get()->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+                engine->setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
             }
             if (token == "fen") {
                 std::string fen;
@@ -103,17 +103,19 @@ public:
                 for (i = i + 1; i < goal; i++) {
                     fen += args[i] + " ";
                 }
-                engine.get()->setState(fenToState(fen));
+                engine->setState(fenToState(fen));
                 i--;
             }
 
             if (token == "moves") {
+                std::optional<Nnue> nnue = std::nullopt;
                 for (i = i + 1; i < args.size(); i++) {
                     Move mv = moveFromLongAlgebric(args[i], engine.get()->getState());
-                    engine.get()->getState().makeMove(mv);
+                    engine->getState().makeMove(mv, nullptr);
                 }
             }
         }
+        engine->updatedMainNnue();
     }
 
     std::vector<std::string> tokenize(const std::string& command) {
@@ -126,7 +128,7 @@ private:
     std::thread worker;
 };
 
-int main(void) {
+int main() {
     UCI uci;
 
     std::string command;

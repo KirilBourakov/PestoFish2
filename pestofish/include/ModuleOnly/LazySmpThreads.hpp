@@ -11,7 +11,7 @@
 #include "EngineOptions.hpp"
 #include "State.hpp"
 
-using RootFunc = std::function<Move(State&, const std::vector<Move>&, SearchLimits, OrderingInfo&, RngInfo&, int&)>;
+using RootFunc = std::function<Move(State&, const std::vector<Move>&, SearchLimits, OrderingInfo&, RngInfo&, int&, Nnue&)>;
 
 class LazySmpThreads {
 public:
@@ -23,6 +23,7 @@ public:
         for (int i = 0; i < num_threads; i++) {
             orderInfo.push_back(ordering);
             rngInfo.push_back(RngInfo::fromSeed(dist(rng)));
+            nnues.emplace_back();
         }
 
         for (int i = 0; i < num_threads; ++i) {
@@ -52,7 +53,7 @@ public:
                     }
 
                     int out;
-                    task(threadCopy, movesCopy, limitsCopy, orderInfo.at(i), rngInfo.at(i), out);
+                    task(threadCopy, movesCopy, limitsCopy, orderInfo.at(i), rngInfo.at(i), out, nnues.at(i));
 
                     {
                         std::lock_guard<std::mutex> lock(taskMutex);
@@ -69,10 +70,13 @@ public:
     /**
      * Updates State and Moves used by Lazy SMP Threads
      */
-    void sync(const State& currState, const std::vector<Move> &currMoves) {
+    void sync(const State& currState, const std::vector<Move> &currMoves, const Nnue& nnue) {
         std::unique_lock<std::mutex> lock(taskMutex);
         state = currState.makeThreadCopy();
         moves = currMoves;
+        for (const auto & i : nnues) {
+            i.syncAccumulator(nnue);
+        }
     }
 
     /**
@@ -130,6 +134,7 @@ private:
     std::queue<RootFunc> tasks;
     std::vector<OrderingInfo> orderInfo;
     std::vector<RngInfo> rngInfo;
+    std::vector<Nnue> nnues;
     SearchLimits limits{};
 
     State state;

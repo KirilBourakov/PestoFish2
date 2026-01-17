@@ -10,9 +10,11 @@ set(ENGINE_SOURCES
         src/State.cpp
         src/Evaluator.cpp
         src/ZobristHash.cpp
+        src/Nnue.cpp
 
         src/Board/ArrayBoard.cpp
         src/Board/BitBoard.cpp
+
 )
 
 set(ENGINE_MODULES
@@ -21,6 +23,7 @@ set(ENGINE_MODULES
         include/ModuleOnly/Move.hpp
         include/Evaluator.hpp
         include/ZobristHash.hpp
+        include/Nnue.hpp
 
         include/Board/BitBoard.hpp
         include/Board/Board.hpp
@@ -77,6 +80,7 @@ add_executable(runTests
         test/TestState.cpp
         test/TestEngine.cpp
         test/TestParse.cpp
+        test/TestNnue.cpp
 
         test/Preft.hpp
         ${ENGINE_SOURCES}
