@@ -13,6 +13,7 @@
 #include <fstream>
 
 #include "Board/Board.hpp"
+#include "Resources/model.h"
 
 namespace Weights {
     constexpr int SCALE = 400;
@@ -30,35 +31,30 @@ namespace Weights {
         int16_t output_bias{};
 
         Values() {
-            if (std::filesystem::exists(WEIGHT_FILE)) {
-                std::ifstream is(WEIGHT_FILE, std::ios::binary);
-                if (!is.is_open()) {
-                    throw std::runtime_error("WEIGHT_FILE COULD NOT BE OPENED: " + std::string(WEIGHT_FILE));
-                }
+            size_t expected_size = (accumulator_weights.size() * sizeof(int16_t)) +
+                       (accumulator_biases.size() * sizeof(int16_t)) +
+                       (output_weights.size() * sizeof(int16_t)) +
+                       sizeof(int16_t);
 
-                is.read(
-                    reinterpret_cast<char*>(accumulator_weights.data()),
-                    accumulator_weights.size() * sizeof(int16_t)
-                );
-                is.read(
-                    reinterpret_cast<char*>(accumulator_biases.data()),
-                    accumulator_biases.size() * sizeof(int16_t)
-                );
-                is.read(reinterpret_cast<char*>(
-                    output_weights.data()),
-                    output_weights.size() * sizeof(int16_t)
-                );
-                is.read(
-                    reinterpret_cast<char*>(&output_bias),
-                    sizeof(int16_t)
-                );
-
-                if (!is) {
-                    throw std::runtime_error("Error: File ended prematurely or is corrupt.");
-                }
-            } else {
-                throw std::runtime_error("WEIGHT_FILE not found: " + std::string(WEIGHT_FILE));
+            if (resources_model_nnue_len < expected_size) {
+                throw std::runtime_error("Error: Embedded NNUE data is smaller than expected.");
             }
+
+            const unsigned char* data = resources_model_nnue;
+
+            size_t bytes_acc_weights = accumulator_weights.size() * sizeof(int16_t);
+            std::memcpy(accumulator_weights.data(), data, bytes_acc_weights);
+            data += bytes_acc_weights;
+
+            size_t bytes_acc_biases = accumulator_biases.size() * sizeof(int16_t);
+            std::memcpy(accumulator_biases.data(), data, bytes_acc_biases);
+            data += bytes_acc_biases;
+
+            size_t bytes_out_weights = output_weights.size() * sizeof(int16_t);
+            std::memcpy(output_weights.data(), data, bytes_out_weights);
+            data += bytes_out_weights;
+
+            std::memcpy(&output_bias, data, sizeof(int16_t));
         }
     };
 }

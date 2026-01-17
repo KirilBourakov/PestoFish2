@@ -26,7 +26,7 @@ BitBoard::BitBoard(const std::array<std::array<Pieces::Piece, BOARD_SIZE>, BOARD
         for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             positions[i] = {i % BOARD_SIZE, i / BOARD_SIZE};
         }
-        loadOrFindMagics();
+        loadMagics();
         initKnightMasks();
 
         initialized = true;
@@ -224,7 +224,7 @@ void BitBoard::printBitboard(const uint64_t bb, const bool flat) {
     std::cout << "\n";
 }
 
-void BitBoard::loadOrFindMagics() {
+void BitBoard::loadMagics() {
     auto rookbuf = MemBuf(resources_rooks_bin, resources_rooks_bin_len);
     std::istream rookStream(&rookbuf);
     cereal::BinaryInputArchive rookArch(rookStream);

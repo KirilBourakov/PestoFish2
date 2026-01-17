@@ -209,7 +209,7 @@ private:
     }
 
     // FINDING MAGIC
-    void loadOrFindMagics();
+    static void loadMagics();
     static void findMagics(PieceType type, Magics& entry, bool verbose=false);
     static std::pair<MagicEntry, std::vector<uint64_t>> findMagic(PieceType type, int pos);
     static bool fillAndValidateMagic(

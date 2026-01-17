@@ -33,9 +33,10 @@ set(ENGINE_MODULES
         include/ModuleOnly/PieceSqTables.hpp
         include/ModuleOnly/TranspositionTable.hpp
 
+        include/Resources/buffer.hpp
         include/Resources/bishop.h
         include/Resources/rooks.h
-        include/Resources/buffer.hpp
+        include/Resources/model.h
 )
 
 # Build UCI exposure
