@@ -13,6 +13,12 @@ void UCI::runCommand(const std::string& fullCommand) {
     if (tokens.empty()) return;
     std::string command = tokens[0];
 
+    if (command == "uci") {
+        std::cout << "id name PestoFish2" << std::endl;
+        std::cout << "id author Kiril Bourakov" << std::endl;
+        std::cout << "uciok" << std::endl;
+    }
+
     if (command == "isready") {
         std::cout << "readyok" << std::endl;
         return;
@@ -37,6 +43,7 @@ void UCI::runCommand(const std::string& fullCommand) {
             engine->stopSearch();
             worker.join();
         }
+        this->quit = true;
     }
 }
 

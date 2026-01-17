@@ -9,7 +9,7 @@
 
 class UCI {
 public:
-    UCI();
+    explicit UCI(bool& quit) : quit(quit) {};
 
     void runCommand(const std::string& fullCommand);
 
@@ -20,4 +20,5 @@ private:
 
     std::unique_ptr<Engine> engine;
     std::thread worker;
+    bool& quit;
 };
