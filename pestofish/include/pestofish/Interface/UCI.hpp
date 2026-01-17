@@ -9,7 +9,7 @@
 
 class UCI {
 public:
-    explicit UCI(bool& quit) : quit(quit) {};
+    explicit UCI(bool& quit);
 
     void runCommand(const std::string& fullCommand);
 

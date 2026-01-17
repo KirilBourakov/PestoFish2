@@ -4,7 +4,7 @@
 #include <regex>
 #include <sstream>
 
-UCI::UCI() {
+UCI::UCI(bool& quit) : quit(quit) {
     engine = std::make_unique<Engine>();
 }
 

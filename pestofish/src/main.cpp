@@ -7,7 +7,7 @@ int main() {
     bool quit = false;
     UCI uci{quit};
 
-    while (std::getline(std::cin, command) && !quit) {
+    while (!quit && std::getline(std::cin, command)) {
         uci.runCommand(command);
     }
     return 0;
