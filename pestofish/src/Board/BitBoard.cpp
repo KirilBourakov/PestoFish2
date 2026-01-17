@@ -1,7 +1,7 @@
 //
 // Created by Kiril on 11/29/2025.
 //
-#include "Board/BitBoard.hpp"
+
 
 #include <random>
 #include <bit>
@@ -10,9 +10,10 @@
 
 #include <cereal/archives/binary.hpp>
 
-#include "Resources/bishop.h"
-#include "Resources/buffer.hpp"
-#include "Resources/rooks.h"
+#include "pestofish/Board/BitBoard.hpp"
+#include "pestofish/Resources/bishop.h"
+#include "pestofish/Resources/buffer.hpp"
+#include "pestofish/Resources/rooks.h"
 
 Magics BitBoard::rookMagics;
 Magics BitBoard::bishopMagics;

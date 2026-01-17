@@ -1,13 +1,13 @@
 //
 // Created by Kiril on 2025-08-23.
 //
-#include "Engine.hpp"
+#include "pestofish/Engine.hpp"
 
 #include <algorithm>
 #include <execution>
 
-#include "Evaluator.hpp"
-#include "ModuleOnly/Move.hpp"
+#include "pestofish/Evaluator.hpp"
+#include "pestofish/ModuleOnly/Move.hpp"
 
 void Engine::makeEngineMove() {
     state.makeMove(getBestMove(), &mainNnue);

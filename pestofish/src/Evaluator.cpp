@@ -4,11 +4,11 @@
 #include <cmath>
 #include <iostream>
 
-#include "Evaluator.hpp"
+#include "pestofish/Evaluator.hpp"
 
-#include "ModuleOnly/Utils.hpp"
-#include "ModuleOnly/Enums.hpp"
-#include "ModuleOnly/PieceSqTables.hpp"
+#include "pestofish/ModuleOnly/Utils.hpp"
+#include "pestofish/ModuleOnly/Enums.hpp"
+#include "pestofish/ModuleOnly/PieceSqTables.hpp"
 
 bool Evaluator::isBetterEval(const Color color, const int currBest, const int value) {
     if (color == Color::White) {

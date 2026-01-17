@@ -18,25 +18,25 @@ set(ENGINE_SOURCES
 )
 
 set(ENGINE_MODULES
-        include/Engine.hpp
-        include/State.hpp
-        include/ModuleOnly/Move.hpp
-        include/Evaluator.hpp
-        include/ZobristHash.hpp
-        include/Nnue.hpp
+        include/pestofish/Engine.hpp
+        include/pestofish/State.hpp
+        include/pestofish/ModuleOnly/Move.hpp
+        include/pestofish/Evaluator.hpp
+        include/pestofish/ZobristHash.hpp
+        include/pestofish/Nnue.hpp
 
-        include/Board/BitBoard.hpp
-        include/Board/Board.hpp
+        include/pestofish/Board/BitBoard.hpp
+        include/pestofish/Board/Board.hpp
 
-        include/ModuleOnly/Utils.hpp
-        include/ModuleOnly/Enums.hpp
-        include/ModuleOnly/PieceSqTables.hpp
-        include/ModuleOnly/TranspositionTable.hpp
+        include/pestofish/ModuleOnly/Utils.hpp
+        include/pestofish/ModuleOnly/Enums.hpp
+        include/pestofish/ModuleOnly/PieceSqTables.hpp
+        include/pestofish/ModuleOnly/TranspositionTable.hpp
 
-        include/Resources/buffer.hpp
-        include/Resources/bishop.h
-        include/Resources/rooks.h
-        include/Resources/model.h
+        include/pestofish/Resources/buffer.hpp
+        include/pestofish/Resources/bishop.h
+        include/pestofish/Resources/rooks.h
+        include/pestofish/Resources/model.h
 )
 
 # Build UCI exposure

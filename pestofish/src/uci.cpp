@@ -7,8 +7,8 @@
 #include <regex>
 #include <sstream>
 
-#include "Engine.hpp"
-#include "ModuleOnly/parse.hpp"
+#include "pestofish/Engine.hpp"
+#include "pestofish/ModuleOnly/parse.hpp"
 
 class UCI {
 public:

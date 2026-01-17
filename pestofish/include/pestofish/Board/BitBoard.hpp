@@ -14,9 +14,9 @@
 #include <vector>
 #include <algorithm>
 
-#include <ModuleOnly/Move.hpp>
-#include "ModuleOnly/Utils.hpp"
-#include "ModuleOnly/Enums.hpp"
+#include "pestofish/ModuleOnly/Move.hpp"
+#include "pestofish/ModuleOnly/Utils.hpp"
+#include "pestofish/ModuleOnly/Enums.hpp"
 
 struct MagicEntry {
     uint64_t keyMask;

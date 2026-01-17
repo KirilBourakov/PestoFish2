@@ -4,9 +4,9 @@
 
 #include <regex>
 
-#include "Engine.hpp"
-#include "ModuleOnly/parse.hpp"
-#include "State.hpp"
+#include "pestofish/Engine.hpp"
+#include "pestofish/ModuleOnly/parse.hpp"
+#include "pestofish/State.hpp"
 #include "gmock/gmock-matchers.h"
 #include "gtest/gtest.h"
 

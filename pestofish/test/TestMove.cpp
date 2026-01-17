@@ -1,12 +1,12 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "Board/ArrayBoard.hpp"
+#include "pestofish/Board/ArrayBoard.hpp"
 #include "Preft.hpp"
 
-#include "ModuleOnly/Enums.hpp"
-#include "ModuleOnly/Move.hpp"
-#include "ModuleOnly/parse.hpp"
+#include "pestofish/ModuleOnly/Enums.hpp"
+#include "pestofish/ModuleOnly/Move.hpp"
+#include "pestofish/ModuleOnly/parse.hpp"
 
 // KING IN CHECK
 TEST(TestMove, NoCheck) {

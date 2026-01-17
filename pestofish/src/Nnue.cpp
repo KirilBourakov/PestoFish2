@@ -2,7 +2,7 @@
 // Created by Kiril on 1/3/2026.
 //
 
-#include "Nnue.hpp"
+#include "pestofish/Nnue.hpp"
 
 int Nnue::setBoard(const Board &board, const Color activeColor) const {
     for (int i = 0; i < Weights::HIDDEN_LAYER_SIZE; i++) {

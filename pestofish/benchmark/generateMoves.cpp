@@ -7,8 +7,8 @@
 
 #include "benchmark/benchmark.h"
 
-#include "State.hpp"
-#include "ModuleOnly/parse.hpp"
+#include "pestofish/State.hpp"
+#include "pestofish/ModuleOnly/parse.hpp"
 
 static void inCheck(benchmark::State& state, const std::string &fen) {
     State boardState = fenToState(fen);

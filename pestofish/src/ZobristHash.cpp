@@ -1,13 +1,13 @@
 //
 // Created by Kiril on 2025-10-26.
 //
-#include "ZobristHash.hpp"
+#include "../include/pestofish/ZobristHash.hpp"
 #include <array>
 #include <chrono>
 #include <iostream>
 #include <random>
 
-#include "ModuleOnly/Utils.hpp"
+#include "pestofish/ModuleOnly/Utils.hpp"
 
 unsigned long long ZobristHash::seed = 90827521673ULL;
 

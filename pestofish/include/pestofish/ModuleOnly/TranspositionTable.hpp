@@ -8,7 +8,7 @@
 #include <shared_mutex>
 
 #include "Move.hpp"
-#include "ZobristHash.hpp"
+#include "pestofish/ZobristHash.hpp"
 #include <vector>
 
 // TODO: rewrite using atomics, storing a packed Move in u16/u32 instead of a

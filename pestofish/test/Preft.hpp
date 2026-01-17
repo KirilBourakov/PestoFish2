@@ -2,9 +2,9 @@
 // Created by Kiril on 2025-08-27.
 //
 #pragma once
-#include "ModuleOnly/Enums.hpp"
-#include "State.hpp"
-#include "Board/Board.hpp"
+#include "pestofish/ModuleOnly/Enums.hpp"
+#include "pestofish/State.hpp"
+#include "pestofish/Board/Board.hpp"
 
 typedef unsigned long long u64;
 

@@ -2,7 +2,7 @@
 // Created by Kiril on 2025-09-11.
 //
 #pragma once
-#include "ModuleOnly/Enums.hpp"
+#include "pestofish/ModuleOnly/Enums.hpp"
 #include "State.hpp"
 #include <unordered_map>
 

@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 
-#include "State.hpp"
+#include "pestofish/State.hpp"
 
 inline BoardPosition squareToPos(const std::string& square);
 inline std::string posToSquare(const BoardPosition pos);

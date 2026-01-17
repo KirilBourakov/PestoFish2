@@ -9,7 +9,7 @@
 #include <queue>
 
 #include "EngineOptions.hpp"
-#include "State.hpp"
+#include "../State.hpp"
 
 using RootFunc = std::function<Move(State&, const std::vector<Move>&, SearchLimits, OrderingInfo&, RngInfo&, int&, Nnue&)>;
 
