@@ -83,22 +83,22 @@ public:
      */
     template<Color color>
     [[nodiscard]] uint64_t getKingAttackMask() const;
-    template<Color color>
+    template<Color color, bool quiescence = false>
     void addKingMoves(int castleRights, std::vector<Move>& moves) const;
 
     template<Color color, PieceType type>
     [[nodiscard]] uint64_t getSlidingAttackMask() const;
-    template<Color color, PieceType type>
+    template<Color color, PieceType type, bool quiescence = false>
     void addSlidingMoves(std::vector<Move>& moves) const;
 
     template<Color color>
     [[nodiscard]] uint64_t getKnightAttackMask() const;
-    template<Color color>
+    template<Color color, bool quiescence = false>
     void addKnightMoves(std::vector<Move>& moves) const;
 
     template<Color color>
     [[nodiscard]] uint64_t getPawnAttackMask() const;
-    template<Color color>
+    template<Color color, bool quiescence = false>
     void addPawnMoves(std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const;
 
     [[nodiscard]] uint64_t at(const Pieces::Piece piece) const {

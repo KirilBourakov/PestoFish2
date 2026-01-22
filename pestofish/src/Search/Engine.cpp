@@ -299,31 +299,29 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         search.alpha = bestValue;
     }
 
-    std::vector<Move> possibleMoves = currState.getMoves(); // TODO: limit to captures, and checks
+    std::vector<Move> possibleMoves = currState.getQuiescenceMoves(); // TODO: get all moves when in check
     for (auto& move : possibleMoves) {
-        if (currState.getAt(move.end) != Pieces::EMPTY || move.enPassantCapture) { // TODO: support checks
-            if (steadyClock::now() >= search.deadline) {
-                stop.store(true, std::memory_order_relaxed);
-                break;
-            }
+        if (steadyClock::now() >= search.deadline) {
+            stop.store(true, std::memory_order_relaxed);
+            break;
+        }
 
-            currState.makeMove(move, &nnue);
-            const int score = -quiescence(currState, search.nextLimit(), nnue);
-            currState.undoMove(&nnue);
+        currState.makeMove(move, &nnue);
+        const int score = -quiescence(currState, search.nextLimit(), nnue);
+        currState.undoMove(&nnue);
 
-            if (score >= search.beta) {
-                return score;
-            }
-            if (score > bestValue) {
-                bestValue = score;
-            }
-            if (score > search.alpha) {
-                search.alpha = score;
-            }
+        if (score >= search.beta) {
+            return score;
+        }
+        if (score > bestValue) {
+            bestValue = score;
+        }
+        if (score > search.alpha) {
+            search.alpha = score;
+        }
 
-            if (endSearch()) {
-                break;
-            }
+        if (endSearch()) {
+            break;
         }
     }
     // TODO: consider inserting into transpose table here.

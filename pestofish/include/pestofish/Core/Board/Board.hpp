@@ -13,8 +13,33 @@ public:
         , bitBoard(board)
     {}
 
+    [[nodiscard]] std::vector<Move> getQuiescencePseudoLegal(
+        const Color activeColor, const std::optional<BoardPosition> enPassantSquare, const int castlingRights) const {
+        std::vector<Move> moves;
+        moves.reserve(50);
+
+        if (activeColor == Color::White) {
+            bitBoard.addPawnMoves<Color::White, true>(enPassantSquare, moves);
+            bitBoard.addKingMoves<Color::White, true>(castlingRights, moves);
+            bitBoard.addKnightMoves<Color::White, true>(moves);
+            bitBoard.addSlidingMoves<Color::White, PieceType::Rook, true>(moves);
+            bitBoard.addSlidingMoves<Color::White, PieceType::Bishop, true>(moves);
+            bitBoard.addSlidingMoves<Color::White, PieceType::Queen, true>(moves);
+        }
+        else {
+            bitBoard.addPawnMoves<Color::Black, true>(enPassantSquare, moves);
+            bitBoard.addKingMoves<Color::Black, true>(castlingRights, moves);
+            bitBoard.addKnightMoves<Color::Black, true>(moves);
+            bitBoard.addSlidingMoves<Color::Black, PieceType::Rook, true>(moves);
+            bitBoard.addSlidingMoves<Color::Black, PieceType::Bishop, true>(moves);
+            bitBoard.addSlidingMoves<Color::Black, PieceType::Queen, true>(moves);
+        }
+
+        return moves;
+    }
+
     [[nodiscard]] std::vector<Move> getPseudoLegal(const Color activeColor, const std::optional<BoardPosition> enPassantSquare,
-                                                   int castlingRights) const {
+                                                   const int castlingRights) const {
         std::vector<Move> moves;
         moves.reserve(200);
 

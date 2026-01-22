@@ -68,6 +68,10 @@ std::vector<Move> State::getMoves() {
     return purgeIllegal(board.getPseudoLegal(activeColor, enPassantSquare, castlingRights));
 }
 
+std::vector<Move> State::getQuiescenceMoves() {
+    return purgeIllegal(board.getQuiescencePseudoLegal(activeColor, enPassantSquare, castlingRights));
+}
+
 GameState State::getGameState(const std::vector<Move>& possibleMoves) const {
     if (isHalfMoveTie()) {
         return GameState::DRAW;

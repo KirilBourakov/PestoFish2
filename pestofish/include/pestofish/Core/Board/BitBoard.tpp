@@ -61,13 +61,13 @@ uint64_t BitBoard::getKingAttackMask() const {
     return kingMoves;
 }
 
-template<Color color>
+template<Color color, bool quiescence>
 void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) const {
     const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING;
 
     uint64_t kingPos = at(piece);
     const BoardPosition kingStart = positions[pop_lsb(kingPos)];
-    if (castleAllowed(color, CastleType::SHORT, castleRights)) {
+    if (!quiescence && castleAllowed(color, CastleType::SHORT, castleRights)) {
         constexpr uint64_t shortMask = color == Color::White ? shortCastleWhite : shortCastleBlack;
         const BoardPosition end = color == Color::White ? BoardPosition{6, 7} : BoardPosition{6, 0};
 
@@ -75,7 +75,7 @@ void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) co
             moves.push_back(Move::castleMove(kingStart, end, CastleType::SHORT));
         }
     }
-    if (castleAllowed(color, CastleType::LONG, castleRights)) {
+    if (!quiescence && castleAllowed(color, CastleType::LONG, castleRights)) {
         constexpr uint64_t longMask = color == Color::White ? longCastleWhite : longCastleBlack;
         const BoardPosition end = color == Color::White ? BoardPosition{2, 7} : BoardPosition{2, 0};
 
@@ -85,6 +85,10 @@ void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) co
     }
     const uint64_t friendly = at(color);
     uint64_t kingMoves = getKingAttackMask<color>() & ~friendly;
+    if (quiescence) {
+        const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
+        kingMoves &= enemy;
+    }
     while (kingMoves) {
         moves.push_back(Move::standardMove(kingStart, positions[pop_lsb(kingMoves)]));
     }
@@ -108,7 +112,7 @@ uint64_t BitBoard::getSlidingAttackMask() const {
     return out;
 }
 
-template<Color color, PieceType type>
+template<Color color, PieceType type, bool quiescence>
 void BitBoard::addSlidingMoves(std::vector<Move>& moves) const {
     uint64_t pieces = at(Pieces::make_piece(color, type));
     const uint64_t friendly = at(color);
@@ -123,6 +127,10 @@ void BitBoard::addSlidingMoves(std::vector<Move>& moves) const {
             realMoves = getRealMoves<color, type>(start);
         }
         realMoves &= ~friendly;
+        if (quiescence) {
+            const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
+            realMoves &= enemy;
+        }
 
         while (realMoves) {
             const int end = pop_lsb(realMoves);
@@ -144,7 +152,7 @@ uint64_t BitBoard::getKnightAttackMask() const {
     return out;
 }
 
-template<Color color>
+template<Color color, bool quiescence>
 void BitBoard::addKnightMoves(std::vector<Move>& moves) const {
     const Pieces::Piece piece = color == Color::White ? Pieces::WHITE_KNIGHT : Pieces::BLACK_KNIGHT;
     const uint64_t friendly = at(color);
@@ -154,6 +162,10 @@ void BitBoard::addKnightMoves(std::vector<Move>& moves) const {
         const int start = pop_lsb(knights);
         uint64_t possibleMoves = knightMoves[start];
         possibleMoves &= ~friendly;
+        if (quiescence) {
+            const uint64_t enemy = at(color == Color::White ? Color::Black : Color::White);
+            possibleMoves &= enemy;
+        }
         while (possibleMoves) {
             const int end = pop_lsb(possibleMoves);
             moves.push_back(Move::standardMove(positions[start], positions[end]));
@@ -172,42 +184,12 @@ uint64_t BitBoard::getPawnAttackMask() const {
     return leftCaptures | rightCaptures;
 }
 
-template<Color color>
+template<Color color, bool quiescence>
 void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const {
     using namespace Pieces;
     static constexpr std::array<Piece, 4> whitePieces = {WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN};
     static constexpr std::array<Piece, 4> blackPieces = {BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN};
     const auto& usedPieces = (color == Color::White ? whitePieces : blackPieces);
-
-    static constexpr uint64_t rank7 = 0x000000000000FF00ULL;
-    static constexpr uint64_t rank2 = 0x00FF000000000000ULL;
-
-    const uint64_t leftAttacks = color == Color::White ? notH : notA;
-    const uint64_t rightAttacks = color == Color::White ? notA : notH;
-    const uint64_t enPassantMask = enPassantSquare.has_value() ? 1ULL << shiftValue(enPassantSquare.value()) : 0ULL;
-    const uint64_t pawnBoard = at(color == Color::White ? WHITE_PAWN : BLACK_PAWN);
-    const uint64_t enemyBoard = color == Color::White ? at(Color::Black) : at(Color::White);
-    const uint64_t empty = ~(at(Color::Black) | at(Color::White));
-    const uint64_t lastRank = color == Color::White ? rank8 : rank1;
-    const uint64_t doubleMoveRank = color == Color::White ? rank2 : rank7;
-
-    const uint64_t combinedForwardMoves = shift<color>(pawnBoard, 8) & empty;
-    const uint64_t combinedLeftCaptures = shift<color>(pawnBoard, 7) & leftAttacks & enemyBoard;
-    const uint64_t combinedRightCaptures = shift<color>(pawnBoard, 9) & rightAttacks & enemyBoard;
-
-
-    uint64_t singles = combinedForwardMoves & ~lastRank;
-    uint64_t doubles = shift<color>(singles, 8) & empty & shift<color>(doubleMoveRank, 16);
-    uint64_t capLeft = combinedLeftCaptures & ~lastRank;
-    uint64_t capRight = combinedRightCaptures & ~lastRank;
-
-    uint64_t promotion = combinedForwardMoves & lastRank;
-    uint64_t promotionCapLeft = combinedLeftCaptures & lastRank;
-    uint64_t promotionCapRight = combinedRightCaptures & lastRank;
-
-    uint64_t enPassantLeft = shift<color>(pawnBoard, 7) & leftAttacks & enPassantMask;
-    uint64_t enPassantRight = shift<color>(pawnBoard, 9) & rightAttacks & enPassantMask;
-
     auto emit = [&](uint64_t bb, const int offset, const int type=1) {
         while (bb) {
             const int to = pop_lsb(bb);
@@ -239,8 +221,31 @@ void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, 
         }
     };
 
-    emit(singles, color == Color::White ? 8 : -8);
-    emit(doubles, color == Color::White ? 16 : -16, 3);
+    static constexpr uint64_t rank7 = 0x000000000000FF00ULL;
+    static constexpr uint64_t rank2 = 0x00FF000000000000ULL;
+
+    const uint64_t leftAttacks = color == Color::White ? notH : notA;
+    const uint64_t rightAttacks = color == Color::White ? notA : notH;
+    const uint64_t enPassantMask = enPassantSquare.has_value() ? 1ULL << shiftValue(enPassantSquare.value()) : 0ULL;
+    const uint64_t pawnBoard = at(color == Color::White ? WHITE_PAWN : BLACK_PAWN);
+    const uint64_t enemyBoard = color == Color::White ? at(Color::Black) : at(Color::White);
+    const uint64_t empty = ~(at(Color::Black) | at(Color::White));
+    const uint64_t lastRank = color == Color::White ? rank8 : rank1;
+    const uint64_t doubleMoveRank = color == Color::White ? rank2 : rank7;
+
+    const uint64_t combinedForwardMoves = shift<color>(pawnBoard, 8) & empty;
+    const uint64_t combinedLeftCaptures = shift<color>(pawnBoard, 7) & leftAttacks & enemyBoard;
+    const uint64_t combinedRightCaptures = shift<color>(pawnBoard, 9) & rightAttacks & enemyBoard;
+    uint64_t capLeft = combinedLeftCaptures & ~lastRank;
+    uint64_t capRight = combinedRightCaptures & ~lastRank;
+
+    uint64_t promotion = combinedForwardMoves & lastRank;
+    uint64_t promotionCapLeft = combinedLeftCaptures & lastRank;
+    uint64_t promotionCapRight = combinedRightCaptures & lastRank;
+
+    uint64_t enPassantLeft = shift<color>(pawnBoard, 7) & leftAttacks & enPassantMask;
+    uint64_t enPassantRight = shift<color>(pawnBoard, 9) & rightAttacks & enPassantMask;
+
     emit(capLeft, color == Color::White ? 7 : -7);
     emit(capRight, color == Color::White ? 9 : -9);
     emit(enPassantLeft, color == Color::White ? 7 : -7, 2);
@@ -248,6 +253,14 @@ void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, 
     emitPromotion(promotion, color == Color::White ? 8 : -8);
     emitPromotion(promotionCapLeft, color == Color::White ? 7 : -7);
     emitPromotion(promotionCapRight, color == Color::White ? 9 : -9);
+
+    if (!quiescence) {
+        uint64_t singles = combinedForwardMoves & ~lastRank;
+        uint64_t doubles = shift<color>(singles, 8) & empty & shift<color>(doubleMoveRank, 16);
+
+        emit(singles, color == Color::White ? 8 : -8);
+        emit(doubles, color == Color::White ? 16 : -16, 3);
+    }
 }
 
 template<Color color, PieceType type>
