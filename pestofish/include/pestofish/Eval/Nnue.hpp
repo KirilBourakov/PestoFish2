@@ -65,10 +65,9 @@ public:
     {}
 
     void syncAccumulator(const Nnue& source) const {
-        for (int x = 0; x < Weights::HIDDEN_LAYER_SIZE; ++x) {
-            (*whiteAccumulator)[x] = (*source.whiteAccumulator)[x];
-            (*blackAccumulator)[x] = (*source.blackAccumulator)[x];
-        }
+        constexpr size_t bytesToCopy = Weights::HIDDEN_LAYER_SIZE * sizeof(int16_t);
+        std::memcpy(whiteAccumulator->data(), source.whiteAccumulator->data(), bytesToCopy);
+        std::memcpy(blackAccumulator->data(), source.blackAccumulator->data(), bytesToCopy);
     }
 
     int setBoard(const Board &board, Color activeColor) const;

@@ -285,7 +285,6 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
 }
 
 int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
-    // TODO: add color rep int
     int staticEval = search.color * nnue.eval(currState.getActiveColor()); // - eval means position good for black, else good for white
 
     int bestValue = staticEval;
@@ -293,7 +292,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         return bestValue;
     }
     if (bestValue >= search.beta) {
-        return bestValue;
+        return search.beta;
     }
     if (bestValue > search.alpha) {
         search.alpha = bestValue;
@@ -366,7 +365,6 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         );
     }
 
-    // TODO: consider inserting into transpose table here.
     return bestValue;
 }
 
