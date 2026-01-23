@@ -59,7 +59,6 @@ Move Engine::getBestMove() {
     return getBestMove(SearchRequest{.depth = 3});
 }
 
-// TODO: implement ply so earlier mates are more prioritized
 Move Engine::getBestMove(const SearchRequest& request) {
     clearBoolFlags();
 
