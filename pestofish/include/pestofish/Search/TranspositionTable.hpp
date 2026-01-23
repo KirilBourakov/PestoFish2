@@ -22,7 +22,7 @@ struct Entry {
         , score(0)
         , cutoffType(CutoffType::INVALID)
         , age(0) {}
-    Entry(unsigned int key, Move bestMove, unsigned short depth, short score, CutoffType cutoffType, unsigned short age)
+    Entry(unsigned int key, Move bestMove, int16_t depth, int16_t score, CutoffType cutoffType, unsigned short age)
         : key(key)
         , bestMove(bestMove)
         , depth(depth)
@@ -32,8 +32,8 @@ struct Entry {
 
     unsigned int key;
     Move bestMove;
-    unsigned short depth;
-    short score;
+    int16_t depth;
+    int16_t score;
     CutoffType cutoffType;
     unsigned char age;
 
@@ -50,6 +50,7 @@ constexpr int tableSizeMb = 128;
 constexpr size_t rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
 constexpr size_t tableSizeEntries = std::bit_ceil(rawEntries);
 constexpr size_t numLocks = std::max<size_t>(64, tableSizeEntries / 4096);
+constexpr int16_t quiescence_depth = -1;
 
 using table = std::vector<Entry>;
 
@@ -81,7 +82,7 @@ public:
         return false;
     }
 
-    void insert(const u64 key, const Move& bestMove, const unsigned short depth, const int score, const CutoffType cutoffType,
+    void insert(const u64 key, const Move& bestMove, const int16_t depth, const int score, const CutoffType cutoffType,
                 const unsigned char age) {
         const unsigned long long index = key & (tableSizeEntries - 1);
         const auto verificationKey = static_cast<unsigned int>(key >> 32);
@@ -91,7 +92,7 @@ public:
         std::unique_lock<std::shared_mutex> lock(mLocks[index % numLocks].m);
         Entry& oldEntry = (*depthPreferred)[index];
         if (!oldEntry.has_value() || oldEntry.depth < newEntry.depth || newEntry.age - oldEntry.age >= ageOverride) {
-            (*depthPreferred)[index] = newEntry;
+            (*depthPreferred)[index] = newEntry; // TODO. investigate inefficiency here. Are both tables fully used?
             return;
         }
         (*alwaysReplace)[index] = newEntry;

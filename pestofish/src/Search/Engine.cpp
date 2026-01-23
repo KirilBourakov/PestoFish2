@@ -299,7 +299,27 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         search.alpha = bestValue;
     }
 
-    std::vector<Move> possibleMoves = currState.getQuiescenceMoves(); // TODO: get all moves when in check
+    if (Transposition::Entry entry_out; transPosTable.lookup(currState.getZobrist(), entry_out)) {
+        if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
+            return entry_out.score;
+        }
+        if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= search.beta) {
+            return entry_out.score;
+        }
+        if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= search.alpha) {
+            return entry_out.score;
+        }
+    }
+
+    std::vector<Move> possibleMoves;
+    if (currState.activeColorInCheck()) {
+        possibleMoves = currState.getMoves();
+    } else {
+        possibleMoves =  currState.getQuiescenceMoves();
+    }
+
+    int alphaOrig = search.alpha;
+    std::optional<Move> bestMove = std::nullopt;
     for (auto& move : possibleMoves) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
@@ -315,6 +335,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         }
         if (score > bestValue) {
             bestValue = score;
+            bestMove = move;
         }
         if (score > search.alpha) {
             search.alpha = score;
@@ -324,6 +345,27 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
             break;
         }
     }
+
+    Transposition::CutoffType cutoffType;
+    if (bestValue <= alphaOrig) {
+        cutoffType = Transposition::CutoffType::UPPER_BOUND;
+    } else if (bestValue >= search.beta) {
+        cutoffType = Transposition::CutoffType::LOWER_BOUND;
+    } else {
+        cutoffType = Transposition::CutoffType::EXACT;
+    }
+
+    if (bestMove.has_value() && !endSearch()) {
+        transPosTable.insert(
+            currState.getZobrist(),
+            bestMove.value(),
+            Transposition::quiescence_depth,
+            bestValue,
+            cutoffType,
+            currState.getFullMoveClock()
+        );
+    }
+
     // TODO: consider inserting into transpose table here.
     return bestValue;
 }

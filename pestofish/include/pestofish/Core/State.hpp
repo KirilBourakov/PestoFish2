@@ -45,6 +45,7 @@ public:
     void undoMove(Nnue *nnue);
     std::vector<Move> getMoves();
     std::vector<Move> getQuiescenceMoves();
+    bool activeColorInCheck() const;
     bool isLegalMove(BoardPosition start, BoardPosition end);
     GameState getGameState(const std::vector<Move>& possibleMoves) const;
     GameState getGameState();
