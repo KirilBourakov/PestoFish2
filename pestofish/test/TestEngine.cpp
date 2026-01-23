@@ -79,3 +79,27 @@ TEST(TestEngine, queenMate1) {
     ));
 }
 
+TEST(TestEngine, missedQueenMate) {
+    Engine engine{};
+    engine.setState(fenToState(("3r2k1/pp3p2/2b4p/q5p1/2Q5/P2p4/5PPP/R1B1R2K b - - 0 1")));
+    engine.updatedMainNnue();
+
+    SearchRequest req;
+    req.wtime = 1;
+    req.btime = 1;
+    const Move best = engine.getBestMove(req);
+    ASSERT_EQ(best, Move::standardMove({3,0}, {4,7}));
+}
+
+TEST(TestEngine, savesQueen) {
+    Engine engine{};
+    engine.setState(fenToState(("rnb2rk1/pp1p1ppp/1q2p3/8/N3P3/3BbN2/PPP1Q1PP/R3K2R b KQ - 0 1")));
+    engine.updatedMainNnue();
+
+    SearchRequest req;
+    req.wtime = 1;
+    req.btime = 1;
+    const Move best = engine.getBestMove(req);
+    constexpr BoardPosition expectedStart = BoardPosition{.x=1, .y=2};
+    ASSERT_EQ(best.start, expectedStart);
+}
