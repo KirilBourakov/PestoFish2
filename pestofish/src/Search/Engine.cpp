@@ -296,7 +296,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         return bestValue;
     }
     if (bestValue >= search.beta) {
-        return bestValue;
+        return search.beta;
     }
     if (bestValue > search.alpha) {
         search.alpha = bestValue;
