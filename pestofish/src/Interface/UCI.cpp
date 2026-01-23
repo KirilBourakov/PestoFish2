@@ -57,8 +57,6 @@ void UCI::runGo(std::vector<std::string> args) {
     while (i < args.size()) {
         std::string arg = args.at(i);
         if (arg == "ponder" || arg == "nodes" || arg == "mate") {
-            // throw std::invalid_argument("ponder, nodes and mate not currently supported");
-            // Better to ignore or log than throw in UCI loop usually, but keeping original logic
              throw std::invalid_argument("ponder, nodes and mate not currently supported");
         } else if (arg == "searchmoves") {
             std::regex pattern("[a-h][1-8][a-h][1-8][nbrqNBRQ]?$");
