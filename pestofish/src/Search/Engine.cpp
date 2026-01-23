@@ -17,6 +17,8 @@ void Engine::handleRequest(
     const SearchRequest& request, int &timelimit, int &maxDepth, bool &infinite,
     std::chrono::time_point<steadyClock> &deadline, std::vector<Move> &possibleMoves
 ) {
+    constexpr int MIN_TIME_LIMIT = 50;
+
     timelimit = request.movetime;
     maxDepth = request.depth;
     infinite = request.infinite;
@@ -37,6 +39,7 @@ void Engine::handleRequest(
         }
         if (time != -1) {
             timelimit = time / (movestogo + 5) + inc * .8;
+            timelimit = std::max(time, MIN_TIME_LIMIT);
         }
         // default to a timelimit of 1 second
         else {
@@ -83,13 +86,13 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
     Move out;
     int expected, scoreOut, depth;
-    lazySmpThreads.sync(state, possibleMoves, mainNnue);
     for (depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
         //std::cout << static_cast<int>(steadyClock::now() < deadline) << std::endl;
         if (depth == 1) {
             SearchLimits search = {0, depth, -INF, INF, 0, deadline};
             out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut, mainNnue);
             expected = scoreOut;
+            lazySmpThreads.sync(state, possibleMoves, mainNnue);
         } else {
             constexpr int window = 40;
             int alpha = expected - window;
@@ -366,7 +369,6 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         );
     }
 
-    // TODO: consider inserting into transpose table here.
     return bestValue;
 }
 

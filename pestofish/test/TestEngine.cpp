@@ -85,10 +85,11 @@ TEST(TestEngine, missedQueenMate) {
     engine.updatedMainNnue();
 
     SearchRequest req;
+    //req.depth = 1;
     req.wtime = 1;
     req.btime = 1;
     const Move best = engine.getBestMove(req);
-    ASSERT_EQ(best, Move::standardMove({3,0}, {4,7}));
+    ASSERT_EQ(best, Move::standardMove({0,3}, {4,7}));
 }
 
 TEST(TestEngine, savesQueen) {
