@@ -72,12 +72,12 @@ TEST(parseMove, StandardMoveParsing) {
 
     auto mv = moveFromLongAlgebric("e4e5", s);
 
-    EXPECT_EQ(mv.start.x, 4);
-    EXPECT_EQ(mv.start.y, 4);
-    EXPECT_EQ(mv.end.x, 4);
-    EXPECT_EQ(mv.end.y, 3);
-    EXPECT_FALSE(mv.promotedTo.has_value());
-    EXPECT_FALSE(mv.castle.has_value());
+    EXPECT_EQ(mv.getStart().x, 4);
+    EXPECT_EQ(mv.getStart().y, 4);
+    EXPECT_EQ(mv.getEnd().x, 4);
+    EXPECT_EQ(mv.getEnd().y, 3);
+    EXPECT_FALSE(mv.getPromotedTo().has_value());
+    EXPECT_FALSE(mv.getCastle().has_value());
 }
 
 // Pawn Double
@@ -87,9 +87,9 @@ TEST(parseMove, PawnDoublePush) {
 
     auto mv = moveFromLongAlgebric("e2e4", s);
 
-    ASSERT_TRUE(mv.newEnPassantSquare.has_value());
-    EXPECT_EQ(mv.newEnPassantSquare->x, 4);
-    EXPECT_EQ(mv.newEnPassantSquare->y, 5);
+    ASSERT_TRUE(mv.getNewEnPassantSquare().has_value());
+    EXPECT_EQ(mv.getNewEnPassantSquare()->x, 4);
+    EXPECT_EQ(mv.getNewEnPassantSquare()->y, 5);
 }
 
 // PROMOTION
@@ -99,8 +99,8 @@ TEST(parseMove, PromotionToQueen) {
 
     auto mv = moveFromLongAlgebric("e7e8q", s);
 
-    ASSERT_TRUE(mv.promotedTo.has_value());
-    EXPECT_EQ(Pieces::piece_type(mv.promotedTo.value()), PieceType::Queen);
+    ASSERT_TRUE(mv.getPromotedTo().has_value());
+    EXPECT_EQ(Pieces::piece_type(mv.getPromotedTo().value()), PieceType::Queen);
 }
 
 TEST(parseMove, PromotionToKnight) {
@@ -108,8 +108,8 @@ TEST(parseMove, PromotionToKnight) {
 
     auto mv = moveFromLongAlgebric("e7e8n", s);
 
-    ASSERT_TRUE(mv.promotedTo.has_value());
-    EXPECT_EQ(Pieces::piece_type(mv.promotedTo.value()), PieceType::Knight);
+    ASSERT_TRUE(mv.getPromotedTo().has_value());
+    EXPECT_EQ(Pieces::piece_type(mv.getPromotedTo().value()), PieceType::Knight);
 }
 
 TEST(parseMove, promoteCorner) {
@@ -129,8 +129,8 @@ TEST(parseMove, WhiteShortCastle) {
 
     auto mv = moveFromLongAlgebric("e1g1", s);
 
-    ASSERT_TRUE(mv.castle.has_value());
-    EXPECT_EQ(mv.castle.value(), CastleType::SHORT);
+    ASSERT_TRUE(mv.getCastle().has_value());
+    EXPECT_EQ(mv.getCastle().value(), CastleType::SHORT);
 }
 
 TEST(parseMove, WhiteLongCastle) {
@@ -138,8 +138,8 @@ TEST(parseMove, WhiteLongCastle) {
 
     auto mv = moveFromLongAlgebric("e1c1", s);
 
-    ASSERT_TRUE(mv.castle.has_value());
-    EXPECT_EQ(mv.castle.value(), CastleType::LONG);
+    ASSERT_TRUE(mv.getCastle().has_value());
+    EXPECT_EQ(mv.getCastle().value(), CastleType::LONG);
 }
 
 TEST(parseMove, BlackShortCastle) {
@@ -147,8 +147,8 @@ TEST(parseMove, BlackShortCastle) {
 
     auto mv = moveFromLongAlgebric("e8g8", s);
 
-    ASSERT_TRUE(mv.castle.has_value());
-    EXPECT_EQ(mv.castle.value(), CastleType::SHORT);
+    ASSERT_TRUE(mv.getCastle().has_value());
+    EXPECT_EQ(mv.getCastle().value(), CastleType::SHORT);
 }
 
 TEST(parseMove, BlackLongCastle) {
@@ -156,8 +156,8 @@ TEST(parseMove, BlackLongCastle) {
 
     auto mv = moveFromLongAlgebric("e8c8", s);
 
-    ASSERT_TRUE(mv.castle.has_value());
-    EXPECT_EQ(mv.castle.value(), CastleType::LONG);
+    ASSERT_TRUE(mv.getCastle().has_value());
+    EXPECT_EQ(mv.getCastle().value(), CastleType::LONG);
 }
 
 // Round Trip

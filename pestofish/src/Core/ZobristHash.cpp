@@ -79,9 +79,9 @@ void ZobristHash::changeEnPassantSquare(std::optional<BoardPosition> prevEnPassa
 
 void ZobristHash::makeMove(Move move, Pieces::Piece moved, Pieces::Piece movedTo) {
     if (movedTo != Pieces::EMPTY) {
-        value ^= pieceTable[movedTo][move.end.y][move.end.x];
+        value ^= pieceTable[movedTo][move.getEnd().y][move.getEnd().x];
     }
 
-    value ^= pieceTable[moved][move.start.y][move.start.x];
-    value ^= pieceTable[moved][move.end.y][move.end.x];
+    value ^= pieceTable[moved][move.getStart().y][move.getStart().x];
+    value ^= pieceTable[moved][move.getEnd().y][move.getEnd().x];
 }

@@ -13,10 +13,10 @@ inline BoardPosition squareToPos(const std::string& square);
 inline std::string posToSquare(const BoardPosition pos);
 
 inline std::string longAlgebricFromMove(const Move& move) {
-    std::string mv = posToSquare(move.start) + posToSquare(move.end);
-    if (move.promotedTo.has_value()) {
+    std::string mv = posToSquare(move.getStart()) + posToSquare(move.getEnd());
+    if (move.getPromotedTo().has_value()) {
         char ch;
-        switch (Pieces::piece_type(move.promotedTo.value())) {
+        switch (Pieces::piece_type(move.getPromotedTo().value())) {
         case PieceType::Queen:
             ch = 'q';
             break;

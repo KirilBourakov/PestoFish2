@@ -64,12 +64,12 @@ public:
     }
 
     bool isLegal(const Move &move) {
-        const Pieces::Piece moved = at(move.start.y ,move.start.x);
+        const Pieces::Piece moved = at(move.getStart().y ,move.getStart().x);
 
         if (Pieces::piece_color(moved) == Color::White) {
-            return bitBoard.isLegalMove<Color::White>(move, moved, at(move.end.y ,move.end.x));
+            return bitBoard.isLegalMove<Color::White>(move, moved, at(move.getEnd().y ,move.getEnd().x));
         }
-        return bitBoard.isLegalMove<Color::Black>(move, moved, at(move.end.y ,move.end.x));
+        return bitBoard.isLegalMove<Color::Black>(move, moved, at(move.getEnd().y ,move.getEnd().x));
     }
 
     void move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {

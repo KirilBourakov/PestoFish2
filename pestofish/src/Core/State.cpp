@@ -124,7 +124,7 @@ State State::makeThreadCopy() const {
 
 bool State::isLegalMove(BoardPosition start, BoardPosition end) {
     for (auto move : getMoves()) {
-        if (move.start == start && move.end == end) {
+        if (move.getStart() == start && move.getEnd() == end) {
             return true;
         }
     }
@@ -147,19 +147,19 @@ void State::makeMove(const Move& move, Nnue *nnue) {
 
     const HistoricalEntry entry = {
         move,
-        board.at(move.start.y, move.start.x),
-        board.at(move.end.y, move.end.x),
+        board.at(move.getStart().y, move.getStart().x),
+        board.at(move.getEnd().y, move.getEnd().x),
         castlingRights,
         halfMoveClock,
         enPassantSquare,
     };
     const Pieces::Piece movingPiece = entry.movedPiece;
-    const Pieces::Piece newPiece = move.promotedTo.value_or(entry.movedPiece);
+    const Pieces::Piece newPiece = move.getPromotedTo().value_or(entry.movedPiece);
 
 
     // Error checking
     if (!Pieces::sameColor(activeColor, newPiece)) {
-        std::cout << "Illegal move: " << move.start << "->" << move.end << " moving " << newPiece << std::endl;
+        std::cout << "Illegal move: " << move.getStart() << "->" << move.getEnd() << " moving " << newPiece << std::endl;
         throw std::invalid_argument("Moving piece from wrong side.");
     }
 
@@ -175,17 +175,17 @@ void State::makeMove(const Move& move, Nnue *nnue) {
 
     hash.makeMove(move, entry.movedPiece, entry.overwrittenPiece);
 
-    if (enPassantSquare != move.newEnPassantSquare) {
-        hash.changeEnPassantSquare(enPassantSquare, move.newEnPassantSquare);
+    if (enPassantSquare != move.getNewEnPassantSquare()) {
+        hash.changeEnPassantSquare(enPassantSquare, move.getNewEnPassantSquare());
     }
-    enPassantSquare = move.newEnPassantSquare;
+    enPassantSquare = move.getNewEnPassantSquare();
 
     // UPDATE KING POS
     if (newPiece == Pieces::WHITE_KING) {
-        whiteKingSquare = move.end;
+        whiteKingSquare = move.getEnd();
     }
     if (newPiece == Pieces::BLACK_KING) {
-        blackKingSquare = move.end;
+        blackKingSquare = move.getEnd();
     }
 
     updateCastlingRights(move, newPiece);
@@ -206,14 +206,14 @@ void State::makeMove(const Move& move, Nnue *nnue) {
 void State::updateCastlingRights(const Move& move, const Pieces::Piece newPiece) {
     const int backRow = activeColor == Color::White ? 7 : 0;
     const bool movingKing = Pieces::piece_type(newPiece) == PieceType::King;
-    const bool movingQueenSideRook = backRow == move.start.y && move.start.x == 0;
+    const bool movingQueenSideRook = backRow == move.getStart().y && move.getStart().x == 0;
     int oldRights = castlingRights;
     bool updated = false;
     if ((movingQueenSideRook || movingKing) && castleAllowed(activeColor, CastleType::LONG, castlingRights)) {
         disAllowCastle(activeColor, CastleType::LONG, castlingRights);
         updated = true;
     }
-    const bool movingKingSideRook = backRow == move.start.y && move.start.x == 7;
+    const bool movingKingSideRook = backRow == move.getStart().y && move.getStart().x == 7;
     if ((movingKingSideRook || movingKing) && castleAllowed(activeColor, CastleType::SHORT, castlingRights)) {
         disAllowCastle(activeColor, CastleType::SHORT, castlingRights);
         updated = true;
@@ -222,12 +222,12 @@ void State::updateCastlingRights(const Move& move, const Pieces::Piece newPiece)
     // taking an enemy rook
     const int enemyBackRow = activeColor == Color::White ? 0 : 7;
     const Color enemyColor = activeColor == Color::White ? Color::Black : Color::White;
-    const bool capturingQueenSideRook = enemyBackRow == move.end.y && move.end.x == 0;
+    const bool capturingQueenSideRook = enemyBackRow == move.getEnd().y && move.getEnd().x == 0;
     if (capturingQueenSideRook && castleAllowed(enemyColor, CastleType::LONG, castlingRights)) {
         disAllowCastle(enemyColor, CastleType::LONG, castlingRights);
         updated = true;
     }
-    const bool capturingKingSideRook = enemyBackRow == move.end.y && move.end.x == 7;
+    const bool capturingKingSideRook = enemyBackRow == move.getEnd().y && move.getEnd().x == 7;
     if (capturingKingSideRook && castleAllowed(enemyColor, CastleType::SHORT, castlingRights)) {
         disAllowCastle(enemyColor, CastleType::SHORT, castlingRights);
         updated = true;
@@ -254,10 +254,10 @@ void State::undoMove(Nnue *nnue) {
         fullMoveClock--;
     }
     if (movedPiece == Pieces::WHITE_KING) {
-        whiteKingSquare = move.start;
+        whiteKingSquare = move.getStart();
     }
     else if (movedPiece == Pieces::BLACK_KING) {
-        blackKingSquare = move.start;
+        blackKingSquare = move.getStart();
     }
 
     castlingRights = castlingBeforeMove;

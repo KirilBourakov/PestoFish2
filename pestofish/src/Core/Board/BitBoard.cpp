@@ -67,53 +67,53 @@ void BitBoard::initKnightMasks() {
 void BitBoard::move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
     // remove piece
     if (endContent != Pieces::EMPTY) {
-        remove(endContent, mv.end.y, mv.end.x);
+        remove(endContent, mv.getEnd().y, mv.getEnd().x);
     }
 
     // move
-    remove(startContent, mv.start.y, mv.start.x);
-    add(mv.promotedTo.value_or(startContent), mv.end.y, mv.end.x);
+    remove(startContent, mv.getStart().y, mv.getStart().x);
+    add(mv.getPromotedTo().value_or(startContent), mv.getEnd().y, mv.getEnd().x);
 
     // remove pawn behind, if en passant
-    if (mv.enPassantCapture) {
+    if (mv.getEnPassantCapture()) {
         const Pieces::Piece captured = startContent == Pieces::WHITE_PAWN ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
-        remove(captured, mv.start.y, mv.end.x);
+        remove(captured, mv.getStart().y, mv.getEnd().x);
     }
 
     // move rook when castling
-    else if (mv.castle == CastleType::LONG) {
+    else if (mv.getCastle() == CastleType::LONG) {
         const Pieces::Piece rook = startContent == Pieces::WHITE_KING ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove(rook, mv.start.y, 0);
-        add(rook, mv.start.y, mv.end.x+1);
+        remove(rook, mv.getStart().y, 0);
+        add(rook, mv.getStart().y, mv.getEnd().x+1);
     }
 
-    else if (mv.castle == CastleType::SHORT) {
+    else if (mv.getCastle() == CastleType::SHORT) {
         const Pieces::Piece rook = startContent == Pieces::WHITE_KING ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove(rook, mv.start.y, 7);
-        add(rook, mv.start.y, mv.end.x-1);
+        remove(rook, mv.getStart().y, 7);
+        add(rook, mv.getStart().y, mv.getEnd().x-1);
     }
 }
 
 void BitBoard::undoMove(const Move& mv, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
-    if (mv.enPassantCapture) {
-        add((activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN, mv.start.y, mv.end.x);
+    if (mv.getEnPassantCapture()) {
+        add((activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN, mv.getStart().y, mv.getEnd().x);
     }
-    else if (mv.castle == CastleType::LONG) {
+    else if (mv.getCastle() == CastleType::LONG) {
         const Pieces::Piece rook = (activeColor == Color::White) ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove(rook, mv.start.y, mv.end.x+1);
-        add(rook, mv.start.y, 0);
+        remove(rook, mv.getStart().y, mv.getEnd().x+1);
+        add(rook, mv.getStart().y, 0);
     }
-    else if (mv.castle == CastleType::SHORT) {
+    else if (mv.getCastle() == CastleType::SHORT) {
         const Pieces::Piece rook = (activeColor == Color::White) ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove(rook, mv.start.y, mv.end.x-1);
-        add(rook, mv.start.y, 7);
+        remove(rook, mv.getStart().y, mv.getEnd().x-1);
+        add(rook, mv.getStart().y, 7);
     }
 
-    remove(mv.promotedTo.value_or(movedPiece), mv.end.y, mv.end.x);
-    add(movedPiece, mv.start.y, mv.start.x);
+    remove(mv.getPromotedTo().value_or(movedPiece), mv.getEnd().y, mv.getEnd().x);
+    add(movedPiece, mv.getStart().y, mv.getStart().x);
 
     if (overwrittenPiece != Pieces::EMPTY) {
-        add(overwrittenPiece, mv.end.y, mv.end.x);
+        add(overwrittenPiece, mv.getEnd().y, mv.getEnd().x);
     }
 }
 

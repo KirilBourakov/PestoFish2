@@ -25,53 +25,53 @@ int Nnue::setBoard(const Board &board, const Color activeColor) const {
 void Nnue::move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
     // remove piece
     if (endContent != Pieces::EMPTY) {
-        remove(mv.end, endContent);
+        remove(mv.getEnd(), endContent);
     }
 
     // move
-    remove(mv.start, startContent);
-    add(mv.end, mv.promotedTo.value_or(startContent));
+    remove(mv.getStart(), startContent);
+    add(mv.getEnd(), mv.getPromotedTo().value_or(startContent));
 
     // remove pawn behind, if en passant
-    if (mv.enPassantCapture) {
+    if (mv.getEnPassantCapture()) {
         const Pieces::Piece captured = startContent == Pieces::WHITE_PAWN ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
-        remove({.x=mv.end.x, .y=mv.start.y}, captured);
+        remove({.x=mv.getEnd().x, .y=mv.getStart().y}, captured);
     }
 
     // move rook when castling
-    else if (mv.castle == CastleType::LONG) {
+    else if (mv.getCastle() == CastleType::LONG) {
         const Pieces::Piece rook = startContent == Pieces::WHITE_KING ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove({.x=0, .y=mv.start.y}, rook);
-        add({.x=mv.end.x+1, .y=mv.start.y}, rook);
+        remove({.x=0, .y=mv.getStart().y}, rook);
+        add({.x=mv.getEnd().x+1, .y=mv.getStart().y}, rook);
     }
 
-    else if (mv.castle == CastleType::SHORT) {
+    else if (mv.getCastle() == CastleType::SHORT) {
         const Pieces::Piece rook = startContent == Pieces::WHITE_KING ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove({.x=7, .y=mv.start.y}, rook);
-        add({.x=mv.end.x-1, .y=mv.start.y}, rook);
+        remove({.x=7, .y=mv.getStart().y}, rook);
+        add({.x=mv.getEnd().x-1, .y=mv.getStart().y}, rook);
     }
 }
 
 void Nnue::undoMove(const Move& mv, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
-    if (mv.enPassantCapture) {
-        add({.x=mv.end.x, .y=mv.start.y}, (activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN);
+    if (mv.getEnPassantCapture()) {
+        add({.x=mv.getEnd().x, .y=mv.getStart().y}, (activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN);
     }
-    else if (mv.castle == CastleType::LONG) {
+    else if (mv.getCastle() == CastleType::LONG) {
         const Pieces::Piece rook = (activeColor == Color::White) ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove({.x=mv.end.x+1, .y=mv.start.y}, rook);
-        add({.x=0, .y=mv.start.y}, rook);
+        remove({.x=mv.getEnd().x+1, .y=mv.getStart().y}, rook);
+        add({.x=0, .y=mv.getStart().y}, rook);
     }
-    else if (mv.castle == CastleType::SHORT) {
+    else if (mv.getCastle() == CastleType::SHORT) {
         const Pieces::Piece rook = (activeColor == Color::White) ? Pieces::WHITE_ROOK : Pieces::BLACK_ROOK;
-        remove({.x=mv.end.x-1, .y=mv.start.y}, rook);
-        add({.x=7, .y=mv.start.y}, rook);
+        remove({.x=mv.getEnd().x-1, .y=mv.getStart().y}, rook);
+        add({.x=7, .y=mv.getStart().y}, rook);
     }
 
-    remove(mv.end, mv.promotedTo.value_or(movedPiece));
-    add(mv.start, movedPiece);
+    remove(mv.getEnd(), mv.getPromotedTo().value_or(movedPiece));
+    add(mv.getStart(), movedPiece);
 
     if (overwrittenPiece != Pieces::EMPTY) {
-        add(mv.end, overwrittenPiece);
+        add(mv.getEnd(), overwrittenPiece);
     }
 }
 

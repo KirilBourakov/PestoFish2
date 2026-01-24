@@ -27,10 +27,10 @@ bool BitBoard::isLegalMove(const Move& mv, const Pieces::Piece startContent, con
     }
 
     uint64_t king = at(color == Color::White ? Pieces::WHITE_KING : Pieces::BLACK_KING);
-    if (mv.castle.has_value() && mv.castle.value() == CastleType::SHORT) {
+    if (mv.getCastle().has_value() && mv.getCastle().value() == CastleType::SHORT) {
         king |= shortMask | preMove; // prevent castling out of check
     }
-    if (mv.castle.has_value() && mv.castle.value() == CastleType::LONG) {
+    if (mv.getCastle().has_value() && mv.getCastle().value() == CastleType::LONG) {
         king |= longMask | preMove;
     }
 

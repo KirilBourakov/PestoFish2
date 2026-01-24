@@ -13,7 +13,7 @@
 class HistoryTable {
 public:
     int& operator[](const Move& move) {
-        return history[move.start.y * BOARD_SIZE + move.start.x][move.end.y * BOARD_SIZE + move.end.x];
+        return history[move.getStart().y * BOARD_SIZE + move.getStart().x][move.getEnd().y * BOARD_SIZE + move.getEnd().x];
     }
 
 private:

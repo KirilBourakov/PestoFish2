@@ -19,21 +19,21 @@ public:
     {}
 
     void move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
-        const Pieces::Piece newPiece = mv.promotedTo.value_or(this->at(mv.start.y, mv.start.x));
+        const Pieces::Piece newPiece = mv.getPromotedTo().value_or(this->at(mv.getStart().y, mv.getStart().x));
 
-        board[mv.end.y][mv.end.x] = newPiece;
-        board[mv.start.y][mv.start.x] = Pieces::EMPTY;
+        board[mv.getEnd().y][mv.getEnd().x] = newPiece;
+        board[mv.getStart().y][mv.getStart().x] = Pieces::EMPTY;
 
-        if (mv.enPassantCapture) {
-            board[mv.start.y][mv.end.x] = Pieces::EMPTY;
-        } else if (mv.castle == CastleType::LONG) {
-            const Pieces::Piece rook = this->at(mv.start.y, 0);
-            board[mv.start.y][0] = Pieces::EMPTY;
-            board[mv.start.y][mv.end.x + 1] = rook;
-        } else if (mv.castle == CastleType::SHORT) {
-            const Pieces::Piece rook = this->at(mv.start.y, 7);
-            board[mv.start.y][7] = Pieces::EMPTY;
-            board[mv.start.y][mv.end.x - 1] = rook;
+        if (mv.getEnPassantCapture()) {
+            board[mv.getStart().y][mv.getEnd().x] = Pieces::EMPTY;
+        } else if (mv.getCastle() == CastleType::LONG) {
+            const Pieces::Piece rook = this->at(mv.getStart().y, 0);
+            board[mv.getStart().y][0] = Pieces::EMPTY;
+            board[mv.getStart().y][mv.getEnd().x + 1] = rook;
+        } else if (mv.getCastle() == CastleType::SHORT) {
+            const Pieces::Piece rook = this->at(mv.getStart().y, 7);
+            board[mv.getStart().y][7] = Pieces::EMPTY;
+            board[mv.getStart().y][mv.getEnd().x - 1] = rook;
         }
     }
 
@@ -45,20 +45,20 @@ public:
      * @param activeColor The Color that played the Move
      */
     void undoMove(const Move& move, const Pieces::Piece movedPiece, const Pieces::Piece overwrittenPiece, const Color activeColor) {
-        if (move.enPassantCapture) {
-            board[move.start.y][move.end.x] = (activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
-        } else if (move.castle == CastleType::LONG) {
-            const Pieces::Piece rook = board[move.start.y][move.end.x + 1];
-            board[move.start.y][move.end.x + 1] = Pieces::EMPTY;
-            board[move.start.y][0] = rook;
-        } else if (move.castle == CastleType::SHORT) {
-            const Pieces::Piece rook = board[move.start.y][move.end.x - 1];
-            board[move.start.y][move.end.x - 1] = Pieces::EMPTY;
-            board[move.start.y][7] = rook;
+        if (move.getEnPassantCapture()) {
+            board[move.getStart().y][move.getEnd().x] = (activeColor == Color::White) ? Pieces::BLACK_PAWN : Pieces::WHITE_PAWN;
+        } else if (move.getCastle() == CastleType::LONG) {
+            const Pieces::Piece rook = board[move.getStart().y][move.getEnd().x + 1];
+            board[move.getStart().y][move.getEnd().x + 1] = Pieces::EMPTY;
+            board[move.getStart().y][0] = rook;
+        } else if (move.getCastle() == CastleType::SHORT) {
+            const Pieces::Piece rook = board[move.getStart().y][move.getEnd().x - 1];
+            board[move.getStart().y][move.getEnd().x - 1] = Pieces::EMPTY;
+            board[move.getStart().y][7] = rook;
         }
 
-        board[move.end.y][move.end.x] = overwrittenPiece;
-        board[move.start.y][move.start.x] = movedPiece;
+        board[move.getEnd().y][move.getEnd().x] = overwrittenPiece;
+        board[move.getStart().y][move.getStart().x] = movedPiece;
     }
 
     [[nodiscard]] Pieces::Piece at(const int y, const int x) const {

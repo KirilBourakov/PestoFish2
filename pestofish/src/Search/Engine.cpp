@@ -234,8 +234,8 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         // LMR
         int newDepth = search.depth - 1;
 
-        bool isQuiet = (currState.getAt(move.end) == Pieces::EMPTY) && !move.enPassantCapture;
-        bool isPromotion = move.promotedTo.has_value(); // TODO: add check as exception also
+        bool isQuiet = (currState.getAt(move.getEnd()) == Pieces::EMPTY) && !move.getEnPassantCapture();
+        bool isPromotion = move.getPromotedTo().has_value(); // TODO: add check as exception also
         if (search.depth >= 3 && i > 2 && isQuiet && !isPromotion) {
             newDepth = search.depth - lmrTable(search.depth, i);
         }
@@ -256,7 +256,7 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         }
         search.alpha = std::max(search.alpha, bestValue);
         if (search.alpha >= search.beta) {
-            if (!move.enPassantCapture && currState.getAt(move.end) == Pieces::EMPTY) {
+            if (!move.getEnPassantCapture() && currState.getAt(move.getEnd()) == Pieces::EMPTY) {
                 orderingInfo.killer.insert(search.ply, move);
             }
             orderingInfo.history[move] = search.depth * search.depth;
@@ -377,17 +377,17 @@ int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const 
     }
 
     // Cheap way to move promotions up above non promotions
-    if (move.promotedTo.has_value()) {
-        const int promoteValue = orderingValue.at(Pieces::piece_type(move.promotedTo.value()));
+    if (move.getPromotedTo().has_value()) {
+        const int promoteValue = orderingValue.at(Pieces::piece_type(move.getPromotedTo().value()));
         dsync += promoteValue;
     }
 
-    if (currState.getAt(move.end) != Pieces::EMPTY) {
-        const int victim_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.end)));
-        const int attacker_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.start)));
+    if (currState.getAt(move.getEnd()) != Pieces::EMPTY) {
+        const int victim_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.getEnd())));
+        const int attacker_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.getStart())));
         return 500000 + victim_value * 10 - attacker_value + dsync;
     }
-    if (move.enPassantCapture) {
+    if (move.getEnPassantCapture()) {
         return 500000 + dsync;
     }
     return history[move] + dsync;

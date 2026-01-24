@@ -23,13 +23,24 @@ inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
 struct Move {
     Move() = default;
 
-    BoardPosition start{}; // starting square
-    BoardPosition end{};   // end square
-
-    bool enPassantCapture = false;
-    std::optional<Pieces::Piece> promotedTo = std::nullopt;         // piece being promoted to
-    std::optional<CastleType> castle = std::nullopt;                // castle type
-    std::optional<BoardPosition> newEnPassantSquare = std::nullopt; // location where en passant square now is
+    [[nodiscard]] std::optional<BoardPosition> getNewEnPassantSquare() const {
+        return newEnPassantSquare;
+    }
+    [[nodiscard]] std::optional<CastleType> getCastle() const {
+        return castle;
+    }
+    [[nodiscard]] std::optional<Pieces::Piece> getPromotedTo() const {
+        return promotedTo;
+    }
+    [[nodiscard]] bool getEnPassantCapture() const {
+        return enPassantCapture;
+    }
+    [[nodiscard]] BoardPosition getEnd() const {
+        return end;
+    }
+    [[nodiscard]] BoardPosition getStart() const {
+        return start;
+    }
 
     static Move standardMove(BoardPosition start, BoardPosition end) {
         return {start, end};
@@ -58,6 +69,14 @@ struct Move {
     }
 
 private:
+    BoardPosition start{}; // starting square
+    BoardPosition end{};   // end square
+
+    bool enPassantCapture = false;
+    std::optional<Pieces::Piece> promotedTo = std::nullopt;         // piece being promoted to
+    std::optional<CastleType> castle = std::nullopt;                // castle type
+    std::optional<BoardPosition> newEnPassantSquare = std::nullopt; // location where en passant square now is
+
     Move(BoardPosition start, BoardPosition end) {
         this->start = start;
         this->end = end;
@@ -76,7 +95,7 @@ private:
     }
 };
 inline std::ostream& operator<<(std::ostream& os, const Move& m) {
-    return os << m.start << " -> " << m.end;
+    return os << m.getStart() << " -> " << m.getEnd();
 }
 
 using OptionalMove = std::optional<Move>;
