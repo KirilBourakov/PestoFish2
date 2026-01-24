@@ -6,6 +6,36 @@ Pestofish2
 
 Pestofish2 is an open source chess engine written in C++. It is a significant improvement over the original [PestoFish](https://github.com/KirilBourakov/Pestofish), written as part of a first year final project.
 
+## Table of Contents
+*   [Features](#features)
+*   [Project Structure](#project-structure)
+*   [Quickstart](#quickstart)
+    *   [Requirements](#requirements)
+    *   [Build Instructions (Engine)](#build-instructions-engine)
+    *   [Usage Instructions (Evaluate)](#usage-instructions-evaluate)
+    *   [Usage Instructions (Frontend)](#usage-instructions-frontend)
+*   [Attribution](#attribution)
+
+## Features
+*   **Advanced Search**: 
+    - Negamax with Alpha-Beta pruning
+    - Iterative Deepening & Aspiration windows
+    - Quasiance Search
+    - LazySMP for efficent multithreading
+    - Principle Variation Search (PVS) 
+    - Late Move Reductions
+*   **Advanced Evluation**:
+    - Efficently Updateable Neural Network (NNUE) with 768 weight accumulator and a 640 weight hidden layer.
+*   **Efficent Move Ordering**:
+    - Best Historical Move
+    - MVV-LVA sorted captures
+    - Killer Quite Moves
+    - History Based Quite Move 
+*   **UCI Compatible**:
+    - Supports core UCI features, allowing use with popular chess GUIs (CuteChess, etc.).
+*   **High Performance**: Written in modern C++20 with efficient bitboard-based move generation.
+
+
 ## Project Structure
 
 *   **`pestofish`**: The C++ source code for the chess engine.
