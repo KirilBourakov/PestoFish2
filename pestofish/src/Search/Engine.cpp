@@ -160,6 +160,9 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
             bestMove = move;
         }
         search.alpha = std::max(search.alpha, bestEval);
+        if (search.alpha >= search.beta) {
+            break;
+        }
 
         if (endSearch()) {
             break;

@@ -56,7 +56,7 @@ namespace Transposition {
         return static_cast<uint8_t>((data >> SHIFT_AGE) & MASK_AGE);
     }
 
-    struct Entry {
+    struct alignas(64) Entry {
         Entry();
 
         static uint64_t pack(Move bestMove, int16_t depth, int16_t score, CutoffType cutoffType, unsigned short age);
