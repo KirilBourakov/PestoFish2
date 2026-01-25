@@ -11,8 +11,6 @@
 #include "Board/Board.hpp"
 #include "pestofish/Core/Move.hpp"
 
-using u64 = unsigned long long;
-
 class ZobristHash {
 public:
     ZobristHash(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
@@ -22,10 +20,10 @@ public:
     void changeEnPassantSquare(std::optional<BoardPosition> prevEnPassantSquare, std::optional<BoardPosition> newEnPassantSquare);
     void makeMove(Move move, Pieces::Piece movedFrom, Pieces::Piece movedTo);
 
-    [[nodiscard]] u64 getValue() const {
+    [[nodiscard]] uint64_t getValue() const {
         return value;
     }
-    void setValue(const u64 newValue) {
+    void setValue(const uint64_t newValue) {
         value = newValue;
     }
 
@@ -41,13 +39,13 @@ private:
 
     void recalculate(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
 
-    u64 value;
+    uint64_t value;
 
     // Generation aids
     std::mt19937_64 rng;
     std::uniform_int_distribution<unsigned long long> dis;
-    std::unordered_map<Pieces::Piece, std::array<std::array<u64, BOARD_SIZE>, BOARD_SIZE>> pieceTable;
-    u64 blackToMove;
-    std::array<u64, 16> castleRights; // castling rights represented by int from ob1111 -> ob0000
-    std::array<u64, 8> enPassantSquare;
+    std::unordered_map<Pieces::Piece, std::array<std::array<uint64_t, BOARD_SIZE>, BOARD_SIZE>> pieceTable;
+    uint64_t blackToMove;
+    std::array<uint64_t, 16> castleRights; // castling rights represented by int from ob1111 -> ob0000
+    std::array<uint64_t, 8> enPassantSquare;
 };

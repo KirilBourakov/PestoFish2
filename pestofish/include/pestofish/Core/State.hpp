@@ -37,7 +37,7 @@ public:
     State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare);
     State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock, BoardPosition whiteKingSquare, BoardPosition blackKingSquare,
-          const std::vector<HistoricalEntry>& history, const std::vector<u64>& hashHistory);
+          const std::vector<HistoricalEntry>& history, const std::vector<uint64_t>& hashHistory);
     State(const Board& board, Color activeColor, int castlingRights, std::optional<BoardPosition> enPassantSquare,
           int halfMoveClock, int fullMoveClock);
 
@@ -68,7 +68,7 @@ public:
     [[nodiscard]] int getCastlingRights() const {
         return castlingRights;
     }
-    [[nodiscard]] u64 getZobrist() const {
+    [[nodiscard]] uint64_t getZobrist() const {
         return hash.getValue();
     }
     [[nodiscard]] const Board& getBoard() const {
@@ -112,7 +112,7 @@ private:
     BoardPosition blackKingSquare;
 
     std::vector<HistoricalEntry> history;
-    std::vector<u64> hashHistory;
+    std::vector<uint64_t> hashHistory;
 
     ZobristHash hash;
 

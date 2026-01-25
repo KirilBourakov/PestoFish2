@@ -20,7 +20,7 @@ ZobristHash::ZobristHash(const Board& board, Color activeColor, int castlingRigh
     static std::array<Piece, 12> pieces{WHITE_PAWN, WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN, WHITE_KING,
                                         BLACK_PAWN, BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN, BLACK_KING};
     for (Piece piece : pieces) {
-        std::array<std::array<u64, BOARD_SIZE>, BOARD_SIZE> values;
+        std::array<std::array<uint64_t, BOARD_SIZE>, BOARD_SIZE> values;
         for (auto i = 0; i < BOARD_SIZE; i++) {
             for (auto j = 0; j < BOARD_SIZE; j++) {
                 values[i][j] = dis(rng);

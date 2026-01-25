@@ -102,9 +102,9 @@ namespace Transposition {
             , alwaysReplace(std::make_unique<table>(tableSizeEntries))
         {}
 
-        bool lookup(u64 key, uint64_t& entry_out) const;
+        bool lookup(uint64_t key, uint64_t& entry_out) const;
 
-        void insert(u64 key, const Move& bestMove, int16_t depth, int score, CutoffType cutoffType,
+        void insert(uint64_t key, const Move& bestMove, int16_t depth, int16_t score, CutoffType cutoffType,
                     unsigned char age);
 
     private:

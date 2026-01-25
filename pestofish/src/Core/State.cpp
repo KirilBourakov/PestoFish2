@@ -51,7 +51,7 @@ State::State(const Board& board, const Color activeColor, const int castlingRigh
 State::State(const Board& board, const Color activeColor, const int castlingRights,
              const std::optional<BoardPosition> enPassantSquare, const int halfMoveClock, const int fullMoveClock,
              const BoardPosition whiteKingSquare, const BoardPosition blackKingSquare, const std::vector<HistoricalEntry>& history,
-             const std::vector<u64>& hashHistory)
+             const std::vector<uint64_t>& hashHistory)
     : board(board)
     , activeColor(activeColor)
     , castlingRights(castlingRights)
@@ -117,7 +117,7 @@ GameState State::getGameState() {
 State State::makeThreadCopy() const {
     Board copyBoard = board;                 // TODO: make sure this is a copy
     std::vector<HistoricalEntry> historyCopy{}; // threads don't need game history
-    std::vector<u64> hashCopy = hashHistory;
+    std::vector<uint64_t> hashCopy = hashHistory;
     return {copyBoard,     activeColor,     castlingRights,  enPassantSquare, halfMoveClock,
             fullMoveClock, whiteKingSquare, blackKingSquare, historyCopy,     hashCopy};
 }
@@ -143,7 +143,7 @@ std::vector<Move> State::purgeIllegal(const std::vector<Move>& pseudolegalMoves)
 
 // Updated peicewise within State
 void State::makeMove(const Move& move, Nnue *nnue) {
-    const u64 preMoveHash = hash.getValue();
+    const uint64_t preMoveHash = hash.getValue();
 
     const HistoricalEntry entry = {
         move,
@@ -240,7 +240,7 @@ void State::updateCastlingRights(const Move& move, const Pieces::Piece newPiece)
 
 void State::undoMove(Nnue *nnue) {
     auto [move, movedPiece, overwrittenPiece, castlingBeforeMove, halfMoveClockBeforeMove, enPassantBeforeMove] = history.back();
-    const u64 historicalHash = hashHistory.back();
+    const uint64_t historicalHash = hashHistory.back();
     history.pop_back();
     hashHistory.pop_back();
 

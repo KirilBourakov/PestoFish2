@@ -3,8 +3,11 @@
 //
 
 #include "pestofish/Search/TranspositionTable.hpp"
-
-bool Transposition::TranspositionTable::lookup(const u64 key, uint64_t& entry_out) const {
+// TODO: fix transposition table by clustering together lines (clusters of 4 for cache line)
+// Write vector into large pages (look into prefetching)
+// Fix searching issues - re examine psedo code in chess programming, have gemeni generate also and reason about differences
+// Explore finding better magics.
+bool Transposition::TranspositionTable::lookup(const uint64_t key, uint64_t& entry_out) const {
     const unsigned long long index = key & (tableSizeEntries - 1);
 
     Entry& depthEntry = (*depthPreferred)[index];
@@ -35,7 +38,7 @@ bool Transposition::TranspositionTable::lookup(const u64 key, uint64_t& entry_ou
 }
 
 void Transposition::TranspositionTable::insert(
-    const u64 key, const Move& bestMove, const int16_t depth, const int score, const CutoffType cutoffType, const unsigned char age) {
+    const uint64_t key, const Move& bestMove, const int16_t depth, const int16_t score, const CutoffType cutoffType, const unsigned char age) {
     const unsigned long long index = key & (tableSizeEntries - 1);
     const uint64_t data = Entry::pack(bestMove, depth, score, cutoffType, age);
 
