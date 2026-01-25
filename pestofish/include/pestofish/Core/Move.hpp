@@ -12,16 +12,16 @@
 struct BoardPosition {
     int x, y;
 
-    bool operator==(const BoardPosition& other) const {
+    constexpr bool operator==(const BoardPosition& other) const {
         return x == other.x && y == other.y;
     }
 
-    int asInt() const {
+    constexpr int asInt() const {
         return y * BOARD_SIZE + x;
     }
 
-    static BoardPosition fromInt(const int in) {
-        return {in % BOARD_SIZE, in / BOARD_SIZE};
+    static constexpr BoardPosition fromInt(const int in) {
+        return {in & 7, in >> 3};
     }
 };
 inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
@@ -49,105 +49,100 @@ namespace Moves {
     const uint16_t PROMO_Q_CAP    = 15 << 12;
 }
 
-
-
 struct Move {
-    Move() = default;
+    constexpr Move() = default;
 
-    [[nodiscard]] std::optional<BoardPosition> getNewEnPassantSquare() const {
+    [[nodiscard]] constexpr std::optional<BoardPosition> getNewEnPassantSquare() const {
         if ((moveEncoding & Moves::FLAG_MASK) == Moves::DOUBLE_PUSH) {
             BoardPosition start = getStart();
             BoardPosition end = getEnd();
-            return std::make_optional(BoardPosition{start.x, (start.y+end.y) / 2});
+            return std::make_optional(BoardPosition{start.x, (start.y + end.y) / 2});
         }
         return std::nullopt;
-
     }
-    [[nodiscard]] std::optional<CastleType> getCastle() const {
-        uint16_t flag = moveEncoding & Moves::FLAG_MASK;
-        switch (flag) {
-            case Moves::SHORT_CASTLE:
-                return CastleType::SHORT;
-            case Moves::LONG_CASTLE:
-                return CastleType::LONG;
-            default:
-                return std::nullopt;
+
+    [[nodiscard]] constexpr std::optional<CastleType> getCastle() const {
+        const uint16_t flag = moveEncoding & Moves::FLAG_MASK;
+        if (flag == Moves::SHORT_CASTLE) {return CastleType::SHORT;}
+        if (flag == Moves::LONG_CASTLE) {return CastleType::LONG;}
+        return std::nullopt;
+    }
+
+    [[nodiscard]] constexpr std::optional<Pieces::Piece> getPromotedTo() const {
+        const uint16_t flag = moveEncoding & Moves::FLAG_MASK;
+
+        // Check if promotion bit
+        if (flag & (8 << 12)) {
+             // Extract type: N=0, B=1, R=2, Q=3 (relative to base)
+             // We want: Knight(2), Bishop(3), Rook(4), Queen(5)
+             const auto type = static_cast<PieceType>(((flag >> 12) & 3) + 2);
+             const Color color = to() < 8 ? Color::White : Color::Black;
+             return Pieces::make_piece(color, type);
         }
+        return std::nullopt;
     }
-    [[nodiscard]] std::optional<Pieces::Piece> getPromotedTo() const {
-        uint16_t flag = moveEncoding & Moves::FLAG_MASK;
 
-        PieceType type;
-        switch (flag) {
-            case Moves::PROMO_N:
-            case Moves::PROMO_N_CAP:
-                type = PieceType::Knight;
-                break;
-
-            case Moves::PROMO_B:
-            case Moves::PROMO_B_CAP:
-                type = PieceType::Bishop;
-                break;
-
-            case Moves::PROMO_R:
-            case Moves::PROMO_R_CAP:
-                type = PieceType::Rook;
-                break;
-
-            case Moves::PROMO_Q:
-            case Moves::PROMO_Q_CAP:
-                type = PieceType::Queen;
-                break;
-
-            default:
-                return std::nullopt;
-        }
-        Color color = getEnd().y == 0 ? Color::White : Color::Black;
-        return Pieces::make_piece(color, type);
+    [[nodiscard]] constexpr bool isCapture() const {
+        return moveEncoding & Moves::FLAG_MASK;
     }
-    [[nodiscard]] bool getEnPassantCapture() const {
+    
+    [[nodiscard]] constexpr bool getEnPassantCapture() const {
         return (moveEncoding & Moves::FLAG_MASK) == Moves::EP_CAPTURE;
     }
-    [[nodiscard]] BoardPosition getEnd() const {
-        return BoardPosition::fromInt((moveEncoding & Moves::TARGET_MASK) >> 6);
-    }
-    [[nodiscard]] BoardPosition getStart() const {
-        return BoardPosition::fromInt(moveEncoding & Moves::SOURCE_MASK);
+
+    [[nodiscard]] constexpr BoardPosition getEnd() const {
+        return BoardPosition::fromInt(to());
     }
 
-    static Move standardMove(BoardPosition start, BoardPosition end) {
-        uint16_t mv = start.asInt() | end.asInt() << 6;
-        return {mv};
+    [[nodiscard]] constexpr BoardPosition getStart() const {
+        return BoardPosition::fromInt(from());
     }
-    static Move promotionMove(BoardPosition start, BoardPosition end, uint16_t promotionFlag) {
-        uint16_t mv = start.asInt() | end.asInt() << 6 | promotionFlag;
-        return {mv};
+    
+    [[nodiscard]] constexpr int from() const {
+        return moveEncoding & Moves::SOURCE_MASK;
     }
+
+    [[nodiscard]] constexpr int to() const {
+        return (moveEncoding & Moves::TARGET_MASK) >> 6;
+    }
+    
+    [[nodiscard]] constexpr uint16_t raw() const {
+        return moveEncoding;
+    }
+
+    static constexpr Move standardMove(BoardPosition start, BoardPosition end) {
+        return {static_cast<uint16_t>(start.asInt() | end.asInt() << 6)};
+    }
+    
+    static constexpr Move promotionMove(BoardPosition start, BoardPosition end, uint16_t promotionFlag) {
+        return {static_cast<uint16_t>(start.asInt() | end.asInt() << 6 | promotionFlag)};
+    }
+    
     template<CastleType type>
-    static Move castleMove(BoardPosition start, BoardPosition end) {
-        uint16_t flag = type == CastleType::SHORT ? Moves::SHORT_CASTLE : Moves::LONG_CASTLE;
-        uint16_t mv = start.asInt() | end.asInt() << 6 | flag;
-        return {mv};
+    static constexpr Move castleMove(BoardPosition start, BoardPosition end) {
+        uint16_t flag = (type == CastleType::SHORT) ? Moves::SHORT_CASTLE : Moves::LONG_CASTLE;
+        return {static_cast<uint16_t>(start.asInt() | end.asInt() << 6 | flag)};
     }
-    static Move doublePawnMove(BoardPosition start, BoardPosition end) {
-        // int dir = movedColor == Color::White ? -1 : 1;
-        // {end.x, end.y - dir}
-        return {start.asInt() | end.asInt() << 6 | Moves::DOUBLE_PUSH};
+    
+    static constexpr Move doublePawnMove(BoardPosition start, BoardPosition end) {
+        return {static_cast<uint16_t>(start.asInt() | end.asInt() << 6 | Moves::DOUBLE_PUSH)};
     }
-    static Move enPassantCaptureMove(BoardPosition start, BoardPosition end) {
-        return {start.asInt() | end.asInt() << 6 | Moves::EP_CAPTURE};
+    
+    static constexpr Move enPassantCaptureMove(BoardPosition start, BoardPosition end) {
+        return {static_cast<uint16_t>(start.asInt() | end.asInt() << 6 | Moves::EP_CAPTURE)};
     }
-    static Move invalid() {
+    
+    static constexpr Move invalid() {
         return {0};
     }
 
-    bool operator==(const Move& other) const {
+    constexpr bool operator==(const Move& other) const {
         return other.moveEncoding == moveEncoding;
     }
 
 private:
     uint16_t moveEncoding;
-    Move(const int val) : moveEncoding(val) {};
+    constexpr Move(const uint16_t val) : moveEncoding(val) {};
 };
 inline std::ostream& operator<<(std::ostream& os, const Move& m) {
     return os << m.getStart() << " -> " << m.getEnd();
