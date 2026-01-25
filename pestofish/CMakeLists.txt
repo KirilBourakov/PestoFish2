@@ -11,6 +11,7 @@ set(ENGINE_SOURCES
     src/Eval/Evaluator.cpp
     src/Eval/Nnue.cpp
     src/Search/Engine.cpp
+    src/Search/TranspositionTable.cpp
     src/Interface/UCI.cpp
 )
 

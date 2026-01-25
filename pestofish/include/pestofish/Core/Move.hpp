@@ -50,7 +50,7 @@ namespace Moves {
 }
 
 struct Move {
-    constexpr Move() = default;
+    constexpr Move() : moveEncoding(0) {};
 
     [[nodiscard]] constexpr std::optional<BoardPosition> getNewEnPassantSquare() const {
         if ((moveEncoding & Moves::FLAG_MASK) == Moves::DOUBLE_PUSH) {
@@ -140,9 +140,14 @@ struct Move {
         return other.moveEncoding == moveEncoding;
     }
 
+    constexpr uint16_t getMoveEncoding() {
+        return moveEncoding;
+    }
+
+    constexpr Move(const uint16_t val) : moveEncoding(val) {};
+
 private:
     uint16_t moveEncoding;
-    constexpr Move(const uint16_t val) : moveEncoding(val) {};
 };
 inline std::ostream& operator<<(std::ostream& os, const Move& m) {
     return os << m.getStart() << " -> " << m.getEnd();

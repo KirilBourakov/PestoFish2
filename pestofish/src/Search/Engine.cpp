@@ -71,12 +71,14 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
     // Order
     int stateSeed = 1;
-    Transposition::Entry entry_out;
-    transPosTable.lookup(state.getZobrist(), entry_out);
+    uint64_t entry_out = 0;
+    bool found = transPosTable.lookup(state.getZobrist(), entry_out);
+    OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
+
     RngInfo rootRng = RngInfo::fromSeed(stateSeed);
-    std::ranges::sort(possibleMoves, [this, &entry_out](const Move& a, const Move& b) {
-        return get_move_score(a, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, 0) >
-               get_move_score(b, std::nullopt, std::nullopt, this->state, entry_out.bestMove, this->orderInfo.history, 0);
+    std::ranges::sort(possibleMoves, [this, &ttMove](const Move& a, const Move& b) {
+        return get_move_score(a, std::nullopt, std::nullopt, this->state, ttMove, this->orderInfo.history, 0) >
+               get_move_score(b, std::nullopt, std::nullopt, this->state, ttMove, this->orderInfo.history, 0);
     });
 
 
@@ -170,17 +172,20 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
 int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue) {
     int alphaOrig = search.alpha;
 
-    Transposition::Entry entry_out;
-    if (transPosTable.lookup(currState.getZobrist(), entry_out)) {
-        if (entry_out.depth >= search.depth) {
-            if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
-                return entry_out.score;
+    uint64_t entry_out = 0;
+    bool found = transPosTable.lookup(currState.getZobrist(), entry_out);
+    if (found) {
+        if (Transposition::ttEntryDepth(entry_out) >= search.depth) {
+            Transposition::CutoffType type = Transposition::ttEntryCutType(entry_out);
+            int16_t score = Transposition::ttEntryScore(entry_out);
+            if (type == Transposition::CutoffType::EXACT) {
+                return score;
             }
-            if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= search.beta) {
-                return entry_out.score;
+            if (type == Transposition::CutoffType::LOWER_BOUND && score >= search.beta) {
+                return score;
             }
-            if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= search.alpha) {
-                return entry_out.score;
+            if (type == Transposition::CutoffType::UPPER_BOUND && score <= search.alpha) {
+                return score;
             }
         }
     }
@@ -207,14 +212,14 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
         return quiescence(currState, search, nnue);
     }
 
-
+    OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
     std::vector<std::pair<Move,int>> scored;
     scored.reserve(possibleMoves.size());
     for (auto& m : possibleMoves) {
         const int dsync = rng.random();
         scored.emplace_back(m, get_move_score(
             m, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply),
-            currState, entry_out.bestMove, orderingInfo.history, dsync
+            currState, ttMove, orderingInfo.history, dsync
         ));
     }
     std::ranges::sort(scored, [](auto& a, auto& b){ return a.second > b.second; });
@@ -297,15 +302,17 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         search.alpha = bestValue;
     }
 
-    if (Transposition::Entry entry_out; transPosTable.lookup(currState.getZobrist(), entry_out)) {
-        if (entry_out.cutoffType == Transposition::CutoffType::EXACT) {
-            return entry_out.score;
+    if (uint64_t entry_out; transPosTable.lookup(currState.getZobrist(), entry_out)) {
+        Transposition::CutoffType type = Transposition::ttEntryCutType(entry_out);
+        int16_t score = Transposition::ttEntryScore(entry_out);
+        if (type == Transposition::CutoffType::EXACT) {
+            return score;
         }
-        if (entry_out.cutoffType == Transposition::CutoffType::LOWER_BOUND && entry_out.score >= search.beta) {
-            return entry_out.score;
+        if (type == Transposition::CutoffType::LOWER_BOUND && score >= search.beta) {
+            return score;
         }
-        if (entry_out.cutoffType == Transposition::CutoffType::UPPER_BOUND && entry_out.score <= search.alpha) {
-            return entry_out.score;
+        if (type == Transposition::CutoffType::UPPER_BOUND && score <= search.alpha) {
+            return score;
         }
     }
 
