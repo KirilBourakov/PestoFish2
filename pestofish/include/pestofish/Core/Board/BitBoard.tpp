@@ -72,7 +72,7 @@ void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) co
         const BoardPosition end = color == Color::White ? BoardPosition{6, 7} : BoardPosition{6, 0};
 
         if ((shortMask & (at(Color::White) | at(Color::Black))) == 0) {
-            moves.push_back(Move::castleMove(kingStart, end, CastleType::SHORT));
+            moves.push_back(Move::castleMove<CastleType::SHORT>(kingStart, end));
         }
     }
     if (!quiescence && castleAllowed(color, CastleType::LONG, castleRights)) {
@@ -80,7 +80,7 @@ void BitBoard::addKingMoves(const int castleRights, std::vector<Move>& moves) co
         const BoardPosition end = color == Color::White ? BoardPosition{2, 7} : BoardPosition{2, 0};
 
         if ((longMask & (at(Color::White) | at(Color::Black))) == 0) {
-            moves.push_back(Move::castleMove(kingStart, end, CastleType::LONG));
+            moves.push_back(Move::castleMove<CastleType::LONG>(kingStart, end));
         }
     }
     const uint64_t friendly = at(color);
@@ -187,9 +187,8 @@ uint64_t BitBoard::getPawnAttackMask() const {
 template<Color color, bool quiescence>
 void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, std::vector<Move>& moves) const {
     using namespace Pieces;
-    static constexpr std::array<Piece, 4> whitePieces = {WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN};
-    static constexpr std::array<Piece, 4> blackPieces = {BLACK_KNIGHT, BLACK_BISHOP, BLACK_ROOK, BLACK_QUEEN};
-    const auto& usedPieces = (color == Color::White ? whitePieces : blackPieces);
+    static constexpr std::array<uint16_t, 4> promotions = {Moves::PROMO_N, Moves::PROMO_B, Moves::PROMO_R, Moves::PROMO_Q};
+    static constexpr std::array<uint16_t, 4> promo_caps = {Moves::PROMO_N_CAP, Moves::PROMO_B_CAP, Moves::PROMO_R_CAP, Moves::PROMO_Q_CAP};
     auto emit = [&](uint64_t bb, const int offset, const int type=1) {
         while (bb) {
             const int to = pop_lsb(bb);
@@ -202,8 +201,7 @@ void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, 
                 moves.push_back(Move::enPassantCaptureMove(start, end));
             }
             else if (type == 3) {
-                const int enPassantSquareY = end.y - (color == Color::White ? -1 : 1);
-                moves.push_back(Move::doublePawnMove(start, end, {end.x, enPassantSquareY}));
+                moves.push_back(Move::doublePawnMove(start, end));
             }
             else {
                 moves.push_back(Move::standardMove(start,end));
@@ -211,11 +209,11 @@ void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, 
         }
     };
 
-    auto emitPromotion = [&](uint64_t bb, const int offset) {
+    auto emitPromotion = [&](uint64_t bb, const int offset, const std::array<uint16_t, 4>& pms) {
         while (bb) {
             const int to = pop_lsb(bb);
             const int from = to + offset;
-            for (const Piece promoteTo : usedPieces) {
+            for (const uint16_t promoteTo : pms) {
                 moves.push_back(Move::promotionMove(positions[from], positions[to], promoteTo));
             }
         }
@@ -250,9 +248,9 @@ void BitBoard::addPawnMoves(const std::optional<BoardPosition> enPassantSquare, 
     emit(capRight, color == Color::White ? 9 : -9);
     emit(enPassantLeft, color == Color::White ? 7 : -7, 2);
     emit(enPassantRight, color == Color::White ? 9 : -9, 2);
-    emitPromotion(promotion, color == Color::White ? 8 : -8);
-    emitPromotion(promotionCapLeft, color == Color::White ? 7 : -7);
-    emitPromotion(promotionCapRight, color == Color::White ? 9 : -9);
+    emitPromotion(promotion, color == Color::White ? 8 : -8, promotions);
+    emitPromotion(promotionCapLeft, color == Color::White ? 7 : -7, promo_caps);
+    emitPromotion(promotionCapRight, color == Color::White ? 9 : -9, promo_caps);
 
     if (!quiescence) {
         uint64_t singles = combinedForwardMoves & ~lastRank;

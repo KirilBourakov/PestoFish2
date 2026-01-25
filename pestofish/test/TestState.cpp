@@ -131,7 +131,7 @@ TEST(MakeUndo, whiteKingSideCastle) {
     State state = fenToState("r3k2r/8/8/8/8/8/3PPP2/R3K2R w KQkq - 0 1");
 
     State stateCopy{state};
-    state.makeMove(Move::castleMove({4, 7}, {6, 7}, CastleType::SHORT), nullptr);
+    state.makeMove(Move::castleMove<CastleType::SHORT>({4, 7}, {6, 7}), nullptr);
     ASSERT_EQ(0b0011, state.getCastlingRights());
     ASSERT_EQ(WHITE_KING, state.getBoard().at(7, 6));
     ASSERT_EQ(EMPTY, state.getBoard().at(7, 4));

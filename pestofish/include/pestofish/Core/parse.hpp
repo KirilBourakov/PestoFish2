@@ -55,36 +55,54 @@ inline Move moveFromLongAlgebric(const std::string& mv, const State& state) {
     const PieceType movedType = Pieces::piece_type(moved);
 
     // Promotion is given
+    uint16_t promo = 0;
     if (mv.size() == 5) {
-        PieceType type;
-        switch (mv[4]) {
-        case 'q':
-            type = PieceType::Queen;
-            break;
-        case 'r':
-            type = PieceType::Rook;
-            break;
-        case 'b':
-            type = PieceType::Bishop;
-            break;
-        case 'n':
-            type = PieceType::Knight;
-            break;
-        default:
-            throw std::invalid_argument("Invalid promotion");
+        if (start.x != end.x) {
+            switch (mv[4]) {
+                case 'q':
+                    promo = Moves::PROMO_Q_CAP;
+                    break;
+                case 'r':
+                    promo = Moves::PROMO_R_CAP;
+                    break;
+                case 'b':
+                    promo = Moves::PROMO_B_CAP;
+                    break;
+                case 'n':
+                    promo = Moves::PROMO_N_CAP;
+                    break;
+                default:
+                    throw std::invalid_argument("Invalid promotion");
+            }
+        } else {
+            switch (mv[4]) {
+                case 'q':
+                    promo = Moves::PROMO_Q;
+                    break;
+                case 'r':
+                    promo = Moves::PROMO_R;
+                    break;
+                case 'b':
+                    promo = Moves::PROMO_B;
+                    break;
+                case 'n':
+                    promo = Moves::PROMO_N;
+                    break;
+                default:
+                    throw std::invalid_argument("Invalid promotion");
+            }
         }
-        const Pieces::Piece promoteTo = Pieces::make_piece(movedColor, type);
-        return Move::promotionMove(start, end, promoteTo);
+        return Move::promotionMove(start, end, promo);
     }
 
     // Moving king (maybe castling)
     if (movedType == PieceType::King) {
         int fileDelta = end.x - start.x;
         if (fileDelta == 2) {
-            return Move::castleMove(start, end, CastleType::SHORT);
+            return Move::castleMove<CastleType::SHORT>(start, end);
         }
         if (fileDelta == -2) {
-            return Move::castleMove(start, end, CastleType::LONG);
+            return Move::castleMove<CastleType::LONG>(start, end);
         }
     }
 
@@ -96,8 +114,7 @@ inline Move moveFromLongAlgebric(const std::string& mv, const State& state) {
             return Move::enPassantCaptureMove(start, end);
         }
         if (abs(start.y - end.y) == 2) {
-            int dir = movedColor == Color::White ? -1 : 1;
-            return Move::doublePawnMove(start, end, {end.x, end.y - dir});
+            return Move::doublePawnMove(start, end);
         }
     }
 
