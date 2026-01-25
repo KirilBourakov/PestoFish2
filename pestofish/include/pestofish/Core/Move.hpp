@@ -29,9 +29,9 @@ inline std::ostream& operator<<(std::ostream& os, const BoardPosition& pos) {
 }
 
 namespace Moves {
-    const uint16_t SOURCE_MASK = 0x3F;       // 0000 0000 0011 1111
-    const uint16_t TARGET_MASK = 0xFC0;      // 0000 1111 1100 0000
-    const uint16_t FLAG_MASK = 0xF000;     // 1111 0000 0000 0000
+    const uint16_t SOURCE_MASK = 0x3F; // 0000 0000 0011 1111
+    const uint16_t TARGET_MASK = 0xFC0; // 0000 1111 1100 0000
+    const uint16_t FLAG_MASK = 0xF000; // 1111 0000 0000 0000
 
     const uint16_t QUIET = 0;
     const uint16_t DOUBLE_PUSH = 1 << 12;
