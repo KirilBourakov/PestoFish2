@@ -34,6 +34,8 @@ namespace Transposition {
     constexpr uint64_t MASK_DEPTH = (1ULL << BITS_DEPTH) - 1;
     constexpr uint64_t MASK_MOVE  = (1ULL << BITS_MOVE) - 1;
 
+    constexpr int VALUES = 4;
+
     inline Move ttEntryMove(const uint64_t& data) {
         return Move{static_cast<uint16_t>((data >> SHIFT_MOVE) & MASK_MOVE)};
     }
@@ -55,51 +57,31 @@ namespace Transposition {
     }
 
     struct Entry {
-        Entry() : data(static_cast<uint64_t>(CutoffType::INVALID) << SHIFT_TYPE), checksum(0) {}
-        Entry(const uint64_t checksum, const uint64_t data)
-            : data(data)
-            , checksum(checksum)
-        {}
+        Entry();
 
-        static uint64_t pack(Move bestMove, int16_t depth, int16_t score, CutoffType cutoffType, unsigned short age) {
-            uint64_t data = static_cast<uint64_t>(bestMove.getMoveEncoding()) << SHIFT_MOVE;
-            data |= static_cast<uint64_t>(static_cast<uint16_t>(depth)) << SHIFT_DEPTH;
-            data |= static_cast<uint64_t>(static_cast<uint16_t>(score)) << SHIFT_SCORE;
-            data |= static_cast<uint64_t>(static_cast<uint8_t>(cutoffType)) << SHIFT_TYPE;
-            data |= static_cast<uint64_t>(static_cast<uint8_t>(age)) << SHIFT_AGE;
-            return data;
-        }
-
-        void save(uint64_t key, uint64_t packedData) {
-            data.store(packedData, std::memory_order_relaxed);
-            checksum.store(key ^ packedData, std::memory_order_relaxed);
-        }
+        static uint64_t pack(Move bestMove, int16_t depth, int16_t score, CutoffType cutoffType, unsigned short age);
+        void save(int i, uint64_t checksumIn, uint64_t packedData);
 
         /**
+         * 0 -> recency based. 1-3 -> depth based.
+         * Each entry:
          * [6 bits empty] [16 bits move] [16 bits depth] [16 bits score] [2 bits cutoff type] [8 bits age]
          */
-        std::atomic<uint64_t> data;
-        std::atomic<uint64_t> checksum;
+        std::array<std::atomic<uint64_t>, VALUES> data;
+        std::array<std::atomic<uint64_t>, VALUES> checksum;
 
-        uint64_t getKey() const { return checksum; }
+        uint64_t getKey(const int i) const { return checksum[i]; }
     };
 
-    struct PaddedMutex {
-        alignas(64) std::shared_mutex m;
-    };
-
-    constexpr int tableSizeMb = 128;
+    constexpr int tableSizeMb = 128 * 2;
     constexpr size_t rawEntries = tableSizeMb * 1000000ULL / sizeof(Entry);
     constexpr size_t tableSizeEntries = std::bit_ceil(rawEntries);
     constexpr int16_t quiescence_depth = -1;
 
-    using table = std::vector<Entry>;
-
     class TranspositionTable {
     public:
         TranspositionTable()
-            : depthPreferred(std::make_unique<table>(tableSizeEntries))
-            , alwaysReplace(std::make_unique<table>(tableSizeEntries))
+            : table(std::vector<Entry>(tableSizeEntries))
         {}
 
         bool lookup(uint64_t key, uint64_t& entry_out) const;
@@ -108,8 +90,7 @@ namespace Transposition {
                     unsigned char age);
 
     private:
-        std::unique_ptr<table> depthPreferred;
-        std::unique_ptr<table> alwaysReplace;
+        std::vector<Entry> table;
         int ageOverride = 4;
     };
 }
