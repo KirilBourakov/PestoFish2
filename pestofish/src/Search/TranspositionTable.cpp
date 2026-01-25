@@ -24,7 +24,6 @@ void Transposition::Entry::save(const int i, const uint64_t checksumIn, const ui
     checksum[i].store(checksumIn, std::memory_order_relaxed);
 }
 
-// Write vector into large pages (look into prefetching)
 // Fix searching issues - re examine psedo code in chess programming, have gemeni generate also and reason about differences
 // Explore finding better magics.
 bool Transposition::TranspositionTable::lookup(const uint64_t key, uint64_t& entry_out) const {
