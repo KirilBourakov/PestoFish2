@@ -82,7 +82,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
     });
 
 
-    // depth 1 (CONSIDER REMOVING?)
+    // depth 1
     constexpr int color = 0, depth = 1, ply = 0;
     const SearchLimits search = {color, depth, -INF, INF, ply, deadline};
     int scoreOut = 0;
@@ -97,9 +97,13 @@ Move Engine::getBestMove(const SearchRequest& request) {
         return this->iterativeDeepening(currState, mvs, orderingInfo, rng, nnue, infinite, maxDepth, deadline, expected); // TODO: give diff alpha/beta?
     });
 
-    out = iterativeDeepening(
+    Move candidate = iterativeDeepening(
         state, possibleMoves, orderInfo, rootRng, mainNnue, infinite, maxDepth, deadline, expected
     );
+    // Make sure we've done a full search at least once before overwriting
+    if (candidate.getMoveEncoding() != Moves::INVALID_MOVE) {
+        out = candidate;
+    }
 
     // clean up threads
     stop.store(true, std::memory_order_seq_cst);
@@ -123,7 +127,7 @@ Move Engine::iterativeDeepening(
     constexpr int window = 40;
 
     Move out;
-    for (int depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
+    for (int depth = 2; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
         int alpha = expectedCenter - window;
         int beta = expectedCenter + window;
         while (true) {
@@ -160,17 +164,30 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
     Move bestMove;
     int bestEval = -INF;
     search.color = currState.getActiveColor() == Color::White ? 1 : -1;
-    for (Move move : rootMoves) {
+
+    for (int i = 0; i < rootMoves.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
             break;
         }
         // TODO: move PVS here. Move whole function up to iterative deepening step
+        Move move = rootMoves[i];
+        int newDepth = search.depth - 1;
+        int currValue;
         currState.makeMove(move, &nnue);
-        int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
+        if (i == 0) {
+            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng, nnue);
+        } else {
+            // principle variation search
+            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng, nnue);
+            if (currValue > search.alpha && currValue < search.beta) {
+                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
+            }
+        }
         currState.undoMove(&nnue);
-        if (eval > bestEval) {
-            bestEval = eval;
+
+        if (currValue > bestEval) {
+            bestEval = currValue;
             bestMove = move;
         }
         search.alpha = std::max(search.alpha, bestEval);
@@ -182,6 +199,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
             break;
         }
     }
+
     scoreOut = bestEval;
     return bestMove;
 }

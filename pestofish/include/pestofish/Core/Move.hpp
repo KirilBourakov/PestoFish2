@@ -47,10 +47,13 @@ namespace Moves {
     const uint16_t PROMO_B_CAP = 13 << 12;
     const uint16_t PROMO_R_CAP = 14 << 12;
     const uint16_t PROMO_Q_CAP = 15 << 12;
+
+    constexpr uint16_t INVALID_MOVE = 0;
 }
 
 struct Move {
-    constexpr Move() : moveEncoding(0) {};
+    constexpr Move() : moveEncoding(Moves::INVALID_MOVE) {};
+    constexpr Move(const uint16_t val) : moveEncoding(val) {};
 
     [[nodiscard]] constexpr std::optional<BoardPosition> getNewEnPassantSquare() const {
         if ((moveEncoding & Moves::FLAG_MASK) == Moves::DOUBLE_PUSH) {
@@ -143,8 +146,6 @@ struct Move {
     constexpr uint16_t getMoveEncoding() {
         return moveEncoding;
     }
-
-    constexpr Move(const uint16_t val) : moveEncoding(val) {};
 
 private:
     uint16_t moveEncoding;
