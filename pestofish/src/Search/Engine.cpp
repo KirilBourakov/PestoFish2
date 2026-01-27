@@ -82,62 +82,76 @@ Move Engine::getBestMove(const SearchRequest& request) {
     });
 
 
-    Move out;
-    int expected, scoreOut, depth;
+    // depth 1
+    constexpr int color = 0, depth = 1, ply = 0;
+    const SearchLimits search = {color, depth, -INF, INF, ply, deadline};
+    int scoreOut = 0;
+    Move out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut, mainNnue);
+    int expected = scoreOut;
+
+    // launch deepening
     lazySmpThreads.sync(state, possibleMoves, mainNnue);
-    for (depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
-        //std::cout << static_cast<int>(steadyClock::now() < deadline) << std::endl;
-        if (depth == 1) {
-            SearchLimits search = {0, depth, -INF, INF, 0, deadline};
-            out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut, mainNnue);
-            expected = scoreOut;
-        } else {
-            constexpr int window = 40;
-            int alpha = expected - window;
-            int beta = expected + window;
-            while (true) {
-                if (steadyClock::now() >= deadline) {
-                    stop.store(true, std::memory_order_relaxed);
-                    break;
+    lazySmpThreads.enqueue(
+    [this, infinite, maxDepth, deadline, expected](State& currState, const std::vector<Move>& mvs, OrderingInfo& orderingInfo,
+           RngInfo& rng, Nnue& nnue) {
+        return this->iterativeDeepening(currState, mvs, orderingInfo, rng, nnue, infinite, maxDepth, deadline, expected); // TODO: give diff alpha/beta?
+    });
+
+    out = iterativeDeepening(
+        state, possibleMoves, orderInfo, rootRng, mainNnue, infinite, maxDepth, deadline, expected
+    );
+
+    // clean up threads
+    stop.store(true, std::memory_order_seq_cst);
+    lazySmpThreads.clearQueue();
+    lazySmpThreads.waitForIdle();
+    stop.store(false, std::memory_order_seq_cst);
+
+    return out;
+}
+
+// TODO: add different stuff to threads
+Move Engine::iterativeDeepening(
+    State& currState,
+    const std::vector<Move>& moves,
+    OrderingInfo& orderingInfo,
+    RngInfo& rng,
+    Nnue& nnue,
+    bool infinite, int maxDepth, std::chrono::time_point<steadyClock> deadline,
+    int expectedCenter
+) {
+    constexpr int window = 40;
+
+    Move out;
+    for (int depth = 1; infinite || ((depth <= maxDepth || maxDepth == -1) && (steadyClock::now() < deadline)); depth++) {
+        int alpha = expectedCenter - window;
+        int beta = expectedCenter + window;
+        while (true) {
+            if (steadyClock::now() >= deadline) {
+                stop.store(true, std::memory_order_relaxed);
+                break;
+            }
+
+            SearchLimits search = {0, depth, alpha, beta, 0, deadline};
+            int newScore;
+            const Move candidate = root(currState, moves, search, orderingInfo, rng, newScore, nnue);
+
+            if (newScore <= alpha) { // fail low
+                alpha = -INF;
+            } else if (newScore >= beta) { // fail high
+                if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
+                    out = candidate;
                 }
-
-                SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-                lazySmpThreads.enqueue(
-                    [this](State& currState, const std::vector<Move>& mvs, const SearchLimits &searchRef, OrderingInfo& orderingInfo,
-                           RngInfo& rng, int& scoreOut, Nnue& nnue) {
-                        return this->root(currState, mvs, searchRef, orderingInfo, rng, scoreOut, nnue); // TODO: give diff alpha/beta?
-                    },
-                    search);
-
-                int newScore;
-                Move candidate = root(state, possibleMoves, search, orderInfo, rootRng, newScore, mainNnue);
-
-                stop.store(true, std::memory_order_seq_cst);
-                lazySmpThreads.clearQueue();
-                lazySmpThreads.waitForIdle();
-                stop.store(false, std::memory_order_seq_cst);
-
-                if (newScore <= alpha) { // fail low
-                    alpha = -INF;
-                } else if (newScore >= beta) { // fail high
-                    if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
-                        out = candidate;
-                    }
-                    beta = INF;
-                } else {
-                    if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
-                        out = candidate;
-                        expected = newScore;
-                    }
-                    break;
+                beta = INF;
+            } else {
+                if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
+                    out = candidate;
+                    expectedCenter = newScore;
                 }
+                break;
             }
         }
-       // std::cout << "Best Move " << out << std::endl;
     }
-    // std::cout << "Depth searched " << depth << "Score: " << scoreOut << std::endl;
-    //std::cout << "-----------" << std::endl;
-
     return out;
 }
 

@@ -4,6 +4,7 @@
 
 #pragma once
 #include <algorithm>
+#include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <queue>
@@ -11,7 +12,7 @@
 #include "EngineOptions.hpp"
 #include "pestofish/Core/State.hpp"
 
-using RootFunc = std::function<Move(State&, const std::vector<Move>&, SearchLimits, OrderingInfo&, RngInfo&, int&, Nnue&)>;
+using RootFunc = std::function<Move(State&, const std::vector<Move>&, OrderingInfo&, RngInfo&, Nnue&)>;
 
 class LazySmpThreads {
 public:
@@ -31,7 +32,6 @@ public:
                 State threadCopy;
                 RootFunc task;
                 std::vector<Move> movesCopy;
-                SearchLimits limitsCopy;
                 while (true) {
                     {
                         std::unique_lock<std::mutex> lock(taskMutex);
@@ -49,11 +49,9 @@ public:
                         busy_count++;
                         threadCopy = state;
                         movesCopy = moves;
-                        limitsCopy = limits;
                     }
 
-                    int out;
-                    task(threadCopy, movesCopy, limitsCopy, orderInfo.at(i), rngInfo.at(i), out, nnues.at(i));
+                    task(threadCopy, movesCopy, orderInfo.at(i), rngInfo.at(i), nnues.at(i));
 
                     {
                         std::lock_guard<std::mutex> lock(taskMutex);
@@ -82,9 +80,8 @@ public:
     /**
      * Gives each thread a new search task
      */
-    void enqueue(RootFunc task, const SearchLimits& limitsIn) {
+    void enqueue(RootFunc task) {
         std::unique_lock<std::mutex> lock(taskMutex);
-        limits = limitsIn;
         for (int i = 0; i < nthreads; ++i) {
             {
                 tasks.emplace(i == nthreads - 1 ? std::move(task) : task);

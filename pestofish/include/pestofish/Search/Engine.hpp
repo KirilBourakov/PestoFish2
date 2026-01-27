@@ -52,6 +52,10 @@ private:
 
     Nnue mainNnue = {};
 
+    Move iterativeDeepening(
+        State& currState, const std::vector<Move>& moves, OrderingInfo& orderingInfo,
+        RngInfo& rng, Nnue& nnue, bool infinite, int maxDepth, std::chrono::time_point<steadyClock> deadline, int expectedCenter
+    );
     Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
               int& scoreOut, Nnue& nnue);
     int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue);
