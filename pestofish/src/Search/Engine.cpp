@@ -82,7 +82,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
     });
 
 
-    // depth 1
+    // depth 1 (CONSIDER REMOVING?)
     constexpr int color = 0, depth = 1, ply = 0;
     const SearchLimits search = {color, depth, -INF, INF, ply, deadline};
     int scoreOut = 0;
@@ -165,7 +165,7 @@ Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLi
             stop.store(true, std::memory_order_relaxed);
             break;
         }
-
+        // TODO: move PVS here. Move whole function up to iterative deepening step
         currState.makeMove(move, &nnue);
         int eval = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
         currState.undoMove(&nnue);
