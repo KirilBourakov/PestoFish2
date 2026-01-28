@@ -113,6 +113,10 @@ struct Move {
         return moveEncoding;
     }
 
+    [[nodiscard]] constexpr bool isValid() const {
+        return moveEncoding != Moves::INVALID_MOVE;
+    }
+
     static constexpr Move standardMove(BoardPosition start, BoardPosition end) {
         return {static_cast<uint16_t>(start.asInt() | end.asInt() << 6)};
     }

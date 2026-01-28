@@ -1,9 +1,5 @@
 Engine Cleanup todo:
-- Merge negamax and root
-  - Pass ply (or depth from root).
-  - Move Generation: If ply == 0, use the pre-sorted rootMoves. If ply > 0, generate moves from the state.
-  - Return: Standardize on returning the score. For the root node (ply == 0), update an out-parameter Move* rootBestMove or a class member bestRootMove whenever a new best score is found.
-  - TT Cutoffs: Skip "return exact score" TT cutoffs at the root (ply == 0) to ensure the search completes and returns a valid move, or handle it carefully to extract the move from the TT.
+- Template for searchMoves? (also, rename)
 - MovePicker Class
   - Replaces std::sort
 - Improve search config encapsulation 

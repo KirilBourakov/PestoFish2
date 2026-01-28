@@ -56,9 +56,9 @@ private:
         State& currState, const std::vector<Move>& moves, OrderingInfo& orderingInfo,
         RngInfo& rng, Nnue& nnue, bool infinite, int maxDepth, std::chrono::time_point<steadyClock> deadline, int expectedCenter
     );
-    Move root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
-              int& scoreOut, Nnue& nnue);
-    int negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue);
+    std::pair<Move, int> searchMoves(
+        State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue
+    );
     int quiescence(State& currState, SearchLimits search, Nnue& nnue);
 
     static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,

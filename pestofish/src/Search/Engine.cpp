@@ -71,23 +71,13 @@ Move Engine::getBestMove(const SearchRequest& request) {
 
     // Order
     int stateSeed = 1;
-    uint64_t entry_out = 0;
-    bool found = transPosTable.lookup(state.getZobrist(), entry_out);
-    OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
-
     RngInfo rootRng = RngInfo::fromSeed(stateSeed);
-    std::ranges::sort(possibleMoves, [this, &ttMove](const Move& a, const Move& b) {
-        return get_move_score(a, std::nullopt, std::nullopt, this->state, ttMove, this->orderInfo.history, 0) >
-               get_move_score(b, std::nullopt, std::nullopt, this->state, ttMove, this->orderInfo.history, 0);
-    });
-
 
     // depth 1
-    constexpr int color = 0, depth = 1, ply = 0;
+    const int color = state.getActiveColor() == Color::White ? 1 : -1;
+    constexpr int depth = 1, ply = 0;
     const SearchLimits search = {color, depth, -INF, INF, ply, deadline};
-    int scoreOut = 0;
-    Move out = root(state, possibleMoves, search, orderInfo, rootRng, scoreOut, mainNnue);
-    int expected = scoreOut;
+    auto [out, expected] = searchMoves(state, possibleMoves, search, orderInfo, rootRng, mainNnue);
 
     // launch deepening
     lazySmpThreads.sync(state, possibleMoves, mainNnue);
@@ -97,11 +87,11 @@ Move Engine::getBestMove(const SearchRequest& request) {
         return this->iterativeDeepening(currState, mvs, orderingInfo, rng, nnue, infinite, maxDepth, deadline, expected); // TODO: give diff alpha/beta?
     });
 
-    Move candidate = iterativeDeepening(
+    const Move candidate = iterativeDeepening(
         state, possibleMoves, orderInfo, rootRng, mainNnue, infinite, maxDepth, deadline, expected
     );
     // Make sure we've done a full search at least once before overwriting
-    if (candidate.getMoveEncoding() != Moves::INVALID_MOVE) {
+    if (candidate.isValid()) {
         out = candidate;
     }
 
@@ -136,21 +126,21 @@ Move Engine::iterativeDeepening(
                 break;
             }
 
-            SearchLimits search = {0, depth, alpha, beta, 0, deadline};
-            int newScore;
-            const Move candidate = root(currState, moves, search, orderingInfo, rng, newScore, nnue);
+            int color = currState.getActiveColor() == Color::White ? 1 : -1;
+            SearchLimits search = {color, depth, alpha, beta, 0, deadline};
+            auto candidate = searchMoves(currState, moves, search, orderingInfo, rng, nnue);
 
-            if (newScore <= alpha) { // fail low
+            if (candidate.second <= alpha) { // fail low
                 alpha = -INF;
-            } else if (newScore >= beta) { // fail high
+            } else if (candidate.second >= beta) { // fail high
                 if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
-                    out = candidate;
+                    out = candidate.first;
                 }
                 beta = INF;
             } else {
                 if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
-                    out = candidate;
-                    expectedCenter = newScore;
+                    out = candidate.first;
+                    expectedCenter = candidate.second;
                 }
                 break;
             }
@@ -159,92 +149,61 @@ Move Engine::iterativeDeepening(
     return out;
 }
 
-Move Engine::root(State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng,
-                  int& scoreOut, Nnue& nnue) {
-    Move bestMove;
-    int bestEval = -INF;
-    search.color = currState.getActiveColor() == Color::White ? 1 : -1;
-
-    for (int i = 0; i < rootMoves.size(); ++i) {
-        if (steadyClock::now() >= search.deadline) {
-            stop.store(true, std::memory_order_relaxed);
-            break;
-        }
-        // TODO: move PVS here. Move whole function up to iterative deepening step
-        Move move = rootMoves[i];
-        int newDepth = search.depth - 1;
-        int currValue;
-        currState.makeMove(move, &nnue);
-        if (i == 0) {
-            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng, nnue);
-        } else {
-            // principle variation search
-            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng, nnue);
-            if (currValue > search.alpha && currValue < search.beta) {
-                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
-            }
-        }
-        currState.undoMove(&nnue);
-
-        if (currValue > bestEval) {
-            bestEval = currValue;
-            bestMove = move;
-        }
-        search.alpha = std::max(search.alpha, bestEval);
-        if (search.alpha >= search.beta) {
-            break;
-        }
-
-        if (endSearch()) {
-            break;
-        }
-    }
-
-    scoreOut = bestEval;
-    return bestMove;
-}
-
-int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue) {
+std::pair<Move, int> Engine::searchMoves(
+    State& currState,
+    const std::vector<Move>& rootMoves,
+    SearchLimits search,
+    OrderingInfo& orderingInfo,
+    RngInfo& rng,
+    Nnue& nnue
+) {
     int alphaOrig = search.alpha;
-
     uint64_t entry_out = 0;
-    bool found = transPosTable.lookup(currState.getZobrist(), entry_out);
-    if (found) {
+    const bool found = transPosTable.lookup(currState.getZobrist(), entry_out);
+    if (found  && search.ply > 0) {
         if (Transposition::ttEntryDepth(entry_out) >= search.depth) {
             Transposition::CutoffType type = Transposition::ttEntryCutType(entry_out);
             int16_t score = Transposition::ttEntryScore(entry_out);
+            Move mv{Transposition::ttEntryMove(entry_out)};
             if (type == Transposition::CutoffType::EXACT) {
-                return score;
+                return {mv, score};
             }
             if (type == Transposition::CutoffType::LOWER_BOUND && score >= search.beta) {
-                return score;
+                return {mv, score};
             }
             if (type == Transposition::CutoffType::UPPER_BOUND && score <= search.alpha) {
-                return score;
+                return {mv, score};
             }
         }
     }
 
-    std::vector<Move> possibleMoves = currState.getMoves();
+    std::vector<Move> possibleMoves;
+    if (search.ply == 0) {
+        possibleMoves = rootMoves;
+    } else {
+        possibleMoves = currState.getMoves();
+    }
+
+
     GameState currGameState = currState.getGameState(possibleMoves);
     if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
-        return 0;
+        return {{}, 0};
     }
     if (currGameState == GameState::WHITE_WIN) {
-        return search.color * (+MATE_SCORE-search.ply);
+        return {{}, search.color * (+MATE_SCORE-search.ply)};
     }
     if (currGameState == GameState::BLACK_WIN) {
-        return search.color * (-MATE_SCORE+search.ply);
+        return {{}, search.color * (-MATE_SCORE+search.ply)};
     }
 
     // --- Check we should stop ---
     if (endSearch()) {
-        return search.color * nnue.eval(currState.getActiveColor());
+        return {{}, search.color * nnue.eval(currState.getActiveColor())};
     }
 
     if (search.depth == 0) {
         search.depth = 15;
-        return quiescence(currState, search, nnue);
+        return {{}, quiescence(currState, search, nnue)};
     }
 
     OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
@@ -259,8 +218,8 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     }
     std::ranges::sort(scored, [](auto& a, auto& b){ return a.second > b.second; });
 
-    int bestValue = -INF;
-    std::optional<Move> bestMove = std::nullopt;
+
+    std::pair<Move,int> bestResult =  {{}, -INF};
     for (int i = 0; i < scored.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
@@ -269,32 +228,34 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
 
         Move& move = scored[i].first;
         currState.makeMove(move, &nnue);
-        int currValue;
 
         // LMR
         int newDepth = search.depth - 1;
-
         bool isQuiet = (currState.getAt(move.getEnd()) == Pieces::EMPTY) && !move.getEnPassantCapture();
         bool isPromotion = move.getPromotedTo().has_value(); // TODO: add check as exception also
         if (search.depth >= 3 && i > 2 && isQuiet && !isPromotion) {
             newDepth = search.depth - lmrTable(search.depth, i);
         }
 
+        std::pair<Move,int> currResult;
         if (i == 0) {
-            currValue = -negamax(currState, search.nextLimit(newDepth), orderingInfo, rng, nnue);
+            currResult = searchMoves(currState, rootMoves, search.nextLimit(newDepth), orderingInfo, rng, nnue);
+            currResult.second = -currResult.second;
         } else {
             // principle variation search
-            currValue = -negamax(currState, search.nextPVS(newDepth), orderingInfo, rng, nnue);
-            if (currValue > search.alpha && currValue < search.beta) {
-                currValue = -negamax(currState, search.nextLimit(), orderingInfo, rng, nnue);
+            currResult = searchMoves(currState, rootMoves, search.nextPVS(newDepth), orderingInfo, rng, nnue);
+            currResult.second = -currResult.second;
+            if (currResult.second > search.alpha && currResult.second < search.beta) {
+                currResult = searchMoves(currState, rootMoves, search.nextLimit(), orderingInfo, rng, nnue);
+                currResult.second = -currResult.second;
             }
         }
         currState.undoMove(&nnue);
-        if (currValue > bestValue) {
-            bestValue = currValue;
-            bestMove = move;
+        if (currResult.second > bestResult.second) {
+            bestResult.second = currResult.second;
+            bestResult.first = move;
         }
-        search.alpha = std::max(search.alpha, bestValue);
+        search.alpha = std::max(search.alpha, bestResult.second);
         if (search.alpha >= search.beta) {
             if (!move.getEnPassantCapture() && currState.getAt(move.getEnd()) == Pieces::EMPTY) {
                 orderingInfo.killer.insert(search.ply, move);
@@ -309,18 +270,18 @@ int Engine::negamax(State& currState, SearchLimits search, OrderingInfo& orderin
     }
 
     Transposition::CutoffType cutoffType;
-    if (bestValue <= alphaOrig) {
+    if (bestResult.second <= alphaOrig) {
         cutoffType = Transposition::CutoffType::UPPER_BOUND;
-    } else if (bestValue >= search.beta) {
+    } else if (bestResult.second >= search.beta) {
         cutoffType = Transposition::CutoffType::LOWER_BOUND;
     } else {
         cutoffType = Transposition::CutoffType::EXACT;
     }
 
-    if (bestMove.has_value() && !endSearch()) {
-        transPosTable.insert(currState.getZobrist(), bestMove.value(), search.depth, bestValue, cutoffType, currState.getFullMoveClock());
+    if (bestResult.first.isValid() && !endSearch()) {
+        transPosTable.insert(currState.getZobrist(), bestResult.first, search.depth, bestResult.second, cutoffType, currState.getFullMoveClock());
     }
-    return bestValue;
+    return bestResult;
 }
 
 int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
@@ -354,6 +315,9 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
     std::vector<Move> possibleMoves;
     if (currState.activeColorInCheck()) {
         possibleMoves = currState.getMoves();
+        if (possibleMoves.empty()) {
+            return -MATE_SCORE + search.ply;
+        }
     } else {
         possibleMoves =  currState.getQuiescenceMoves();
     }
