@@ -59,6 +59,7 @@ private:
     std::pair<Move, int> searchMoves(
         State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue
     );
+    int calculateLMRDepth(const State& currState, const Move& move, int i, int depth) const;
     int quiescence(State& currState, SearchLimits search, Nnue& nnue);
 
     static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
