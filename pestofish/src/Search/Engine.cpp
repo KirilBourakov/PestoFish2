@@ -231,12 +231,7 @@ std::pair<Move, int> Engine::searchMoves(
         currState.makeMove(move, &nnue);
 
         // LMR
-        int newDepth = search.depth - 1;
-        bool isQuiet = (currState.getAt(move.getEnd()) == Pieces::EMPTY) && !move.getEnPassantCapture();
-        bool isPromotion = move.getPromotedTo().has_value(); // TODO: add check as exception also
-        if (search.depth >= 3 && i > 2 && isQuiet && !isPromotion) {
-            newDepth = search.depth - lmrTable(search.depth, i);
-        }
+        const int newDepth = calculateLMRDepth(currState, move, i, search.depth);
 
         std::pair<Move,int> currResult;
         if (i == 0) {
@@ -283,6 +278,16 @@ std::pair<Move, int> Engine::searchMoves(
         transPosTable.insert(currState.getZobrist(), bestResult.first, search.depth, bestResult.second, cutoffType, currState.getFullMoveClock());
     }
     return bestResult;
+}
+
+int Engine::calculateLMRDepth(const State& currState, const Move& move, const int i, const int depth) const {
+    int newDepth = depth - 1;
+    const bool isQuiet = (currState.getAt(move.getEnd()) == Pieces::EMPTY) && !move.getEnPassantCapture();
+    const bool isPromotion = move.getPromotedTo().has_value(); // TODO: add check as exception also
+    if (depth >= 3 && i > 2 && isQuiet && !isPromotion) {
+        newDepth = depth - lmrTable(depth, i);
+    }
+    return newDepth;
 }
 
 int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
