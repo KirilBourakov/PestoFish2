@@ -177,14 +177,9 @@ std::pair<Move, int> Engine::searchMoves(
             }
         }
     }
+    OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
 
-    std::vector<Move> possibleMoves;
-    if (search.ply == 0) {
-        possibleMoves = rootMoves;
-    } else {
-        possibleMoves = currState.getMoves();
-    }
-
+    std::vector<Move> possibleMoves = search.ply == 0 ? rootMoves : currState.getMoves();
 
     GameState currGameState = currState.getGameState(possibleMoves);
     if (currGameState == GameState::DRAW || currGameState == GameState::STALEMATE) {
@@ -206,8 +201,6 @@ std::pair<Move, int> Engine::searchMoves(
         search.depth = 15;
         return {{}, quiescence(currState, search, nnue)};
     }
-
-    OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
 
     SortedMoves sorted{
         possibleMoves,
