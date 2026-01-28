@@ -8,6 +8,7 @@
 
 #include "pestofish/Eval/Evaluator.hpp"
 #include "pestofish/Core/Move.hpp"
+#include "pestofish/Search/SortedMoves.hpp"
 
 void Engine::makeEngineMove() {
     state.makeMove(getBestMove(), &mainNnue);
@@ -207,26 +208,26 @@ std::pair<Move, int> Engine::searchMoves(
     }
 
     OptionalMove ttMove = found ? std::make_optional(Transposition::ttEntryMove(entry_out)) : std::nullopt;
-    std::vector<std::pair<Move,int>> scored;
-    scored.reserve(possibleMoves.size());
-    for (auto& m : possibleMoves) {
-        const int dsync = rng.random();
-        scored.emplace_back(m, get_move_score(
-            m, orderingInfo.killer.getFirst(search.ply), orderingInfo.killer.getSecond(search.ply),
-            currState, ttMove, orderingInfo.history, dsync
-        ));
-    }
-    std::ranges::sort(scored, [](auto& a, auto& b){ return a.second > b.second; });
+
+    SortedMoves sorted{
+        possibleMoves,
+        orderingInfo.killer.getFirst(search.ply),
+        orderingInfo.killer.getSecond(search.ply),
+        currState,
+        ttMove,
+        orderingInfo.history,
+        rng
+    };
 
 
     std::pair<Move,int> bestResult =  {{}, -INF};
-    for (int i = 0; i < scored.size(); ++i) {
+    for (int i = 0; i < sorted.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
             break;
         }
 
-        Move& move = scored[i].first;
+        Move& move = sorted.next();
         currState.makeMove(move, &nnue);
 
         // LMR
@@ -371,30 +372,4 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
     }
 
     return bestValue;
-}
-
-int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
-                           const OptionalMove& tt_move, HistoryTable& history, int dsync) {
-    if (tt_move.has_value() && move == tt_move.value()) {
-        return 1000000 + dsync;
-    }
-    if ((killer1.has_value() && move == killer1.value()) || (killer2.has_value() && move == killer2.value())) {
-        return 900000 + dsync;
-    }
-
-    // Cheap way to move promotions up above non promotions
-    if (move.getPromotedTo().has_value()) {
-        const int promoteValue = orderingValue[static_cast<int>(Pieces::piece_type(move.getPromotedTo().value()))];
-        dsync += promoteValue;
-    }
-
-    if (currState.getAt(move.getEnd()) != Pieces::EMPTY) {
-        const int victim_value = orderingValue[static_cast<int>(Pieces::piece_type(currState.getAt(move.getEnd())))];
-        const int attacker_value = orderingValue[static_cast<int>(Pieces::piece_type(currState.getAt(move.getStart())))];
-        return 500000 + victim_value * 10 - attacker_value + dsync;
-    }
-    if (move.getEnPassantCapture()) {
-        return 500000 + dsync;
-    }
-    return history[move] + dsync;
 }

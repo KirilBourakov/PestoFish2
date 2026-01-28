@@ -61,9 +61,6 @@ private:
     );
     int quiescence(State& currState, SearchLimits search, Nnue& nnue);
 
-    static int get_move_score(const Move& move, const OptionalMove& killer1, const OptionalMove& killer2, const State& currState,
-                              const OptionalMove& tt_move, HistoryTable& history, int dsync);
-
     [[nodiscard]] bool endSearch() const {
         return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst) ||
                forceStop.load(std::memory_order_seq_cst);
@@ -76,8 +73,4 @@ private:
     }
 
     void handleRequest(const SearchRequest& request, int& timelimit, int& maxDepth, bool& infinite, std::chrono::time_point<steadyClock> &deadline, std::vector<Move>& possibleMoves);
-};
-
-const int orderingValue[] = {
-    0, 100, 300, 325, 500, 900, 1300
 };

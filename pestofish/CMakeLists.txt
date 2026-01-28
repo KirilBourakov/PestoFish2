@@ -12,6 +12,7 @@ set(ENGINE_SOURCES
     src/Eval/Nnue.cpp
     src/Search/Engine.cpp
     src/Search/TranspositionTable.cpp
+    src/Search/SortedMoves.cpp
     src/Interface/UCI.cpp
 )
 
@@ -38,6 +39,7 @@ set(ENGINE_HEADERS
     include/pestofish/Search/TranspositionTable.hpp
     include/pestofish/Search/LazySmpThreads.hpp
     include/pestofish/Search/EngineOptions.hpp
+    include/pestofish/Search/SortedMoves.hpp
 
     include/pestofish/Interface/UCI.hpp
 )
