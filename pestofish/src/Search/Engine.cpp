@@ -10,6 +10,33 @@
 #include "pestofish/Core/Move.hpp"
 #include "pestofish/Search/SortedMoves.hpp"
 
+namespace {
+    Transposition::CutoffType getCutoffType(int score, int alpha, int beta) {
+        if (score <= alpha) {
+            return Transposition::CutoffType::UPPER_BOUND;
+        }
+        if (score >= beta) {
+            return Transposition::CutoffType::LOWER_BOUND;
+        }
+        return Transposition::CutoffType::EXACT;
+    }
+
+    std::optional<int> getTTCutoffScore(uint64_t entry, int alpha, int beta) {
+        Transposition::CutoffType type = Transposition::ttEntryCutType(entry);
+        int16_t score = Transposition::ttEntryScore(entry);
+        if (type == Transposition::CutoffType::EXACT) {
+            return score;
+        }
+        if (type == Transposition::CutoffType::LOWER_BOUND && score >= beta) {
+            return score;
+        }
+        if (type == Transposition::CutoffType::UPPER_BOUND && score <= alpha) {
+            return score;
+        }
+        return std::nullopt;
+    }
+}
+
 void Engine::makeEngineMove() {
     state.makeMove(getBestMove(), &mainNnue);
 }
@@ -163,17 +190,8 @@ std::pair<Move, int> Engine::searchMoves(
     const bool found = transPosTable.lookup(currState.getZobrist(), entry_out);
     if (found  && search.ply > 0) {
         if (Transposition::ttEntryDepth(entry_out) >= search.depth) {
-            Transposition::CutoffType type = Transposition::ttEntryCutType(entry_out);
-            int16_t score = Transposition::ttEntryScore(entry_out);
-            Move mv{Transposition::ttEntryMove(entry_out)};
-            if (type == Transposition::CutoffType::EXACT) {
-                return {mv, score};
-            }
-            if (type == Transposition::CutoffType::LOWER_BOUND && score >= search.beta) {
-                return {mv, score};
-            }
-            if (type == Transposition::CutoffType::UPPER_BOUND && score <= search.alpha) {
-                return {mv, score};
+            if (auto score = getTTCutoffScore(entry_out, search.alpha, search.beta); score.has_value()) {
+                 return {Move{Transposition::ttEntryMove(entry_out)}, score.value()};
             }
         }
     }
@@ -258,14 +276,7 @@ std::pair<Move, int> Engine::searchMoves(
         }
     }
 
-    Transposition::CutoffType cutoffType;
-    if (bestResult.second <= alphaOrig) {
-        cutoffType = Transposition::CutoffType::UPPER_BOUND;
-    } else if (bestResult.second >= search.beta) {
-        cutoffType = Transposition::CutoffType::LOWER_BOUND;
-    } else {
-        cutoffType = Transposition::CutoffType::EXACT;
-    }
+    Transposition::CutoffType cutoffType = getCutoffType(bestResult.second, alphaOrig, search.beta);
 
     if (bestResult.first.isValid() && !endSearch()) {
         transPosTable.insert(currState.getZobrist(), bestResult.first, search.depth, bestResult.second, cutoffType, currState.getFullMoveClock());
@@ -298,16 +309,8 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
     }
 
     if (uint64_t entry_out; transPosTable.lookup(currState.getZobrist(), entry_out)) {
-        Transposition::CutoffType type = Transposition::ttEntryCutType(entry_out);
-        int16_t score = Transposition::ttEntryScore(entry_out);
-        if (type == Transposition::CutoffType::EXACT) {
-            return score;
-        }
-        if (type == Transposition::CutoffType::LOWER_BOUND && score >= search.beta) {
-            return score;
-        }
-        if (type == Transposition::CutoffType::UPPER_BOUND && score <= search.alpha) {
-            return score;
+        if (auto score = getTTCutoffScore(entry_out, search.alpha, search.beta); score.has_value()) {
+            return score.value();
         }
     }
 
@@ -349,14 +352,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         }
     }
 
-    Transposition::CutoffType cutoffType;
-    if (bestValue <= alphaOrig) {
-        cutoffType = Transposition::CutoffType::UPPER_BOUND;
-    } else if (bestValue >= search.beta) {
-        cutoffType = Transposition::CutoffType::LOWER_BOUND;
-    } else {
-        cutoffType = Transposition::CutoffType::EXACT;
-    }
+    Transposition::CutoffType cutoffType = getCutoffType(bestValue, alphaOrig, search.beta);
 
     if (bestMove.has_value() && !endSearch()) {
         transPosTable.insert(
