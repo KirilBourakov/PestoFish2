@@ -384,13 +384,13 @@ int Engine::get_move_score(const Move& move, const OptionalMove& killer1, const 
 
     // Cheap way to move promotions up above non promotions
     if (move.getPromotedTo().has_value()) {
-        const int promoteValue = orderingValue.at(Pieces::piece_type(move.getPromotedTo().value()));
+        const int promoteValue = orderingValue[static_cast<int>(Pieces::piece_type(move.getPromotedTo().value()))];
         dsync += promoteValue;
     }
 
     if (currState.getAt(move.getEnd()) != Pieces::EMPTY) {
-        const int victim_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.getEnd())));
-        const int attacker_value = orderingValue.at(Pieces::piece_type(currState.getAt(move.getStart())));
+        const int victim_value = orderingValue[static_cast<int>(Pieces::piece_type(currState.getAt(move.getEnd())))];
+        const int attacker_value = orderingValue[static_cast<int>(Pieces::piece_type(currState.getAt(move.getStart())))];
         return 500000 + victim_value * 10 - attacker_value + dsync;
     }
     if (move.getEnPassantCapture()) {

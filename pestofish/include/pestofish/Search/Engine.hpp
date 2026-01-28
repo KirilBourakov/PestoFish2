@@ -78,7 +78,6 @@ private:
     void handleRequest(const SearchRequest& request, int& timelimit, int& maxDepth, bool& infinite, std::chrono::time_point<steadyClock> &deadline, std::vector<Move>& possibleMoves);
 };
 
-const std::unordered_map<PieceType, int> orderingValue{
-    {PieceType::Pawn, 100}, {PieceType::Knight, 300}, {PieceType::Bishop, 325},
-    {PieceType::Rook, 500}, {PieceType::Queen, 900},  {PieceType::King, 1300},
+const int orderingValue[] = {
+    0, 100, 300, 325, 500, 900, 1300
 };
