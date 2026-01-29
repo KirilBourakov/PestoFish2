@@ -1,10 +1,6 @@
 Engine Cleanup todo:
-- Template for searchMoves? (also, rename)
-- MovePicker Class
-  - Replaces std::sort
 - Improve search config encapsulation 
 - Centralize constants
-- Move LMR into helper
 - Create should stop method
 - Switch to one stop flag
 - Move to dedicated search management?
