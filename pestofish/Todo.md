@@ -8,6 +8,7 @@ Engine Cleanup todo:
   - Stagger Deepending
   - Changes in pruning
   - Changes in root level ordering
+- Move ordering in quasiance
 
 5. Look into search issues.
 2. Explore finding better magics.

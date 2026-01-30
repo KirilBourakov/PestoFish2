@@ -217,7 +217,6 @@ std::pair<Move, int> Engine::searchMoves(
     }
 
     if (search.depth == 0) {
-        search.depth = 15;
         return {{}, quiescence(currState, search, nnue)};
     }
 
@@ -243,7 +242,12 @@ std::pair<Move, int> Engine::searchMoves(
         currState.makeMove(move, &nnue);
 
         // LMR
-        const int newDepth = calculateLMRDepth(currState, move, i, search.depth);
+        int newDepth = calculateLMRDepth(currState, move, i, search.depth);
+
+        // check extension
+        if (currState.activeColorInCheck()) {
+            newDepth++;
+        }
 
         std::pair<Move,int> currResult;
         if (i == 0) {
@@ -296,10 +300,10 @@ int Engine::calculateLMRDepth(const State& currState, const Move& move, const in
 }
 
 int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
-    int staticEval = search.color * nnue.eval(currState.getActiveColor()); // - eval means position good for black, else good for white
+    int staticEval = search.color * nnue.eval(currState.getActiveColor());
 
     int bestValue = staticEval;
-    if (search.depth == 0 || endSearch()) {
+    if (endSearch()) {
         return bestValue;
     }
     if (bestValue >= search.beta) {

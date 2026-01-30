@@ -24,6 +24,7 @@ Pestofish2 is an open source chess engine written in C++. It is a significant im
     - LazySMP for efficent multithreading
     - Principle Variation Search (PVS) 
     - Late Move Reductions
+    - Check Extensions
 *   **Advanced Evluation**:
     - Efficently Updateable Neural Network (NNUE) with 768 weight accumulator and a 640 weight hidden layer.
 *   **Efficent Move Ordering**:
