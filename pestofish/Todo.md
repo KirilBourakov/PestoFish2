@@ -10,6 +10,7 @@ Engine Cleanup todo:
   - Changes in root level ordering
 - Move ordering in quasiance
 - Find what's causing illegal moves
+- Replace RNG info with dysinc stuff
 
 5. Look into search issues.
 2. Explore finding better magics.
