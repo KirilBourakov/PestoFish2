@@ -9,6 +9,7 @@ Engine Cleanup todo:
   - Changes in pruning
   - Changes in root level ordering
 - Move ordering in quasiance
+- Find what's causing illegal moves
 
 5. Look into search issues.
 2. Explore finding better magics.
