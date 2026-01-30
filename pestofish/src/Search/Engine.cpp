@@ -234,6 +234,10 @@ std::pair<Move, int> Engine::searchMoves(
     std::pair<Move,int> bestResult =  {{}, -INF};
     for (int i = 0; i < sorted.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
+            // ensure we at least return a valid result if we have no time to search
+            if (!bestResult.first.isValid()) {
+                bestResult = {sorted.next(), -INF};
+            }
             stop.store(true, std::memory_order_relaxed);
             break;
         }
