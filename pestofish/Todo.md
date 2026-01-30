@@ -3,7 +3,11 @@ Engine Cleanup todo:
 - Centralize constants
 - Create should stop method
 - Switch to one stop flag
-- Move to dedicated search management?
+- Dysnc stuff
+  - Vary Aspiration Windows
+  - Stagger Deepending
+  - Changes in pruning
+  - Changes in root level ordering
 
 5. Look into search issues.
 2. Explore finding better magics.
