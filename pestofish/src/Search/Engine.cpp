@@ -115,8 +115,9 @@ Move Engine::getBestMove(const SearchRequest& request) {
         return this->iterativeDeepening(currState, mvs, orderingInfo, rng, nnue, infinite, maxDepth, deadline, expected); // TODO: give diff alpha/beta?
     });
 
+    State stateCpy = state.makeThreadCopy();
     const Move candidate = iterativeDeepening(
-        state, possibleMoves, orderInfo, rootRng, mainNnue, infinite, maxDepth, deadline, expected
+        stateCpy, possibleMoves, orderInfo, rootRng, mainNnue, infinite, maxDepth, deadline, expected
     );
     // Make sure we've done a full search at least once before overwriting
     if (candidate.isValid()) {

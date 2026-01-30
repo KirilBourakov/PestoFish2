@@ -29,9 +29,7 @@ public:
 
         for (int i = 0; i < num_threads; ++i) {
             threads.emplace_back([this, i] {
-                State threadCopy;
                 RootFunc task;
-                std::vector<Move> movesCopy;
                 while (true) {
                     {
                         std::unique_lock<std::mutex> lock(taskMutex);
@@ -47,10 +45,13 @@ public:
                         task = std::move(tasks.front());
                         tasks.pop();
                         busy_count++;
-                        threadCopy = state;
-                        movesCopy = moves;
                     }
 
+                    if (state == nullptr) {
+                        throw std::runtime_error("LazySmpThreads state pointer is null.");
+                    }
+                    State threadCopy = state->makeThreadCopy();
+                    std::vector<Move> movesCopy = moves;
                     task(threadCopy, movesCopy, orderInfo.at(i), rngInfo.at(i), nnues.at(i));
 
                     {
@@ -70,7 +71,7 @@ public:
      */
     void sync(const State& currState, const std::vector<Move> &currMoves, const Nnue& nnue) {
         std::unique_lock<std::mutex> lock(taskMutex);
-        state = currState.makeThreadCopy();
+        state = &currState;
         moves = currMoves;
         for (const auto & i : nnues) {
             i.syncAccumulator(nnue);
@@ -134,7 +135,7 @@ private:
     std::vector<Nnue> nnues;
     SearchLimits limits{};
 
-    State state;
+    const State* state = nullptr;
     std::vector<Move> moves;
 
     std::mutex taskMutex;
