@@ -79,3 +79,15 @@ TEST(TestEngine, queenMate1) {
     ));
 }
 
+TEST(TestEngine, testTimeoutReturnsValidMove) {
+    Engine engine{};
+    engine.setState(fenToState("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"));
+    engine.updatedMainNnue();
+
+    SearchRequest req;
+    req.movetime = 0; // 0ms timeout
+    const Move best = engine.getBestMove(req);
+
+    ASSERT_TRUE(best.isValid()) << "Engine returned an invalid move on 0ms timeout";
+}
+
