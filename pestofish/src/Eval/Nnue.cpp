@@ -4,7 +4,7 @@
 
 #include "pestofish/Eval/Nnue.hpp"
 
-int Nnue::setBoard(const Board &board, const Color activeColor) const {
+void Nnue::setBoard(const Board &board, const Color activeColor) const {
     for (int i = 0; i < Weights::HIDDEN_LAYER_SIZE; i++) {
         (*whiteAccumulator)[i] = getWeights()->accumulator_biases[i];
         (*blackAccumulator)[i] = getWeights()->accumulator_biases[i];
@@ -18,8 +18,6 @@ int Nnue::setBoard(const Board &board, const Color activeColor) const {
             }
         }
     }
-
-    return eval(activeColor);
 }
 
 void Nnue::move(const Move& mv, const Pieces::Piece startContent, const Pieces::Piece endContent) {
@@ -99,7 +97,7 @@ void Nnue::remove(const int square, const Pieces::Piece piece) const {
     }
 }
 
-int Nnue::eval(const Color activeColor) const {
+int Nnue::eval(const Color activeColor, int max) const {
     const auto& first = activeColor == Color::White ? whiteAccumulator : blackAccumulator;
     const auto& second = activeColor == Color::White ? blackAccumulator : whiteAccumulator;
 
@@ -114,7 +112,8 @@ int Nnue::eval(const Color activeColor) const {
 
     int output = sum / Weights::QA;
     output += getWeights()->output_bias;
-    const int scaled = (output * Weights::SCALE) / (Weights::QA * Weights::QB);
+    int scaled = (output * Weights::SCALE) / (Weights::QA * Weights::QB);
+    scaled = std::min(max, scaled);
     return activeColor == Color::White ? scaled : -scaled;
 }
 

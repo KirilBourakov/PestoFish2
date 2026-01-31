@@ -4,8 +4,6 @@
 
 #include <benchmark/benchmark.h>
 #include "../include/pestofish/Search/Engine.hpp"
-#include "../include/pestofish/Eval/Evaluator.hpp"
-#include "pestofish/Core/Move.hpp"
 #include "Preft.hpp"
 #include "pestofish/Core/parse.hpp"
 #include "pestofish/Core/State.hpp"

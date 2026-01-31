@@ -6,11 +6,35 @@
 #include <algorithm>
 #include <execution>
 
-#include "pestofish/Eval/Evaluator.hpp"
 #include "pestofish/Core/Move.hpp"
 #include "pestofish/Search/SortedMoves.hpp"
 
 namespace {
+    constexpr int INF = 32000;
+    constexpr int MATE_SCORE = 31000;
+    constexpr int MATE_THRESHOLD = 30000;
+    constexpr int NON_MATE_MAX = MATE_THRESHOLD - 1;
+
+    int scoreToTT(const int score, const int ply) {
+        if (score >= MATE_THRESHOLD) {
+            return score + ply;
+        }
+        if (score <= -MATE_THRESHOLD) {
+            return score - ply;
+        }
+        return score;
+    }
+
+    int scoreFromTT(const int score, const int ply) {
+        if (score >= MATE_THRESHOLD) {
+            return score - ply;
+        }
+        if (score <= -MATE_THRESHOLD) {
+            return score + ply;
+        }
+        return score;
+    }
+
     Transposition::CutoffType getCutoffType(int score, int alpha, int beta) {
         if (score <= alpha) {
             return Transposition::CutoffType::UPPER_BOUND;
@@ -21,9 +45,11 @@ namespace {
         return Transposition::CutoffType::EXACT;
     }
 
-    std::optional<int> getTTCutoffScore(uint64_t entry, int alpha, int beta) {
+    std::optional<int> getTTCutoffScore(uint64_t entry, int alpha, int beta, int ply) {
         Transposition::CutoffType type = Transposition::ttEntryCutType(entry);
-        int16_t score = Transposition::ttEntryScore(entry);
+        int16_t rawScore = Transposition::ttEntryScore(entry);
+        int score = scoreFromTT(rawScore, ply);
+
         if (type == Transposition::CutoffType::EXACT) {
             return score;
         }
@@ -195,7 +221,7 @@ std::pair<Move, int> Engine::searchMoves(
     const bool found = transPosTable.lookup(currState.getZobrist(), entry_out);
     if (found  && search.ply > 0) {
         if (Transposition::ttEntryDepth(entry_out) >= search.depth) {
-            if (auto score = getTTCutoffScore(entry_out, search.alpha, search.beta); score.has_value()) {
+            if (auto score = getTTCutoffScore(entry_out, search.alpha, search.beta, search.ply); score.has_value()) {
                  return {Move{Transposition::ttEntryMove(entry_out)}, score.value()};
             }
         }
@@ -217,7 +243,7 @@ std::pair<Move, int> Engine::searchMoves(
 
     // --- Check we should stop ---
     if (endSearch()) {
-        return {{}, search.color * nnue.eval(currState.getActiveColor())};
+        return {{}, search.color * nnue.eval(currState.getActiveColor(), NON_MATE_MAX)};
     }
 
     if (search.depth == 0) {
@@ -266,7 +292,11 @@ std::pair<Move, int> Engine::searchMoves(
             currResult = searchMoves(currState, rootMoves, search.nextPVS(newDepth), orderingInfo, rng, nnue);
             currResult.second = -currResult.second;
             if (currResult.second > search.alpha && currResult.second < search.beta) {
-                currResult = searchMoves(currState, rootMoves, search.nextLimit(), orderingInfo, rng, nnue);
+                int reSearchDepth = search.depth - 1;
+                if (currState.activeColorInCheck()) {
+                    reSearchDepth++;
+                }
+                currResult = searchMoves(currState, rootMoves, search.nextLimit(reSearchDepth), orderingInfo, rng, nnue);
                 currResult.second = -currResult.second;
             }
         }
@@ -292,7 +322,7 @@ std::pair<Move, int> Engine::searchMoves(
     Transposition::CutoffType cutoffType = getCutoffType(bestResult.second, alphaOrig, search.beta);
 
     if (bestResult.first.isValid() && !endSearch()) {
-        transPosTable.insert(currState.getZobrist(), bestResult.first, search.depth, bestResult.second, cutoffType, currState.getFullMoveClock());
+        transPosTable.insert(currState.getZobrist(), bestResult.first, search.depth, scoreToTT(bestResult.second, search.ply), cutoffType, currState.getFullMoveClock());
     }
     return bestResult;
 }
@@ -308,7 +338,7 @@ int Engine::calculateLMRDepth(const State& currState, const Move& move, const in
 }
 
 int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
-    int staticEval = search.color * nnue.eval(currState.getActiveColor());
+    int staticEval = search.color * nnue.eval(currState.getActiveColor(), NON_MATE_MAX);
 
     int bestValue = staticEval;
     if (endSearch()) {
@@ -322,7 +352,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
     }
 
     if (uint64_t entry_out; transPosTable.lookup(currState.getZobrist(), entry_out)) {
-        if (auto score = getTTCutoffScore(entry_out, search.alpha, search.beta); score.has_value()) {
+        if (auto score = getTTCutoffScore(entry_out, search.alpha, search.beta, search.ply); score.has_value()) {
             return score.value();
         }
     }
@@ -372,7 +402,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
             currState.getZobrist(),
             bestMove.value(),
             Transposition::quiescence_depth,
-            bestValue,
+            scoreToTT(bestValue, search.ply),
             cutoffType,
             currState.getFullMoveClock()
         );

@@ -8,7 +8,6 @@ set(ENGINE_SOURCES
     src/Core/ZobristHash.cpp
     src/Core/Board/ArrayBoard.cpp
     src/Core/Board/BitBoard.cpp
-    src/Eval/Evaluator.cpp
     src/Eval/Nnue.cpp
     src/Search/Engine.cpp
     src/Search/TranspositionTable.cpp
@@ -27,8 +26,7 @@ set(ENGINE_HEADERS
     include/pestofish/Core/Board/Board.hpp
     include/pestofish/Core/Board/BitBoard.hpp
     include/pestofish/Core/Board/ArrayBoard.hpp
-    
-    include/pestofish/Eval/Evaluator.hpp
+
     include/pestofish/Eval/Nnue.hpp
     include/pestofish/Eval/Resources/buffer.hpp
     include/pestofish/Eval/Resources/bishop.h

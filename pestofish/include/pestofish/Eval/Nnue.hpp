@@ -70,7 +70,7 @@ public:
         std::memcpy(blackAccumulator->data(), source.blackAccumulator->data(), bytesToCopy);
     }
 
-    int setBoard(const Board &board, Color activeColor) const;
+    void setBoard(const Board &board, Color activeColor) const;
     void move(const Move& mv, Pieces::Piece startContent, Pieces::Piece endContent);
     void undoMove(const Move& mv, Pieces::Piece movedPiece, Pieces::Piece overwrittenPiece, Color activeColor);
 
@@ -82,7 +82,7 @@ public:
         return remove(calcSquare(pos), piece);
     }
 
-    [[nodiscard]] int eval(Color activeColor) const;
+    [[nodiscard]] int eval(Color activeColor, int max) const;
     static int calculateIndex(Color perspective, int square, Pieces::Piece piece);
 
 private:
