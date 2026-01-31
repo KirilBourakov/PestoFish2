@@ -159,6 +159,10 @@ Move Engine::iterativeDeepening(
             SearchLimits search = {color, depth, alpha, beta, 0, deadline};
             auto candidate = searchMoves(currState, moves, search, orderingInfo, rng, nnue);
 
+            if (endSearch()) {
+                break;
+            }
+
             if (candidate.second <= alpha) { // fail low
                 alpha = -INF;
             } else if (candidate.second >= beta) { // fail high
@@ -235,8 +239,8 @@ std::pair<Move, int> Engine::searchMoves(
     for (int i = 0; i < sorted.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             // ensure we at least return a valid result if we have no time to search
-            if (!bestResult.first.isValid()) {
-                bestResult = {sorted.next(), -INF};
+            if (!bestResult.first.isValid() && search.ply == 0) {
+                bestResult = {sorted.next(), search.alpha};
             }
             stop.store(true, std::memory_order_relaxed);
             break;

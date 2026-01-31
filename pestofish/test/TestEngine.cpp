@@ -91,3 +91,27 @@ TEST(TestEngine, testTimeoutReturnsValidMove) {
     ASSERT_TRUE(best.isValid()) << "Engine returned an invalid move on 0ms timeout";
 }
 
+TEST(TestEngine, testTimeoutReturnsValidMoveComplex) {
+    Engine engine{};
+    engine.setState(fenToState("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"));
+    engine.updatedMainNnue();
+
+    SearchRequest req;
+    req.movetime = 0;
+    const Move best = engine.getBestMove(req);
+
+    ASSERT_TRUE(best.isValid()) << "Engine returned an invalid move on 0ms timeout in complex position";
+}
+
+TEST(TestEngine, testShortTimeoutReturnsValidMove) {
+    Engine engine{};
+    engine.setState(fenToState("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"));
+    engine.updatedMainNnue();
+
+    SearchRequest req;
+    req.movetime = 1;
+    const Move best = engine.getBestMove(req);
+
+    ASSERT_TRUE(best.isValid()) << "Engine returned an invalid move on 1ms timeout";
+}
+
