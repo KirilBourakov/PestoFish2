@@ -14,10 +14,12 @@
 
 #include "pestofish/Search/LazySmpThreads.hpp"
 
+constexpr int ENGINE_DEFAULT_THREAD_COUNT = 4;
+constexpr int ENGINE_DEFAULT_SEED = 13214;
 class Engine {
 public:
     Engine()
-        : lazySmpThreads(4, 13214, orderInfo) {}
+        : lazySmpThreads(ENGINE_DEFAULT_THREAD_COUNT, ENGINE_DEFAULT_SEED, orderInfo) {}
     Engine(const int threads, const int seed)
         : lazySmpThreads(threads, seed, orderInfo) {}
 
