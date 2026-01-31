@@ -69,10 +69,14 @@ public:
     /**
      * Updates State and Moves used by Lazy SMP Threads
      */
-    void sync(const State& currState, const std::vector<Move> &currMoves, const Nnue& nnue) {
+    void sync(const State& currState, const std::vector<Move> &currMoves) {
         std::unique_lock<std::mutex> lock(taskMutex);
         state = &currState;
         moves = currMoves;
+    }
+
+    void syncAccumulator(const Nnue& nnue) {
+        std::unique_lock<std::mutex> lock(taskMutex);
         for (const auto & i : nnues) {
             i.syncAccumulator(nnue);
         }

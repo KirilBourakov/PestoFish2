@@ -134,7 +134,7 @@ Move Engine::getBestMove(const SearchRequest& request) {
     auto [out, expected] = searchMoves(state, possibleMoves, search, orderInfo, rootRng, mainNnue);
 
     // launch deepening
-    lazySmpThreads.sync(state, possibleMoves, mainNnue);
+    lazySmpThreads.sync(state, possibleMoves);
     lazySmpThreads.enqueue(
     [this, infinite, maxDepth, deadline, expected](State& currState, const std::vector<Move>& mvs, OrderingInfo& orderingInfo,
            RngInfo& rng, Nnue& nnue) {

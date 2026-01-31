@@ -34,6 +34,7 @@ public:
     };
     void updatedMainNnue() {
         mainNnue.setBoard(state.getBoard(), state.getActiveColor());
+        lazySmpThreads.syncAccumulator(mainNnue);
     }
     void stopSearch() {
         forceStop.store(true, std::memory_order_seq_cst);
