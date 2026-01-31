@@ -151,10 +151,10 @@ Move Engine::getBestMove(const SearchRequest& request) {
     }
 
     // clean up threads
-    stop.store(true, std::memory_order_seq_cst);
+    stopFlag.store(true, std::memory_order_seq_cst);
     lazySmpThreads.clearQueue();
     lazySmpThreads.waitForIdle();
-    stop.store(false, std::memory_order_seq_cst);
+    stopFlag.store(false, std::memory_order_seq_cst);
 
     return out;
 }
@@ -176,8 +176,7 @@ Move Engine::iterativeDeepening(
         int alpha = expectedCenter - window;
         int beta = expectedCenter + window;
         while (true) {
-            if (steadyClock::now() >= deadline) {
-                stop.store(true, std::memory_order_relaxed);
+            if (stopSearch(deadline)) {
                 break;
             }
 
@@ -192,12 +191,12 @@ Move Engine::iterativeDeepening(
             if (candidate.second <= alpha) { // fail low
                 alpha = -INF;
             } else if (candidate.second >= beta) { // fail high
-                if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
+                if (!endSearch()) {
                     out = candidate.first;
                 }
                 beta = INF;
             } else {
-                if (!timeOut.load(std::memory_order_seq_cst) && !forceStop.load(std::memory_order_seq_cst)) {
+                if (!endSearch()) {
                     out = candidate.first;
                     expectedCenter = candidate.second;
                 }
@@ -263,12 +262,11 @@ std::pair<Move, int> Engine::searchMoves(
 
     std::pair<Move,int> bestResult =  {{}, -INF};
     for (int i = 0; i < sorted.size(); ++i) {
-        if (steadyClock::now() >= search.deadline) {
+        if (stopSearch(search.deadline)) {
             // ensure we at least return a valid result if we have no time to search
             if (!bestResult.first.isValid() && search.ply == 0) {
                 bestResult = {sorted.next(), search.alpha};
             }
-            stop.store(true, std::memory_order_relaxed);
             break;
         }
 
@@ -380,8 +378,7 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue, Orderi
     int alphaOrig = search.alpha;
     std::optional<Move> bestMove = std::nullopt;
     for (int i = 0; i < moves.size(); ++i) {
-        if (steadyClock::now() >= search.deadline) {
-            stop.store(true, std::memory_order_relaxed);
+        if (stopSearch(search.deadline)) {
             break;
         }
 

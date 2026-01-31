@@ -37,7 +37,7 @@ public:
         lazySmpThreads.syncAccumulator(mainNnue);
     }
     void stopSearch() {
-        forceStop.store(true, std::memory_order_seq_cst);
+        stopFlag.store(true, std::memory_order_seq_cst);
     }
 
 private:
@@ -47,9 +47,7 @@ private:
     const LMRLookUp lmrTable{};
 
     LazySmpThreads lazySmpThreads;
-    std::atomic<bool> stop = false; // stop used by main thread to tell smp to stop
-    std::atomic<bool> timeOut = false; // we ran out of time
-    std::atomic<bool> forceStop = false; // UCI told us to stop
+    std::atomic<bool> stopFlag = false;
 
     Nnue mainNnue = {};
 
@@ -64,14 +62,19 @@ private:
     int quiescence(State& currState, SearchLimits search, Nnue& nnue, OrderingInfo& orderingInfo, RngInfo& rng);
 
     [[nodiscard]] bool endSearch() const {
-        return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst) ||
-               forceStop.load(std::memory_order_seq_cst);
+        return stopFlag.load(std::memory_order_relaxed);
+    }
+
+    bool stopSearch(const steadyClock::time_point deadline) {
+        if (steadyClock::now() >= deadline) {
+            stopFlag.store(true, std::memory_order_relaxed);
+            return true;
+        }
+        return false;
     }
 
     void clearBoolFlags() {
-        stop.store(false, std::memory_order_seq_cst);
-        timeOut.store(false, std::memory_order_seq_cst);
-        forceStop.store(false, std::memory_order_seq_cst);
+        stopFlag.store(false, std::memory_order_seq_cst);
     }
 
     void handleRequest(const SearchRequest& request, int& timelimit, int& maxDepth, bool& infinite, std::chrono::time_point<steadyClock> &deadline, std::vector<Move>& possibleMoves);
