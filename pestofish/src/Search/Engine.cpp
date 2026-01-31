@@ -247,7 +247,7 @@ std::pair<Move, int> Engine::searchMoves(
     }
 
     if (search.depth == 0) {
-        return {{}, quiescence(currState, search, nnue)};
+        return {{}, quiescence(currState, search, nnue, orderingInfo, rng)};
     }
 
     SortedMoves sorted{
@@ -337,7 +337,7 @@ int Engine::calculateLMRDepth(const State& currState, const Move& move, const in
     return newDepth;
 }
 
-int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
+int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue, OrderingInfo& orderingInfo, RngInfo& rng) {
     int staticEval = search.color * nnue.eval(currState.getActiveColor(), NON_MATE_MAX);
 
     int bestValue = staticEval;
@@ -367,16 +367,27 @@ int Engine::quiescence(State& currState, SearchLimits search, Nnue& nnue) {
         possibleMoves =  currState.getQuiescenceMoves();
     }
 
+    SortedMoves moves{
+        possibleMoves,
+        orderingInfo.killer.getFirst(search.ply),
+        orderingInfo.killer.getSecond(search.ply),
+        currState,
+        std::nullopt,
+        orderingInfo.history,
+        rng
+    };
+
     int alphaOrig = search.alpha;
     std::optional<Move> bestMove = std::nullopt;
-    for (auto& move : possibleMoves) {
+    for (int i = 0; i < moves.size(); ++i) {
         if (steadyClock::now() >= search.deadline) {
             stop.store(true, std::memory_order_relaxed);
             break;
         }
 
+        Move move = moves.next();
         currState.makeMove(move, &nnue);
-        const int score = -quiescence(currState, search.nextLimit(), nnue);
+        const int score = -quiescence(currState, search.nextLimit(), nnue, orderingInfo, rng);
         currState.undoMove(&nnue);
 
         if (score >= search.beta) {

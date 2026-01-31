@@ -61,7 +61,7 @@ private:
         State& currState, const std::vector<Move>& rootMoves, SearchLimits search, OrderingInfo& orderingInfo, RngInfo& rng, Nnue& nnue
     );
     int calculateLMRDepth(const State& currState, const Move& move, int i, int depth) const;
-    int quiescence(State& currState, SearchLimits search, Nnue& nnue);
+    int quiescence(State& currState, SearchLimits search, Nnue& nnue, OrderingInfo& orderingInfo, RngInfo& rng);
 
     [[nodiscard]] bool endSearch() const {
         return stop.load(std::memory_order_seq_cst) || timeOut.load(std::memory_order_seq_cst) ||
