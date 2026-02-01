@@ -76,24 +76,6 @@ The engine core is located in the `pestofish` directory. To build it:
 
 2. Run the ``test.bat`` script.
 
-## Usage Instructions (Frontend)
-
-The project includes a Python-based GUI located in the `frontend` directory.
-
-1.  Navigate to the project root directory.
-
-2.  Install the required Python dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  Place a compiled version of pestofish into the engine directory.
-
-4.  Run the frontend:
-    ```bash
-    python frontend/main.py
-    ```
-
 ## Attribution
 *   [lczero Opening Books](https://github.com/jhorthos/lczero-training/wiki/Opening-Books) - Used for evaluating new versions of pestofish.
 *   [Leorik (v3.1)](https://github.com/lithander/Leorik) - NNUE weights used by the engine.
