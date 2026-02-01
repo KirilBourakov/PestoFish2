@@ -40,7 +40,6 @@ Pestofish2 is an open source chess engine written in C++. It is a significant im
 ## Project Structure
 
 *   **`pestofish`**: The C++ source code for the chess engine.
-*   **`frontend`**: A Python-based GUI (using PyQt6) to play against the engine.
 *   **`evaluate`**: Scripts used to compare and evaluate different versions of the engine.
 
 # Quickstart
@@ -49,7 +48,6 @@ Pestofish2 is an open source chess engine written in C++. It is a significant im
 
 *   **C++ Compiler**: C++20 compliant compiler (GCC, Clang, MSVC).
 *   **CMake**: Version 3.27 or higher.
-*   **Python**: Version 3.10 or higher (for the frontend).
 
 ## Build Instructions (Engine)
 
