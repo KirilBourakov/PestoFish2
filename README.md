@@ -1,7 +1,7 @@
 Pestofish2
 ==============
 <p align="center">
-  <img src="frontend/assets/pesto.png" alt="Pestofish2 Logo">
+  <img src="pesto.png" alt="Pestofish2 Logo">
 </p>
 
 Pestofish2 is an open source chess engine written in C++. It is a significant improvement over the original [PestoFish](https://github.com/KirilBourakov/Pestofish), written as part of a first year final project.
